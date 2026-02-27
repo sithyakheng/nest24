@@ -10,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Nest24 - Cambodia's Premium Marketplace",
-  description: "Cambodia's Premium Marketplace for quality products and services",
+  title: "NestKH - Premium Lifestyle Marketplace",
+  description: "Curated products. Modern living. Trusted quality in Cambodia.",
 };
 
 export default function RootLayout({

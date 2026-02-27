@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, useScroll, useInView, useSpring } from 'framer-motion'
-import { Search, ShoppingBag, Store, Package, ArrowRight } from 'lucide-react'
+import { Search, ShoppingCart, Home as HomeIcon, Laptop, Shirt, ShoppingBag, ArrowRight, Package, Clock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 interface Product {
@@ -42,14 +42,10 @@ export default function Home() {
   }
 
   const categories = [
-    { name: 'Art & Crafts', icon: '🎨', color: 'bg-purple-100 text-purple-600' },
-    { name: 'Books', icon: '📚', color: 'bg-blue-100 text-blue-600' },
-    { name: 'Electronics', icon: '💻', color: 'bg-gray-100 text-gray-600' },
-    { name: 'Fashion', icon: '👗', color: 'bg-pink-100 text-pink-600' },
-    { name: 'Food & Beverages', icon: '🍔', color: 'bg-orange-100 text-orange-600' },
-    { name: 'Home & Living', icon: '🏠', color: 'bg-green-100 text-green-600' },
-    { name: 'Sports', icon: '⚽', color: 'bg-red-100 text-red-600' },
-    { name: 'Vehicles', icon: '🚗', color: 'bg-indigo-100 text-indigo-600' }
+    { name: 'Home Living', icon: HomeIcon, color: 'bg-blue-100 text-blue-600' },
+    { name: 'Tech Essentials', icon: Laptop, color: 'bg-purple-100 text-purple-600' },
+    { name: 'Fashion', icon: Shirt, color: 'bg-pink-100 text-pink-600' },
+    { name: 'Accessories', icon: ShoppingBag, color: 'bg-green-100 text-green-600' }
   ]
 
   const containerVariants = {
@@ -63,12 +59,12 @@ export default function Home() {
   }
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 100,
         damping: 10
       }
@@ -76,19 +72,20 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       {/* Progress Bar */}
       <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-green-600 z-50 origin-left"
+        className="fixed top-0 left-0 right-0 h-1 bg-[#004E64] z-50 origin-left"
         style={{ scaleX }}
       />
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Animated Background Gradient */}
+        {/* Animated Background */}
         <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#004E64]/20 via-transparent to-[#E0E5E9]/20"></div>
           <motion.div
-            className="absolute top-20 left-20 w-96 h-96 bg-green-400 rounded-full mix-blend-multiply filter blur-xl opacity-20"
+            className="absolute top-20 left-20 w-96 h-96 bg-[#004E64] rounded-full mix-blend-multiply filter blur-3xl opacity-10"
             animate={{
               x: [0, 100, 0],
               y: [0, -100, 0],
@@ -100,7 +97,7 @@ export default function Home() {
             }}
           />
           <motion.div
-            className="absolute top-40 right-20 w-96 h-96 bg-green-300 rounded-full mix-blend-multiply filter blur-xl opacity-20"
+            className="absolute bottom-20 right-20 w-96 h-96 bg-[#E0E5E9] rounded-full mix-blend-multiply filter blur-3xl opacity-20"
             animate={{
               x: [0, -100, 0],
               y: [0, 100, 0],
@@ -113,74 +110,97 @@ export default function Home() {
           />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 tracking-tight">
-              Cambodia's
-              <span className="block text-green-600">Premium Marketplace</span>
-            </h1>
-            <motion.p
-              className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+                Build Your
+                <span className="block text-[#004E64]">Perfect Nest</span>
+              </h1>
+              <motion.p
+                className="text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+              >
+                Curated products. Modern living. Trusted quality in Cambodia.
+              </motion.p>
+
+              {/* CTA Buttons */}
+              <motion.div
+                className="flex flex-col sm:flex-row gap-4"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+              >
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="glass px-8 py-4 rounded-2xl text-[#004E64] hover:bg-[#004E64] hover:text-white smooth-transition font-semibold text-lg flex items-center justify-center space-x-2 glow-hover"
+                >
+                  <span>Explore Collection</span>
+                  <ArrowRight className="w-5 h-5" />
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="glass px-8 py-4 rounded-2xl text-[#004E64] hover:bg-[#004E64] hover:text-white smooth-transition font-semibold text-lg flex items-center justify-center space-x-2 glow-hover"
+                >
+                  <span>View Deals</span>
+                  <Clock className="w-5 h-5" />
+                </motion.button>
+              </motion.div>
+            </motion.div>
+
+            {/* Right Content - Floating Products */}
+            <motion.div
+              className="relative"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
             >
-              Discover unique products from verified sellers across Cambodia
-            </motion.p>
-          </motion.div>
+              <div className="relative">
+                {/* Floating Product Cards */}
+                <motion.div
+                  className="absolute top-0 left-0 w-64 h-64 glass rounded-3xl p-6 floating"
+                  style={{ animationDelay: '0s' }}
+                >
+                  <div className="w-full h-32 bg-gradient-to-br from-[#E0E5E9] to-[#004E64]/20 rounded-2xl mb-4"></div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Premium Collection</h3>
+                  <p className="text-gray-600 text-sm">Curated items for modern living</p>
+                </motion.div>
 
-          {/* Search Bar */}
-          <motion.div
-            className="max-w-2xl mx-auto mb-12"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-          >
-            <div className="relative">
-              <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6" />
-              <input
-                type="text"
-                placeholder="Search for products, brands, or categories..."
-                className="w-full pl-16 pr-6 py-5 bg-white border border-gray-200 rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 text-lg"
-              />
-            </div>
-          </motion.div>
+                <motion.div
+                  className="absolute top-20 right-0 w-56 h-56 glass rounded-3xl p-6 floating"
+                  style={{ animationDelay: '2s' }}
+                >
+                  <div className="w-full h-28 bg-gradient-to-br from-[#004E64]/20 to-[#E0E5E9] rounded-2xl mb-4"></div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Tech Essentials</h3>
+                  <p className="text-gray-600 text-sm">Latest gadgets & devices</p>
+                </motion.div>
 
-          {/* CTA Buttons */}
-          <motion.div
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-          >
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(34, 197, 94, 0.3)" }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-green-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-xl hover:shadow-green-500/25 transition-all duration-300 flex items-center justify-center space-x-2"
-            >
-              <ShoppingBag className="w-5 h-5" />
-              <span>Start Shopping</span>
-              <ArrowRight className="w-5 h-5" />
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-white text-gray-900 px-8 py-4 rounded-2xl font-semibold text-lg border border-gray-200 shadow-xl hover:shadow-lg transition-all duration-300 flex items-center justify-center space-x-2"
-            >
-              <Store className="w-5 h-5" />
-              <span>Become a Seller</span>
-            </motion.button>
-          </motion.div>
+                <motion.div
+                  className="absolute bottom-0 left-10 w-60 h-60 glass rounded-3xl p-6 floating"
+                  style={{ animationDelay: '4s' }}
+                >
+                  <div className="w-full h-30 bg-gradient-to-br from-[#E0E5E9] to-[#004E64]/10 rounded-2xl mb-4"></div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Home & Living</h3>
+                  <p className="text-gray-600 text-sm">Transform your space</p>
+                </motion.div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Featured Categories */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -188,8 +208,8 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Browse Categories</h2>
-            <p className="text-xl text-gray-600">Explore our diverse product categories</p>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Featured Categories</h2>
+            <p className="text-xl text-gray-600">Explore our curated collections</p>
           </motion.div>
 
           <motion.div
@@ -197,29 +217,33 @@ export default function Home() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
           >
-            {categories.map((category, index) => (
-              <motion.div
-                key={category.name}
-                variants={itemVariants}
-                whileHover={{ scale: 1.05, y: -5 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100"
-              >
-                <div className={`w-16 h-16 ${category.color} rounded-2xl flex items-center justify-center mb-4 mx-auto`}>
-                  <span className="text-3xl">{category.icon}</span>
-                </div>
-                <h3 className="text-center font-semibold text-gray-900 text-lg">{category.name}</h3>
-              </motion.div>
-            ))}
+            {categories.map((category, index) => {
+              const Icon = category.icon
+              return (
+                <motion.div
+                  key={category.name}
+                  variants={itemVariants}
+                  whileHover={{ scale: 1.05, y: -10 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="glass rounded-3xl p-8 cursor-pointer glow-hover smooth-transition"
+                >
+                  <div className={`w-20 h-20 ${category.color} rounded-2xl flex items-center justify-center mb-6 mx-auto`}>
+                    <Icon className="w-10 h-10" />
+                  </div>
+                  <h3 className="text-center font-semibold text-gray-900 text-xl mb-2">{category.name}</h3>
+                  <p className="text-center text-gray-600 text-sm">Discover premium items</p>
+                </motion.div>
+              )
+            })}
           </motion.div>
         </div>
       </section>
 
-      {/* Products Section */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Featured Products */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#E0E5E9]/30 to-transparent">
+        <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -227,13 +251,13 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Latest Products</h2>
-            <p className="text-xl text-gray-600">Discover amazing products from our sellers</p>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Featured Products</h2>
+            <p className="text-xl text-gray-600">Handpicked items for quality living</p>
           </motion.div>
 
           {loading ? (
             <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-2 border-[#004E64] border-t-transparent"></div>
             </div>
           ) : products.length === 0 ? (
             <motion.div
@@ -242,18 +266,11 @@ export default function Home() {
               transition={{ duration: 0.6 }}
               className="text-center py-20"
             >
-              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Package className="w-12 h-12 text-gray-400" />
+              <div className="w-24 h-24 glass rounded-full flex items-center justify-center mx-auto mb-6">
+                <Package className="w-12 h-12 text-[#004E64]" />
               </div>
-              <h3 className="text-2xl font-semibold text-gray-900 mb-2">No products yet</h3>
-              <p className="text-gray-600 text-lg">Be the first to sell!</p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="mt-6 bg-green-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-green-700 transition-colors"
-              >
-                Become a Seller
-              </motion.button>
+              <h3 className="text-2xl font-semibold text-gray-900 mb-2">Coming Soon</h3>
+              <p className="text-gray-600 text-lg">Premium products are on their way</p>
             </motion.div>
           ) : (
             <motion.div
@@ -263,14 +280,14 @@ export default function Home() {
               viewport={{ once: true }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
             >
-              {products.map((product) => (
+              {products.slice(0, 8).map((product) => (
                 <motion.div
                   key={product.id}
                   variants={itemVariants}
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100"
+                  whileHover={{ scale: 1.05, y: -10 }}
+                  className="glass rounded-3xl overflow-hidden glow-hover smooth-transition"
                 >
-                  <div className="h-48 bg-gray-100 flex items-center justify-center">
+                  <div className="h-48 bg-gradient-to-br from-[#E0E5E9] to-[#004E64]/10 flex items-center justify-center">
                     {product.image_url ? (
                       <img
                         src={product.image_url}
@@ -278,22 +295,22 @@ export default function Home() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <Package className="w-12 h-12 text-gray-300" />
+                      <Package className="w-12 h-12 text-[#004E64]/30" />
                     )}
                   </div>
                   <div className="p-6">
                     <h3 className="font-semibold text-gray-900 mb-2 text-lg">{product.name}</h3>
                     <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {product.description || 'No description available'}
+                      {product.description || 'Premium quality item'}
                     </p>
                     <div className="flex justify-between items-center">
-                      <span className="text-green-600 font-bold text-xl">${product.price}</span>
+                      <span className="text-[#004E64] font-bold text-xl">${product.price}</span>
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                        className="glass px-4 py-2 rounded-xl text-[#004E64] hover:bg-[#004E64] hover:text-white smooth-transition text-sm font-medium"
                       >
-                        Add to Cart
+                        <ShoppingCart className="w-4 h-4" />
                       </motion.button>
                     </div>
                   </div>
@@ -304,20 +321,43 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Special Deals Section */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="glass-dark rounded-3xl p-12 text-center text-white glow"
+          >
+            <h2 className="text-4xl font-bold mb-4">Special Deals</h2>
+            <p className="text-xl mb-8 opacity-90">Exclusive offers for premium members</p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="glass px-8 py-4 rounded-2xl text-white hover:bg-white/20 smooth-transition font-semibold text-lg"
+            >
+              View All Deals
+            </motion.button>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="bg-gray-50 border-t border-gray-200 py-12">
+      <footer className="glass py-12 mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="text-3xl font-bold text-green-600 mb-4">Nest24</div>
-            <p className="text-gray-600 mb-4">Cambodia's Premium Marketplace</p>
-            <div className="flex justify-center space-x-6 text-sm text-gray-500">
-              <a href="#" className="hover:text-gray-700 transition-colors">About</a>
-              <a href="#" className="hover:text-gray-700 transition-colors">Contact</a>
-              <a href="#" className="hover:text-gray-700 transition-colors">Terms</a>
-              <a href="#" className="hover:text-gray-700 transition-colors">Privacy</a>
+            <div className="text-3xl font-bold text-[#004E64] mb-4">NESTKH</div>
+            <p className="text-gray-600 mb-6">Premium lifestyle marketplace</p>
+            <div className="flex justify-center space-x-8 text-sm text-gray-500 mb-6">
+              <a href="#" className="hover:text-[#004E64] smooth-transition">About</a>
+              <a href="#" className="hover:text-[#004E64] smooth-transition">Contact</a>
+              <a href="#" className="hover:text-[#004E64] smooth-transition">Terms</a>
+              <a href="#" className="hover:text-[#004E64] smooth-transition">Privacy</a>
             </div>
-            <div className="mt-6 text-sm text-gray-500">
-              © 2024 Nest24. All rights reserved.
+            <div className="text-sm text-gray-500">
+              © 2024 NESTKH. All rights reserved.
             </div>
           </div>
         </div>
