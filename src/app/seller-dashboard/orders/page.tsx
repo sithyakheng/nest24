@@ -2,20 +2,30 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Filter, Package, Truck, CheckCircle, Clock } from 'lucide-react'
+import { Search, Filter, Package, Truck, CheckCircle, Clock, User, Mail } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface Order {
   id: string
-  customer_name: string
-  customer_email: string
-  product_name: string
-  product_price: number
+  buyer_id: string
+  product_id: string
   quantity: number
   total: number
   status: 'pending' | 'shipped' | 'completed'
   created_at: string
+  buyer?: {
+    id: string
+    email: string
+    user_metadata?: {
+      full_name?: string
+    }
+  }
+  product?: {
+    id: string
+    name: string
+    price: number
+  }
 }
 
 export default function Orders() {
@@ -31,43 +41,26 @@ export default function Orders() {
 
   const fetchOrders = async () => {
     try {
-      // Mock data for now - replace with actual Supabase query
-      const mockOrders: Order[] = [
-        {
-          id: '1',
-          customer_name: 'John Doe',
-          customer_email: 'john@example.com',
-          product_name: 'Premium Wireless Headphones',
-          product_price: 89.99,
-          quantity: 1,
-          total: 89.99,
-          status: 'pending',
-          created_at: new Date().toISOString()
-        },
-        {
-          id: '2',
-          customer_name: 'Jane Smith',
-          customer_email: 'jane@example.com',
-          product_name: 'Smart Watch Pro',
-          product_price: 299.99,
-          quantity: 2,
-          total: 599.98,
-          status: 'shipped',
-          created_at: new Date(Date.now() - 86400000).toISOString()
-        },
-        {
-          id: '3',
-          customer_name: 'Bob Johnson',
-          customer_email: 'bob@example.com',
-          product_name: 'Laptop Stand',
-          product_price: 49.99,
-          quantity: 1,
-          total: 49.99,
-          status: 'completed',
-          created_at: new Date(Date.now() - 172800000).toISOString()
-        }
-      ]
-      setOrders(mockOrders)
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          buyer:buyer_id (
+            id,
+            email,
+            user_metadata
+          ),
+          product:product_id (
+            id,
+            name,
+            price
+          )
+        `)
+        .eq('seller_id', user?.id)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setOrders(data || [])
     } catch (error) {
       console.error('Error fetching orders:', error)
     } finally {
@@ -95,9 +88,11 @@ export default function Orders() {
   }
 
   const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.id.includes(searchTerm)
+    const matchesSearch = 
+      (order.buyer?.user_metadata?.full_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (order.buyer?.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (order.product?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      order.id.includes(searchTerm)
     const matchesStatus = !statusFilter || order.status === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -210,6 +205,7 @@ export default function Orders() {
                 <th className="text-left p-4 text-white/80 font-medium">Order ID</th>
                 <th className="text-left p-4 text-white/80 font-medium">Customer</th>
                 <th className="text-left p-4 text-white/80 font-medium">Product</th>
+                <th className="text-left p-4 text-white/80 font-medium">Quantity</th>
                 <th className="text-left p-4 text-white/80 font-medium">Total</th>
                 <th className="text-left p-4 text-white/80 font-medium">Status</th>
                 <th className="text-left p-4 text-white/80 font-medium">Date</th>
@@ -219,7 +215,7 @@ export default function Orders() {
             <tbody>
               {filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center p-12">
+                  <td colSpan={8} className="text-center p-12">
                     <div className="w-20 h-20 glass rounded-full flex items-center justify-center mx-auto mb-4">
                       <Package className="w-10 h-10 text-white/60" />
                     </div>
@@ -242,16 +238,29 @@ export default function Orders() {
                       <span className="text-white font-medium">#{order.id}</span>
                     </td>
                     <td className="p-4">
-                      <div>
-                        <p className="text-white font-medium">{order.customer_name}</p>
-                        <p className="text-white/60 text-sm">{order.customer_email}</p>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 glass rounded-full flex items-center justify-center">
+                          <User className="w-4 h-4 text-white/60" />
+                        </div>
+                        <div>
+                          <p className="text-white font-medium">
+                            {order.buyer?.user_metadata?.full_name || 'Unknown Buyer'}
+                          </p>
+                          <p className="text-white/60 text-sm flex items-center">
+                            <Mail className="w-3 h-3 mr-1" />
+                            {order.buyer?.email || 'No email'}
+                          </p>
+                        </div>
                       </div>
                     </td>
                     <td className="p-4">
                       <div>
-                        <p className="text-white font-medium">{order.product_name}</p>
-                        <p className="text-white/60 text-sm">Qty: {order.quantity}</p>
+                        <p className="text-white font-medium">{order.product?.name || 'Unknown Product'}</p>
+                        <p className="text-white/60 text-sm">${order.product?.price || 0} each</p>
                       </div>
+                    </td>
+                    <td className="p-4">
+                      <span className="text-white/80">{order.quantity}</span>
                     </td>
                     <td className="p-4">
                       <span className="text-[#E0E5E9] font-semibold">${order.total.toFixed(2)}</span>

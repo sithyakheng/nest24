@@ -33,6 +33,7 @@ export default function SellerDashboard() {
     instagram_url: '',
     whatsapp_url: ''
   })
+  const [recentOrders, setRecentOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [savingContact, setSavingContact] = useState(false)
   const [contactSuccess, setContactSuccess] = useState(false)
@@ -65,23 +66,51 @@ export default function SellerDashboard() {
         .select('*', { count: 'exact', head: true })
         .eq('seller_id', user?.id)
 
-      // Fetch orders count and revenue (mock data for now)
-      const { count: ordersCount } = await supabase
+      // Fetch real orders data
+      const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
-        .select('*', { count: 'exact', head: true })
+        .select(`
+          *,
+          buyer:buyer_id (
+            id,
+            email,
+            user_metadata
+          ),
+          product:product_id (
+            id,
+            name,
+            price
+          )
+        `)
         .eq('seller_id', user?.id)
 
-      const { count: pendingCount } = await supabase
-        .from('orders')
-        .select('*', { count: 'exact', head: true })
-        .eq('seller_id', user?.id)
-        .eq('status', 'pending')
+      if (ordersError) throw ordersError
+
+      // Calculate real revenue from orders
+      const totalRevenue = ordersData?.reduce((sum, order) => {
+        return sum + (order.total || 0)
+      }, 0) || 0
+
+      // Count pending orders
+      const pendingCount = ordersData?.filter(order => order.status === 'pending').length || 0
+
+      // Get recent orders (last 3)
+      const recent = ordersData?.slice(0, 3).map(order => ({
+        id: order.id,
+        buyerName: order.buyer?.user_metadata?.full_name || order.buyer?.email || 'Unknown Buyer',
+        productName: order.product?.name || 'Unknown Product',
+        total: order.total || 0,
+        status: order.status || 'pending',
+        date: order.created_at
+      })) || []
+
+      setRecentOrders(recent)
 
       setStats({
         totalProducts: productsCount || 0,
-        totalOrders: ordersCount || 0,
-        revenue: 12580, // Mock revenue data
-        pendingOrders: pendingCount || 0
+        totalOrders: ordersData?.length || 0,
+        revenue: totalRevenue,
+        pendingOrders: pendingCount
       })
     } catch (error) {
       console.error('Error fetching dashboard stats:', error)
@@ -347,17 +376,30 @@ export default function SellerDashboard() {
         >
           <h2 className="text-xl font-semibold text-white mb-4">Recent Orders</h2>
           <div className="space-y-3">
-            {[1, 2, 3].map((order) => (
-              <div key={order} className="flex items-center justify-between p-3 glass rounded-xl">
-                <div>
-                  <p className="text-white font-medium">Order #{1000 + order}</p>
-                  <p className="text-white/60 text-sm">2 items • $89.99</p>
+            {recentOrders.length > 0 ? (
+              recentOrders.map((order) => (
+                <div key={order.id} className="flex items-center justify-between p-3 glass rounded-xl">
+                  <div>
+                    <p className="text-white font-medium">{order.buyerName}</p>
+                    <p className="text-white/60 text-sm">{order.productName} • ${order.total.toFixed(2)}</p>
+                  </div>
+                  <div className={`px-3 py-1 rounded-lg text-sm ${
+                    order.status === 'completed' 
+                      ? 'bg-green-500/20 text-green-400'
+                      : order.status === 'shipped'
+                      ? 'bg-blue-500/20 text-blue-400'
+                      : 'bg-orange-500/20 text-orange-400'
+                  }`}>
+                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                  </div>
                 </div>
-                <div className="px-3 py-1 bg-green-500/20 text-green-400 rounded-lg text-sm">
-                  Completed
-                </div>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-white/60">No orders yet</p>
+                <p className="text-white/40 text-sm mt-1">Orders will appear here when buyers purchase your products</p>
               </div>
-            ))}
+            )}
           </div>
         </motion.div>
 

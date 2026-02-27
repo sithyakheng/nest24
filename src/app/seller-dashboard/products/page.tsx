@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Edit, Trash2, Plus, Search, Filter } from 'lucide-react'
+import { Edit, Trash2, Plus, Search, Filter, Users, ShoppingCart } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -15,6 +15,8 @@ interface Product {
   category: string
   image_url?: string
   created_at: string
+  buyer_count?: number
+  order_count?: number
 }
 
 export default function MyProducts() {
@@ -30,14 +32,36 @@ export default function MyProducts() {
 
   const fetchProducts = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch products with buyer and order counts
+      const { data: productsData, error: productsError } = await supabase
         .from('products')
-        .select('*')
+        .select(`
+          *,
+          orders:orders (
+            id,
+            buyer_id,
+            quantity,
+            status
+          )
+        `)
         .eq('seller_id', user?.id)
         .order('created_at', { ascending: false })
 
-      if (error) throw error
-      setProducts(data || [])
+      if (productsError) throw productsError
+
+      // Process products to add buyer and order counts
+      const processedProducts = productsData?.map(product => {
+        const uniqueBuyers = new Set(product.orders?.map(order => order.buyer_id).filter(Boolean))
+        const completedOrders = product.orders?.filter(order => order.status === 'completed')
+        
+        return {
+          ...product,
+          buyer_count: uniqueBuyers.size,
+          order_count: completedOrders?.length || 0
+        }
+      }) || []
+
+      setProducts(processedProducts)
     } catch (error) {
       console.error('Error fetching products:', error)
     } finally {
@@ -190,6 +214,22 @@ export default function MyProducts() {
                     <span className="text-white/60 text-xs">No Image</span>
                   </div>
                 )}
+                
+                {/* Buyer & Order Count Badges */}
+                <div className="absolute top-3 left-3 flex space-x-2">
+                  {product.buyer_count! > 0 && (
+                    <div className="glass px-2 py-1 rounded-lg flex items-center space-x-1">
+                      <Users className="w-3 h-3 text-blue-400" />
+                      <span className="text-blue-400 text-xs font-medium">{product.buyer_count}</span>
+                    </div>
+                  )}
+                  {product.order_count! > 0 && (
+                    <div className="glass px-2 py-1 rounded-lg flex items-center space-x-1">
+                      <ShoppingCart className="w-3 h-3 text-green-400" />
+                      <span className="text-green-400 text-xs font-medium">{product.order_count}</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Product Info */}
@@ -207,6 +247,14 @@ export default function MyProducts() {
                     {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
                   </span>
                 </div>
+
+                {/* Stats */}
+                {(product.buyer_count! > 0 || product.order_count! > 0) && (
+                  <div className="flex items-center justify-between text-xs text-white/60 mb-3">
+                    <span>{product.buyer_count} buyers</span>
+                    <span>{product.order_count} orders</span>
+                  </div>
+                )}
 
                 {/* Actions */}
                 <div className="flex space-x-2">
