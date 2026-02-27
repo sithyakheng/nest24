@@ -32,13 +32,23 @@ export default function MyProducts() {
 
   const fetchProducts = async () => {
     try {
+      console.log('🔍 Fetching products for seller dashboard...')
+      
+      // Check Supabase client initialization
+      console.log('📡 Supabase client initialized:', !!supabase)
+      
       // Get the current authenticated user
       const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
       
+      console.log('👤 Authenticated user:', authUser?.id || 'No user found')
+      if (authError) console.log('⚠️ Auth error:', authError)
+      
       if (authError || !authUser) {
-        console.error('User not authenticated')
+        console.error('❌ User not authenticated')
         return
       }
+
+      console.log('🏪 Fetching products for seller:', authUser.id)
 
       // Fetch products with buyer and order counts
       const { data: productsData, error: productsError } = await supabase
@@ -55,7 +65,13 @@ export default function MyProducts() {
         .eq('seller_id', authUser.id)
         .order('created_at', { ascending: false })
 
-      if (productsError) throw productsError
+      console.log('📦 Products query result:', { data: productsData, error: productsError })
+      console.log('📊 Products count:', productsData?.length || 0)
+
+      if (productsError) {
+        console.error('❌ Products error:', productsError)
+        throw productsError
+      }
 
       // Process products to add buyer and order counts
       const processedProducts = productsData?.map((product: any) => {
@@ -69,9 +85,10 @@ export default function MyProducts() {
         }
       }) || []
 
+      console.log('✅ Processed products:', processedProducts.length, 'items')
       setProducts(processedProducts)
     } catch (error) {
-      console.error('Error fetching products:', error)
+      console.error('❌ Error fetching products:', error)
     } finally {
       setLoading(false)
     }
