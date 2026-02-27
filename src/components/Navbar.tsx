@@ -104,12 +104,29 @@ export default function Navbar() {
                       {user.user_metadata?.full_name?.[0] || user.email?.[0] || 'U'}
                     </span>
                   </div>
-                  <button
-                    onClick={handleSignOut}
-                    className="text-gray-600 hover:text-[#004E64] smooth-transition font-medium"
-                  >
-                    Logout
-                  </button>
+                  <div className="hidden md:flex items-center space-x-3">
+                    {isSeller ? (
+                      <Link
+                        href="/seller-dashboard"
+                        className="text-gray-600 hover:text-[#004E64] smooth-transition font-medium"
+                      >
+                        Seller Dashboard
+                      </Link>
+                    ) : (
+                      <Link
+                        href="/profile"
+                        className="text-gray-600 hover:text-[#004E64] smooth-transition font-medium"
+                      >
+                        Profile
+                      </Link>
+                    )}
+                    <button
+                      onClick={handleSignOut}
+                      className="text-gray-600 hover:text-[#004E64] smooth-transition font-medium"
+                    >
+                      Logout
+                    </button>
+                  </div>
                 </motion.div>
               ) : (
                 <div className="hidden md:flex items-center space-x-4">

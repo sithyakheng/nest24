@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
-import { Eye, EyeOff, ArrowRight, Check, X } from 'lucide-react'
+import { Eye, EyeOff, ArrowRight, Check, X, User, Store } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 export default function Register() {
@@ -11,7 +11,8 @@ export default function Register() {
     fullName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    accountType: 'buyer' as 'buyer' | 'seller'
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -59,6 +60,13 @@ export default function Register() {
     setError('')
   }
 
+  const handleAccountTypeChange = (type: 'buyer' | 'seller') => {
+    setFormData(prev => ({
+      ...prev,
+      accountType: type
+    }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -77,14 +85,19 @@ export default function Register() {
         options: {
           data: {
             full_name: formData.fullName,
-            role: 'buyer'
+            role: formData.accountType
           }
         }
       })
 
       if (error) throw error
 
-      router.push('/')
+      // Redirect based on account type
+      if (formData.accountType === 'seller') {
+        router.push('/seller-dashboard')
+      } else {
+        router.push('/')
+      }
     } catch (error: any) {
       setError(error.message || 'An error occurred during registration')
     } finally {
@@ -211,6 +224,41 @@ export default function Register() {
                     {error}
                   </motion.div>
                 )}
+
+                {/* Account Type Selection */}
+                <div>
+                  <label className="block text-white/80 font-medium mb-3">Account Type</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <motion.button
+                      type="button"
+                      onClick={() => handleAccountTypeChange('buyer')}
+                      className={`p-4 rounded-2xl border-2 smooth-transition flex flex-col items-center space-y-2 ${
+                        formData.accountType === 'buyer'
+                          ? 'border-[#E0E5E9]/50 bg-white/10 text-white shadow-lg shadow-[#E0E5E9]/20'
+                          : 'border-white/20 text-white/70 hover:border-white/40'
+                      }`}
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <User className="w-6 h-6" />
+                      <span className="font-medium">Buyer</span>
+                    </motion.button>
+                    <motion.button
+                      type="button"
+                      onClick={() => handleAccountTypeChange('seller')}
+                      className={`p-4 rounded-2xl border-2 smooth-transition flex flex-col items-center space-y-2 ${
+                        formData.accountType === 'seller'
+                          ? 'border-[#E0E5E9]/50 bg-white/10 text-white shadow-lg shadow-[#E0E5E9]/20'
+                          : 'border-white/20 text-white/70 hover:border-white/40'
+                      }`}
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Store className="w-6 h-6" />
+                      <span className="font-medium">Seller</span>
+                    </motion.button>
+                  </div>
+                </div>
 
                 {/* Full Name Field */}
                 <div className="relative">
@@ -356,7 +404,9 @@ export default function Register() {
                   whileTap={{ scale: 0.98, y: 0 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 >
-                  <span className="relative z-10">{loading ? 'Creating account...' : 'Create Account'}</span>
+                  <span className="relative z-10">
+                    {loading ? 'Creating account...' : `Create ${formData.accountType === 'seller' ? 'Seller' : 'Buyer'} Account`}
+                  </span>
                   {!loading && <ArrowRight className="w-5 h-5 relative z-10" />}
                   <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 smooth-transition"></div>
                 </motion.button>

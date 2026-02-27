@@ -14,6 +14,7 @@ interface AuthContextType {
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>
   isSeller: boolean
+  upgradeToSeller: (phoneNumber: string, businessName?: string) => Promise<{ error: AuthError | null }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -85,6 +86,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error }
   }
 
+  const upgradeToSeller = async (phoneNumber: string, businessName?: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          role: 'seller',
+          phone_number: phoneNumber,
+          business_name: businessName || null
+        }
+      })
+      return { error }
+    } catch (error: any) {
+      return { error }
+    }
+  }
+
   const value = {
     user,
     session,
@@ -93,7 +109,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signIn,
     signOut,
     resetPassword,
-    isSeller
+    isSeller,
+    upgradeToSeller
   }
 
   return (
