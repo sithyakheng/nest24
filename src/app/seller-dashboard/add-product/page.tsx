@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { Upload, X, Plus, Image as ImageIcon } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseAdmin } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface ProductFormData {
@@ -117,6 +117,13 @@ export default function AddProduct() {
     setError('')
 
     try {
+      // Get the current authenticated user
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError || !authUser) {
+        throw new Error('You must be logged in to add a product')
+      }
+
       // Upload images
       const imageUrls = []
       for (const image of formData.images) {
@@ -135,8 +142,8 @@ export default function AddProduct() {
         imageUrls.push(publicUrl)
       }
 
-      // Create product
-      const { error: productError } = await supabase
+      // Create product using authenticated user's ID
+      const { error: productError } = await supabaseAdmin
         .from('products')
         .insert({
           name: formData.name,
@@ -146,7 +153,7 @@ export default function AddProduct() {
           stock: parseInt(formData.stock),
           discount: formData.discount ? parseFloat(formData.discount) : null,
           image_url: imageUrls[0] || null,
-          seller_id: user?.id
+          seller_id: authUser.id  // Use authenticated user's ID
         })
 
       if (productError) throw productError
