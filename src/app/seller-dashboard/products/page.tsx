@@ -50,9 +50,9 @@ export default function MyProducts() {
       if (productsError) throw productsError
 
       // Process products to add buyer and order counts
-      const processedProducts = productsData?.map(product => {
-        const uniqueBuyers = new Set(product.orders?.map(order => order.buyer_id).filter(Boolean))
-        const completedOrders = product.orders?.filter(order => order.status === 'completed')
+      const processedProducts = productsData?.map((product: any) => {
+        const uniqueBuyers = new Set(product.orders?.map((order: any) => order.buyer_id).filter(Boolean))
+        const completedOrders = product.orders?.filter((order: any) => order.status === 'completed')
         
         return {
           ...product,
@@ -80,20 +80,20 @@ export default function MyProducts() {
 
       if (error) throw error
       
-      setProducts(prev => prev.filter(p => p.id !== productId))
+      setProducts(prev => prev.filter((p: Product) => p.id !== productId))
     } catch (error) {
       console.error('Error deleting product:', error)
     }
   }
 
-  const filteredProducts = products.filter(product => {
+  const filteredProducts = products.filter((product: Product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = !selectedCategory || product.category === selectedCategory
     return matchesSearch && matchesCategory
   })
 
-  const categories = [...new Set(products.map(p => p.category))]
+  const categories = [...new Set(products.map((p: Product) => p.category))]
 
   if (loading) {
     return (
@@ -142,7 +142,7 @@ export default function MyProducts() {
               type="text"
               placeholder="Search products..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
               className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:border-[#E0E5E9]/50 smooth-transition"
             />
           </div>
@@ -151,11 +151,11 @@ export default function MyProducts() {
             <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/60 w-5 h-5" />
             <select
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedCategory(e.target.value)}
               className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-2xl text-white focus:outline-none focus:border-[#E0E5E9]/50 smooth-transition appearance-none"
             >
               <option value="">All Categories</option>
-              {categories.map(category => (
+              {categories.map((category: string) => (
                 <option key={category} value={category}>{category}</option>
               ))}
             </select>
@@ -192,7 +192,7 @@ export default function MyProducts() {
         </motion.div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product, index) => (
+          {filteredProducts.map((product: Product, index: number) => (
             <motion.div
               key={product.id}
               initial={{ opacity: 0, y: 30 }}
