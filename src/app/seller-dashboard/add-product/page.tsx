@@ -123,13 +123,13 @@ export default function AddProduct() {
         const fileExt = image.name.split('.').pop()
         const fileName = `${Date.now()}-${Math.random()}.${fileExt}`
         const { data, error } = await supabase.storage
-          .from('products')
+          .from('Product')
           .upload(fileName, image)
 
         if (error) throw error
 
         const { data: { publicUrl } } = supabase.storage
-          .from('products')
+          .from('Product')
           .getPublicUrl(fileName)
 
         imageUrls.push(publicUrl)
