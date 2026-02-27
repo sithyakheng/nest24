@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { Upload, X, Plus, Image as ImageIcon } from 'lucide-react'
-import { supabase, supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface ProductFormData {
@@ -143,7 +143,7 @@ export default function AddProduct() {
       }
 
       // Create product using authenticated user's ID
-      const { error: productError } = await supabaseAdmin
+      const { error: productError } = await supabase
         .from('products')
         .insert({
           name: formData.name,
