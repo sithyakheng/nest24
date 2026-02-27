@@ -7,7 +7,7 @@ import { Search, ShoppingCart, User, Menu, X } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function Navbar() {
-  const { user, signOut } = useAuth()
+  const { user, signOut, isSeller } = useAuth()
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
