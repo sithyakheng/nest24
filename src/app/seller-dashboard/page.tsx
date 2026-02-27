@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, useSpring, useMotionValue } from 'framer-motion'
-import { Package, ShoppingCart, DollarSign, Clock, TrendingUp, TrendingDown } from 'lucide-react'
+import { Package, ShoppingCart, DollarSign, Clock, TrendingUp, TrendingDown, Phone, Facebook, Instagram, MessageCircle, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -13,6 +13,13 @@ interface DashboardStats {
   pendingOrders: number
 }
 
+interface ContactInfo {
+  phone_number: string
+  facebook_url: string
+  instagram_url: string
+  whatsapp_url: string
+}
+
 export default function SellerDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalProducts: 0,
@@ -20,7 +27,15 @@ export default function SellerDashboard() {
     revenue: 0,
     pendingOrders: 0
   })
+  const [contactInfo, setContactInfo] = useState<ContactInfo>({
+    phone_number: '',
+    facebook_url: '',
+    instagram_url: '',
+    whatsapp_url: ''
+  })
   const [loading, setLoading] = useState(true)
+  const [savingContact, setSavingContact] = useState(false)
+  const [contactSuccess, setContactSuccess] = useState(false)
   const { user } = useAuth()
 
   const animatedStats = {
@@ -32,6 +47,7 @@ export default function SellerDashboard() {
 
   useEffect(() => {
     fetchDashboardStats()
+    fetchContactInfo()
   }, [])
 
   useEffect(() => {
@@ -71,6 +87,59 @@ export default function SellerDashboard() {
       console.error('Error fetching dashboard stats:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchContactInfo = async () => {
+    try {
+      const { data } = await supabase
+        .from('seller_profiles')
+        .select('*')
+        .eq('seller_id', user?.id)
+        .single()
+
+      if (data) {
+        setContactInfo({
+          phone_number: data.phone_number || '',
+          facebook_url: data.facebook_url || '',
+          instagram_url: data.instagram_url || '',
+          whatsapp_url: data.whatsapp_url || ''
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching contact info:', error)
+    }
+  }
+
+  const handleContactChange = (field: keyof ContactInfo, value: string) => {
+    setContactInfo(prev => ({
+      ...prev,
+      [field]: value
+    }))
+    setContactSuccess(false)
+  }
+
+  const saveContactInfo = async () => {
+    setSavingContact(true)
+    try {
+      const { error } = await supabase
+        .from('seller_profiles')
+        .upsert({
+          seller_id: user?.id,
+          phone_number: contactInfo.phone_number,
+          facebook_url: contactInfo.facebook_url,
+          instagram_url: contactInfo.instagram_url,
+          whatsapp_url: contactInfo.whatsapp_url
+        })
+
+      if (error) throw error
+
+      setContactSuccess(true)
+      setTimeout(() => setContactSuccess(false), 3000)
+    } catch (error) {
+      console.error('Error saving contact info:', error)
+    } finally {
+      setSavingContact(false)
     }
   }
 
@@ -170,8 +239,105 @@ export default function SellerDashboard() {
         })}
       </div>
 
+      {/* Contact Info Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        whileHover={{ scale: 1.01, y: -3 }}
+        className="glass rounded-[24px] p-6 relative overflow-hidden"
+      >
+        {/* Inner Glow */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#E0E5E9]/5 to-transparent rounded-[24px]"></div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-white mb-1">Contact Information</h2>
+              <p className="text-white/60 text-sm">Let buyers reach you directly</p>
+            </div>
+            <div className="p-3 glass rounded-xl">
+              <Phone className="w-6 h-6 text-[#E0E5E9]" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Phone Number */}
+            <div>
+              <label className="block text-white/80 font-medium mb-2">Phone Number *</label>
+              <input
+                type="tel"
+                value={contactInfo.phone_number}
+                onChange={(e) => handleContactChange('phone_number', e.target.value)}
+                placeholder="+855 12 345 678"
+                className="w-full px-4 py-3 glass rounded-2xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#E0E5E9]/50 smooth-transition"
+              />
+            </div>
+
+            {/* WhatsApp */}
+            <div>
+              <label className="block text-white/80 font-medium mb-2">WhatsApp</label>
+              <input
+                type="url"
+                value={contactInfo.whatsapp_url}
+                onChange={(e) => handleContactChange('whatsapp_url', e.target.value)}
+                placeholder="https://wa.me/1234567890"
+                className="w-full px-4 py-3 glass rounded-2xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#E0E5E9]/50 smooth-transition"
+              />
+            </div>
+
+            {/* Facebook */}
+            <div>
+              <label className="block text-white/80 font-medium mb-2">Facebook URL</label>
+              <input
+                type="url"
+                value={contactInfo.facebook_url}
+                onChange={(e) => handleContactChange('facebook_url', e.target.value)}
+                placeholder="https://facebook.com/yourpage"
+                className="w-full px-4 py-3 glass rounded-2xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#E0E5E9]/50 smooth-transition"
+              />
+            </div>
+
+            {/* Instagram */}
+            <div>
+              <label className="block text-white/80 font-medium mb-2">Instagram URL</label>
+              <input
+                type="url"
+                value={contactInfo.instagram_url}
+                onChange={(e) => handleContactChange('instagram_url', e.target.value)}
+                placeholder="https://instagram.com/yourusername"
+                className="w-full px-4 py-3 glass rounded-2xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#E0E5E9]/50 smooth-transition"
+              />
+            </div>
+          </div>
+
+          {/* Save Button */}
+          <div className="mt-6">
+            <motion.button
+              onClick={saveContactInfo}
+              disabled={savingContact}
+              className="glass px-6 py-3 rounded-2xl text-white font-semibold hover:bg-[#E0E5E9]/20 smooth-transition flex items-center space-x-2 relative overflow-hidden group"
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98, y: 0 }}
+            >
+              {contactSuccess ? (
+                <>
+                  <Check className="w-5 h-5 text-green-400" />
+                  <span className="text-green-400">Updated Successfully</span>
+                </>
+              ) : (
+                <>
+                  <span>{savingContact ? 'Updating...' : 'Update Contact Info'}</span>
+                </>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#E0E5E9]/10 to-transparent opacity-0 group-hover:opacity-100 smooth-transition"></div>
+            </motion.button>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Recent Activity & Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Recent Orders */}
         <motion.div
           initial={{ opacity: 0, x: -30 }}
