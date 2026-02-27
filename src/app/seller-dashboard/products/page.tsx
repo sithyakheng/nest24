@@ -32,6 +32,14 @@ export default function MyProducts() {
 
   const fetchProducts = async () => {
     try {
+      // Get the current authenticated user
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError || !authUser) {
+        console.error('User not authenticated')
+        return
+      }
+
       // Fetch products with buyer and order counts
       const { data: productsData, error: productsError } = await supabase
         .from('products')
@@ -44,7 +52,7 @@ export default function MyProducts() {
             status
           )
         `)
-        .eq('seller_id', user?.id)
+        .eq('seller_id', authUser.id)
         .order('created_at', { ascending: false })
 
       if (productsError) throw productsError
@@ -73,10 +81,19 @@ export default function MyProducts() {
     if (!confirm('Are you sure you want to delete this product?')) return
 
     try {
+      // Get the current authenticated user
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError || !authUser) {
+        console.error('User not authenticated')
+        return
+      }
+
       const { error } = await supabase
         .from('products')
         .delete()
         .eq('id', productId)
+        .eq('seller_id', authUser.id) // Ensure user can only delete their own products
 
       if (error) throw error
       

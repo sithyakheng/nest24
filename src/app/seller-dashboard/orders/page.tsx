@@ -71,6 +71,14 @@ export default function Orders() {
   const fetchOrders = async () => {
     setLoading(true)
     try {
+      // Get the current authenticated user
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError || !authUser) {
+        console.error('User not authenticated')
+        return
+      }
+
       const { data, error } = await supabase
         .from('orders')
         .select(`
@@ -86,7 +94,7 @@ export default function Orders() {
             price
           )
         `)
-        .eq('seller_id', user?.id)
+        .eq('seller_id', authUser.id)
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -101,10 +109,19 @@ export default function Orders() {
   const updateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
     setUpdatingOrderId(orderId)
     try {
+      // Get the current authenticated user
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError || !authUser) {
+        console.error('User not authenticated')
+        return
+      }
+
       const { error } = await supabase
         .from('orders')
         .update({ status: newStatus })
         .eq('id', orderId)
+        .eq('seller_id', authUser.id) // Ensure user can only update their own orders
 
       if (error) throw error
 

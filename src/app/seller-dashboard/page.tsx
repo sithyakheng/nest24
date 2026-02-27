@@ -60,11 +60,19 @@ export default function SellerDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
+      // Get the current authenticated user
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError || !authUser) {
+        console.error('User not authenticated')
+        return
+      }
+
       // Fetch products count
       const { count: productsCount } = await supabase
         .from('products')
         .select('*', { count: 'exact', head: true })
-        .eq('seller_id', user?.id)
+        .eq('seller_id', authUser.id)
 
       // Fetch real orders data
       const { data: ordersData, error: ordersError } = await supabase
@@ -82,7 +90,7 @@ export default function SellerDashboard() {
             price
           )
         `)
-        .eq('seller_id', user?.id)
+        .eq('seller_id', authUser.id)
 
       if (ordersError) throw ordersError
 

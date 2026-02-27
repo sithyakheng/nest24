@@ -62,6 +62,14 @@ export default function Analytics() {
   const fetchAnalyticsData = async () => {
     setLoading(true)
     try {
+      // Get the current authenticated user
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError || !authUser) {
+        console.error('User not authenticated')
+        return
+      }
+
       // Get date range
       const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90
       const startDate = new Date()
@@ -81,7 +89,7 @@ export default function Analytics() {
             id
           )
         `)
-        .eq('seller_id', user?.id)
+        .eq('seller_id', authUser.id)
         .gte('created_at', startDate.toISOString())
         .order('created_at', { ascending: false })
 
@@ -91,7 +99,7 @@ export default function Analytics() {
       const { count: productsCount } = await supabase
         .from('products')
         .select('*', { count: 'exact', head: true })
-        .eq('seller_id', user?.id)
+        .eq('seller_id', authUser.id)
 
       // Calculate metrics
       const orders = ordersData || []
