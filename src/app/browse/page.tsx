@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Filter, X, ChevronDown } from 'lucide-react'
@@ -25,7 +25,7 @@ interface Product {
   }
 }
 
-export default function BrowsePage() {
+function BrowseContent() {
   const searchParams = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -160,17 +160,16 @@ export default function BrowsePage() {
   }, [products, searchParams])
 
   return (
-    <PageWrapper>
-      <div className="pt-24 px-6 pb-12">
-        <div className="flex flex-col lg:flex-row gap-6">
+    <div className="pt-24 px-6 pb-12">
+      <div className="flex flex-col lg:flex-row gap-6">
           
-          {/* Filter Sidebar */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            className={`${showMobileFilters ? 'fixed inset-0 z-40 bg-black/80' : 'hidden lg:block'} lg:sticky lg:top-24 w-full lg:w-80`}
-          >
-            <div className={`bg-white/[0.06] backdrop-blur-xl border border-white/[0.12] rounded-2xl p-6 h-full overflow-y-auto ${
+        {/* Filter Sidebar */}
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          className={`${showMobileFilters ? 'fixed inset-0 z-40 bg-black/80' : 'hidden lg:block'} lg:sticky lg:top-24 w-full lg:w-80`}
+        >
+          <div className={`bg-white/[0.06] backdrop-blur-xl border border-white/[0.12] rounded-2xl p-6 h-full overflow-y-auto ${
               showMobileFilters ? 'w-full max-w-sm' : ''
             }`}>
               
@@ -338,6 +337,17 @@ export default function BrowsePage() {
           </div>
         </div>
       </div>
-    </PageWrapper>
+    </div>
+  )
+}
+
+export default function BrowsePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#0d0e12] flex items-center 
+      justify-center text-white/50">Loading...</div>
+    }>
+      <BrowseContent />
+    </Suspense>
   )
 }
