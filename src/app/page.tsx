@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, useScroll, useInView, useSpring } from 'framer-motion'
 import { Search, ShoppingCart, Home as HomeIcon, Laptop, Shirt, ShoppingBag, ArrowRight, Package, Clock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useCart } from '@/contexts/CartContext'
 
 interface Product {
   id: string
@@ -18,6 +19,7 @@ interface Product {
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const { addToCart } = useCart()
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 })
 
@@ -303,34 +305,50 @@ export default function Home() {
                   key={product.id}
                   variants={itemVariants}
                   whileHover={{ scale: 1.05, y: -10 }}
-                  className="glass rounded-3xl overflow-hidden glow-hover smooth-transition"
+                  className="glass rounded-3xl overflow-hidden glow-hover smooth-transition cursor-pointer"
                 >
-                  <div className="h-48 bg-gradient-to-br from-[#E0E5E9] to-[#004E64]/10 flex items-center justify-center">
-                    {product.image_url ? (
-                      <img
-                        src={product.image_url}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <Package className="w-12 h-12 text-[#004E64]/30" />
-                    )}
-                  </div>
-                  <div className="p-6">
-                    <h3 className="font-semibold text-gray-900 mb-2 text-lg">{product.name}</h3>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {product.description || 'Premium quality item'}
-                    </p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-[#004E64] font-bold text-xl">${product.price}</span>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="glass px-4 py-2 rounded-xl text-[#004E64] hover:bg-[#004E64] hover:text-white smooth-transition text-sm font-medium"
-                      >
-                        <ShoppingCart className="w-4 h-4" />
-                      </motion.button>
+                  <Link href={`/products/${product.id}`}>
+                    <div className="h-48 bg-gradient-to-br from-[#E0E5E9] to-[#004E64]/10 flex items-center justify-center">
+                      {product.image_url ? (
+                        <img
+                          src={product.image_url}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Package className="w-12 h-12 text-[#004E64]/30" />
+                      )}
                     </div>
+                    <div className="p-6">
+                      <h3 className="font-semibold text-gray-900 mb-2 text-lg">{product.name}</h3>
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                        {product.description || 'Premium quality item'}
+                      </p>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[#004E64] font-bold text-xl">${product.price}</span>
+                      </div>
+                    </div>
+                  </Link>
+                  <div className="px-6 pb-6">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        addToCart({
+                          id: product.id,
+                          name: product.name,
+                          price: product.price,
+                          image_url: product.image_url,
+                          quantity: 1
+                        })
+                      }}
+                      className="w-full glass px-4 py-2 rounded-xl text-[#004E64] hover:bg-[#004E64] hover:text-white smooth-transition text-sm font-medium flex items-center justify-center space-x-2"
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                      <span>Add to Cart</span>
+                    </motion.button>
                   </div>
                 </motion.div>
               ))}
