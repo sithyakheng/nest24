@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react'
 import { motion, useScroll, useInView, useSpring } from 'framer-motion'
 import Link from 'next/link'
-import { Search, ShoppingCart, Home as HomeIcon, Laptop, Shirt, ShoppingBag, ArrowRight, Package, Clock } from 'lucide-react'
+import { Search, Home as HomeIcon, Laptop, Shirt, ShoppingBag, ArrowRight, Package, Clock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { useCart } from '@/contexts/CartContext'
 
 interface Product {
   id: string
@@ -20,7 +19,6 @@ interface Product {
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const { addToCart } = useCart()
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 })
 
@@ -328,29 +326,16 @@ export default function Home() {
                       <div className="flex justify-between items-center">
                         <span className="text-[#004E64] font-bold text-xl">${product.price}</span>
                       </div>
+                      <div className="mt-4 pt-4 border-t border-white/20">
+                        <div className="flex items-center justify-center">
+                          <span className="text-[#004E64] font-medium flex items-center space-x-2">
+                            <span>View Details</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </Link>
-                  <div className="px-6 pb-6">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        addToCart({
-                          id: product.id,
-                          name: product.name,
-                          price: product.price,
-                          image_url: product.image_url,
-                          quantity: 1
-                        })
-                      }}
-                      className="w-full glass px-4 py-2 rounded-xl text-[#004E64] hover:bg-[#004E64] hover:text-white smooth-transition text-sm font-medium flex items-center justify-center space-x-2"
-                    >
-                      <ShoppingCart className="w-4 h-4" />
-                      <span>Add to Cart</span>
-                    </motion.button>
-                  </div>
                 </motion.div>
               ))}
             </motion.div>

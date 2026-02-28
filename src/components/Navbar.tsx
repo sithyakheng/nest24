@@ -3,13 +3,11 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, ShoppingCart, User, Menu, X } from 'lucide-react'
+import { Search, User, Menu, X } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useCart } from '@/contexts/CartContext'
 
 export default function Navbar() {
   const { user, signOut, isSeller } = useAuth()
-  const { cartCount } = useCart()
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -82,22 +80,6 @@ export default function Navbar() {
 
             {/* Right Icons */}
             <div className="flex items-center space-x-4">
-              {/* Cart */}
-              <Link href="/cart">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="relative p-2 text-gray-700 hover:text-[#004E64] smooth-transition"
-                >
-                  <ShoppingCart className="w-6 h-6" />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#004E64] text-white text-xs rounded-full flex items-center justify-center">
-                      {cartCount}
-                    </span>
-                  )}
-                </motion.button>
-              </Link>
-
               {/* User Account */}
               {user ? (
                 <motion.div
