@@ -2,35 +2,24 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Star, TrendingUp, Users } from 'lucide-react'
+import Link from 'next/link'
+import { Search, Star, TrendingUp, Package, ArrowRight } from 'lucide-react'
 import PageWrapper from '@/components/PageWrapper'
 import ProductCard from '@/components/ProductCard'
 import { supabase } from '@/lib/supabase'
 
-interface Product {
-  id: string
-  name: string
-  price: number
-  original_price?: number
-  discount?: number
-  category: string
-  stock: number
-  image_url?: string
-  seller_id: string
-  created_at: string
-}
-
-interface Seller {
-  id: string
-  full_name?: string
-  avatar_url?: string
-  bio?: string
-}
+const CATEGORIES = [
+  { name: 'Electronics', emoji: '💻', glow: 'from-cyan-500/20' },
+  { name: 'Fashion', emoji: '👗', glow: 'from-pink-500/20' },
+  { name: 'Home', emoji: '🏠', glow: 'from-amber-500/20' },
+  { name: 'Beauty', emoji: '💄', glow: 'from-purple-500/20' },
+  { name: 'Food', emoji: '🍜', glow: 'from-green-500/20' },
+  { name: 'Gaming', emoji: '🎮', glow: 'from-red-500/20' }
+]
 
 export default function HomePage() {
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
-  const [spotlightSellers, setSpotlightSellers] = useState<Seller[]>([])
-  const [recentProducts, setRecentProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<any[]>([])
+  const [sellers, setSellers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -40,7 +29,7 @@ export default function HomePage() {
   const fetchHomepageData = async () => {
     try {
       // Fetch featured products
-      const { data: products } = await supabase
+      const { data: productsData } = await supabase
         .from('products')
         .select('*')
         .gt('stock', 0)
@@ -48,40 +37,31 @@ export default function HomePage() {
         .limit(8)
 
       // Fetch spotlight sellers
-      const { data: sellers } = await supabase
+      const { data: sellersData } = await supabase
         .from('profiles')
         .select('*')
         .eq('role', 'seller')
         .limit(3)
 
-      // Fetch recent products
-      const { data: recent } = await supabase
-        .from('products')
-        .select('*')
-        .gt('stock', 0)
-        .order('created_at', { ascending: false })
-        .limit(10)
-
       // Fetch seller info for products
-      const sellerIds = [...new Set(products?.map(p => p.seller_id) || [])]
+      const sellerIds = [...new Set(productsData?.map(p => p.seller_id) || [])]
       if (sellerIds.length > 0) {
         const { data: sellerData } = await supabase
           .from('profiles')
           .select('id, full_name, avatar_url')
           .in('id', sellerIds)
 
-        const productsWithSellers = products?.map(product => ({
+        const productsWithSellers = productsData?.map(product => ({
           ...product,
           seller: sellerData?.find(s => s.id === product.seller_id)
         })) || []
 
-        setFeaturedProducts(productsWithSellers)
+        setProducts(productsWithSellers)
       } else {
-        setFeaturedProducts(products || [])
+        setProducts(productsData || [])
       }
 
-      setSpotlightSellers(sellers || [])
-      setRecentProducts(recent || [])
+      setSellers(sellersData || [])
     } catch (error) {
       console.error('Error fetching homepage data:', error)
     } finally {
@@ -89,341 +69,258 @@ export default function HomePage() {
     }
   }
 
-  const categories = [
-    { emoji: '📱', name: 'Electronics', count: 156 },
-    { emoji: '👗', name: 'Fashion', count: 89 },
-    { emoji: '🏠', name: 'Home', count: 234 },
-    { emoji: '💄', name: 'Beauty', count: 67 },
-    { emoji: '🍜', name: 'Food', count: 145 },
-    { emoji: '🎮', name: 'Gaming', count: 78 }
-  ]
-
-  if (loading) {
-    return (
-      <PageWrapper>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-white">Loading...</div>
-        </div>
-      </PageWrapper>
-    )
-  }
-
   return (
     <PageWrapper>
       <div className="pt-24 px-6 pb-12">
         
-        {/* Hero Section */}
-        <section className="min-h-screen flex items-center justify-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-2xl w-full"
-          >
-            <div className="bg-white/[0.06] backdrop-blur-2xl border border-white/[0.12] rounded-3xl p-10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+        {/* Hero Section - Cinematic */}
+        <motion.section
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="min-h-[80vh] flex items-center justify-center mb-20"
+        >
+          <div className="max-w-4xl mx-auto text-center">
+            
+            {/* Floating Background Elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  rotate: [0, 2, -2, 0]
+                }}
+                transition={{ duration: 8, repeat: Infinity }}
+                className="absolute top-20 left-20 w-32 h-32 bg-teal-500/[0.1] rounded-full blur-2xl"
+              />
+              <motion.div
+                animate={{ 
+                  scale: [1, 0.9, 1],
+                  rotate: [0, -3, 3, 0]
+                }}
+                transition={{ duration: 10, repeat: Infinity }}
+                className="absolute bottom-20 right-20 w-40 h-40 bg-amber-500/[0.08] rounded-full blur-2xl"
+              />
+            </div>
+
+            {/* Main Hero Glass Panel */}
+            <motion.div
+              animate={{
+                y: [0, -8, 0],
+              }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="relative bg-white/[0.05] backdrop-blur-3xl border border-white/[0.08] border-t-white/[0.18] rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.8)] p-12 max-w-3xl mx-auto"
+            >
               
               {/* Badge */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                className="inline-block bg-amber-500/20 border border-amber-500/30 rounded-full px-4 py-2 mb-6"
+                transition={{ delay: 0.3 }}
+                className="inline-block bg-amber-500/20 backdrop-blur-xl border border-amber-400/30 rounded-full px-6 py-2 mb-8"
               >
-                <span className="text-amber-300 font-black text-sm tracking-wider">
-                  🇰🇭 Cambodia's #1 Seller Marketplace
-                </span>
+                <span className="text-amber-300 font-medium text-sm">🇰🇭 Cambodia's Premium Seller Marketplace</span>
               </motion.div>
 
-              {/* Headline */}
-              <div className="mb-8">
+              {/* Animated Headline */}
+              <div className="mb-8 space-y-2">
                 <motion.h1
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
-                  className="font-black tracking-tight text-white mb-4"
+                  initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  transition={{ delay: 0.4, duration: 0.8 }}
+                  className="font-black text-white text-6xl tracking-tight leading-tight"
                 >
-                  <span className="block text-5xl mb-2">Find It.</span>
-                  <span className="block text-5xl mb-2">Buy It.</span>
-                  <span className="block text-5xl text-amber-300">Trust It.</span>
+                  Find It.
                 </motion.h1>
-                
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5, duration: 0.5 }}
-                  className="font-light text-white/50 leading-relaxed text-lg"
+                <motion.h1
+                  initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  transition={{ delay: 0.6, duration: 0.8 }}
+                  className="font-black text-white text-6xl tracking-tight leading-tight"
                 >
-                  Shop directly from real Cambodian sellers
-                </motion.p>
+                  Buy It.
+                </motion.h1>
+                <motion.h1
+                  initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  transition={{ delay: 0.8, duration: 0.8 }}
+                  className="font-black text-white text-6xl tracking-tight leading-tight"
+                >
+                  Trust It.
+                </motion.h1>
               </div>
 
-              {/* Search Bar */}
-              <motion.form
+              {/* Floating Search Console */}
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.5 }}
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  const formData = new FormData(e.currentTarget)
-                  const query = formData.get('search') as string
-                  if (query?.trim()) {
-                    window.location.href = `/browse?search=${encodeURIComponent(query)}`
-                  }
-                }}
-                className="relative"
+                transition={{ delay: 1, duration: 0.6 }}
+                className="relative max-w-2xl mx-auto"
               >
-                <div className="flex items-center bg-white/[0.06] border border-white/[0.12] rounded-full p-2">
-                  <Search className="w-6 h-6 text-white/30 ml-4" />
+                <div className="relative">
                   <input
                     type="text"
-                    name="search"
-                    placeholder="Search products..."
-                    className="flex-1 bg-transparent text-white placeholder:text-white/30 text-lg px-4 py-3 focus:outline-none"
+                    placeholder="Search for premium Cambodian products..."
+                    className="w-full bg-white/[0.08] backdrop-blur-xl border border-white/[0.12] rounded-2xl px-6 py-4 pr-14 text-white placeholder:text-white/40 text-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500/40 shadow-inner"
                   />
-                  <button
-                    type="submit"
-                    className="bg-teal-500 hover:bg-teal-600 text-white rounded-full px-6 py-3 font-medium transition-colors mr-2"
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-teal-500 hover:bg-teal-600 text-white rounded-xl p-3 shadow-[0_4px_20px_rgba(0,78,100,0.4)]"
                   >
-                    Search
-                  </button>
+                    <Search className="w-5 h-5" />
+                  </motion.button>
                 </div>
-              </motion.form>
-
-              {/* Category Pills */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8, duration: 0.5 }}
-                className="flex flex-wrap gap-3 mt-6"
-              >
-                {categories.map((category, index) => (
-                  <button
-                    key={category.name}
-                    onClick={() => window.location.href = `/browse?category=${category.name.toLowerCase()}`}
-                    className="bg-white/[0.06] border border-white/[0.12] rounded-full px-4 py-2 text-white/60 hover:text-white hover:bg-white/[0.10] hover:border-white/[0.20] transition-all duration-200 flex items-center space-x-2"
-                  >
-                    <span className="text-xl">{category.emoji}</span>
-                    <span className="text-sm font-medium">{category.name}</span>
-                  </button>
-                ))}
               </motion.div>
-            </div>
-          </motion.div>
-        </section>
-
-        {/* Featured Products Section */}
-        <section className="mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-8"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <span className="uppercase tracking-widest text-xs text-white/40 font-medium">FEATURED LISTINGS</span>
-                <h2 className="font-black tracking-tight text-white text-2xl">Top Picks For You</h2>
-              </div>
-              <button
-                onClick={() => window.location.href = '/browse'}
-                className="text-amber-300 hover:text-amber-200 font-medium transition-colors flex items-center space-x-1"
-              >
-                View All Products
-                <motion.span
-                  animate={{ x: [0, 4, 0] }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                >
-                  →
-                </motion.span>
-              </button>
-            </div>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.08, duration: 0.5 }}
-              >
-                <ProductCard product={product} />
-              </motion.div>
-            ))}
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
 
-        {/* Spotlight Seller Section */}
-        <section className="mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mb-8"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <span className="uppercase tracking-widest text-xs text-white/40 font-medium">SELLER SPOTLIGHT</span>
-                <h2 className="font-black tracking-tight text-white text-2xl">Meet Our Top Sellers</h2>
-              </div>
-            </div>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {spotlightSellers.map((seller, index) => (
-              <motion.div
-                key={seller.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + index * 0.1, duration: 0.5 }}
-                onClick={() => window.location.href = `/seller/${seller.id}`}
-                className="bg-white/[0.06] backdrop-blur-xl border border-white/[0.12] rounded-2xl p-6 cursor-pointer hover:bg-white/[0.10] hover:translate-y-[-4px] transition-all duration-300"
-              >
-                <div className="flex items-center space-x-4 mb-4">
-                  {seller.avatar_url ? (
-                    <img
-                      src={seller.avatar_url}
-                      alt={seller.full_name || 'Seller'}
-                      className="w-16 h-16 rounded-full object-cover border-2 border-amber-500/30"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 bg-white/[0.12] rounded-full flex items-center justify-center border-2 border-amber-500/30">
-                      <span className="text-white text-2xl font-bold">
-                        {seller.full_name?.[0] || 'S'}
-                      </span>
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="font-bold text-white text-lg">
-                      {seller.full_name || 'Seller'}
-                    </h3>
-                    <p className="text-teal-400 text-sm font-medium">Verified Seller</p>
-                  </div>
-                </div>
-                
-                {seller.bio && (
-                  <p className="text-white/50 text-sm line-clamp-2 mb-4">
-                    {seller.bio}
-                  </p>
-                )}
-                
-                <button className="w-full bg-teal-500 hover:bg-teal-600 text-white rounded-full px-4 py-2 font-medium transition-colors">
-                  View Shop →
-                </button>
-              </motion.div>
-            ))}
+        {/* Category Orbs */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.8 }}
+          className="mb-20"
+        >
+          <div className="text-center mb-12">
+            <p className="uppercase tracking-widest text-xs text-white/40 font-medium mb-4">EXPLORE CATEGORIES</p>
+            <h2 className="font-black text-white text-3xl">Shop by Category</h2>
           </div>
-        </section>
 
-        {/* Browse By Category Section */}
-        <section className="mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="mb-8"
-          >
-            <div className="mb-6">
-              <span className="uppercase tracking-widest text-xs text-white/40 font-medium">CATEGORIES</span>
-              <h2 className="font-black tracking-tight text-white text-2xl">What Are You Looking For?</h2>
-            </div>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.map((category, index) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 max-w-6xl mx-auto">
+            {CATEGORIES.map((category, index) => (
               <motion.button
                 key={category.name}
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5 + index * 0.1, duration: 0.5 }}
-                onClick={() => window.location.href = `/browse?category=${category.name.toLowerCase()}`}
-                className="bg-white/[0.06] backdrop-blur-xl border border-white/[0.12] rounded-2xl p-8 text-left hover:bg-white/[0.10] hover:translate-y-[-4px] transition-all duration-300 group"
-                style={{
-                  boxShadow: `0 8px 32px rgba(0,0,0,0.4), 0 0 20px ${getCategoryGlow(category.name)}`
+                transition={{ delay: 0.1 * index, duration: 0.5 }}
+                whileHover={{ 
+                  y: -8,
+                  scale: 1.1,
+                  rotate: [0, 5, -5, 0],
+                  transition: { rotate: { duration: 0.5 } }
                 }}
+                className={`relative group bg-white/[0.05] backdrop-blur-3xl border border-white/[0.08] border-t-white/[0.18] rounded-full w-24 h-24 mx-auto flex flex-col items-center justify-center space-y-2 shadow-[0_20px_60px_rgba(0,0,0,0.6)] hover:shadow-[0_30px_80px_rgba(0,78,100,0.3)] transition-all`}
               >
-                <div className="text-5xl mb-4">{category.emoji}</div>
-                <h3 className="font-bold text-white text-xl mb-2">{category.name}</h3>
-                <p className="text-white/50 text-sm">{category.count} items</p>
+                <div className={`absolute inset-0 bg-gradient-radial ${category.glow} rounded-full opacity-0 group-hover:opacity-100 transition-opacity`} />
+                <span className="text-3xl mb-1">{category.emoji}</span>
+                <span className="text-xs text-white/80 font-medium">{category.name}</span>
               </motion.button>
             ))}
           </div>
-        </section>
+        </motion.section>
 
-        {/* Recent Listings Section */}
-        <section>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="mb-8"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <span className="uppercase tracking-widest text-xs text-white/40 font-medium">JUST LISTED</span>
-                <h2 className="font-black tracking-tight text-white text-2xl">Fresh From Sellers</h2>
-              </div>
+        {/* Featured Products */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.8 }}
+          className="mb-20"
+        >
+          <div className="text-center mb-12">
+            <p className="uppercase tracking-widest text-xs text-white/40 font-medium mb-4">CURATED FOR CAMBODIA</p>
+            <h2 className="font-black text-white text-3xl">Featured Products</h2>
+          </div>
+
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-80 bg-white/[0.04] rounded-2xl animate-pulse" />
+              ))}
             </div>
-          </motion.div>
-
-          <div className="relative">
-            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
-              {recentProducts.map((product, index) => (
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {products.map((product, index) => (
                 <motion.div
                   key={product.id}
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.7 + index * 0.05, duration: 0.5 }}
-                  className="flex-shrink-0 w-64"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 * index, duration: 0.6 }}
                 >
-                  <ProductCard product={product} size="small" />
+                  <ProductCard product={product} />
                 </motion.div>
               ))}
             </div>
-            
-            {/* Fade-out gradient */}
-            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#0d0e12] to-transparent pointer-events-none"></div>
-          </div>
-        </section>
+          )}
+        </motion.section>
 
-        {/* Footer */}
-        <footer className="bg-white/[0.06] backdrop-blur-xl border border-white/[0.12] rounded-2xl p-8 mt-16">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="mb-4 md:mb-0">
-              <div className="flex items-center space-x-2 mb-2">
-                <span className="font-black text-white text-xl">NestKH</span>
-                <div className="w-2 h-2 bg-teal-500 rounded-full shadow-[0_0_10px_rgba(0,78,100,0.4)]"></div>
-              </div>
-              <p className="text-white/50 text-sm">Cambodia's Premier Seller Marketplace</p>
-            </div>
-            
-            <div className="flex flex-wrap items-center space-x-6 text-sm">
-              <button className="text-white/60 hover:text-white transition-colors">Browse</button>
-              <button className="text-white/60 hover:text-white transition-colors">Become a Seller</button>
-              <button className="text-white/60 hover:text-white transition-colors">About</button>
-              <button className="text-white/60 hover:text-white transition-colors">Contact</button>
-            </div>
+        {/* Seller Spotlight */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.8 }}
+          className="mb-20"
+        >
+          <div className="text-center mb-12">
+            <p className="uppercase tracking-widest text-xs text-white/40 font-medium mb-4">BOUTIQUE SELLERS</p>
+            <h2 className="font-black text-white text-3xl">Spotlight Sellers</h2>
           </div>
-          
-          <div className="text-center mt-6 pt-6 border-t border-white/[0.12]">
-            <p className="text-white/30 text-sm">
-              © 2024 NestKH — Made in Cambodia 🇰🇭
-            </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {sellers.map((seller, index) => (
+              <motion.div
+                key={seller.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1 * index, duration: 0.6 }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                className="bg-white/[0.05] backdrop-blur-3xl border border-white/[0.08] border-t-white/[0.18] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] p-8"
+              >
+                {/* Background Gradient */}
+                <div className="absolute inset-0 bg-gradient-radial from-amber-500/[0.05] via-transparent to-transparent rounded-2xl" />
+                
+                <div className="relative">
+                  <div className="flex items-start space-x-4 mb-6">
+                    {/* Large Avatar */}
+                    <div className="relative">
+                      {seller.avatar_url ? (
+                        <img
+                          src={seller.avatar_url}
+                          alt={seller.full_name || 'Seller'}
+                          className="w-16 h-16 rounded-full object-cover border-2 border-amber-500/30"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-white/[0.12] rounded-full flex items-center justify-center border-2 border-amber-500/30">
+                          <span className="text-white text-xl font-bold">
+                            {seller.full_name?.[0] || 'S'}
+                          </span>
+                        </div>
+                      )}
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-teal-400 rounded-full animate-pulse" />
+                    </div>
+
+                    <div className="flex-1">
+                      <h3 className="font-black text-white text-xl mb-1">
+                        {seller.full_name || 'Seller'}
+                      </h3>
+                      <p className="text-teal-400 text-sm font-medium">Verified Boutique Seller</p>
+                    </div>
+                  </div>
+
+                  {seller.bio && (
+                    <p className="text-white/50 text-sm mb-6 leading-relaxed">
+                      {seller.bio}
+                    </p>
+                  )}
+
+                  <Link
+                    href={`/seller/${seller.id}`}
+                    className="inline-flex items-center text-teal-400 hover:text-teal-300 font-medium transition-colors group"
+                  >
+                    Visit Shop
+                    <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
           </div>
-        </footer>
+        </motion.section>
+
       </div>
     </PageWrapper>
   )
-}
-
-function getCategoryGlow(category: string): string {
-  const glows: { [key: string]: string } = {
-    'Electronics': 'rgba(59, 130, 246, 0.3)',
-    'Fashion': 'rgba(236, 72, 153, 0.3)',
-    'Home': 'rgba(34, 197, 94, 0.3)',
-    'Beauty': 'rgba(251, 146, 60, 0.3)',
-    'Food': 'rgba(220, 38, 38, 0.3)',
-    'Gaming': 'rgba(168, 85, 247, 0.3)'
-  }
-  return glows[category] || 'rgba(0, 78, 100, 0.3)'
 }

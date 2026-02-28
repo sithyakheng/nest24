@@ -28,124 +28,152 @@ export default function Navbar() {
 
   return (
     <>
+      {/* Floating Control Panel */}
       <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className={`fixed top-0 left-0 right-0 z-50 smooth-transition ${
-          scrolled
-            ? 'glass shadow-lg'
-            : 'glass'
-        }`}
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ 
+          opacity: 1, 
+          y: 0,
+          y: scrolled ? -4 : 0
+        }}
+        transition={{ 
+          duration: 0.6,
+          y: { duration: 0.3 }
+        }}
+        className="fixed top-8 left-1/2 right-1/2 z-50 -translate-x-1/2 max-w-5xl w-full px-6"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            {/* Logo */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400, damping: 17 }}
-            >
-              <Link href="/" className="text-3xl font-bold text-[#004E64] tracking-tight">
-                NESTKH
-              </Link>
-            </motion.div>
+        <motion.div
+          animate={{
+            y: [0, -4, 0],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="bg-white/[0.05] backdrop-blur-3xl border border-white/[0.08] border-t-white/[0.18] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] px-6 py-4"
+        >
+          <div className="flex items-center justify-between">
+            {/* Premium Logo */}
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="relative">
+                <span className="font-black tracking-tight text-white text-xl">NestKH</span>
+                <div className="absolute -top-1 -right-2 w-2 h-2 bg-teal-400 rounded-full animate-pulse"></div>
+              </div>
+            </Link>
 
-            {/* Desktop Navigation */}
+            {/* Center Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <Link href="/" className="text-gray-700 hover:text-[#004E64] smooth-transition font-medium">
-                Home
+              <Link 
+                href="/browse" 
+                className="text-white/70 hover:text-white transition-colors font-medium"
+              >
+                Browse
               </Link>
-              <Link href="/categories" className="text-gray-700 hover:text-[#004E64] smooth-transition font-medium">
-                Categories
+              <Link 
+                href="/sellers" 
+                className="text-white/70 hover:text-white transition-colors font-medium"
+              >
+                Sellers
               </Link>
-              <Link href="/deals" className="text-gray-700 hover:text-[#004E64] smooth-transition font-medium">
-                Deals
-              </Link>
-              <Link href="/about" className="text-gray-700 hover:text-[#004E64] smooth-transition font-medium">
+              <Link 
+                href="/about" 
+                className="text-white/70 hover:text-white transition-colors font-medium"
+              >
                 About
               </Link>
             </div>
 
-            {/* Search Bar */}
-            <div className="hidden lg:block flex-1 max-w-md mx-8">
-              <motion.div
-                className="relative"
-                whileFocus={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              >
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  className="w-full pl-12 pr-4 py-3 glass rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#004E64]/20 focus:border-[#004E64] smooth-transition text-gray-700 placeholder-gray-400"
-                />
-              </motion.div>
-            </div>
-
-            {/* Right Icons */}
+            {/* Right Side - Search & Auth */}
             <div className="flex items-center space-x-4">
-              {/* User Account */}
-              {user ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center space-x-3"
-                >
-                  <div className="w-10 h-10 glass rounded-full flex items-center justify-center">
-                    <span className="text-[#004E64] font-semibold">
-                      {user.user_metadata?.full_name?.[0] || user.email?.[0] || 'U'}
-                    </span>
-                  </div>
-                  <div className="hidden md:flex items-center space-x-3">
-                    {isSeller ? (
-                      <Link
-                        href="/seller-dashboard"
-                        className="text-gray-600 hover:text-[#004E64] smooth-transition font-medium"
-                      >
-                        Seller Dashboard
-                      </Link>
-                    ) : (
-                      <Link
-                        href="/profile"
-                        className="text-gray-600 hover:text-[#004E64] smooth-transition font-medium"
-                      >
-                        Profile
-                      </Link>
-                    )}
-                    <button
-                      onClick={handleSignOut}
-                      className="text-gray-600 hover:text-[#004E64] smooth-transition font-medium"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                </motion.div>
+              {/* Floating Search Console */}
+              <div className="hidden lg:block">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search premium products..."
+                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.12] rounded-full px-4 py-2 pr-10 text-white placeholder:text-white/40 w-64 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/30"
+                  />
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                </div>
+              </div>
+
+              {/* Auth Buttons */}
+              {!user ? (
+                <div className="flex items-center space-x-3">
+                  <Link
+                    href="/auth/signin"
+                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.12] rounded-full px-4 py-2 text-white/80 hover:text-white hover:bg-white/[0.12] transition-all font-medium"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/auth/signup"
+                    className="bg-teal-500 hover:bg-teal-600 text-white rounded-full px-4 py-2 font-medium transition-all"
+                  >
+                    Start Selling
+                  </Link>
+                </div>
               ) : (
-                <div className="hidden md:flex items-center space-x-4">
-                  <Link
-                    href="/login"
-                    className="text-gray-700 hover:text-[#004E64] smooth-transition font-medium"
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="glass px-6 py-2 rounded-2xl text-[#004E64] hover:bg-[#004E64] hover:text-white smooth-transition font-medium"
-                  >
-                    Register
-                  </Link>
+                <div className="flex items-center space-x-3">
+                  {isSeller ? (
+                    <Link
+                      href="/seller-dashboard"
+                      className="flex items-center space-x-2 bg-white/[0.08] backdrop-blur-xl border border-white/[0.12] rounded-full px-4 py-2 text-white/80 hover:text-white hover:bg-white/[0.12] transition-all font-medium"
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      <span className="hidden sm:inline">Dashboard</span>
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/buyer-dashboard"
+                      className="flex items-center space-x-2 bg-white/[0.08] backdrop-blur-xl border border-white/[0.12] rounded-full px-4 py-2 text-white/80 hover:text-white hover:bg-white/[0.12] transition-all font-medium"
+                    >
+                      <ShoppingBag className="w-4 h-4" />
+                      <span className="hidden sm:inline">Orders</span>
+                    </Link>
+                  )}
+                  
+                  <div className="relative group">
+                    <button 
+                      onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                      className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.12] rounded-full p-2 text-white/80 hover:text-white hover:bg-white/[0.12] transition-all"
+                    >
+                      <User className="w-4 h-4" />
+                    </button>
+                    
+                    {/* Dropdown Menu */}
+                    <AnimatePresence>
+                      {mobileMenuOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                          className="absolute right-0 top-12 bg-white/[0.08] backdrop-blur-3xl border border-white/[0.12] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] p-2 min-w-[200px]"
+                        >
+                          <button
+                            onClick={handleSignOut}
+                            className="w-full text-left px-4 py-3 text-white/80 hover:text-white hover:bg-white/[0.12] rounded-xl transition-all"
+                          >
+                            Sign Out
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
               )}
 
               {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 text-gray-700 hover:text-[#004E64] smooth-transition"
+                className="md:hidden bg-white/[0.08] backdrop-blur-xl border border-white/[0.12] rounded-full p-2 text-white/80 hover:text-white hover:bg-white/[0.12] transition-all"
               >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
           </div>
-        </div>
+        </motion.div>
       </motion.nav>
 
       {/* Mobile Menu */}
@@ -155,31 +183,30 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-20 left-0 right-0 z-40 glass md:hidden"
+            className="fixed top-24 left-4 right-4 z-40 bg-white/[0.08] backdrop-blur-3xl border border-white/[0.12] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] p-6"
           >
-            <div className="px-4 py-6 space-y-4">
-              <Link href="/" className="block text-gray-700 hover:text-[#004E64] smooth-transition font-medium">
-                Home
+            <div className="space-y-4">
+              <Link
+                href="/browse"
+                className="block text-white/80 hover:text-white transition-colors font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Browse
               </Link>
-              <Link href="/categories" className="block text-gray-700 hover:text-[#004E64] smooth-transition font-medium">
-                Categories
+              <Link
+                href="/sellers"
+                className="block text-white/80 hover:text-white transition-colors font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Sellers
               </Link>
-              <Link href="/deals" className="block text-gray-700 hover:text-[#004E64] smooth-transition font-medium">
-                Deals
-              </Link>
-              <Link href="/about" className="block text-gray-700 hover:text-[#004E64] smooth-transition font-medium">
+              <Link
+                href="/about"
+                className="block text-white/80 hover:text-white transition-colors font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 About
               </Link>
-              {!user && (
-                <div className="pt-4 border-t border-gray-200">
-                  <Link href="/login" className="block text-gray-700 hover:text-[#004E64] smooth-transition font-medium mb-2">
-                    Login
-                  </Link>
-                  <Link href="/register" className="block glass px-6 py-2 rounded-2xl text-[#004E64] hover:bg-[#004E64] hover:text-white smooth-transition font-medium text-center">
-                    Register
-                  </Link>
-                </div>
-              )}
             </div>
           </motion.div>
         )}
