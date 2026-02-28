@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft, ShoppingCart, Plus, Minus, User, Package, Star } from 'lucide-react'
+import { ArrowLeft, Phone, MessageCircle, Mail, User, Package, Star, ExternalLink } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 interface Product {
@@ -23,6 +23,10 @@ interface Seller {
   email: string
   user_metadata?: {
     full_name?: string
+    phone_number?: string
+    facebook_url?: string
+    instagram_url?: string
+    whatsapp_url?: string
   }
 }
 
@@ -32,8 +36,6 @@ export default function ProductDetail() {
   const [product, setProduct] = useState<Product | null>(null)
   const [seller, setSeller] = useState<Seller | null>(null)
   const [loading, setLoading] = useState(true)
-  const [quantity, setQuantity] = useState(1)
-  const [addingToCart, setAddingToCart] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -71,61 +73,6 @@ export default function ProductDetail() {
       console.error('Error fetching product:', error)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const addToCart = () => {
-    if (!product) return
-
-    setAddingToCart(true)
-    
-    // Get existing cart from localStorage
-    const existingCart = JSON.parse(localStorage.getItem('cart') || '[]')
-    
-    // Check if product already in cart
-    const existingItem = existingCart.find((item: any) => item.id === product.id)
-    
-    if (existingItem) {
-      // Update quantity
-      existingItem.quantity += quantity
-    } else {
-      // Add new item
-      existingCart.push({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image_url: product.image_url,
-        quantity: quantity
-      })
-    }
-    
-    // Save to localStorage
-    localStorage.setItem('cart', JSON.stringify(existingCart))
-    
-    // Show success message
-    showSuccessToast(`${product.name} added to cart!`)
-    
-    setTimeout(() => {
-      setAddingToCart(false)
-    }, 1000)
-  }
-
-  const showSuccessToast = (message: string) => {
-    // Create toast element
-    const toast = document.createElement('div')
-    toast.className = 'fixed top-4 right-4 glass px-6 py-3 rounded-2xl text-white z-50 animate-pulse'
-    toast.textContent = message
-    document.body.appendChild(toast)
-    
-    setTimeout(() => {
-      toast.remove()
-    }, 3000)
-  }
-
-  const updateQuantity = (change: number) => {
-    const newQuantity = quantity + change
-    if (newQuantity >= 1 && newQuantity <= (product?.stock || 0)) {
-      setQuantity(newQuantity)
     }
   }
 
@@ -218,51 +165,98 @@ export default function ProductDetail() {
 
             {/* Seller Info */}
             <div className="glass rounded-2xl p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Seller Information</h3>
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 glass rounded-full flex items-center justify-center">
-                  <User className="w-6 h-6 text-[#004E64]" />
+              <h3 className="font-semibold text-gray-900 mb-6">Seller Information</h3>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 glass rounded-full flex items-center justify-center">
+                    <User className="w-6 h-6 text-[#004E64]" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {seller?.user_metadata?.full_name || seller?.email || 'Unknown Seller'}
+                    </p>
+                    <p className="text-sm text-gray-600">Verified Seller</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium text-gray-900">
-                    {seller?.user_metadata?.full_name || seller?.email || 'Unknown Seller'}
-                  </p>
-                  <p className="text-sm text-gray-600">Verified Seller</p>
-                </div>
+                
+                {seller?.user_metadata?.phone_number && (
+                  <div className="flex items-center space-x-2 text-gray-600">
+                    <Phone className="w-4 h-4" />
+                    <span>{seller.user_metadata.phone_number}</span>
+                  </div>
+                )}
+                
+                {seller?.email && (
+                  <div className="flex items-center space-x-2 text-gray-600">
+                    <Mail className="w-4 h-4" />
+                    <span>{seller.email}</span>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Quantity Selector */}
+            {/* Contact Buttons */}
             <div className="space-y-4">
-              <h3 className="font-semibold text-gray-900">Quantity</h3>
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => updateQuantity(-1)}
-                  className="w-12 h-12 glass rounded-2xl flex items-center justify-center hover:bg-[#004E64] hover:text-white smooth-transition"
-                  disabled={quantity <= 1}
+              <h3 className="font-semibold text-gray-900">Contact Seller</h3>
+              
+              {seller?.user_metadata?.phone_number && (
+                <>
+                  <a
+                    href={`tel:${seller.user_metadata.phone_number}`}
+                    className="w-full glass px-6 py-4 rounded-2xl text-[#004E64] font-semibold hover:bg-[#004E64] hover:text-white smooth-transition flex items-center justify-center space-x-2"
+                  >
+                    <Phone className="w-5 h-5" />
+                    <span>Call Seller</span>
+                  </a>
+                  
+                  <a
+                    href={`https://wa.me/${seller.user_metadata.phone_number.replace(/[^\d]/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full glass px-6 py-4 rounded-2xl text-green-600 font-semibold hover:bg-green-600 hover:text-white smooth-transition flex items-center justify-center space-x-2"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    <span>WhatsApp</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </>
+              )}
+              
+              {seller?.email && (
+                <a
+                  href={`mailto:${seller.email}`}
+                  className="w-full glass px-6 py-4 rounded-2xl text-[#004E64] font-semibold hover:bg-[#004E64] hover:text-white smooth-transition flex items-center justify-center space-x-2"
                 >
-                  <Minus className="w-4 h-4" />
-                </button>
-                <span className="text-xl font-semibold text-gray-900 w-12 text-center">{quantity}</span>
-                <button
-                  onClick={() => updateQuantity(1)}
-                  className="w-12 h-12 glass rounded-2xl flex items-center justify-center hover:bg-[#004E64] hover:text-white smooth-transition"
-                  disabled={quantity >= product.stock}
+                  <Mail className="w-5 h-5" />
+                  <span>Email Seller</span>
+                </a>
+              )}
+              
+              {/* Social Media Links */}
+              {seller?.user_metadata?.facebook_url && (
+                <a
+                  href={seller.user_metadata.facebook_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full glass px-6 py-3 rounded-2xl text-blue-600 font-medium hover:bg-blue-600 hover:text-white smooth-transition flex items-center justify-center space-x-2"
                 >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
+                  <ExternalLink className="w-4 h-4" />
+                  <span>Facebook</span>
+                </a>
+              )}
+              
+              {seller?.user_metadata?.instagram_url && (
+                <a
+                  href={seller.user_metadata.instagram_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full glass px-6 py-3 rounded-2xl text-pink-600 font-medium hover:bg-pink-600 hover:text-white smooth-transition flex items-center justify-center space-x-2"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>Instagram</span>
+                </a>
+              )}
             </div>
-
-            {/* Add to Cart Button */}
-            <button
-              onClick={addToCart}
-              disabled={product.stock === 0 || addingToCart}
-              className="w-full glass px-8 py-4 rounded-2xl text-[#004E64] font-semibold hover:bg-[#004E64] hover:text-white smooth-transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              <span>{addingToCart ? 'Adding...' : 'Add to Cart'}</span>
-            </button>
           </motion.div>
         </div>
       </div>
