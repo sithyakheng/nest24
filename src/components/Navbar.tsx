@@ -5,9 +5,12 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, User, Menu, X } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { supabase } from '@/lib/supabase'
 
 export default function Navbar() {
-  const { user, signOut, isSeller } = useAuth()
+  const { user } = useAuth()
+  const isSeller = user?.user_metadata?.role === 'seller'
+  const signOut = () => supabase.auth.signOut()
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 

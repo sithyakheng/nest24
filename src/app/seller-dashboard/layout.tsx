@@ -16,6 +16,7 @@ import {
   X
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { supabase } from '@/lib/supabase'
 
 interface SellerLayoutProps {
   children: React.ReactNode
@@ -34,7 +35,8 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
-  const { user, signOut } = useAuth()
+  const { user } = useAuth()
+  const signOut = () => supabase.auth.signOut()
   
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
