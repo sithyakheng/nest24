@@ -101,10 +101,20 @@ export default function Analytics() {
         .select('*', { count: 'exact', head: true })
         .eq('seller_id', authUser.id)
 
+      // Get real total orders count
+      const { count: totalOrdersCount, error: totalOrdersError } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('seller_id', authUser.id)
+
+      if (totalOrdersError) {
+        console.error('❌ Total orders count error:', totalOrdersError)
+      }
+
       // Calculate metrics
       const orders = ordersData || []
-      const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0)
-      const totalOrders = orders.length
+      const totalRevenue = orders.filter(order => order.status === 'completed').reduce((sum, order) => sum + (order.total || 0), 0)
+      const totalOrders = totalOrdersCount || 0
       const totalCustomers = new Set(orders.map(order => order.buyer_id)).size
       const pendingOrders = orders.filter(o => o.status === 'pending').length
       const shippedOrders = orders.filter(o => o.status === 'shipped').length
@@ -150,7 +160,7 @@ export default function Analytics() {
       setData({
         totalRevenue,
         totalOrders,
-        totalProducts: productsCount || 0,
+        totalProducts: productsCount || 0,  // Real products count
         totalCustomers,
         pendingOrders,
         shippedOrders,

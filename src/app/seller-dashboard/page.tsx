@@ -110,16 +110,16 @@ export default function SellerDashboard() {
 
       if (ordersError) throw ordersError
 
-      // Calculate real revenue from orders
-      const totalRevenue = ordersData?.reduce((sum, order) => {
+      // Calculate real revenue from COMPLETED orders only
+      const totalRevenue = ordersData?.filter(order => order.status === 'completed').reduce((sum, order) => {
         return sum + (order.total || 0)
       }, 0) || 0
 
       // Count pending orders
       const pendingCount = ordersData?.filter(order => order.status === 'pending').length || 0
 
-      // Get recent orders (last 3)
-      const recent = ordersData?.slice(0, 3).map(order => ({
+      // Get recent orders (latest 5)
+      const recent = ordersData?.slice(0, 5).map(order => ({
         id: order.id,
         buyerName: order.buyer?.user_metadata?.full_name || order.buyer?.email || 'Unknown Buyer',
         productName: order.product?.name || 'Unknown Product',
@@ -152,10 +152,18 @@ export default function SellerDashboard() {
 
   const fetchContactInfo = async () => {
     try {
+      // Get the current authenticated user
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError || !authUser) {
+        console.error('User not authenticated')
+        return
+      }
+
       const { data } = await supabase
         .from('seller_profiles')
         .select('*')
-        .eq('seller_id', user?.id)
+        .eq('seller_id', authUser.id)
         .single()
 
       if (data) {

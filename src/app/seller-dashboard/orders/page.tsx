@@ -81,19 +81,7 @@ export default function Orders() {
 
       const { data, error } = await supabase
         .from('orders')
-        .select(`
-          *,
-          buyer:buyer_id (
-            id,
-            email,
-            user_metadata
-          ),
-          product:product_id (
-            id,
-            name,
-            price
-          )
-        `)
+        .select('*, product:product_id(*), buyer:buyer_id(*)')
         .eq('seller_id', authUser.id)
         .order('created_at', { ascending: false })
 
