@@ -123,12 +123,29 @@ export default function SellerProfile() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user) return
     
     setSaving(true)
     setSuccess(false)
 
     try {
+      // Get authenticated user
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError || !user) {
+        throw new Error('User not authenticated')
+      }
+
+      console.log('🔍 Starting profile save for user:', user.id)
+      console.log('📝 Profile data to save:', {
+        full_name: profile.full_name,
+        phone: profile.phone,
+        whatsapp: profile.whatsapp,
+        facebook: profile.facebook,
+        instagram: profile.instagram,
+        telegram: profile.telegram,
+        bio: profile.bio,
+        avatar_url: profile.avatar_url
+      })
+
       const profileData = {
         full_name: profile.full_name,
         phone: profile.phone,
@@ -141,21 +158,25 @@ export default function SellerProfile() {
       }
 
       // Check if profile exists
-      const { data: existingProfile } = await supabase
+      const { data: existingProfile, error: checkError } = await supabase
         .from('profiles')
         .select('id')
         .eq('id', user.id)
         .single()
 
+      console.log('🔍 Profile exists check:', existingProfile, checkError)
+
       let result
       if (existingProfile) {
         // Update existing profile
+        console.log('📝 Updating existing profile...')
         result = await supabase
           .from('profiles')
           .update(profileData)
           .eq('id', user.id)
       } else {
         // Create new profile
+        console.log('📝 Creating new profile...')
         result = await supabase
           .from('profiles')
           .insert({
@@ -164,12 +185,21 @@ export default function SellerProfile() {
           })
       }
 
-      if (result.error) throw result.error
+      console.log('💾 Save result:', result)
 
+      if (result.error) {
+        console.log('❌ Save error:', result.error)
+        alert('Error saving: ' + result.error.message)
+        throw result.error
+      }
+
+      console.log('✅ Profile saved successfully!')
       setSuccess(true)
+      alert('Profile saved successfully!')
       setTimeout(() => setSuccess(false), 3000)
     } catch (error) {
-      console.error('Error saving profile:', error)
+      console.error('❌ Error saving profile:', error)
+      alert('Error saving: ' + (error as Error).message)
     } finally {
       setSaving(false)
     }
