@@ -72,9 +72,9 @@ export default function ProductPage() {
 
       // Fetch seller profile
       const { data: sellerData } = await supabase
-        .from('seller_profiles')
+        .from('profiles')
         .select('*')
-        .eq('seller_id', productData.seller_id)
+        .eq('id', productData.seller_id)
         .single()
 
       setSellerProfile(sellerData)

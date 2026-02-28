@@ -170,9 +170,9 @@ export default function SellerDashboard() {
     setSavingContact(true)
     try {
       const { error } = await supabase
-        .from('seller_profiles')
+        .from('profiles')
         .upsert({
-          seller_id: user?.id,
+          id: user?.id,
           phone_number: contactInfo.phone_number,
           facebook_url: contactInfo.facebook_url,
           instagram_url: contactInfo.instagram_url,
