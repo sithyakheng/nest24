@@ -29,30 +29,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Get initial session
-    const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
-    }
-
-    getInitialSession()
+    })
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session)
-        setUser(session?.user ?? null)
-        setLoading(false)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      setLoading(false)
 
-        // Auto-redirect sellers to dashboard
-        if (event === 'SIGNED_IN' && session?.user?.user_metadata?.role === 'seller') {
-          setTimeout(() => {
-            router.push('/seller-dashboard')
-          }, 500)
-        }
+      // Auto-redirect sellers to dashboard
+      if (_event === 'SIGNED_IN' && session?.user?.user_metadata?.role === 'seller') {
+        setTimeout(() => {
+          router.push('/seller-dashboard')
+        }, 500)
       }
-    )
+    })
 
     return () => subscription.unsubscribe()
   }, [router])
