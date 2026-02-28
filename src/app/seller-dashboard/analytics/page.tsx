@@ -63,110 +63,77 @@ export default function Analytics() {
     setLoading(true)
     try {
       // Get the current authenticated user
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
       
-      if (authError || !authUser) {
+      if (authError || !user) {
         console.error('User not authenticated')
         return
       }
 
-      // Get date range
-      const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90
-      const startDate = new Date()
-      startDate.setDate(startDate.getDate() - days)
+      console.log('🔍 Fetching analytics data for seller:', user.id)
 
-      // Fetch orders with product and buyer data
-      const { data: ordersData, error: ordersError } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          product:product_id (
-            id,
-            name,
-            price
-          ),
-          buyer:buyer_id (
-            id
-          )
-        `)
-        .eq('seller_id', authUser.id)
-        .gte('created_at', startDate.toISOString())
-        .order('created_at', { ascending: false })
-
-      if (ordersError) throw ordersError
-
-      // Fetch products count
-      const { count: productsCount } = await supabase
+      // Total products
+      const { count: totalProducts, error: productsError } = await supabase
         .from('products')
         .select('*', { count: 'exact', head: true })
-        .eq('seller_id', authUser.id)
+        .eq('seller_id', user.id)
 
-      // Get real total orders count
-      const { count: totalOrdersCount, error: totalOrdersError } = await supabase
+      if (productsError) {
+        console.error('❌ Products count error:', productsError)
+      }
+
+      // Total orders
+      const { count: totalOrders, error: ordersError } = await supabase
         .from('orders')
         .select('*', { count: 'exact', head: true })
-        .eq('seller_id', authUser.id)
+        .eq('seller_id', user.id)
 
-      if (totalOrdersError) {
-        console.error('❌ Total orders count error:', totalOrdersError)
+      if (ordersError) {
+        console.error('❌ Orders count error:', ordersError)
       }
 
-      // Calculate metrics
-      const orders = ordersData || []
-      const totalRevenue = orders.filter(order => order.status === 'completed').reduce((sum, order) => sum + (order.total || 0), 0)
-      const totalOrders = totalOrdersCount || 0
-      const totalCustomers = new Set(orders.map(order => order.buyer_id)).size
-      const pendingOrders = orders.filter(o => o.status === 'pending').length
-      const shippedOrders = orders.filter(o => o.status === 'shipped').length
-      const completedOrders = orders.filter(o => o.status === 'completed').length
+      // Total revenue from completed orders
+      const { data: revenueData, error: revenueError } = await supabase
+        .from('orders')
+        .select('total')
+        .eq('seller_id', user.id)
+        .eq('status', 'completed')
 
-      // Calculate top products
-      const productSales = new Map()
-      orders.forEach(order => {
-        const productName = order.product?.name || 'Unknown Product'
-        const current = productSales.get(productName) || { sales: 0, revenue: 0 }
-        productSales.set(productName, {
-          sales: current.sales + (order.quantity || 1),
-          revenue: current.revenue + (order.total || 0)
-        })
-      })
-
-      const topProducts = Array.from(productSales.entries())
-        .map(([name, stats]) => ({ name, ...stats }))
-        .sort((a, b) => b.revenue - a.revenue)
-        .slice(0, 5)
-
-      // Calculate revenue by day
-      const revenueByDay = new Map()
-      for (let i = days - 1; i >= 0; i--) {
-        const date = new Date()
-        date.setDate(date.getDate() - i)
-        const dateStr = date.toISOString().split('T')[0]
-        revenueByDay.set(dateStr, { date: dateStr, revenue: 0, orders: 0 })
+      if (revenueError) {
+        console.error('❌ Revenue data error:', revenueError)
       }
 
-      orders.forEach(order => {
-        const dateStr = order.created_at.split('T')[0]
-        if (revenueByDay.has(dateStr)) {
-          const current = revenueByDay.get(dateStr)
-          revenueByDay.set(dateStr, {
-            ...current,
-            revenue: current.revenue + (order.total || 0),
-            orders: current.orders + 1
-          })
-        }
+      const totalRevenue = revenueData?.reduce((sum, order) => sum + (order.total || 0), 0) || 0
+
+      // Products with most views/orders (latest products)
+      const { data: topProducts, error: topProductsError } = await supabase
+        .from('products')
+        .select('*')
+        .eq('seller_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10)
+
+      if (topProductsError) {
+        console.error('❌ Top products error:', topProductsError)
+      }
+
+      console.log('📊 Analytics data:', {
+        totalProducts: totalProducts || 0,
+        totalOrders: totalOrders || 0,
+        totalRevenue,
+        topProductsCount: topProducts?.length || 0
       })
 
       setData({
         totalRevenue,
-        totalOrders,
-        totalProducts: productsCount || 0,  // Real products count
-        totalCustomers,
-        pendingOrders,
-        shippedOrders,
-        completedOrders,
-        topProducts,
-        revenueByDay: Array.from(revenueByDay.values())
+        totalOrders: totalOrders || 0,
+        totalProducts: totalProducts || 0,
+        totalCustomers: 0, // Can be calculated later if needed
+        pendingOrders: 0, // Can be calculated later if needed
+        shippedOrders: 0, // Can be calculated later if needed
+        completedOrders: 0, // Can be calculated later if needed
+        topProducts: topProducts || [],
+        revenueByDay: [] // Can be calculated later if needed
       })
     } catch (error) {
       console.error('Error fetching analytics data:', error)
