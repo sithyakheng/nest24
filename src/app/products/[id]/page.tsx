@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Phone, MessageCircle, Mail, User, Package, Star, ExternalLink } from 'lucide-react'
+import { ArrowLeft, Phone, MessageCircle, Mail, User, Package, Star, ExternalLink, Facebook, Instagram, Send } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 interface Product {
@@ -21,13 +21,14 @@ interface Product {
 interface Seller {
   id: string
   email: string
-  user_metadata?: {
-    full_name?: string
-    phone_number?: string
-    facebook_url?: string
-    instagram_url?: string
-    whatsapp_url?: string
-  }
+  full_name?: string
+  phone?: string
+  whatsapp?: string
+  facebook?: string
+  instagram?: string
+  telegram?: string
+  bio?: string
+  avatar_url?: string
 }
 
 export default function ProductDetail() {
@@ -56,7 +57,7 @@ export default function ProductDetail() {
 
       setProduct(productData)
 
-      // Fetch seller info
+      // Fetch seller profile
       const { data: sellerData } = await supabase
         .from('profiles')
         .select('*')
@@ -64,11 +65,7 @@ export default function ProductDetail() {
         .single()
       
       if (sellerData) {
-        setSeller({
-          id: sellerData.id,
-          email: sellerData.email || '',
-          user_metadata: sellerData.user_metadata
-        })
+        setSeller(sellerData)
       }
     } catch (error) {
       console.error('Error fetching product:', error)
@@ -180,42 +177,53 @@ export default function ProductDetail() {
               className="glass rounded-2xl p-6 space-y-6"
             >
               {/* Seller Profile */}
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 glass rounded-full flex items-center justify-center">
-                  <span className="text-2xl font-bold text-[#004E64]">
-                    {seller.user_metadata?.full_name?.[0] || seller.email?.[0] || 'S'}
-                  </span>
+              <div className="flex items-start space-x-4">
+                <div className="w-16 h-16 glass rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+                  {seller.avatar_url ? (
+                    <img
+                      src={seller.avatar_url}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-2xl font-bold text-[#004E64]">
+                      {seller.full_name?.[0] || seller.email?.[0] || 'S'}
+                    </span>
+                  )}
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="text-xl font-semibold text-gray-900">
-                    {seller.user_metadata?.full_name || 'Seller'}
+                    {seller.full_name || 'Seller'}
                   </h3>
                   <p className="text-gray-600">Verified Seller</p>
+                  {seller.bio && (
+                    <p className="text-gray-700 mt-2">{seller.bio}</p>
+                  )}
                 </div>
               </div>
 
               {/* Contact Methods */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {seller.user_metadata?.phone_number && (
-                  <>
-                    <a
-                      href={`tel:${seller.user_metadata.phone_number}`}
-                      className="glass px-4 py-3 rounded-2xl text-[#004E64] font-medium hover:bg-[#004E64] hover:text-white smooth-transition flex items-center justify-center space-x-2"
-                    >
-                      <Phone className="w-4 h-4" />
-                      <span>📞 Call</span>
-                    </a>
-                    
-                    <a
-                      href={`https://wa.me/${seller.user_metadata.phone_number.replace(/[^\d]/g, '')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="glass px-4 py-3 rounded-2xl text-green-600 font-medium hover:bg-green-600 hover:text-white smooth-transition flex items-center justify-center space-x-2"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      <span>WhatsApp</span>
-                    </a>
-                  </>
+                {seller.phone && (
+                  <a
+                    href={`tel:${seller.phone}`}
+                    className="glass px-4 py-3 rounded-2xl text-[#004E64] font-medium hover:bg-[#004E64] hover:text-white smooth-transition flex items-center justify-center space-x-2"
+                  >
+                    <Phone className="w-4 h-4" />
+                    <span>📞 Call</span>
+                  </a>
+                )}
+                
+                {seller.whatsapp && (
+                  <a
+                    href={`https://wa.me/${seller.whatsapp.replace(/[^\d]/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="glass px-4 py-3 rounded-2xl text-green-600 font-medium hover:bg-green-600 hover:text-white smooth-transition flex items-center justify-center space-x-2"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>WhatsApp</span>
+                  </a>
                 )}
                 
                 {seller.email && (
@@ -230,28 +238,40 @@ export default function ProductDetail() {
               </div>
 
               {/* Social Media */}
-              <div className="flex space-x-4">
-                {seller.user_metadata?.facebook_url && (
+              <div className="flex flex-wrap gap-4">
+                {seller.facebook && (
                   <a
-                    href={seller.user_metadata.facebook_url}
+                    href={seller.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="glass px-4 py-2 rounded-2xl text-blue-600 font-medium hover:bg-blue-600 hover:text-white smooth-transition flex items-center space-x-2"
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <Facebook className="w-4 h-4" />
                     <span>Facebook</span>
                   </a>
                 )}
                 
-                {seller.user_metadata?.instagram_url && (
+                {seller.instagram && (
                   <a
-                    href={seller.user_metadata.instagram_url}
+                    href={seller.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="glass px-4 py-2 rounded-2xl text-pink-600 font-medium hover:bg-pink-600 hover:text-white smooth-transition flex items-center space-x-2"
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <Instagram className="w-4 h-4" />
                     <span>Instagram</span>
+                  </a>
+                )}
+                
+                {seller.telegram && (
+                  <a
+                    href={`https://t.me/${seller.telegram.replace('@', '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="glass px-4 py-2 rounded-2xl text-blue-500 font-medium hover:bg-blue-500 hover:text-white smooth-transition flex items-center space-x-2"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>Telegram</span>
                   </a>
                 )}
               </div>
