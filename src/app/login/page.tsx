@@ -256,7 +256,7 @@ export default function Login() {
                 transition={{ delay: 0.6, duration: 0.5 }}
                 className="text-center mt-8"
               >
-                <p className="text-white/60">
+                <div className="text-white/60">
                   Don't have an account?{' '}
                   <motion.a
                     href="/register"
@@ -271,7 +271,7 @@ export default function Login() {
                       transition={{ duration: 0.3 }}
                     />
                   </motion.a>
-                </p>
+                </div>
               </motion.div>
             </div>
           </div>
