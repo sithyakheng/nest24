@@ -105,6 +105,37 @@ export default function Analytics() {
 
       const totalRevenue = revenueData?.reduce((sum, order) => sum + (order.total || 0), 0) || 0
 
+      // Order status counts
+      const { count: pendingOrders, error: pendingError } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('seller_id', user.id)
+        .eq('status', 'pending')
+
+      if (pendingError) {
+        console.error('❌ Pending orders error:', pendingError)
+      }
+
+      const { count: completedOrders, error: completedError } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('seller_id', user.id)
+        .eq('status', 'completed')
+
+      if (completedError) {
+        console.error('❌ Completed orders error:', completedError)
+      }
+
+      const { count: shippedOrders, error: shippedError } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('seller_id', user.id)
+        .eq('status', 'shipped')
+
+      if (shippedError) {
+        console.error('❌ Shipped orders error:', shippedError)
+      }
+
       // Products with most views/orders (latest products)
       const { data: topProducts, error: topProductsError } = await supabase
         .from('products')
@@ -129,9 +160,9 @@ export default function Analytics() {
         totalOrders: totalOrders || 0,
         totalProducts: totalProducts || 0,
         totalCustomers: 0, // Can be calculated later if needed
-        pendingOrders: 0, // Can be calculated later if needed
-        shippedOrders: 0, // Can be calculated later if needed
-        completedOrders: 0, // Can be calculated later if needed
+        pendingOrders: pendingOrders || 0,
+        shippedOrders: shippedOrders || 0,
+        completedOrders: completedOrders || 0,
         topProducts: topProducts || [],
         revenueByDay: [] // Can be calculated later if needed
       })
@@ -192,7 +223,7 @@ export default function Analytics() {
   const statCards = [
     {
       title: 'Revenue',
-      value: `$${Math.round(animatedRevenue.get()).toLocaleString()}`,
+      value: `$${data.totalRevenue.toLocaleString()}`,
       change: data.totalRevenue > 0 ? 23 : 0,
       isUp: true,
       icon: DollarSign,
@@ -200,7 +231,7 @@ export default function Analytics() {
     },
     {
       title: 'Orders',
-      value: Math.round(animatedOrders.get()),
+      value: data.totalOrders,
       change: data.totalOrders > 0 ? 12 : 0,
       isUp: true,
       icon: ShoppingCart,
@@ -208,7 +239,7 @@ export default function Analytics() {
     },
     {
       title: 'Products',
-      value: Math.round(animatedProducts.get()),
+      value: data.totalProducts,
       change: data.totalProducts > 0 ? 8 : 0,
       isUp: true,
       icon: Package,
@@ -216,7 +247,7 @@ export default function Analytics() {
     },
     {
       title: 'Customers',
-      value: Math.round(animatedCustomers.get()),
+      value: data.totalCustomers,
       change: data.totalCustomers > 0 ? 15 : 0,
       isUp: true,
       icon: Users,
