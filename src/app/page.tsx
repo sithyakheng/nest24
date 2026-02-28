@@ -1,389 +1,429 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, useScroll, useInView, useSpring } from 'framer-motion'
-import Link from 'next/link'
-import { Search, Home as HomeIcon, Laptop, Shirt, ShoppingBag, ArrowRight, Package, Clock } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Search, Star, TrendingUp, Users } from 'lucide-react'
+import PageWrapper from '@/components/PageWrapper'
+import ProductCard from '@/components/ProductCard'
 import { supabase } from '@/lib/supabase'
 
 interface Product {
   id: string
   name: string
   price: number
-  description?: string
+  original_price?: number
+  discount?: number
+  category: string
+  stock: number
   image_url?: string
   seller_id: string
   created_at: string
 }
 
-export default function Home() {
-  const [products, setProducts] = useState<Product[]>([])
+interface Seller {
+  id: string
+  full_name?: string
+  avatar_url?: string
+  bio?: string
+}
+
+export default function HomePage() {
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
+  const [spotlightSellers, setSpotlightSellers] = useState<Seller[]>([])
+  const [recentProducts, setRecentProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const { scrollYProgress } = useScroll()
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 })
 
   useEffect(() => {
-    fetchProducts()
+    fetchHomepageData()
   }, [])
 
-  const fetchProducts = async () => {
+  const fetchHomepageData = async () => {
     try {
-      console.log('🔍 Fetching all products for homepage...')
-      
-      // Check Supabase client initialization
-      console.log('📡 Supabase client initialized:', !!supabase)
-      
-      // Check current session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      console.log('👤 Current session:', session?.user?.id || 'No active session')
-      if (sessionError) console.log('⚠️ Session error:', sessionError)
-
-      const { data, error } = await supabase
+      // Fetch featured products
+      const { data: products } = await supabase
         .from('products')
         .select('*')
+        .gt('stock', 0)
         .order('created_at', { ascending: false })
+        .limit(8)
 
-      console.log('📦 Products query result:', { data, error })
-      console.log('📊 Products count:', data?.length || 0)
+      // Fetch spotlight sellers
+      const { data: sellers } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('role', 'seller')
+        .limit(3)
 
-      if (error) {
-        console.error('❌ Supabase error:', error)
-        throw error
+      // Fetch recent products
+      const { data: recent } = await supabase
+        .from('products')
+        .select('*')
+        .gt('stock', 0)
+        .order('created_at', { ascending: false })
+        .limit(10)
+
+      // Fetch seller info for products
+      const sellerIds = [...new Set(products?.map(p => p.seller_id) || [])]
+      if (sellerIds.length > 0) {
+        const { data: sellerData } = await supabase
+          .from('profiles')
+          .select('id, full_name, avatar_url')
+          .in('id', sellerIds)
+
+        const productsWithSellers = products?.map(product => ({
+          ...product,
+          seller: sellerData?.find(s => s.id === product.seller_id)
+        })) || []
+
+        setFeaturedProducts(productsWithSellers)
+      } else {
+        setFeaturedProducts(products || [])
       }
-      
-      setProducts(data || [])
-      console.log('✅ Products set successfully:', data?.length || 0, 'products')
+
+      setSpotlightSellers(sellers || [])
+      setRecentProducts(recent || [])
     } catch (error) {
-      console.error('❌ Error fetching products:', error)
+      console.error('Error fetching homepage data:', error)
     } finally {
       setLoading(false)
     }
   }
 
   const categories = [
-    { name: 'Home Living', icon: HomeIcon, color: 'bg-blue-100 text-blue-600' },
-    { name: 'Tech Essentials', icon: Laptop, color: 'bg-purple-100 text-purple-600' },
-    { name: 'Fashion', icon: Shirt, color: 'bg-pink-100 text-pink-600' },
-    { name: 'Accessories', icon: ShoppingBag, color: 'bg-green-100 text-green-600' }
+    { emoji: '📱', name: 'Electronics', count: 156 },
+    { emoji: '👗', name: 'Fashion', count: 89 },
+    { emoji: '🏠', name: 'Home', count: 234 },
+    { emoji: '💄', name: 'Beauty', count: 67 },
+    { emoji: '🍜', name: 'Food', count: 145 },
+    { emoji: '🎮', name: 'Gaming', count: 78 }
   ]
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring" as const,
-        stiffness: 100,
-        damping: 10
-      }
-    }
+  if (loading) {
+    return (
+      <PageWrapper>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-white">Loading...</div>
+        </div>
+      </PageWrapper>
+    )
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Progress Bar */}
-      <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-[#004E64] z-50 origin-left"
-        style={{ scaleX }}
-      />
-
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Animated Background */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#004E64]/20 via-transparent to-[#E0E5E9]/20"></div>
+    <PageWrapper>
+      <div className="pt-24 px-6 pb-12">
+        
+        {/* Hero Section */}
+        <section className="min-h-screen flex items-center justify-center">
           <motion.div
-            className="absolute top-20 left-20 w-96 h-96 bg-[#004E64] rounded-full mix-blend-multiply filter blur-3xl opacity-10"
-            animate={{
-              x: [0, 100, 0],
-              y: [0, -100, 0],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              repeatType: "reverse"
-            }}
-          />
-          <motion.div
-            className="absolute bottom-20 right-20 w-96 h-96 bg-[#E0E5E9] rounded-full mix-blend-multiply filter blur-3xl opacity-20"
-            animate={{
-              x: [0, -100, 0],
-              y: [0, 100, 0],
-            }}
-            transition={{
-              duration: 25,
-              repeat: Infinity,
-              repeatType: "reverse"
-            }}
-          />
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-                Build Your
-                <span className="block text-[#004E64]">Perfect Nest</span>
-              </h1>
-              <motion.p
-                className="text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-              >
-                Curated products. Modern living. Trusted quality in Cambodia.
-              </motion.p>
-
-              {/* CTA Buttons */}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-2xl w-full"
+          >
+            <div className="bg-white/[0.06] backdrop-blur-2xl border border-white/[0.12] rounded-3xl p-10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+              
+              {/* Badge */}
               <motion.div
-                className="flex flex-col sm:flex-row gap-4"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                className="inline-block bg-amber-500/20 border border-amber-500/30 rounded-full px-4 py-2 mb-6"
+              >
+                <span className="text-amber-300 font-black text-sm tracking-wider">
+                  🇰🇭 Cambodia's #1 Seller Marketplace
+                </span>
+              </motion.div>
+
+              {/* Headline */}
+              <div className="mb-8">
+                <motion.h1
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                  className="font-black tracking-tight text-white mb-4"
+                >
+                  <span className="block text-5xl mb-2">Find It.</span>
+                  <span className="block text-5xl mb-2">Buy It.</span>
+                  <span className="block text-5xl text-amber-300">Trust It.</span>
+                </motion.h1>
+                
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                  className="font-light text-white/50 leading-relaxed text-lg"
+                >
+                  Shop directly from real Cambodian sellers
+                </motion.p>
+              </div>
+
+              {/* Search Bar */}
+              <motion.form
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  const formData = new FormData(e.currentTarget)
+                  const query = formData.get('search') as string
+                  if (query?.trim()) {
+                    window.location.href = `/browse?search=${encodeURIComponent(query)}`
+                  }
+                }}
+                className="relative"
+              >
+                <div className="flex items-center bg-white/[0.06] border border-white/[0.12] rounded-full p-2">
+                  <Search className="w-6 h-6 text-white/30 ml-4" />
+                  <input
+                    type="text"
+                    name="search"
+                    placeholder="Search products..."
+                    className="flex-1 bg-transparent text-white placeholder:text-white/30 text-lg px-4 py-3 focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-teal-500 hover:bg-teal-600 text-white rounded-full px-6 py-3 font-medium transition-colors mr-2"
+                  >
+                    Search
+                  </button>
+                </div>
+              </motion.form>
+
+              {/* Category Pills */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8, duration: 0.5 }}
+                className="flex flex-wrap gap-3 mt-6"
+              >
+                {categories.map((category, index) => (
+                  <button
+                    key={category.name}
+                    onClick={() => window.location.href = `/browse?category=${category.name.toLowerCase()}`}
+                    className="bg-white/[0.06] border border-white/[0.12] rounded-full px-4 py-2 text-white/60 hover:text-white hover:bg-white/[0.10] hover:border-white/[0.20] transition-all duration-200 flex items-center space-x-2"
+                  >
+                    <span className="text-xl">{category.emoji}</span>
+                    <span className="text-sm font-medium">{category.name}</span>
+                  </button>
+                ))}
+              </motion.div>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* Featured Products Section */}
+        <section className="mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-8"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <span className="uppercase tracking-widest text-xs text-white/40 font-medium">FEATURED LISTINGS</span>
+                <h2 className="font-black tracking-tight text-white text-2xl">Top Picks For You</h2>
+              </div>
+              <button
+                onClick={() => window.location.href = '/browse'}
+                className="text-amber-300 hover:text-amber-200 font-medium transition-colors flex items-center space-x-1"
+              >
+                View All Products
+                <motion.span
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  →
+                </motion.span>
+              </button>
+            </div>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredProducts.map((product, index) => (
+              <motion.div
+                key={product.id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
+                transition={{ delay: index * 0.08, duration: 0.5 }}
               >
-                <motion.button
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="glass px-8 py-4 rounded-2xl text-[#004E64] hover:bg-[#004E64] hover:text-white smooth-transition font-semibold text-lg flex items-center justify-center space-x-2 glow-hover"
-                >
-                  <span>Explore Collection</span>
-                  <ArrowRight className="w-5 h-5" />
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="glass px-8 py-4 rounded-2xl text-[#004E64] hover:bg-[#004E64] hover:text-white smooth-transition font-semibold text-lg flex items-center justify-center space-x-2 glow-hover"
-                >
-                  <span>View Deals</span>
-                  <Clock className="w-5 h-5" />
-                </motion.button>
+                <ProductCard product={product} />
               </motion.div>
-            </motion.div>
-
-            {/* Right Content - Floating Products */}
-            <motion.div
-              className="relative"
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-            >
-              <div className="relative">
-                {/* Floating Product Cards */}
-                <motion.div
-                  className="absolute top-0 left-0 w-64 h-64 glass rounded-3xl p-6 floating"
-                  style={{ animationDelay: '0s' }}
-                >
-                  <div className="w-full h-32 bg-gradient-to-br from-[#E0E5E9] to-[#004E64]/20 rounded-2xl mb-4"></div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Premium Collection</h3>
-                  <p className="text-gray-600 text-sm">Curated items for modern living</p>
-                </motion.div>
-
-                <motion.div
-                  className="absolute top-20 right-0 w-56 h-56 glass rounded-3xl p-6 floating"
-                  style={{ animationDelay: '2s' }}
-                >
-                  <div className="w-full h-28 bg-gradient-to-br from-[#004E64]/20 to-[#E0E5E9] rounded-2xl mb-4"></div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Tech Essentials</h3>
-                  <p className="text-gray-600 text-sm">Latest gadgets & devices</p>
-                </motion.div>
-
-                <motion.div
-                  className="absolute bottom-0 left-10 w-60 h-60 glass rounded-3xl p-6 floating"
-                  style={{ animationDelay: '4s' }}
-                >
-                  <div className="w-full h-30 bg-gradient-to-br from-[#E0E5E9] to-[#004E64]/10 rounded-2xl mb-4"></div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Home & Living</h3>
-                  <p className="text-gray-600 text-sm">Transform your space</p>
-                </motion.div>
-              </div>
-            </motion.div>
+            ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Featured Categories */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+        {/* Spotlight Seller Section */}
+        <section className="mb-16">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mb-8"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Featured Categories</h2>
-            <p className="text-xl text-gray-600">Explore our curated collections</p>
-          </motion.div>
-
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-          >
-            {categories.map((category, index) => {
-              const Icon = category.icon
-              return (
-                <motion.div
-                  key={category.name}
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.05, y: -10 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="glass rounded-3xl p-8 cursor-pointer glow-hover smooth-transition"
-                >
-                  <div className={`w-20 h-20 ${category.color} rounded-2xl flex items-center justify-center mb-6 mx-auto`}>
-                    <Icon className="w-10 h-10" />
-                  </div>
-                  <h3 className="text-center font-semibold text-gray-900 text-xl mb-2">{category.name}</h3>
-                  <p className="text-center text-gray-600 text-sm">Discover premium items</p>
-                </motion.div>
-              )
-            })}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#E0E5E9]/30 to-transparent">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Featured Products</h2>
-            <p className="text-xl text-gray-600">Handpicked items for quality living</p>
-          </motion.div>
-
-          {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-2 border-[#004E64] border-t-transparent"></div>
-            </div>
-          ) : products.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6 }}
-              className="text-center py-20"
-            >
-              <div className="w-24 h-24 glass rounded-full flex items-center justify-center mx-auto mb-6">
-                <Package className="w-12 h-12 text-[#004E64]" />
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <span className="uppercase tracking-widest text-xs text-white/40 font-medium">SELLER SPOTLIGHT</span>
+                <h2 className="font-black tracking-tight text-white text-2xl">Meet Our Top Sellers</h2>
               </div>
-              <h3 className="text-2xl font-semibold text-gray-900 mb-2">Coming Soon</h3>
-              <p className="text-gray-600 text-lg">Premium products are on their way</p>
-            </motion.div>
-          ) : (
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-            >
-              {products.slice(0, 8).map((product) => (
+            </div>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {spotlightSellers.map((seller, index) => (
+              <motion.div
+                key={seller.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + index * 0.1, duration: 0.5 }}
+                onClick={() => window.location.href = `/seller/${seller.id}`}
+                className="bg-white/[0.06] backdrop-blur-xl border border-white/[0.12] rounded-2xl p-6 cursor-pointer hover:bg-white/[0.10] hover:translate-y-[-4px] transition-all duration-300"
+              >
+                <div className="flex items-center space-x-4 mb-4">
+                  {seller.avatar_url ? (
+                    <img
+                      src={seller.avatar_url}
+                      alt={seller.full_name || 'Seller'}
+                      className="w-16 h-16 rounded-full object-cover border-2 border-amber-500/30"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 bg-white/[0.12] rounded-full flex items-center justify-center border-2 border-amber-500/30">
+                      <span className="text-white text-2xl font-bold">
+                        {seller.full_name?.[0] || 'S'}
+                      </span>
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="font-bold text-white text-lg">
+                      {seller.full_name || 'Seller'}
+                    </h3>
+                    <p className="text-teal-400 text-sm font-medium">Verified Seller</p>
+                  </div>
+                </div>
+                
+                {seller.bio && (
+                  <p className="text-white/50 text-sm line-clamp-2 mb-4">
+                    {seller.bio}
+                  </p>
+                )}
+                
+                <button className="w-full bg-teal-500 hover:bg-teal-600 text-white rounded-full px-4 py-2 font-medium transition-colors">
+                  View Shop →
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Browse By Category Section */}
+        <section className="mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="mb-8"
+          >
+            <div className="mb-6">
+              <span className="uppercase tracking-widest text-xs text-white/40 font-medium">CATEGORIES</span>
+              <h2 className="font-black tracking-tight text-white text-2xl">What Are You Looking For?</h2>
+            </div>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {categories.map((category, index) => (
+              <motion.button
+                key={category.name}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5 + index * 0.1, duration: 0.5 }}
+                onClick={() => window.location.href = `/browse?category=${category.name.toLowerCase()}`}
+                className="bg-white/[0.06] backdrop-blur-xl border border-white/[0.12] rounded-2xl p-8 text-left hover:bg-white/[0.10] hover:translate-y-[-4px] transition-all duration-300 group"
+                style={{
+                  boxShadow: `0 8px 32px rgba(0,0,0,0.4), 0 0 20px ${getCategoryGlow(category.name)}`
+                }}
+              >
+                <div className="text-5xl mb-4">{category.emoji}</div>
+                <h3 className="font-bold text-white text-xl mb-2">{category.name}</h3>
+                <p className="text-white/50 text-sm">{category.count} items</p>
+              </motion.button>
+            ))}
+          </div>
+        </section>
+
+        {/* Recent Listings Section */}
+        <section>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="mb-8"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <span className="uppercase tracking-widest text-xs text-white/40 font-medium">JUST LISTED</span>
+                <h2 className="font-black tracking-tight text-white text-2xl">Fresh From Sellers</h2>
+              </div>
+            </div>
+          </motion.div>
+
+          <div className="relative">
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
+              {recentProducts.map((product, index) => (
                 <motion.div
                   key={product.id}
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.05, y: -10 }}
-                  className="glass rounded-3xl overflow-hidden glow-hover smooth-transition cursor-pointer"
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.7 + index * 0.05, duration: 0.5 }}
+                  className="flex-shrink-0 w-64"
                 >
-                  <Link href={`/products/${product.id}`}>
-                    <div className="h-48 bg-gradient-to-br from-[#E0E5E9] to-[#004E64]/10 flex items-center justify-center">
-                      {product.image_url ? (
-                        <img
-                          src={product.image_url}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Package className="w-12 h-12 text-[#004E64]/30" />
-                      )}
-                    </div>
-                    <div className="p-6">
-                      <h3 className="font-semibold text-gray-900 mb-2 text-lg">{product.name}</h3>
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                        {product.description || 'Premium quality item'}
-                      </p>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[#004E64] font-bold text-xl">${product.price}</span>
-                      </div>
-                      <div className="mt-4 pt-4 border-t border-white/20">
-                        <div className="flex items-center justify-center">
-                          <span className="text-[#004E64] font-medium flex items-center space-x-2">
-                            <span>View Details</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
+                  <ProductCard product={product} size="small" />
                 </motion.div>
               ))}
-            </motion.div>
-          )}
-        </div>
-      </section>
-
-      {/* Special Deals Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="glass-dark rounded-3xl p-12 text-center text-white glow"
-          >
-            <h2 className="text-4xl font-bold mb-4">Special Deals</h2>
-            <p className="text-xl mb-8 opacity-90">Exclusive offers for premium members</p>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="glass px-8 py-4 rounded-2xl text-white hover:bg-white/20 smooth-transition font-semibold text-lg"
-            >
-              View All Deals
-            </motion.button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="glass py-12 mt-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-[#004E64] mb-4">NESTKH</div>
-            <p className="text-gray-600 mb-6">Premium lifestyle marketplace</p>
-            <div className="flex justify-center space-x-8 text-sm text-gray-500 mb-6">
-              <a href="#" className="hover:text-[#004E64] smooth-transition">About</a>
-              <a href="#" className="hover:text-[#004E64] smooth-transition">Contact</a>
-              <a href="#" className="hover:text-[#004E64] smooth-transition">Terms</a>
-              <a href="#" className="hover:text-[#004E64] smooth-transition">Privacy</a>
             </div>
-            <div className="text-sm text-gray-500">
-              © 2024 NESTKH. All rights reserved.
+            
+            {/* Fade-out gradient */}
+            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#0d0e12] to-transparent pointer-events-none"></div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="bg-white/[0.06] backdrop-blur-xl border border-white/[0.12] rounded-2xl p-8 mt-16">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="mb-4 md:mb-0">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="font-black text-white text-xl">NestKH</span>
+                <div className="w-2 h-2 bg-teal-500 rounded-full shadow-[0_0_10px_rgba(0,78,100,0.4)]"></div>
+              </div>
+              <p className="text-white/50 text-sm">Cambodia's Premier Seller Marketplace</p>
+            </div>
+            
+            <div className="flex flex-wrap items-center space-x-6 text-sm">
+              <button className="text-white/60 hover:text-white transition-colors">Browse</button>
+              <button className="text-white/60 hover:text-white transition-colors">Become a Seller</button>
+              <button className="text-white/60 hover:text-white transition-colors">About</button>
+              <button className="text-white/60 hover:text-white transition-colors">Contact</button>
             </div>
           </div>
-        </div>
-      </footer>
-    </div>
+          
+          <div className="text-center mt-6 pt-6 border-t border-white/[0.12]">
+            <p className="text-white/30 text-sm">
+              © 2024 NestKH — Made in Cambodia 🇰🇭
+            </p>
+          </div>
+        </footer>
+      </div>
+    </PageWrapper>
   )
+}
+
+function getCategoryGlow(category: string): string {
+  const glows: { [key: string]: string } = {
+    'Electronics': 'rgba(59, 130, 246, 0.3)',
+    'Fashion': 'rgba(236, 72, 153, 0.3)',
+    'Home': 'rgba(34, 197, 94, 0.3)',
+    'Beauty': 'rgba(251, 146, 60, 0.3)',
+    'Food': 'rgba(220, 38, 38, 0.3)',
+    'Gaming': 'rgba(168, 85, 247, 0.3)'
+  }
+  return glows[category] || 'rgba(0, 78, 100, 0.3)'
 }
