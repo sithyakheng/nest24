@@ -86,6 +86,10 @@ export default function MyProducts() {
         return
       }
 
+      // Find the product to get its image URL before deletion
+      const productToDelete = products.find(p => p.id === productId)
+      
+      // Delete from Supabase database
       const { error } = await supabase
         .from('products')
         .delete()
@@ -93,10 +97,40 @@ export default function MyProducts() {
         .eq('seller_id', authUser.id) // Ensure user can only delete their own products
 
       if (error) throw error
-      
+
+      // Delete product image from Supabase storage if it exists
+      if (productToDelete?.image_url) {
+        try {
+          // Extract file name from URL
+          const url = new URL(productToDelete.image_url)
+          const fileName = url.pathname.split('/').pop()
+          
+          if (fileName) {
+            const { error: storageError } = await supabase.storage
+              .from('Product')
+              .remove([fileName])
+            
+            if (storageError) {
+              console.warn('Warning: Could not delete product image:', storageError)
+            } else {
+              console.log('✅ Product image deleted successfully')
+            }
+          }
+        } catch (imageError) {
+          console.warn('Warning: Error deleting product image:', imageError)
+        }
+      }
+
+      // Remove from local state immediately for instant UI update
       setProducts(prev => prev.filter((p: Product) => p.id !== productId))
+      
+      // Show success message
+      alert('Product deleted successfully!')
+      
+      console.log('✅ Product deleted successfully:', productId)
     } catch (error) {
-      console.error('Error deleting product:', error)
+      console.error('❌ Error deleting product:', error)
+      alert('Error deleting product. Please try again.')
     }
   }
 
