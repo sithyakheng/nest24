@@ -95,7 +95,7 @@ export default function Analytics() {
       // Total revenue from completed orders
       const { data: revenueData, error: revenueError } = await supabase
         .from('orders')
-        .select('total')
+        .select('total_price, price, amount, total')
         .eq('seller_id', user.id)
         .eq('status', 'completed')
 
@@ -103,7 +103,10 @@ export default function Analytics() {
         console.error('❌ Revenue data error:', revenueError)
       }
 
-      const totalRevenue = revenueData?.reduce((sum, order) => sum + (order.total || 0), 0) || 0
+      const totalRevenue = revenueData?.reduce((sum, order) => {
+        const amount = order.total_price || order.price || order.amount || order.total || 0
+        return sum + (amount || 0)
+      }, 0) || 0
 
       // Order status counts
       const { count: pendingOrders, error: pendingError } = await supabase
@@ -255,7 +258,7 @@ export default function Analytics() {
     }
   ]
 
-  const maxRevenue = Math.max(...data.revenueByDay.map(d => d.revenue), 1)
+  const maxRevenue = Math.max(...data.revenueByDay.map(d => d.revenue || 0), 1)
 
   return (
     <div>
@@ -333,12 +336,12 @@ export default function Analytics() {
               <motion.div
                 key={day.date}
                 initial={{ height: 0 }}
-                animate={{ height: `${(day.revenue / maxRevenue) * 100}%` }}
+                animate={{ height: `${((day.revenue || 0) / maxRevenue) * 100}%` }}
                 transition={{ duration: 0.8, delay: index * 0.05 }}
                 className="flex-1 bg-gradient-to-t from-[#E0E5E9]/40 to-[#E0E5E9]/10 rounded-t-lg relative group cursor-pointer"
               >
                 <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 glass px-2 py-1 rounded-lg text-xs text-white opacity-0 group-hover:opacity-100 smooth-transition whitespace-nowrap">
-                  ${day.revenue.toFixed(0)}
+                  ${(day.revenue || 0).toFixed(0)}
                 </div>
               </motion.div>
             ))}
@@ -415,7 +418,7 @@ export default function Analytics() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-[#E0E5E9] font-semibold">${product.revenue.toFixed(2)}</p>
+                  <p className="text-[#E0E5E9] font-semibold">${(product.revenue || 0).toFixed(2)}</p>
                   <p className="text-white/60 text-sm">revenue</p>
                 </div>
               </motion.div>
