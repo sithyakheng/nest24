@@ -8,7 +8,8 @@ import UpgradeToSellerModal from '@/components/UpgradeToSellerModal'
 
 export default function Profile() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const { user, isSeller } = useAuth()
+  const { user } = useAuth()
+  const isSeller = user?.user_metadata?.role === 'seller'
   
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
