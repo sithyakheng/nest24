@@ -173,10 +173,10 @@ export default function SellerDashboard() {
         .from('profiles')
         .upsert({
           id: user?.id,
-          phone_number: contactInfo.phone_number,
-          facebook_url: contactInfo.facebook_url,
-          instagram_url: contactInfo.instagram_url,
-          whatsapp_url: contactInfo.whatsapp_url
+          phone: contactInfo.phone_number,
+          facebook: contactInfo.facebook_url,
+          instagram: contactInfo.instagram_url,
+          telegram: contactInfo.whatsapp_url
         })
 
       if (error) throw error
