@@ -50,18 +50,10 @@ export default function MyProducts() {
 
       console.log('🏪 Fetching products for seller:', authUser.id)
 
-      // Fetch products with buyer and order counts
+      // Fetch products simply without orders join
       const { data: productsData, error: productsError } = await supabase
         .from('products')
-        .select(`
-          *,
-          orders:orders (
-            id,
-            buyer_id,
-            quantity,
-            status
-          )
-        `)
+        .select('*')
         .eq('seller_id', authUser.id)
         .order('created_at', { ascending: false })
 
@@ -73,20 +65,8 @@ export default function MyProducts() {
         throw productsError
       }
 
-      // Process products to add buyer and order counts
-      const processedProducts = productsData?.map((product: any) => {
-        const uniqueBuyers = new Set(product.orders?.map((order: any) => order.buyer_id).filter(Boolean))
-        const completedOrders = product.orders?.filter((order: any) => order.status === 'completed')
-        
-        return {
-          ...product,
-          buyer_count: uniqueBuyers.size,
-          order_count: completedOrders?.length || 0
-        }
-      }) || []
-
-      console.log('✅ Processed products:', processedProducts.length, 'items')
-      setProducts(processedProducts)
+      console.log('✅ Products set successfully:', productsData?.length || 0, 'products')
+      setProducts(productsData || [])
     } catch (error) {
       console.error('❌ Error fetching products:', error)
     } finally {
@@ -236,7 +216,7 @@ export default function MyProducts() {
               className="glass rounded-2xl overflow-hidden group"
             >
               {/* Product Image */}
-              <div className="h-48 bg-gradient-to-br from-[#E0E5E9]/20 to-[#004E64]/10 flex items-center justify-center relative">
+              <div className="h-48 bg-gradient-to-br from-[#E0E5E9]/20 to-[#004E64]/10 flex items-center justify-center">
                 {product.image_url ? (
                   <img
                     src={product.image_url}
@@ -248,22 +228,6 @@ export default function MyProducts() {
                     <span className="text-white/60 text-xs">No Image</span>
                   </div>
                 )}
-                
-                {/* Buyer & Order Count Badges */}
-                <div className="absolute top-3 left-3 flex space-x-2">
-                  {product.buyer_count! > 0 && (
-                    <div className="glass px-2 py-1 rounded-lg flex items-center space-x-1">
-                      <Users className="w-3 h-3 text-blue-400" />
-                      <span className="text-blue-400 text-xs font-medium">{product.buyer_count}</span>
-                    </div>
-                  )}
-                  {product.order_count! > 0 && (
-                    <div className="glass px-2 py-1 rounded-lg flex items-center space-x-1">
-                      <ShoppingCart className="w-3 h-3 text-green-400" />
-                      <span className="text-green-400 text-xs font-medium">{product.order_count}</span>
-                    </div>
-                  )}
-                </div>
               </div>
 
               {/* Product Info */}

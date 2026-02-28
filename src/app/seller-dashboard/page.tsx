@@ -68,13 +68,29 @@ export default function SellerDashboard() {
         return
       }
 
-      // Fetch products count
-      const { count: productsCount } = await supabase
+      console.log('🔍 Fetching real dashboard stats for seller:', authUser.id)
+
+      // Get real product count
+      const { count: productCount, error: productError } = await supabase
         .from('products')
         .select('*', { count: 'exact', head: true })
         .eq('seller_id', authUser.id)
 
-      // Fetch real orders data
+      if (productError) {
+        console.error('❌ Product count error:', productError)
+      }
+
+      // Get real order count  
+      const { count: orderCount, error: orderError } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('seller_id', authUser.id)
+
+      if (orderError) {
+        console.error('❌ Order count error:', orderError)
+      }
+
+      // Fetch real orders data for revenue calculation
       const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
         .select(`
@@ -114,9 +130,16 @@ export default function SellerDashboard() {
 
       setRecentOrders(recent)
 
+      console.log('📊 Dashboard stats:', {
+        productCount: productCount || 0,
+        orderCount: orderCount || 0,
+        totalRevenue,
+        pendingCount
+      })
+
       setStats({
-        totalProducts: productsCount || 0,
-        totalOrders: ordersData?.length || 0,
+        totalProducts: productCount || 0,
+        totalOrders: orderCount || 0,
         revenue: totalRevenue,
         pendingOrders: pendingCount
       })
