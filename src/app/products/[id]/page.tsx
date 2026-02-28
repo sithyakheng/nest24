@@ -58,14 +58,19 @@ export default function ProductDetail() {
       setProduct(productData)
 
       // Fetch seller profile
-      const { data: sellerData } = await supabase
+      const { data: sellerProfile } = await supabase
         .from('profiles')
-        .select('*')
+        .select('full_name, phone, whatsapp, facebook, instagram, telegram, bio, avatar_url, email')
         .eq('id', productData.seller_id)
         .single()
       
-      if (sellerData) {
-        setSeller(sellerData)
+      console.log('Seller profile:', sellerProfile)
+      
+      if (sellerProfile) {
+        setSeller({
+          id: productData.seller_id,
+          ...sellerProfile
+        })
       }
     } catch (error) {
       console.error('Error fetching product:', error)
@@ -176,6 +181,16 @@ export default function ProductDetail() {
               exit={{ opacity: 0, height: 0 }}
               className="glass rounded-2xl p-6 space-y-6"
             >
+              {/* Debug Info */}
+              <div className="text-xs text-gray-500 bg-gray-100 p-2 rounded">
+                Debug: Seller data loaded = {seller ? 'YES' : 'NO'}
+                <br />Phone: {seller.phone || 'NULL'}
+                <br />WhatsApp: {seller.whatsapp || 'NULL'}
+                <br />Facebook: {seller.facebook || 'NULL'}
+                <br />Instagram: {seller.instagram || 'NULL'}
+                <br />Telegram: {seller.telegram || 'NULL'}
+              </div>
+              
               {/* Seller Profile */}
               <div className="flex items-start space-x-4">
                 <div className="w-16 h-16 glass rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
