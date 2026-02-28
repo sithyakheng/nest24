@@ -33,6 +33,7 @@ export default function SellerDashboard() {
     instagram_url: '',
     whatsapp_url: ''
   })
+  const [sellerProfile, setSellerProfile] = useState<any>(null)
   const [recentOrders, setRecentOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [savingContact, setSavingContact] = useState(false)
@@ -143,18 +144,38 @@ export default function SellerDashboard() {
     try {
       // Get the current authenticated user
       const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
-      
       if (authError || !authUser) {
-        console.error('User not authenticated')
+        console.error('❌ Auth error:', authError)
         return
       }
 
-      // Removed seller_profiles query due to 406 error
-      // Using profiles table instead or leaving empty for now
-      console.log('Contact info fetch skipped - using profiles table instead')
+      // Fetch profile data from profiles table
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', authUser.id)
+        .single()
+
+      if (profileError) {
+        console.log('ℹ️ No profile found yet, using defaults')
+        setSellerProfile(null)
+        return
+      }
+
+      console.log('📋 Profile data loaded:', profileData)
       
+      // Set seller profile state
+      setSellerProfile(profileData)
+      
+      // Update contact info state with profile data
+      setContactInfo({
+        phone_number: profileData.phone || '',
+        facebook_url: profileData.facebook || '',
+        instagram_url: profileData.instagram || '',
+        whatsapp_url: profileData.telegram || ''
+      })
     } catch (error) {
-      console.error('Error fetching contact info:', error)
+      console.error('❌ Error fetching contact info:', error)
     }
   }
 
@@ -169,22 +190,42 @@ export default function SellerDashboard() {
   const saveContactInfo = async () => {
     setSavingContact(true)
     try {
+      // Get authenticated user
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError || !user) {
+        throw new Error('User not authenticated')
+      }
+
+      console.log('💾 Saving profile data for user:', user.id)
+
       const { error } = await supabase
         .from('profiles')
         .upsert({
-          id: user?.id,
+          id: user.id,
           phone: contactInfo.phone_number,
           facebook: contactInfo.facebook_url,
           instagram: contactInfo.instagram_url,
           telegram: contactInfo.whatsapp_url
         })
 
-      if (error) throw error
+      if (error) {
+        console.error('❌ Save error:', error)
+        throw error
+      }
 
+      console.log('✅ Profile saved successfully!')
       setContactSuccess(true)
+      
+      // Show success message
+      alert('Profile saved!')
+      
+      // Reload profile data to confirm it saved
+      await fetchContactInfo()
+      
       setTimeout(() => setContactSuccess(false), 3000)
     } catch (error) {
-      console.error('Error saving contact info:', error)
+      console.error('❌ Error saving contact info:', error)
+      alert('Error saving profile: ' + (error as Error).message)
     } finally {
       setSavingContact(false)
     }
@@ -243,7 +284,7 @@ export default function SellerDashboard() {
         className="mb-8"
       >
         <h1 className="text-3xl font-bold text-white mb-2">
-          Welcome back, {user?.user_metadata?.full_name || 'Seller'}
+          Welcome back, {sellerProfile?.full_name || sellerProfile?.name || user?.user_metadata?.full_name || 'Seller'}
         </h1>
         <p className="text-white/60">Here's what's happening with your store today</p>
       </motion.div>
