@@ -54,12 +54,17 @@ export default function ProductDetail() {
       setProduct(productData)
 
       // Fetch seller info
-      const { data: sellerData } = await supabase.auth.admin.getUser(productData.seller_id)
-      if (sellerData?.user) {
+      const { data: sellerData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', productData.seller_id)
+        .single()
+      
+      if (sellerData) {
         setSeller({
-          id: sellerData.user.id,
-          email: sellerData.user.email || '',
-          user_metadata: sellerData.user.user_metadata
+          id: sellerData.id,
+          email: sellerData.email || '',
+          user_metadata: sellerData.user_metadata
         })
       }
     } catch (error) {
