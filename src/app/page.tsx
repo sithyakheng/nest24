@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, useScroll, useInView, useSpring } from 'framer-motion'
+import Link from 'next/link'
 import { Search, ShoppingCart, Home as HomeIcon, Laptop, Shirt, ShoppingBag, ArrowRight, Package, Clock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useCart } from '@/contexts/CartContext'
