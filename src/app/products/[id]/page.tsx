@@ -194,20 +194,24 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
 
-                {/* Contact Info */}
-                <div className="flex-1">
-                  <h4 className="font-semibold text-white">
-                    {seller.full_name || 'Seller'}
-                  </h4>
-                  <p className="text-white/40 text-sm">Verified Seller</p>
-                  
-                  {seller.bio && (
-                    <p className="text-white/50 text-sm mt-2 leading-relaxed">
-                      {seller.bio}
-                    </p>
-                        fontSize: '15px', 
-                        marginTop: '2px' 
-                      }}>
+                {/* Contact Details */}
+                <div className="pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px', marginTop: '12px' }}>
+                  {/* Phone */}
+                  {seller.phone && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <span style={{ 
+                        color: 'rgba(255,255,255,0.4)', 
+                        fontSize: '12px',
+                        textTransform: 'uppercase', 
+                        letterSpacing: '0.1em' 
+                      }}>Phone</span>
+                      <p 
+                        style={{ 
+                          color: '#4DB8CC', 
+                          fontSize: '15px', 
+                          display: 'block', 
+                          marginTop: '2px' 
+                        }}>
                         {seller.phone}
                       </p>
                     </div>
