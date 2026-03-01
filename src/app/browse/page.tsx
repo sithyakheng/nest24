@@ -8,6 +8,12 @@ import ProductCard from '@/components/ProductCard'
 
 const CATEGORIES = ['All', 'Electronics', 'Fashion', 'Home', 'Beauty', 'Food', 'Gaming', 'Other']
 
+const getImageUrl = (url: string) => {
+  if (!url) return null
+  if (url.startsWith('http')) return url
+  return `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${url}` 
+}
+
 function BrowseContent() {
   const searchParams = useSearchParams()
   const [products, setProducts] = useState<any[]>([])
@@ -22,25 +28,35 @@ function BrowseContent() {
 
   async function fetchProducts() {
     setLoading(true)
-    let query = supabase.from('products').select('*, profiles(name, avatar_url)')
+    let query = supabase
+      .from('products')
+      .select(`
+        *,
+        profiles!inner(
+          id,
+          name,
+          full_name,
+          avatar_url
+        )
+      `)
+      .order('created_at', { ascending: false })
 
-    if (category !== 'All') {
+    if (category && category !== 'All') {
       query = query.eq('category', category)
     }
 
-    if (search) {
-      query = query.ilike('name', `%${search}%`)
+    if (search && search.trim() !== '') {
+      query = query.ilike('name', `%${search.trim()}%`)
     }
 
-    if (sort === 'newest') {
-      query = query.order('created_at', { ascending: false })
-    } else if (sort === 'price_asc') {
+    if (sort === 'price_asc') {
       query = query.order('price', { ascending: true })
     } else if (sort === 'price_desc') {
       query = query.order('price', { ascending: false })
     }
 
-    const { data } = await query
+    const { data, error } = await query
+    console.log('products:', data, 'error:', error)
     setProducts(data || [])
     setLoading(false)
   }
@@ -115,7 +131,54 @@ function BrowseContent() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <a href={`/products/${product.id}`} key={product.id}>
+                <div style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  backdropFilter: 'blur(24px)',
+                  WebkitBackdropFilter: 'blur(24px)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderTop: '1px solid rgba(255,255,255,0.22)',
+                  borderRadius: '20px',
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}>
+                  <div style={{ height: '200px', overflow: 'hidden', 
+                    background: 'rgba(255,255,255,0.04)' }}>
+                    {product.image_url ? (
+                      <img
+                        src={getImageUrl(product.image_url)}
+                        alt={product.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', 
+                        display: 'flex', alignItems: 'center', 
+                        justifyContent: 'center', color: 'rgba(255,255,255,0.2)' }}>
+                        No Image
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ padding: '16px' }}>
+                    <span style={{ color: '#4DB8CC', fontSize: '11px', 
+                      textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                      {product.category}
+                    </span>
+                    <p style={{ color: 'white', fontWeight: '600', 
+                      fontSize: '15px', marginTop: '4px' }}>
+                      {product.name}
+                    </p>
+                    <p style={{ color: '#E8C97E', fontWeight: '900', 
+                      fontSize: '18px', marginTop: '6px' }}>
+                      ${product.price}
+                    </p>
+                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', 
+                      marginTop: '4px' }}>
+                      by {product.profiles?.name || product.profiles?.full_name || 'Seller'}
+                    </p>
+                  </div>
+                </div>
+              </a>
             ))}
           </div>
         )}
