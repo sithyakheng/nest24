@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { TrendingUp, Package, User } from 'lucide-react'
-import PageWrapper from '@/components/PageWrapper'
 import Navbar from '@/components/Navbar'
 import ProductCard from '@/components/ProductCard'
 import { supabase } from '@/lib/supabase'
@@ -86,66 +85,79 @@ export default function HomePage() {
     }
   }
 
+  const glassStyle = {
+    background: 'rgba(255, 255, 255, 0.06)',
+    backdropFilter: 'blur(24px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+    border: '1px solid rgba(255, 255, 255, 0.12)',
+    borderTop: '1px solid rgba(255, 255, 255, 0.22)',
+    boxShadow: `
+      0 8px 32px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.2)
+    `,
+    borderRadius: '28px'
+  }
+
+  const sidebarGlassStyle = {
+    background: 'rgba(255, 255, 255, 0.04)',
+    backdropFilter: 'blur(24px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+    border: '1px solid rgba(255, 255, 255, 0.12)',
+    borderTop: '1px solid rgba(255, 255, 255, 0.22)',
+    boxShadow: `
+      0 8px 32px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.2)
+    `,
+    borderRadius: '20px'
+  }
+
   return (
-    <PageWrapper>
+    <div className="relative z-10">
       <Navbar />
       
-      <div className="p-6">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-        >
+      {/* Main Board Container */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        style={{
+          maxWidth: '1200px',
+          margin: 'auto',
+          marginTop: '100px',
+          ...glassStyle
+        }}
+        className="p-8"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* LEFT - Product Feed (70%) */}
           <div className="lg:col-span-2">
-            {/* LIQUID GLASS FEED CONTAINER */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="rounded-3xl p-6 shadow-[0_30px_60px_rgba(0,0,0,0.5)]"
-              style={{
-                background: 'rgba(255, 255, 255, 0.06)',
-                backdropFilter: 'blur(24px) saturate(180%) brightness(110%)',
-                WebkitBackdropFilter: 'blur(24px) saturate(180%) brightness(110%)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderTop: '1px solid rgb(255, 255, 255, 0.2)',
-                borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRight: '1px solid rgba(255, 255, 255, 0.08)'
-              }}
-            >
-              <div className="mb-6">
-                <h1 className="text-2xl font-bold text-white mb-2">Latest Products</h1>
-                <p className="text-white/50 text-sm">Discover premium Cambodian products</p>
-              </div>
+            <div className="mb-8">
+              <h1 className="text-4xl font-black text-white mb-2">Latest Products</h1>
+              <p className="text-white/60 text-lg">Discover premium Cambodian products</p>
+            </div>
 
-              {loading ? (
-                <div className="space-y-4">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="h-32 rounded-2xl animate-pulse"
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.02)',
-                        border: '1px solid rgba(255, 255, 255, 0.05)'
-                      }}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {products.map((product, index) => (
-                    <motion.div
-                      key={product.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.05 * index, duration: 0.4 }}
-                    >
-                      <ProductCard product={product} />
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-            </motion.div>
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="h-80 rounded-2xl animate-pulse bg-white/[0.02]" />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {products.map((product, index) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 * index, duration: 0.5 }}
+                  >
+                    <ProductCard product={product} />
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* RIGHT - Sidebar (30%) */}
@@ -153,43 +165,24 @@ export default function HomePage() {
             
             {/* Trending Sellers */}
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.2 }}
-              className="rounded-3xl p-5 shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
-              style={{
-                background: 'rgba(255, 255, 255, 0.06)',
-                backdropFilter: 'blur(24px) saturate(180%) brightness(110%)',
-                WebkitBackdropFilter: 'blur(24px) saturate(180%) brightness(110%)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderTop: '1px solid rgb(255, 255, 255, 0.2)',
-                borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRight: '1px solid rgba(255, 255, 255, 0.08)'
-              }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              style={sidebarGlassStyle}
+              className="p-6"
             >
-              <div className="flex items-center space-x-2 mb-4">
-                <TrendingUp className="w-4 h-4 text-amber-400" />
-                <h3 className="font-semibold text-white text-sm">Trending Sellers</h3>
+              <div className="flex items-center space-x-2 mb-6">
+                <TrendingUp className="w-5 h-5 text-amber-300" />
+                <h3 className="font-bold text-white text-lg">Trending Sellers</h3>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {trendingSellers.slice(0, 3).map((seller) => (
                   <Link
                     key={seller.id}
                     href={`/seller/${seller.id}`}
-                    className="flex items-center space-x-3 p-2 rounded-xl transition-all duration-200"
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(255, 255, 255, 0.05)'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'
-                    }}
+                    className="flex items-center space-x-4 p-3 rounded-xl transition-all duration-200 hover:bg-white/[0.05]"
                   >
-                    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0"
-                      style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-white/[0.06]">
                       {seller.avatar_url && getImageUrl(seller.avatar_url) ? (
                         <img
                           src={getImageUrl(seller.avatar_url)!}
@@ -201,15 +194,15 @@ export default function HomePage() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <User className="w-4 h-4 text-white/60" />
+                          <User className="w-6 h-6 text-white/60" />
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm font-medium truncate">
+                      <p className="text-white font-medium truncate">
                         {seller.full_name || 'Seller'}
                       </p>
-                      <p className="text-white/40 text-xs">Verified Seller</p>
+                      <p className="text-white/35 text-sm">Verified Seller</p>
                     </div>
                   </Link>
                 ))}
@@ -218,43 +211,25 @@ export default function HomePage() {
 
             {/* Categories */}
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.3 }}
-              className="rounded-3xl p-5 shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
-              style={{
-                background: 'rgba(255, 255, 255, 0.06)',
-                backdropFilter: 'blur(24px) saturate(180%) brightness(110%)',
-                WebkitBackdropFilter: 'blur(24px) saturate(180%) brightness(110%)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderTop: '1px solid rgb(255, 255, 255, 0.2)',
-                borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRight: '1px solid rgba(255, 255, 255, 0.08)'
-              }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              style={sidebarGlassStyle}
+              className="p-6"
             >
-              <div className="flex items-center space-x-2 mb-4">
-                <Package className="w-4 h-4 text-teal-400" />
-                <h3 className="font-semibold text-white text-sm">Categories</h3>
+              <div className="flex items-center space-x-2 mb-6">
+                <Package className="w-5 h-5 text-teal-400" />
+                <h3 className="font-bold text-white text-lg">Categories</h3>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {categories.slice(0, 6).map((category) => (
                   <Link
                     key={category.name}
                     href={`/browse?category=${category.name}`}
-                    className="flex items-center justify-between p-2 rounded-xl transition-all duration-200"
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(255, 255, 255, 0.05)'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'
-                    }}
+                    className="flex items-center justify-between p-3 rounded-xl transition-all duration-200 hover:bg-white/[0.05]"
                   >
-                    <span className="text-white/80 text-sm">{category.name}</span>
-                    <span className="text-white/40 text-xs">{category.count}</span>
+                    <span className="text-white/80 font-medium">{category.name}</span>
+                    <span className="text-white/35 text-sm">{category.count}</span>
                   </Link>
                 ))}
               </div>
@@ -262,43 +237,24 @@ export default function HomePage() {
 
             {/* Recently Added */}
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.4 }}
-              className="rounded-3xl p-5 shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
-              style={{
-                background: 'rgba(255, 255, 255, 0.06)',
-                backdropFilter: 'blur(24px) saturate(180%) brightness(110%)',
-                WebkitBackdropFilter: 'blur(24px) saturate(180%) brightness(110%)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderTop: '1px solid rgb(255, 255, 255, 0.2)',
-                borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRight: '1px solid rgba(255, 255, 255, 0.08)'
-              }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              style={sidebarGlassStyle}
+              className="p-6"
             >
-              <div className="flex items-center space-x-2 mb-4">
-                <Package className="w-4 h-4 text-amber-400" />
-                <h3 className="font-semibold text-white text-sm">Recently Added</h3>
+              <div className="flex items-center space-x-2 mb-6">
+                <Package className="w-5 h-5 text-amber-300" />
+                <h3 className="font-bold text-white text-lg">Recently Added</h3>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {recentProducts.map((product) => (
                   <Link
                     key={product.id}
                     href={`/products/${product.id}`}
-                    className="flex items-center space-x-3 p-2 rounded-xl transition-all duration-200"
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(255, 255, 255, 0.05)'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'
-                    }}
+                    className="flex items-center space-x-4 p-3 rounded-xl transition-all duration-200 hover:bg-white/[0.05]"
                   >
-                    <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0"
-                      style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-white/[0.06]">
                       {product.image_url && getImageUrl(product.image_url) ? (
                         <img
                           src={getImageUrl(product.image_url)!}
@@ -315,10 +271,10 @@ export default function HomePage() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm font-medium truncate">
+                      <p className="text-white font-medium truncate">
                         {product.name}
                       </p>
-                      <p className="text-amber-300 text-sm font-semibold">
+                      <p className="text-amber-300 font-bold text-lg">
                         ${product.price.toFixed(2)}
                       </p>
                     </div>
@@ -328,8 +284,8 @@ export default function HomePage() {
             </motion.div>
 
           </div>
-        </motion.div>
-      </div>
-    </PageWrapper>
+        </div>
+      </motion.div>
+    </div>
   )
 }
