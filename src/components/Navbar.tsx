@@ -131,13 +131,13 @@ export default function Navbar() {
           {!user ? (
             <>
               <Link
-                href="/auth/signin"
+                href="/login"
                 className="text-white/60 hover:text-white text-sm font-medium transition-all duration-200"
               >
                 Sign In
               </Link>
               <Link
-                href="/auth/signup"
+                href="/register"
                 className="text-center"
                 style={{
                   background: 'linear-gradient(135deg, #E8C97E, #F0B429)',
