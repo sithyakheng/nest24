@@ -23,6 +23,12 @@ interface ProductCardProps {
   }
 }
 
+const getImageUrl = (image_url: string): string | null => {
+  if (!image_url) return null
+  if (image_url.startsWith('http')) return image_url
+  return `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${image_url}` 
+}
+
 export default function ProductCard({ product }: ProductCardProps) {
   const getStockStatus = () => {
     if (product.stock === 0) return { text: 'Out of Stock', color: 'text-red-400' }
@@ -51,22 +57,20 @@ export default function ProductCard({ product }: ProductCardProps) {
       <Link href={`/products/${product.id}`}>
         <div className="flex space-x-4">
           {/* LEFT - Image */}
-          <div className="relative w-32 h-24 flex-shrink-0">
-            {product.image_url ? (
-              <Image
-                src={product.image_url}
+          <div className="w-48 h-36 rounded-xl overflow-hidden flex-shrink-0"
+            style={{ background: 'rgba(255,255,255,0.06)' }}>
+            {product.image_url && getImageUrl(product.image_url) ? (
+              <img
+                src={getImageUrl(product.image_url)!}
                 alt={product.name}
-                fill
-                className="object-cover rounded-xl"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none'
+                }}
               />
             ) : (
-              <div className="w-full h-full rounded-xl flex items-center justify-center"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.05)'
-                }}
-              >
-                <span className="text-white/20 text-2xl">📦</span>
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="text-white/20 text-xs">No Image</span>
               </div>
             )}
           </div>

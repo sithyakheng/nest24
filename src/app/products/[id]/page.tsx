@@ -9,6 +9,12 @@ import PageWrapper from '@/components/PageWrapper'
 import Navbar from '@/components/Navbar'
 import { supabase } from '@/lib/supabase'
 
+const getImageUrl = (image_url: string): string | null => {
+  if (!image_url) return null
+  if (image_url.startsWith('http')) return image_url
+  return `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${image_url}` 
+}
+
 export default function ProductDetailPage() {
   const params = useParams()
   const productId = params.id as string
@@ -95,16 +101,20 @@ export default function ProductDetailPage() {
         >
           {/* LEFT - Product Image */}
           <div>
-            <div className="relative aspect-video rounded-2xl border border-white/[0.08] overflow-hidden bg-white/[0.03]">
-              {product.image_url ? (
+            <div className="relative aspect-video rounded-2xl border border-white/[0.08] overflow-hidden"
+              style={{ background: 'rgba(255,255,255,0.06)' }}>
+              {product.image_url && getImageUrl(product.image_url) ? (
                 <img
-                  src={product.image_url}
+                  src={getImageUrl(product.image_url)!}
                   alt={product.name}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none'
+                  }}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <Package className="w-16 h-16 text-white/20" />
+                  <span className="text-white/20 text-xs">No Image</span>
                 </div>
               )}
             </div>
@@ -153,15 +163,21 @@ export default function ProductDetailPage() {
                 <h3 className="font-semibold text-white mb-4">Seller Information</h3>
                 
                 <div className="flex items-start space-x-4 mb-4">
-                  <div className="w-12 h-12 bg-white/[0.08] rounded-full flex items-center justify-center flex-shrink-0">
-                    {seller.avatar_url ? (
+                  <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0"
+                    style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    {seller.avatar_url && getImageUrl(seller.avatar_url) ? (
                       <img
-                        src={seller.avatar_url}
+                        src={getImageUrl(seller.avatar_url)!}
                         alt={seller.full_name}
-                        className="w-full h-full rounded-full object-cover"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'
+                        }}
                       />
                     ) : (
-                      <User className="w-6 h-6 text-white/60" />
+                      <div className="w-full h-full flex items-center justify-center">
+                        <User className="w-6 h-6 text-white/60" />
+                      </div>
                     )}
                   </div>
                   

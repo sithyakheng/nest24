@@ -9,6 +9,12 @@ import Navbar from '@/components/Navbar'
 import ProductCard from '@/components/ProductCard'
 import { supabase } from '@/lib/supabase'
 
+const getImageUrl = (image_url: string): string | null => {
+  if (!image_url) return null
+  if (image_url.startsWith('http')) return image_url
+  return `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${image_url}` 
+}
+
 export default function HomePage() {
   const [products, setProducts] = useState<any[]>([])
   const [trendingSellers, setTrendingSellers] = useState<any[]>([])
@@ -182,22 +188,21 @@ export default function HomePage() {
                       e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'
                     }}
                   >
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center"
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.08)',
-                        backdropFilter: 'blur(8px)',
-                        WebkitBackdropFilter: 'blur(8px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
-                      }}
-                    >
-                      {seller.avatar_url ? (
+                    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0"
+                      style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      {seller.avatar_url && getImageUrl(seller.avatar_url) ? (
                         <img
-                          src={seller.avatar_url}
+                          src={getImageUrl(seller.avatar_url)!}
                           alt={seller.full_name}
-                          className="w-full h-full rounded-full object-cover"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                          }}
                         />
                       ) : (
-                        <User className="w-4 h-4 text-white/60" />
+                        <div className="w-full h-full flex items-center justify-center">
+                          <User className="w-4 h-4 text-white/60" />
+                        </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -292,22 +297,21 @@ export default function HomePage() {
                       e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'
                     }}
                   >
-                    <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.08)',
-                        backdropFilter: 'blur(8px)',
-                        WebkitBackdropFilter: 'blur(8px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
-                      }}
-                    >
-                      {product.image_url ? (
+                    <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0"
+                      style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      {product.image_url && getImageUrl(product.image_url) ? (
                         <img
-                          src={product.image_url}
+                          src={getImageUrl(product.image_url)!}
                           alt={product.name}
-                          className="w-full h-full rounded-lg object-cover"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                          }}
                         />
                       ) : (
-                        <Package className="w-5 h-5 text-white/40" />
+                        <div className="w-full h-full flex items-center justify-center">
+                          <span className="text-white/20 text-xs">No Image</span>
+                        </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
