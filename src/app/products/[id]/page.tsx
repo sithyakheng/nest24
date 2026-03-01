@@ -205,108 +205,116 @@ export default function ProductDetailPage() {
                     <p className="text-white/50 text-sm mt-2 leading-relaxed">
                       {seller.bio}
                     </p>
+                        fontSize: '15px', 
+                        marginTop: '2px' 
+                      }}>
+                        {seller.phone}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* WhatsApp */}
+                  {seller.whatsapp && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <span style={{ 
+                        color: 'rgba(255,255,255,0.4)', 
+                        fontSize: '12px',
+                        textTransform: 'uppercase', 
+                        letterSpacing: '0.1em' 
+                      }}>WhatsApp</span>
+                      <a 
+                        href={`https://wa.me/${seller.whatsapp.replace(/\D/g,'')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ 
+                          color: '#4DB8CC', 
+                          fontSize: '15px',
+                          display: 'block', 
+                          marginTop: '2px' 
+                        }}
+                      >
+                        {seller.whatsapp}
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Telegram */}
+                  {seller.telegram && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <span style={{ 
+                        color: 'rgba(255,255,255,0.4)', 
+                        fontSize: '12px',
+                        textTransform: 'uppercase', 
+                        letterSpacing: '0.1em' 
+                      }}>Telegram</span>
+                      <a 
+                        href={`https://t.me/${seller.telegram.replace('@','')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ 
+                          color: '#4DB8CC', 
+                          fontSize: '15px',
+                          display: 'block', 
+                          marginTop: '2px' 
+                        }}
+                      >
+                        {seller.telegram}
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Facebook */}
+                  {seller.facebook && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <span style={{ 
+                        color: 'rgba(255,255,255,0.4)', 
+                        fontSize: '12px',
+                        textTransform: 'uppercase', 
+                        letterSpacing: '0.1em' 
+                      }}>Facebook</span>
+                      <a 
+                        href={seller.facebook.startsWith('http') 
+                          ? seller.facebook 
+                          : `https://facebook.com/${seller.facebook}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ 
+                          color: '#4DB8CC', 
+                          fontSize: '15px',
+                          display: 'block', 
+                          marginTop: '2px' 
+                        }}
+                      >
+                        {seller.facebook}
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Instagram */}
+                  {seller.instagram && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <span style={{ 
+                        color: 'rgba(255,255,255,0.4)', 
+                        fontSize: '12px',
+                        textTransform: 'uppercase', 
+                        letterSpacing: '0.1em' 
+                      }}>Instagram</span>
+                      <a 
+                        href={`https://instagram.com/${seller.instagram.replace('@','')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ 
+                          color: '#4DB8CC', 
+                          fontSize: '15px',
+                          display: 'block', 
+                          marginTop: '2px' 
+                        }}
+                      >
+                        {seller.instagram}
+                      </a>
+                    </div>
                   )}
                 </div>
-              </div>
-
-              {/* Contact Details */}
-              <div className="pt-4 border-t border-white/[0.06]">
-                {/* Phone */}
-                {seller.phone && (
-                  <div style={{ marginBottom: '8px' }}>
-                    <span style={{ 
-                      color: 'rgba(255,255,255,0.4)', 
-                      fontSize: '12px',
-                      textTransform: 'uppercase', 
-                      letterSpacing: '0.1em' 
-                    }}>Phone</span>
-                    <p style={{ 
-                      color: 'white', 
-                      fontSize: '15px', 
-                      marginTop: '2px' 
-                    }}>
-                      {seller.phone}
-                    </p>
-                  </div>
-                )}
-
-                {/* WhatsApp */}
-                {seller.whatsapp && (
-                  <div style={{ marginBottom: '8px' }}>
-                    <span style={{ 
-                      color: 'rgba(255,255,255,0.4)', 
-                      fontSize: '12px',
-                      textTransform: 'uppercase', 
-                      letterSpacing: '0.1em' 
-                    }}>WhatsApp</span>
-                    <a 
-                      href={`https://wa.me/${seller.whatsapp.replace(/\D/g,'')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ 
-                        color: '#4DB8CC', 
-                        fontSize: '15px', 
-                        display: 'block', 
-                        marginTop: '2px' 
-                      }}
-                    >
-                      {seller.whatsapp}
-                    </a>
-                  </div>
-                )}
-
-                {/* Telegram */}
-                {seller.telegram && (
-                  <div style={{ marginBottom: '8px' }}>
-                    <span style={{ 
-                      color: 'rgba(255,255,255,0.4)', 
-                      fontSize: '12px',
-                      textTransform: 'uppercase', 
-                      letterSpacing: '0.1em' 
-                    }}>Telegram</span>
-                    <a 
-                      href={`https://t.me/${seller.telegram.replace('@','')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ 
-                        color: '#4DB8CC', 
-                        fontSize: '15px',
-                        display: 'block', 
-                        marginTop: '2px' 
-                      }}
-                    >
-                      {seller.telegram}
-                    </a>
-                  </div>
-                )}
-
-                {/* Facebook */}
-                {seller.facebook && (
-                  <div style={{ marginBottom: '8px' }}>
-                    <span style={{ 
-                      color: 'rgba(255,255,255,0.4)', 
-                      fontSize: '12px',
-                      textTransform: 'uppercase', 
-                      letterSpacing: '0.1em' 
-                    }}>Facebook</span>
-                    <a 
-                      href={seller.facebook.startsWith('http') 
-                        ? seller.facebook 
-                        : `https://facebook.com/${seller.facebook}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ 
-                        color: '#4DB8CC', 
-                        fontSize: '15px',
-                        display: 'block', 
-                        marginTop: '2px' 
-                      }}
-                    >
-                      {seller.facebook}
-                    </a>
-                  </div>
-                )}
-              </div>
               </div>
             )}
 
