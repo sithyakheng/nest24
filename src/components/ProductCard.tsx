@@ -32,9 +32,21 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <motion.div
-      whileHover={{ translateY: -2, backgroundColor: 'rgba(255,255,255,0.06)' }}
-      transition={{ duration: 0.2 }}
-      className="rounded-2xl bg-white/[0.04] border border-white/[0.06] p-5 transition-all duration-200 cursor-pointer"
+      whileHover={{ 
+        translateY: -2,
+        scale: 1.01,
+        transition: { duration: 0.2 }
+      }}
+      className="rounded-2xl p-5 transition-all duration-200 cursor-pointer shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
+      style={{
+        background: 'rgba(255, 255, 255, 0.06)',
+        backdropFilter: 'blur(24px) saturate(180%) brightness(110%)',
+        WebkitBackdropFilter: 'blur(24px) saturate(180%) brightness(110%)',
+        border: '1px solid rgba(255, 255, 255, 0.12)',
+        borderTop: '1px solid rgb(255, 255, 255, 0.2)',
+        borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
+        borderRight: '1px solid rgba(255, 255, 255, 0.08)'
+      }}
     >
       <Link href={`/products/${product.id}`}>
         <div className="flex space-x-4">
@@ -48,7 +60,12 @@ export default function ProductCard({ product }: ProductCardProps) {
                 className="object-cover rounded-xl"
               />
             ) : (
-              <div className="w-full h-full bg-white/[0.03] rounded-xl flex items-center justify-center">
+              <div className="w-full h-full rounded-xl flex items-center justify-center"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  border: '1px solid rgba(255, 255, 255, 0.05)'
+                }}
+              >
                 <span className="text-white/20 text-2xl">📦</span>
               </div>
             )}
@@ -75,7 +92,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
             {/* Price */}
             <div className="flex items-center space-x-2 mb-2">
-              <span className="text-amber-300 font-black text-xl">
+              <span className="text-amber-300 font-black text-xl shadow-[0_0_15px_rgba(232,201,126,0.2)]">
                 ${product.price.toFixed(2)}
               </span>
               {product.original_price && product.original_price > product.price && (

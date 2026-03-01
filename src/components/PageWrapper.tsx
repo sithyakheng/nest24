@@ -9,44 +9,43 @@ interface PageWrapperProps {
 
 export default function PageWrapper({ children, className = '' }: PageWrapperProps) {
   return (
-    <div className="min-h-screen bg-[#0f1115] relative">
-      {/* Wall Panel Texture */}
-      <div 
-        className="absolute inset-0 opacity-3"
-        style={{
-          backgroundImage: `
-            repeating-linear-gradient(
-              0deg,
-              transparent,
-              transparent 40px,
-              rgba(255,255,255,0.02) 40px,
-              rgba(255,255,255,0.02) 41px
-            ),
-            repeating-linear-gradient(
-              90deg,
-              transparent,
-              transparent 40px,
-              rgba(255,255,255,0.02) 40px,
-              rgba(255,255,255,0.02) 41px
-            )
-          `
-        }}
-      />
+    <div className="min-h-screen bg-[#080a0f] relative overflow-hidden">
+      {/* LIQUID GLASS BACKGROUND ORBS */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {/* Large Teal Orb */}
+        <div 
+          className="fixed top-[-200px] left-[-100px] w-[600px] h-[600px] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(0,78,100,0.35) 0%, transparent 70%)',
+            filter: 'blur(80px)'
+          }}
+        />
+        
+        {/* Warm Amber Orb */}
+        <div 
+          className="fixed bottom-[-150px] right-[-100px] w-[500px] h-[500px] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(232,201,126,0.2) 0%, transparent 70%)',
+            filter: 'blur(80px)'
+          }}
+        />
+        
+        {/* Purple Orb */}
+        <div 
+          className="fixed top-[40%] left-[40%] w-[400px] h-[400px] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(120,60,220,0.12) 0%, transparent 70%)',
+            filter: 'blur(100px)'
+          }}
+        />
+      </div>
 
-      {/* Warm Spotlight from Right */}
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle at 85% 40%, rgba(232,201,126,0.12), transparent 50%)'
-        }}
-      />
-
-      {/* Main Board Container */}
+      {/* Page Content */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className={`relative z-10 max-w-6xl mx-auto mt-20 rounded-3xl bg-white/[0.05] backdrop-blur-2xl border border-white/[0.08] shadow-[0_40px_100px_rgba(0,0,0,0.7)] ${className}`}
+        className={`relative z-10 ${className}`}
       >
         {children}
       </motion.div>

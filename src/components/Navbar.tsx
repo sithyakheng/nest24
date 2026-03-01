@@ -25,126 +25,151 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="h-[70px] border-b border-white/[0.06] px-8 flex items-center justify-between">
-      {/* LEFT - Logo */}
-      <Link href="/" className="flex items-center space-x-2">
-        <span className="font-black text-white tracking-tight text-lg">NestKH</span>
-        <div className="w-2 h-2 bg-teal-400 rounded-full"></div>
-      </Link>
+    <nav className="h-[70px] relative z-20">
+      {/* LIQUID GLASS NAVBAR */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="h-full mx-6 rounded-2xl shadow-[0_25px_50px_rgba(0,0,0,0.5)]"
+        style={{
+          background: 'rgba(255, 255, 255, 0.06)',
+          backdropFilter: 'blur(24px) saturate(180%) brightness(110%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%) brightness(110%)',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          borderTop: '1px solid rgb(255, 255, 255, 0.2)',
+          borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRight: '1px solid rgba(255, 255, 255, 0.08)'
+        }}
+      >
+        <div className="h-full px-8 flex items-center justify-between">
+          {/* LEFT - Logo */}
+          <Link href="/" className="flex items-center space-x-2">
+            <span className="font-black text-white tracking-tight text-lg">NestKH</span>
+            <div className="w-2 h-2 bg-teal-400 rounded-full shadow-[0_0_10px_rgba(0,254,226,0.4)]"></div>
+          </Link>
 
-      {/* CENTER - Navigation */}
-      <div className="hidden md:flex items-center space-x-8">
-        <Link
-          href="/"
-          className={`relative text-sm font-medium transition-colors duration-200 ${
-            activeLink === 'home' ? 'text-white' : 'text-white/60 hover:text-white'
-          }`}
-          onClick={() => setActiveLink('home')}
-        >
-          Home
-          {activeLink === 'home' && (
-            <motion.div
-              layoutId="nav-underline"
-              className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-teal-400"
-            />
-          )}
-        </Link>
-        
-        <Link
-          href="/browse"
-          className={`relative text-sm font-medium transition-colors duration-200 ${
-            activeLink === 'browse' ? 'text-white' : 'text-white/60 hover:text-white'
-          }`}
-          onClick={() => setActiveLink('browse')}
-        >
-          Browse
-          {activeLink === 'browse' && (
-            <motion.div
-              layoutId="nav-underline"
-              className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-teal-400"
-            />
-          )}
-        </Link>
-        
-        <Link
-          href="/categories"
-          className={`relative text-sm font-medium transition-colors duration-200 ${
-            activeLink === 'categories' ? 'text-white' : 'text-white/60 hover:text-white'
-          }`}
-          onClick={() => setActiveLink('categories')}
-        >
-          Categories
-          {activeLink === 'categories' && (
-            <motion.div
-              layoutId="nav-underline"
-              className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-teal-400"
-            />
-          )}
-        </Link>
-        
-        <Link
-          href="/about"
-          className={`relative text-sm font-medium transition-colors duration-200 ${
-            activeLink === 'about' ? 'text-white' : 'text-white/60 hover:text-white'
-          }`}
-          onClick={() => setActiveLink('about')}
-        >
-          About
-          {activeLink === 'about' && (
-            <motion.div
-              layoutId="nav-underline"
-              className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-teal-400"
-            />
-          )}
-        </Link>
-      </div>
-
-      {/* RIGHT - Auth */}
-      <div className="flex items-center space-x-4">
-        {!user ? (
-          <>
+          {/* CENTER - Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
             <Link
-              href="/auth/signin"
-              className="text-white/60 hover:text-white text-sm font-medium transition-colors duration-200"
+              href="/"
+              className={`relative text-sm font-medium transition-all duration-200 ${
+                activeLink === 'home' ? 'text-white' : 'text-white/60 hover:text-white'
+              }`}
+              onClick={() => setActiveLink('home')}
             >
-              Sign In
+              Home
+              {activeLink === 'home' && (
+                <motion.div
+                  layoutId="nav-underline"
+                  className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-teal-400 shadow-[0_0_8px_rgba(0,254,226,0.3)]"
+                />
+              )}
             </Link>
-            <Link
-              href="/auth/signup"
-              className="bg-amber-400 hover:bg-amber-500 text-black rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200"
-            >
-              Join Free
-            </Link>
-          </>
-        ) : (
-          <>
-            {isSeller ? (
-              <Link
-                href="/seller-dashboard"
-                className="flex items-center space-x-2 text-white/60 hover:text-white text-sm font-medium transition-colors duration-200"
-              >
-                <LayoutDashboard className="w-4 h-4" />
-                <span className="hidden sm:inline">Dashboard</span>
-              </Link>
-            ) : (
-              <Link
-                href="/browse"
-                className="flex items-center space-x-2 text-white/60 hover:text-white text-sm font-medium transition-colors duration-200"
-              >
-                <ShoppingBag className="w-4 h-4" />
-                <span className="hidden sm:inline">Browse</span>
-              </Link>
-            )}
             
-            <button
-              onClick={handleSignOut}
-              className="w-8 h-8 bg-white/[0.08] rounded-full flex items-center justify-center text-white/60 hover:text-white transition-colors duration-200"
+            <Link
+              href="/browse"
+              className={`relative text-sm font-medium transition-all duration-200 ${
+                activeLink === 'browse' ? 'text-white' : 'text-white/60 hover:text-white'
+              }`}
+              onClick={() => setActiveLink('browse')}
             >
-              <User className="w-4 h-4" />
-            </button>
-          </>
-        )}
-      </div>
+              Browse
+              {activeLink === 'browse' && (
+                <motion.div
+                  layoutId="nav-underline"
+                  className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-teal-400 shadow-[0_0_8px_rgba(0,254,226,0.3)]"
+                />
+              )}
+            </Link>
+            
+            <Link
+              href="/categories"
+              className={`relative text-sm font-medium transition-all duration-200 ${
+                activeLink === 'categories' ? 'text-white' : 'text-white/60 hover:text-white'
+              }`}
+              onClick={() => setActiveLink('categories')}
+            >
+              Categories
+              {activeLink === 'categories' && (
+                <motion.div
+                  layoutId="nav-underline"
+                  className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-teal-400 shadow-[0_0_8px_rgba(0,254,226,0.3)]"
+                />
+              )}
+            </Link>
+            
+            <Link
+              href="/about"
+              className={`relative text-sm font-medium transition-all duration-200 ${
+                activeLink === 'about' ? 'text-white' : 'text-white/60 hover:text-white'
+              }`}
+              onClick={() => setActiveLink('about')}
+            >
+              About
+              {activeLink === 'about' && (
+                <motion.div
+                  layoutId="nav-underline"
+                  className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-teal-400 shadow-[0_0_8px_rgba(0,254,226,0.3)]"
+                />
+              )}
+            </Link>
+          </div>
+
+          {/* RIGHT - Auth */}
+          <div className="flex items-center space-x-4">
+            {!user ? (
+              <>
+                <Link
+                  href="/auth/signin"
+                  className="text-white/60 hover:text-white text-sm font-medium transition-all duration-200"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className="bg-amber-400 hover:bg-amber-500 text-black rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 shadow-[0_4px_20px_rgba(232,201,126,0.3)]"
+                >
+                  Join Free
+                </Link>
+              </>
+            ) : (
+              <>
+                {isSeller ? (
+                  <Link
+                    href="/seller-dashboard"
+                    className="flex items-center space-x-2 text-white/60 hover:text-white text-sm font-medium transition-all duration-200"
+                  >
+                    <LayoutDashboard className="w-4 h-4" />
+                    <span className="hidden sm:inline">Dashboard</span>
+                  </Link>
+                ) : (
+                  <Link
+                    href="/browse"
+                    className="flex items-center space-x-2 text-white/60 hover:text-white text-sm font-medium transition-all duration-200"
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    <span className="hidden sm:inline">Browse</span>
+                  </Link>
+                )}
+                
+                <button
+                  onClick={handleSignOut}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white/60 hover:text-white transition-all duration-200"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                  }}
+                >
+                  <User className="w-4 h-4" />
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </motion.div>
     </nav>
   )
 }
