@@ -2,15 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { User, LayoutDashboard, ShoppingBag } from 'lucide-react'
+import { User, LayoutDashboard, ShoppingBag, LogOut } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 
 export default function Navbar() {
   const { user } = useAuth()
+  const router = useRouter()
   const isSeller = user?.user_metadata?.role === 'seller'
   const [activeLink, setActiveLink] = useState('')
+  const [dropdownOpen, setDropdownOpen] = useState(false)
 
   useEffect(() => {
     const path = window.location.pathname
@@ -19,6 +22,14 @@ export default function Navbar() {
     else if (path === '/categories') setActiveLink('categories')
     else if (path === '/about') setActiveLink('about')
   }, [])
+
+  useEffect(() => {
+    const handleClickOutside = () => setDropdownOpen(false)
+    if (dropdownOpen) {
+      document.addEventListener('click', handleClickOutside)
+    }
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [dropdownOpen])
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -128,7 +139,115 @@ export default function Navbar() {
 
         {/* RIGHT - Auth */}
         <div className="flex items-center space-x-4">
-          {!user ? (
+          {user ? (
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.10)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: 'white'
+                }}
+              >
+                <User size={16} />
+              </button>
+
+              {dropdownOpen && (
+                <div style={{
+                  position: 'absolute',
+                  top: '48px',
+                  right: '0',
+                  minWidth: '180px',
+                  background: 'rgba(15,17,21,0.95)',
+                  backdropFilter: 'blur(24px)',
+                  WebkitBackdropFilter: 'blur(24px)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderTop: '1px solid rgba(255,255,255,0.22)',
+                  borderRadius: '16px',
+                  padding: '8px',
+                  boxShadow: '0 16px 48px rgba(0,0,0,0.6)',
+                  zIndex: 100
+                }}>
+                  <Link 
+                    href="/seller-dashboard" 
+                    onClick={() => setDropdownOpen(false)}
+                    style={{
+                      display: 'block',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      color: 'rgba(255,255,255,0.7)',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      textDecoration: 'none'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <LayoutDashboard size={14} />
+                      Dashboard
+                    </div>
+                  </Link>
+
+                  <Link 
+                    href="/profile" 
+                    onClick={() => setDropdownOpen(false)}
+                    style={{
+                      display: 'block',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      color: 'rgba(255,255,255,0.7)',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      textDecoration: 'none'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <User size={14} />
+                      Profile
+                    </div>
+                  </Link>
+
+                  <div style={{ 
+                    borderTop: '1px solid rgba(255,255,255,0.06)', 
+                    margin: '6px 0' 
+                  }} />
+
+                  <div
+                    onClick={async () => {
+                      await supabase.auth.signOut()
+                      setDropdownOpen(false)
+                      router.push('/')
+                    }}
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      color: 'rgba(255,80,80,0.8)',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,80,80,0.08)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <LogOut size={14} />
+                    Sign Out
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
             <>
               <Link
                 href="/login"
@@ -151,39 +270,6 @@ export default function Navbar() {
               >
                 Join Free
               </Link>
-            </>
-          ) : (
-            <>
-              {isSeller ? (
-                <Link
-                  href="/seller-dashboard"
-                  className="flex items-center space-x-2 text-white/60 hover:text-white text-sm font-medium transition-all duration-200"
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span className="hidden sm:inline">Dashboard</span>
-                </Link>
-              ) : (
-                <Link
-                  href="/browse"
-                  className="flex items-center space-x-2 text-white/60 hover:text-white text-sm font-medium transition-all duration-200"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span className="hidden sm:inline">Browse</span>
-                </Link>
-              )}
-              
-              <button
-                onClick={handleSignOut}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white/60 hover:text-white transition-all duration-200"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
-                }}
-              >
-                <User className="w-4 h-4" />
-              </button>
             </>
           )}
         </div>
