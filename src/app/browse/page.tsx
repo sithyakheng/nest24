@@ -8,12 +8,6 @@ import ProductCard from '@/components/ProductCard'
 
 const CATEGORIES = ['All', 'Electronics', 'Fashion', 'Home', 'Beauty', 'Food', 'Gaming', 'Other']
 
-const getImageUrl = (url: string): string => {
-  if (!url) return ''
-  if (url.startsWith('http')) return url
-  return `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${url}` 
-}
-
 function BrowseContent() {
   const searchParams = useSearchParams()
   const [products, setProducts] = useState<any[]>([])
@@ -147,7 +141,7 @@ function BrowseContent() {
                     background: 'rgba(255,255,255,0.04)' }}>
                     {product.image_url ? (
                       <img
-                        src={getImageUrl(product.image_url) ?? ''}
+                        src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${product.image_url}`) : ''}
                         alt={product.name}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
