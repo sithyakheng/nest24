@@ -13,7 +13,8 @@ import {
   Settings, 
   LogOut,
   Menu,
-  X
+  X,
+  ArrowLeft
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
@@ -131,6 +132,36 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
           </div>
           
           <nav className="flex-1 px-4">
+            {/* Back to Shop Button */}
+            <Link href="/">
+              <button
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  width: '100%',
+                  padding: '10px 16px',
+                  borderRadius: '12px',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: 'rgba(255,255,255,0.6)',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  marginBottom: '8px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+              >
+                <ArrowLeft size={16} />
+                Back to Shop
+              </button>
+            </Link>
+            
+            {/* Divider */}
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '8px 0' }} />
+            
             {sidebarItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href
@@ -191,6 +222,37 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
           </div>
           
           <nav className="flex-1 px-4">
+            {/* Back to Shop Button */}
+            <Link href="/">
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  width: '100%',
+                  padding: '10px 16px',
+                  borderRadius: '12px',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: 'rgba(255,255,255,0.6)',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  marginBottom: '8px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+              >
+                <ArrowLeft size={16} />
+                Back to Shop
+              </button>
+            </Link>
+            
+            {/* Divider */}
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '8px 0' }} />
+            
             {sidebarItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href
