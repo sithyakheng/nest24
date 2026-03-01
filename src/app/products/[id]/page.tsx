@@ -5,7 +5,6 @@ import { motion } from 'framer-motion'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { MessageCircle, Phone, Mail, User, Package } from 'lucide-react'
-import PageWrapper from '@/components/PageWrapper'
 import Navbar from '@/components/Navbar'
 import { supabase } from '@/lib/supabase'
 
@@ -64,7 +63,7 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <PageWrapper>
+      <div className="min-h-screen bg-[#080a0f]">
         <Navbar />
         <div className="p-6">
           <div className="animate-pulse space-y-4">
@@ -73,23 +72,23 @@ export default function ProductDetailPage() {
             <div className="h-6 bg-white/[0.04] rounded-xl w-1/2" />
           </div>
         </div>
-      </PageWrapper>
+      </div>
     )
   }
 
   if (!product) {
     return (
-      <PageWrapper>
+      <div className="min-h-screen bg-[#080a0f]">
         <Navbar />
         <div className="p-6 text-center">
           <p className="text-white/50">Product not found</p>
         </div>
-      </PageWrapper>
+      </div>
     )
   }
 
   return (
-    <PageWrapper>
+    <div className="min-h-screen bg-[#080a0f]">
       <Navbar />
       
       <div className="p-6">
@@ -195,37 +194,119 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
 
-                {/* Contact Icons */}
-                <div className="flex items-center space-x-3 pt-4 border-t border-white/[0.06]">
-                  {seller.phone && (
-                    <a
-                      href={`tel:${seller.phone}`}
-                      className="w-10 h-10 bg-white/[0.08] rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/[0.12] transition-colors"
-                    >
-                      <Phone className="w-4 h-4" />
-                    </a>
-                  )}
+                {/* Contact Info */}
+                <div className="flex-1">
+                  <h4 className="font-semibold text-white">
+                    {seller.full_name || 'Seller'}
+                  </h4>
+                  <p className="text-white/40 text-sm">Verified Seller</p>
                   
-                  {seller.whatsapp && (
-                    <a
-                      href={`https://wa.me/${seller.whatsapp}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 bg-white/[0.08] rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/[0.12] transition-colors"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                    </a>
-                  )}
-                  
-                  {seller.email && (
-                    <a
-                      href={`mailto:${seller.email}`}
-                      className="w-10 h-10 bg-white/[0.08] rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/[0.12] transition-colors"
-                    >
-                      <Mail className="w-4 h-4" />
-                    </a>
+                  {seller.bio && (
+                    <p className="text-white/50 text-sm mt-2 leading-relaxed">
+                      {seller.bio}
+                    </p>
                   )}
                 </div>
+              </div>
+
+              {/* Contact Details */}
+              <div className="pt-4 border-t border-white/[0.06]">
+                {/* Phone */}
+                {seller.phone && (
+                  <div style={{ marginBottom: '8px' }}>
+                    <span style={{ 
+                      color: 'rgba(255,255,255,0.4)', 
+                      fontSize: '12px',
+                      textTransform: 'uppercase', 
+                      letterSpacing: '0.1em' 
+                    }}>Phone</span>
+                    <p style={{ 
+                      color: 'white', 
+                      fontSize: '15px', 
+                      marginTop: '2px' 
+                    }}>
+                      {seller.phone}
+                    </p>
+                  </div>
+                )}
+
+                {/* WhatsApp */}
+                {seller.whatsapp && (
+                  <div style={{ marginBottom: '8px' }}>
+                    <span style={{ 
+                      color: 'rgba(255,255,255,0.4)', 
+                      fontSize: '12px',
+                      textTransform: 'uppercase', 
+                      letterSpacing: '0.1em' 
+                    }}>WhatsApp</span>
+                    <a 
+                      href={`https://wa.me/${seller.whatsapp.replace(/\D/g,'')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ 
+                        color: '#4DB8CC', 
+                        fontSize: '15px', 
+                        display: 'block', 
+                        marginTop: '2px' 
+                      }}
+                    >
+                      {seller.whatsapp}
+                    </a>
+                  </div>
+                )}
+
+                {/* Telegram */}
+                {seller.telegram && (
+                  <div style={{ marginBottom: '8px' }}>
+                    <span style={{ 
+                      color: 'rgba(255,255,255,0.4)', 
+                      fontSize: '12px',
+                      textTransform: 'uppercase', 
+                      letterSpacing: '0.1em' 
+                    }}>Telegram</span>
+                    <a 
+                      href={`https://t.me/${seller.telegram.replace('@','')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ 
+                        color: '#4DB8CC', 
+                        fontSize: '15px',
+                        display: 'block', 
+                        marginTop: '2px' 
+                      }}
+                    >
+                      {seller.telegram}
+                    </a>
+                  </div>
+                )}
+
+                {/* Facebook */}
+                {seller.facebook && (
+                  <div style={{ marginBottom: '8px' }}>
+                    <span style={{ 
+                      color: 'rgba(255,255,255,0.4)', 
+                      fontSize: '12px',
+                      textTransform: 'uppercase', 
+                      letterSpacing: '0.1em' 
+                    }}>Facebook</span>
+                    <a 
+                      href={seller.facebook.startsWith('http') 
+                        ? seller.facebook 
+                        : `https://facebook.com/${seller.facebook}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ 
+                        color: '#4DB8CC', 
+                        fontSize: '15px',
+                        display: 'block', 
+                        marginTop: '2px' 
+                      }}
+                    >
+                      {seller.facebook}
+                    </a>
+                  </div>
+                )}
+              </div>
               </div>
             )}
 
@@ -244,6 +325,6 @@ export default function ProductDetailPage() {
           </div>
         </motion.div>
       </div>
-    </PageWrapper>
+    </div>
   )
 }
