@@ -1,74 +1,46 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Phone, MessageCircle, Mail, User, Package, Star, ExternalLink, Facebook, Instagram, Send } from 'lucide-react'
+import { useParams } from 'next/navigation'
+import Link from 'next/link'
+import { MessageCircle, Phone, Mail, User, Package } from 'lucide-react'
+import PageWrapper from '@/components/PageWrapper'
+import Navbar from '@/components/Navbar'
 import { supabase } from '@/lib/supabase'
 
-interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  stock: number
-  category: string
-  image_url?: string
-  seller_id: string
-  created_at: string
-}
-
-interface Seller {
-  id: string
-  email: string
-  full_name?: string
-  phone?: string
-  whatsapp?: string
-  facebook?: string
-  instagram?: string
-  telegram?: string
-  bio?: string
-  avatar_url?: string
-}
-
-export default function ProductDetail() {
+export default function ProductDetailPage() {
   const params = useParams()
-  const router = useRouter()
-  const [product, setProduct] = useState<Product | null>(null)
-  const [seller, setSeller] = useState<Seller | null>(null)
+  const productId = params.id as string
+  const [product, setProduct] = useState<any>(null)
+  const [seller, setSeller] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (params.id) {
-      fetchProduct()
-    }
-  }, [params.id])
+    fetchProduct()
+  }, [productId])
 
   const fetchProduct = async () => {
     try {
+      // Fetch product
       const { data: productData, error: productError } = await supabase
         .from('products')
         .select('*')
-        .eq('id', params.id)
+        .eq('id', productId)
         .single()
 
       if (productError) throw productError
 
-      setProduct(productData)
+      // Fetch seller info
+      if (productData) {
+        const { data: sellerData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', productData.seller_id)
+          .single()
 
-      // Fetch seller profile
-      const { data: sellerProfile } = await supabase
-        .from('profiles')
-        .select('full_name, phone, whatsapp, facebook, instagram, telegram, bio, avatar_url, email')
-        .eq('id', productData.seller_id)
-        .single()
-      
-      console.log('Seller profile data:', sellerProfile)
-      if (sellerProfile) {
-        setSeller({
-          id: productData.seller_id,
-          ...sellerProfile
-        })
+        setSeller(sellerData)
+        setProduct(productData)
       }
     } catch (error) {
       console.error('Error fetching product:', error)
@@ -77,51 +49,53 @@ export default function ProductDetail() {
     }
   }
 
+  const getStockStatus = () => {
+    if (!product) return { text: 'Loading', color: 'text-gray-400' }
+    if (product.stock === 0) return { text: 'Out of Stock', color: 'text-red-400' }
+    if (product.stock < 5) return { text: 'Low Stock', color: 'text-amber-400' }
+    return { text: 'In Stock', color: 'text-teal-400' }
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-2 border-[#004E64] border-t-transparent"></div>
-      </div>
+      <PageWrapper>
+        <Navbar />
+        <div className="p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-96 bg-white/[0.04] rounded-2xl" />
+            <div className="h-8 bg-white/[0.04] rounded-xl w-3/4" />
+            <div className="h-6 bg-white/[0.04] rounded-xl w-1/2" />
+          </div>
+        </div>
+      </PageWrapper>
     )
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Product not found</h2>
-          <button
-            onClick={() => router.back()}
-            className="glass px-6 py-3 rounded-2xl text-[#004E64] hover:bg-[#004E64] hover:text-white smooth-transition"
-          >
-            Go Back
-          </button>
+      <PageWrapper>
+        <Navbar />
+        <div className="p-6 text-center">
+          <p className="text-white/50">Product not found</p>
         </div>
-      </div>
+      </PageWrapper>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#E0E5E9]/30 to-transparent">
-      {/* Header */}
-      <div className="container mx-auto px-4 py-8">
-        <button
-          onClick={() => router.back()}
-          className="glass px-4 py-2 rounded-2xl text-[#004E64] hover:bg-[#004E64] hover:text-white smooth-transition inline-flex items-center space-x-2 mb-8"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back</span>
-        </button>
-
-        {/* Product Image - Full Width */}
+    <PageWrapper>
+      <Navbar />
+      
+      <div className="p-6">
         <motion.div
-          initial={{ opacity: 0, y: -30 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-8"
+          transition={{ duration: 0.4 }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
         >
-          <div className="glass rounded-3xl overflow-hidden">
-            <div className="h-96 bg-gradient-to-br from-[#E0E5E9] to-[#004E64]/10 flex items-center justify-center">
+          {/* LEFT - Product Image */}
+          <div>
+            <div className="relative aspect-video rounded-2xl border border-white/[0.08] overflow-hidden bg-white/[0.03]">
               {product.image_url ? (
                 <img
                   src={product.image_url}
@@ -129,160 +103,131 @@ export default function ProductDetail() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <Package className="w-24 h-24 text-[#004E64]/30" />
+                <div className="w-full h-full flex items-center justify-center">
+                  <Package className="w-16 h-16 text-white/20" />
+                </div>
               )}
             </div>
           </div>
-        </motion.div>
 
-        {/* Product Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="space-y-6"
-        >
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">{product.name}</h1>
-            <p className="text-xl text-gray-600 mb-6">{product.description}</p>
-            
-            <div className="flex items-center space-x-4 mb-6">
-              <span className="text-3xl font-bold text-green-600">${product.price}</span>
-              <span className={`px-3 py-1 rounded-lg text-sm ${
-                product.stock > 0 
-                  ? 'bg-green-100 text-green-600' 
-                  : 'bg-red-100 text-red-600'
-              }`}>
-                {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
-              </span>
-              <span className="px-3 py-1 rounded-lg text-sm bg-[#004E64]/10 text-[#004E64]">
+          {/* RIGHT - Product Info */}
+          <div className="space-y-6">
+            {/* Category Pill */}
+            <div className="inline-block bg-teal-500/20 border border-teal-500/30 rounded-full px-3 py-1">
+              <span className="text-teal-300 text-sm font-medium uppercase tracking-wider">
                 {product.category}
               </span>
             </div>
-          </div>
 
-          {/* Seller Contact Section */}
-          {seller && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="glass rounded-2xl p-6 space-y-6"
-            >
-              {/* Seller Profile */}
-              <div className="flex items-start space-x-4">
-                <div className="w-16 h-16 glass rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
-                  {seller.avatar_url ? (
-                    <img
-                      src={seller.avatar_url}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-2xl font-bold text-[#004E64]">
-                      {seller.full_name?.[0] || seller.email?.[0] || 'S'}
-                    </span>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-gray-900">
-                    {seller.full_name || 'Seller'}
-                  </h3>
-                  <p className="text-gray-600">Verified Seller</p>
-                  {seller.bio && (
-                    <p className="text-gray-700 mt-2">{seller.bio}</p>
-                  )}
-                </div>
+            {/* Product Name */}
+            <h1 className="text-3xl font-black text-white leading-tight">
+              {product.name}
+            </h1>
+
+            {/* Price */}
+            <div className="flex items-center space-x-3">
+              <span className="text-4xl font-black text-amber-300">
+                ${product.price.toFixed(2)}
+              </span>
+              {product.original_price && product.original_price > product.price && (
+                <span className="text-white/30 line-through text-lg">
+                  ${product.original_price.toFixed(2)}
+                </span>
+              )}
+              <span className={`text-sm font-medium ${getStockStatus().color}`}>
+                {getStockStatus().text}
+              </span>
+            </div>
+
+            {/* Description */}
+            {product.description && (
+              <div className="text-white/60 leading-relaxed">
+                <h3 className="font-semibold text-white mb-2">Description</h3>
+                <p>{product.description}</p>
               </div>
+            )}
 
-              {/* Contact Methods */}
-              <div className="space-y-4">
-                <h4 className="font-semibold text-gray-900">Contact Seller</h4>
+            {/* Seller Box */}
+            {seller && (
+              <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-4">
+                <h3 className="font-semibold text-white mb-4">Seller Information</h3>
                 
-                {/* Check if seller has any contact info */}
-                {seller.phone || seller.whatsapp || seller.facebook || seller.instagram || seller.telegram || seller.email ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {seller.phone && (
-                      <a
-                        href={`tel:${seller.phone}`}
-                        className="glass px-4 py-3 rounded-2xl text-[#004E64] font-medium hover:bg-[#004E64] hover:text-white smooth-transition flex items-center justify-center space-x-2"
-                      >
-                        <Phone className="w-4 h-4" />
-                        <span>📞 Call</span>
-                      </a>
-                    )}
-                    
-                    {seller.whatsapp && (
-                      <a
-                        href={`https://wa.me/${seller.whatsapp.replace(/[^\d]/g, '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="glass px-4 py-3 rounded-2xl text-green-600 font-medium hover:bg-green-600 hover:text-white smooth-transition flex items-center justify-center space-x-2"
-                      >
-                        <MessageCircle className="w-4 h-4" />
-                        <span>WhatsApp</span>
-                      </a>
-                    )}
-                    
-                    {seller.email && (
-                      <a
-                        href={`mailto:${seller.email}`}
-                        className="glass px-4 py-3 rounded-2xl text-[#004E64] font-medium hover:bg-[#004E64] hover:text-white smooth-transition flex items-center justify-center space-x-2"
-                      >
-                        <Mail className="w-4 h-4" />
-                        <span>✉️ Email</span>
-                      </a>
+                <div className="flex items-start space-x-4 mb-4">
+                  <div className="w-12 h-12 bg-white/[0.08] rounded-full flex items-center justify-center flex-shrink-0">
+                    {seller.avatar_url ? (
+                      <img
+                        src={seller.avatar_url}
+                        alt={seller.full_name}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-6 h-6 text-white/60" />
                     )}
                   </div>
-                ) : (
-                  <p className="text-gray-500 italic">Seller hasn't added contact info yet</p>
-                )}
+                  
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-white">
+                      {seller.full_name || 'Seller'}
+                    </h4>
+                    <p className="text-white/40 text-sm">Verified Seller</p>
+                    
+                    {seller.bio && (
+                      <p className="text-white/50 text-sm mt-2 leading-relaxed">
+                        {seller.bio}
+                      </p>
+                    )}
+                  </div>
+                </div>
 
-                {/* Social Media */}
-                {(seller.facebook || seller.instagram || seller.telegram) && (
-                  <div className="flex flex-wrap gap-4">
-                    {seller.facebook && (
-                      <a
-                        href={seller.facebook}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="glass px-4 py-2 rounded-2xl text-blue-600 font-medium hover:bg-blue-600 hover:text-white smooth-transition flex items-center space-x-2"
-                      >
-                        <Facebook className="w-4 h-4" />
-                        <span>Facebook</span>
-                      </a>
-                    )}
-                    
-                    {seller.instagram && (
-                      <a
-                        href={seller.instagram}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="glass px-4 py-2 rounded-2xl text-pink-600 font-medium hover:bg-pink-600 hover:text-white smooth-transition flex items-center space-x-2"
-                      >
-                        <Instagram className="w-4 h-4" />
-                        <span>Instagram</span>
-                      </a>
-                    )}
-                    
-                    {seller.telegram && (
-                      <a
-                        href={`https://t.me/${seller.telegram.replace('@', '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="glass px-4 py-2 rounded-2xl text-blue-500 font-medium hover:bg-blue-500 hover:text-white smooth-transition flex items-center space-x-2"
-                      >
-                        <Send className="w-4 h-4" />
-                        <span>Telegram</span>
-                      </a>
-                    )}
-                  </div>
-                )}
+                {/* Contact Icons */}
+                <div className="flex items-center space-x-3 pt-4 border-t border-white/[0.06]">
+                  {seller.phone && (
+                    <a
+                      href={`tel:${seller.phone}`}
+                      className="w-10 h-10 bg-white/[0.08] rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/[0.12] transition-colors"
+                    >
+                      <Phone className="w-4 h-4" />
+                    </a>
+                  )}
+                  
+                  {seller.whatsapp && (
+                    <a
+                      href={`https://wa.me/${seller.whatsapp}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-white/[0.08] rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/[0.12] transition-colors"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                    </a>
+                  )}
+                  
+                  {seller.email && (
+                    <a
+                      href={`mailto:${seller.email}`}
+                      className="w-10 h-10 bg-white/[0.08] rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/[0.12] transition-colors"
+                    >
+                      <Mail className="w-4 h-4" />
+                    </a>
+                  )}
+                </div>
               </div>
-            </motion.div>
-          )}
+            )}
+
+            {/* Main CTA */}
+            <button className="w-full bg-amber-400 hover:bg-amber-500 text-black rounded-full py-3 font-semibold transition-colors duration-200">
+              Contact Seller
+            </button>
+
+            {/* Back Link */}
+            <Link
+              href="/browse"
+              className="inline-flex items-center text-white/60 hover:text-white text-sm transition-colors"
+            >
+              ← Back to Browse
+            </Link>
+          </div>
         </motion.div>
       </div>
-    </div>
+    </PageWrapper>
   )
 }
