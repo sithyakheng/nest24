@@ -118,6 +118,21 @@ export default function Navbar() {
             )}
           </Link>
           
+          {/* Ranks - Only show for sellers */}
+          {user && user.user_metadata?.role === 'seller' && (
+            <Link href="/dashboard/ranks">
+              <span style={{
+                color: '#E8C97E',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}>
+                🏆 Ranks
+              </span>
+            </Link>
+          )}
+          
           <Link
             href="/categories"
             className={`relative text-sm font-medium transition-all duration-200 ${
