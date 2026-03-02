@@ -14,6 +14,7 @@ export default function Navbar() {
   const isSeller = user?.user_metadata?.role === 'seller'
   const [activeLink, setActiveLink] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [userRole, setUserRole] = useState('')
 
   useEffect(() => {
     const path = window.location.pathname
@@ -22,6 +23,19 @@ export default function Navbar() {
     else if (path === '/categories') setActiveLink('categories')
     else if (path === '/about') setActiveLink('about')
   }, [])
+
+  useEffect(() => {
+    async function getRole() {
+      if (!user) return
+      const { data } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      setUserRole(data?.role || '')
+    }
+    getRole()
+  }, [user])
 
   useEffect(() => {
     const handleClickOutside = () => setDropdownOpen(false)
@@ -276,6 +290,29 @@ export default function Navbar() {
                     borderTop: '1px solid rgba(255,255,255,0.06)', 
                     margin: '6px 0' 
                   }} />
+
+                  {userRole === 'admin' && (
+                    <Link 
+                      href="/admin" 
+                      onClick={() => setDropdownOpen(false)}
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: '10px',
+                        color: '#E8C97E',
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontWeight: '600',
+                        textDecoration: 'none'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(232,201,126,0.08)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      ⚙️ Admin Panel
+                    </Link>
+                  )}
 
                   <Link 
                     href="/seller-dashboard" 
