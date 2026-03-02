@@ -12,6 +12,8 @@ export default function AdminPage() {
   const [sellers, setSellers] = useState<any[]>([])
   const [products, setProducts] = useState<any[]>([])
   const [orders, setOrders] = useState<any[]>([])
+  const [allUsers, setAllUsers] = useState<any[]>([])
+  const [productCounts, setProductCounts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState('')
 
@@ -37,28 +39,46 @@ export default function AdminPage() {
 
   async function fetchAll() {
     setLoading(true)
-    
+
+    // Fetch ALL rank requests with seller info
     const { data: requests } = await supabase
       .from('rank_requests')
-      .select('*, profiles(id, name, full_name, email, avatar_url)')
+      .select('*, profiles(id, name, full_name, email, avatar_url, rank)')
       .order('created_at', { ascending: false })
     setRankRequests(requests || [])
 
+    // Fetch ALL users (buyers + sellers)
+    const { data: allUsers } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false })
+    setAllUsers(allUsers || [])
+
+    // Fetch ONLY sellers
     const { data: sellersData } = await supabase
       .from('profiles')
-      .select('*, products(id)')
+      .select('*')
       .eq('role', 'seller')
+      .order('created_at', { ascending: false })
     setSellers(sellersData || [])
 
+    // Fetch product counts per seller
+    const { data: productCounts } = await supabase
+      .from('products')
+      .select('seller_id')
+    setProductCounts(productCounts || [])
+
+    // Fetch ALL products
     const { data: productsData } = await supabase
       .from('products')
-      .select('*, profiles(name, full_name)')
+      .select('*, profiles(name, full_name, email)')
       .order('created_at', { ascending: false })
     setProducts(productsData || [])
 
+    // Fetch ALL orders
     const { data: ordersData } = await supabase
       .from('orders')
-      .select('*, products(name), profiles(name, full_name)')
+      .select('*, products(name), profiles(name, full_name, email)')
       .order('created_at', { ascending: false })
     setOrders(ordersData || [])
 
@@ -104,6 +124,7 @@ export default function AdminPage() {
 
   const tabs = [
     { id: 'requests', label: '📋 Rank Requests', count: rankRequests.filter(r => r.status === 'pending').length },
+    { id: 'users', label: '👤 All Users', count: allUsers.length },
     { id: 'sellers', label: '👥 Sellers', count: sellers.length },
     { id: 'products', label: '📦 Products', count: products.length },
     { id: 'orders', label: '🛒 Orders', count: orders.length },
@@ -198,6 +219,118 @@ export default function AdminPage() {
           </div>
         )}
 
+        {/* ALL USERS TAB */}
+        {activeTab === 'users' && (
+          <div style={{ ...glassCard, padding: '24px' }}>
+            <h2 style={{ color: 'white', fontWeight: '800', fontSize: '20px', marginBottom: '8px' }}>All Users</h2>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '20px' }}>
+              Total: {allUsers.length} users
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {allUsers.map(user => (
+                <div key={user.id} style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '14px',
+                  padding: '14px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '10px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{
+                      width: '38px', height: '38px', borderRadius: '50%',
+                      background: user.role === 'admin' 
+                        ? 'rgba(232,201,126,0.3)' 
+                        : user.role === 'seller' 
+                        ? 'rgba(0,78,100,0.4)' 
+                        : 'rgba(255,255,255,0.1)',
+                      display: 'flex', alignItems: 'center',
+                      justifyContent: 'center',
+                      color: user.role === 'admin' ? '#E8C97E' : user.role === 'seller' ? '#4DB8CC' : 'white',
+                      fontWeight: '700', fontSize: '15px',
+                      overflow: 'hidden', flexShrink: 0
+                    }}>
+                      {user.avatar_url ? (
+                        <img src={user.avatar_url} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        (user.name || user.full_name || user.email || 'U').charAt(0).toUpperCase()
+                      )}
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <p style={{ color: 'white', fontWeight: '600', margin: 0, fontSize: '14px' }}>
+                          {user.name || user.full_name || 'No name'}
+                        </p>
+                        {user.banned && (
+                          <span style={{ background: 'rgba(255,80,80,0.2)', color: '#f87171', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '9999px' }}>BANNED</span>
+                        )}
+                      </div>
+                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '2px 0 0 0' }}>
+                        {user.email}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{
+                      padding: '3px 10px', borderRadius: '9999px', fontSize: '11px', fontWeight: '700',
+                      background: user.role === 'admin' 
+                        ? 'rgba(232,201,126,0.2)' 
+                        : user.role === 'seller' 
+                        ? 'rgba(0,78,100,0.2)' 
+                        : 'rgba(255,255,255,0.08)',
+                      color: user.role === 'admin' 
+                        ? '#E8C97E' 
+                        : user.role === 'seller' 
+                        ? '#4DB8CC' 
+                        : 'rgba(255,255,255,0.5)',
+                      border: `1px solid ${user.role === 'admin' 
+                        ? 'rgba(232,201,126,0.3)' 
+                        : user.role === 'seller' 
+                        ? 'rgba(0,78,100,0.3)' 
+                        : 'rgba(255,255,255,0.1)'}`
+                    }}>
+                      {user.role === 'admin' ? '⚙️ Admin' : user.role === 'seller' ? '🏪 Seller' : '👤 Buyer'}
+                    </span>
+
+                    {user.rank && user.rank !== 'none' && (
+                      <span style={{
+                        padding: '3px 10px', borderRadius: '9999px', fontSize: '11px', fontWeight: '700',
+                        background: user.rank === 'premium' ? 'rgba(232,201,126,0.2)' : user.rank === 'verified' ? 'rgba(0,78,100,0.2)' : 'rgba(59,130,246,0.2)',
+                        color: user.rank === 'premium' ? '#E8C97E' : user.rank === 'verified' ? '#4DB8CC' : '#93c5fd',
+                      }}>
+                        {user.rank === 'premium' ? '⭐ Premium' : user.rank === 'verified' ? '✓ Verified' : '🥉 Starter'}
+                      </span>
+                    )}
+                  </div>
+
+                  <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px' }}>
+                    Joined {new Date(user.created_at).toLocaleDateString()}
+                  </p>
+
+                  {user.role !== 'admin' && (
+                    <button
+                      onClick={() => banSeller(user.id, !user.banned)}
+                      style={{
+                        background: user.banned ? 'rgba(0,78,100,0.3)' : 'rgba(255,80,80,0.15)',
+                        border: `1px solid ${user.banned ? 'rgba(0,78,100,0.5)' : 'rgba(255,80,80,0.3)'}`,
+                        color: user.banned ? '#4DB8CC' : '#f87171',
+                        borderRadius: '9999px', padding: '6px 14px',
+                        cursor: 'pointer', fontSize: '12px', fontWeight: '600'
+                      }}
+                    >
+                      {user.banned ? 'Unban ✓' : 'Ban 🚫'}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* SELLERS TAB */}
         {activeTab === 'sellers' && (
           <div style={{ ...glassCard, padding: '24px' }}>
@@ -222,7 +355,7 @@ export default function AdminPage() {
                       {seller.rank === 'premium' ? '⭐ Premium' : seller.rank === 'verified' ? '✓ Verified' : '🥉 Starter'}
                     </span>
                   )}
-                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px' }}>{seller.products?.length || 0} products</p>
+                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px' }}>{productCounts.filter(p => p.seller_id === seller.id).length} products</p>
                   <button onClick={() => banSeller(seller.id, !seller.banned)} style={{
                     background: seller.banned ? 'rgba(0,78,100,0.3)' : 'rgba(255,80,80,0.15)',
                     border: `1px solid ${seller.banned ? 'rgba(0,78,100,0.5)' : 'rgba(255,80,80,0.3)'}`,
