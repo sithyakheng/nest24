@@ -109,7 +109,7 @@ export default function ProductDetailPage() {
       }}>
 
         {/* Back button */}
-        <Link href="/browse">
+        <Link href="/">
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -119,7 +119,7 @@ export default function ProductDetailPage() {
             marginBottom: '32px',
             cursor: 'pointer'
           }}>
-            ← Back to Browse
+            ← Back to Store
           </div>
         </Link>
 
