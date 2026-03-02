@@ -23,10 +23,13 @@ function BrowseContent() {
   async function fetchProducts() {
     setLoading(true)
     
+    console.log('Fetching products...')
+    
     try {
+      // Fetch products like homepage does
       let query = supabase
         .from('products')
-        .select('*, profiles(id, name, full_name, avatar_url)')
+        .select('*')
         .order('created_at', { ascending: false })
 
       if (category !== 'All') {
@@ -43,13 +46,36 @@ function BrowseContent() {
         query = query.order('price', { ascending: false })
       }
 
-      const { data, error } = await query
+      const { data: productsData, error } = await query
+      
+      console.log('Products data:', productsData)
+      console.log('Products error:', error)
+      console.log('Products count:', productsData?.length)
       
       if (error) {
         console.error('Supabase error:', error)
         setProducts([])
+      } else if (productsData) {
+        // Fetch seller info for products like homepage does
+        const sellerIds = [...new Set(productsData.map(p => p.seller_id).filter(Boolean))]
+        let sellerData: any[] = []
+        
+        if (sellerIds.length > 0) {
+          const { data } = await supabase
+            .from('profiles')
+            .select('id, name, full_name, avatar_url')
+            .in('id', sellerIds)
+          sellerData = data || []
+        }
+
+        const productsWithSellers = productsData.map(product => ({
+          ...product,
+          profiles: sellerData.find(s => s.id === product.seller_id)
+        }))
+        
+        setProducts(productsWithSellers)
       } else {
-        setProducts(data || [])
+        setProducts([])
       }
     } catch (err) {
       console.error('Fetch error:', err)
@@ -106,6 +132,11 @@ function BrowseContent() {
             </button>
           ))}
         </div>
+
+        {/* Debug info */}
+        <p style={{ color: 'white', fontSize: '12px', marginBottom: '20px' }}>
+          Products loaded: {products.length}
+        </p>
 
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
