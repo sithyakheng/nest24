@@ -29,6 +29,7 @@ const sidebarItems = [
   { href: '/seller-dashboard/add-product', label: 'Add Product', icon: PlusCircle },
   { href: '/seller-dashboard/orders', label: 'Orders', icon: ShoppingCart },
   { href: '/seller-dashboard/analytics', label: 'Analytics', icon: BarChart3 },
+  { href: '/seller-dashboard/buy-rank', label: 'Buy Rank', icon: Settings },
   { href: '/seller-dashboard/ranks', label: 'Get Ranked', icon: Settings },
   { href: '/seller-dashboard/settings', label: 'Settings', icon: Settings },
 ]

@@ -13,6 +13,7 @@ function BuyRankContent() {
   const [loading, setLoading] = useState(true)
   const [selectedRank, setSelectedRank] = useState<string>('')
   const [productId, setProductId] = useState<string>('')
+  const [product, setProduct] = useState<any>(null)
   const [pendingRequest, setPendingRequest] = useState<any>(null)
   
   // Form states
@@ -58,7 +59,7 @@ function BuyRankContent() {
   ]
 
   useEffect(() => {
-    async function loadUser() {
+    async function loadUserAndProduct() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
         router.push('/login')
@@ -85,25 +86,42 @@ function BuyRankContent() {
       const rank = searchParams.get('rank')
       const product = searchParams.get('product')
       
-      if (rank) {
-        setSelectedRank(rank)
+      if (!rank || !product) {
+        router.push('/seller-dashboard/buy-rank/select')
+        return
       }
-      if (product) {
-        setProductId(product)
+
+      setSelectedRank(rank)
+      setProductId(product)
+
+      // Validate product ownership
+      const { data: productData } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', product)
+        .eq('seller_id', user.id)
+        .single()
+
+      if (!productData) {
+        router.push('/seller-dashboard/products')
+        return
       }
+
+      setProduct(productData)
 
       // Check for existing pending request
       const { data: request } = await supabase
         .from('rank_payments')
         .select('*')
         .eq('seller_id', user.id)
+        .eq('product_id', product)
         .eq('status', 'pending')
         .single()
 
       setPendingRequest(request)
       setLoading(false)
     }
-    loadUser()
+    loadUserAndProduct()
   }, [router, searchParams])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -224,7 +242,7 @@ function BuyRankContent() {
             
             {/* Left - Rank Selection & QR */}
             <div>
-              {selectedRankData && (
+              {selectedRankData && product && (
                 <div style={{
                   background: selectedRankData.bg,
                   border: `1px solid ${selectedRankData.border}`,
@@ -242,6 +260,19 @@ function BuyRankContent() {
                   <p style={{ color: selectedRankData.color, fontSize: '20px', fontWeight: '700', margin: '0 0 16px 0' }}>
                     {selectedRankData.price}
                   </p>
+                  <div style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    marginBottom: '16px'
+                  }}>
+                    <p style={{ color: 'white', fontWeight: '600', margin: '0 0 8px 0' }}>
+                      Product: {product.name}
+                    </p>
+                    <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', margin: 0 }}>
+                      {product.description?.substring(0, 100)}{product.description?.length > 100 ? '...' : ''}
+                    </p>
+                  </div>
                   <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px' }}>
                     {selectedRankData.description}
                   </p>
@@ -270,7 +301,7 @@ function BuyRankContent() {
                   display: 'inline-block'
                 }}>
                   <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ABA-PAYMENT-${selectedRank}-${user?.id}`}
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ABA-PAYMENT-${selectedRank}-${productId}-${user?.id}`}
                     alt="ABA QR Code"
                     style={{ display: 'block', borderRadius: '8px' }}
                   />
