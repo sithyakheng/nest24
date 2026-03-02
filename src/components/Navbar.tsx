@@ -56,12 +56,12 @@ export default function Navbar() {
         top: '20px',
         left: '50%',
         transform: 'translateX(-50%)',
-        width: 'fit-content',
-        minWidth: '700px',
+        width: 'calc(100% - 32px)',
+        maxWidth: '700px',
         zIndex: 50,
         ...glassStyle
       }}
-      className="px-8 py-4"
+      className="px-4 md:px-8 py-4"
     >
       <div className="flex items-center justify-between">
         {/* LEFT - Logo */}
@@ -70,7 +70,7 @@ export default function Navbar() {
           <div className="w-2 h-2 bg-teal-400 rounded-full shadow-[0_0_10px_rgba(0,254,226,0.4)]"></div>
         </Link>
 
-        {/* CENTER - Navigation */}
+        {/* CENTER - Navigation - Hidden on mobile */}
         <div className="hidden md:flex items-center space-x-8">
           <Link
             href="/"
@@ -138,7 +138,32 @@ export default function Navbar() {
         </div>
 
         {/* RIGHT - Auth */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 md:space-x-4">
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.10)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: 'white'
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          
           {user ? (
             <div style={{ position: 'relative' }}>
               <button
@@ -175,6 +200,83 @@ export default function Navbar() {
                   boxShadow: '0 16px 48px rgba(0,0,0,0.6)',
                   zIndex: 100
                 }}>
+                  {/* Mobile navigation links */}
+                  <div className="md:hidden border-b border-white/[0.06] pb-2 mb-2">
+                    <Link 
+                      href="/"
+                      onClick={() => setDropdownOpen(false)}
+                      style={{
+                        display: 'block',
+                        padding: '10px 14px',
+                        borderRadius: '10px',
+                        color: activeLink === 'home' ? 'white' : 'rgba(255,255,255,0.7)',
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        textDecoration: 'none'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      Home
+                    </Link>
+                    <Link 
+                      href="/browse"
+                      onClick={() => setDropdownOpen(false)}
+                      style={{
+                        display: 'block',
+                        padding: '10px 14px',
+                        borderRadius: '10px',
+                        color: activeLink === 'browse' ? 'white' : 'rgba(255,255,255,0.7)',
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        textDecoration: 'none'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      Browse
+                    </Link>
+                    <Link 
+                      href="/categories"
+                      onClick={() => setDropdownOpen(false)}
+                      style={{
+                        display: 'block',
+                        padding: '10px 14px',
+                        borderRadius: '10px',
+                        color: activeLink === 'categories' ? 'white' : 'rgba(255,255,255,0.7)',
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        textDecoration: 'none'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      Categories
+                    </Link>
+                    <Link 
+                      href="/about"
+                      onClick={() => setDropdownOpen(false)}
+                      style={{
+                        display: 'block',
+                        padding: '10px 14px',
+                        borderRadius: '10px',
+                        color: activeLink === 'about' ? 'white' : 'rgba(255,255,255,0.7)',
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        textDecoration: 'none'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      About
+                    </Link>
+                  </div>
+                  
+                  <div style={{ 
+                    borderTop: '1px solid rgba(255,255,255,0.06)', 
+                    margin: '6px 0' 
+                  }} />
+
                   <Link 
                     href="/seller-dashboard" 
                     onClick={() => setDropdownOpen(false)}

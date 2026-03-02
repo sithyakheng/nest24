@@ -56,7 +56,7 @@ function BrowseContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d0e12] pt-24 pb-16 px-4">
+    <div className="min-h-screen bg-[#0d0e12] pt-24 pb-16 px-4 md:px-6">
       <div className="max-w-7xl mx-auto">
 
         <div className="mb-8">
@@ -87,7 +87,7 @@ function BrowseContent() {
           </select>
         </div>
 
-        <div className="flex gap-2 flex-wrap mb-8">
+        <div className="flex gap-2 flex-wrap mb-8 overflow-x-auto whitespace-nowrap">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}

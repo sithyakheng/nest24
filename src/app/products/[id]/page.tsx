@@ -89,7 +89,7 @@ export default function ProductDetailPage() {
     <div style={{
       minHeight: '100vh',
       background: '#080a0f',
-      paddingTop: '100px',
+      paddingTop: '80px',
       paddingBottom: '60px',
       position: 'relative'
     }}>
@@ -103,7 +103,7 @@ export default function ProductDetailPage() {
       <div style={{
         maxWidth: '1100px',
         margin: '0 auto',
-        padding: '0 24px',
+        padding: '0 16px',
         position: 'relative',
         zIndex: 10
       }}>
@@ -126,8 +126,8 @@ export default function ProductDetailPage() {
         {/* Main content */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '32px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 450px), 1fr))',
+          gap: '24px'
         }}>
 
           {/* LEFT - Image */}
@@ -168,7 +168,7 @@ export default function ProductDetailPage() {
             border: '1px solid rgba(255,255,255,0.12)',
             borderTop: '1px solid rgba(255,255,255,0.22)',
             borderRadius: '24px',
-            padding: '32px',
+            padding: '24px',
             display: 'flex',
             flexDirection: 'column',
             gap: '16px'

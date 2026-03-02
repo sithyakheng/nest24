@@ -290,7 +290,7 @@ export default function SellerDashboard() {
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {statCards.map((card, index) => {
           const Icon = card.icon
           return (
@@ -333,7 +333,7 @@ export default function SellerDashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}
         whileHover={{ scale: 1.01, y: -3 }}
-        className="glass rounded-[24px] p-6 relative overflow-hidden"
+        className="glass rounded-[24px] p-4 md:p-6 relative overflow-hidden"
       >
         {/* Inner Glow */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#E0E5E9]/5 to-transparent rounded-[24px]"></div>
@@ -431,7 +431,7 @@ export default function SellerDashboard() {
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="glass rounded-2xl p-6"
+          className="glass rounded-2xl p-4 md:p-6"
         >
           <h2 className="text-xl font-semibold text-white mb-4">Recent Orders</h2>
           <div className="space-y-3">
@@ -467,7 +467,7 @@ export default function SellerDashboard() {
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="glass rounded-2xl p-6"
+          className="glass rounded-2xl p-4 md:p-6"
         >
           <h2 className="text-xl font-semibold text-white mb-4">Quick Actions</h2>
           <div className="space-y-3">

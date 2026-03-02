@@ -128,14 +128,14 @@ export default function HomePage() {
           marginTop: '100px',
           ...glassStyle
         }}
-        className="p-8"
+        className="p-4 md:p-8"
       >
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* LEFT - Product Feed (70%) */}
           <div className="lg:col-span-2">
             <div className="mb-8">
-              <h1 className="text-4xl font-black text-white mb-2">Latest Products</h1>
-              <p className="text-white/60 text-lg">Discover premium Cambodian products</p>
+              <h1 className="text-2xl md:text-4xl font-black text-white mb-2">Latest Products</h1>
+              <p className="text-white/60 text-base md:text-lg">Discover premium Cambodian products</p>
             </div>
 
             {loading ? (
@@ -160,8 +160,8 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* RIGHT - Sidebar (30%) */}
-          <div className="space-y-6">
+          {/* RIGHT - Sidebar (30%) - Hidden on mobile */}
+          <div className="hidden lg:block space-y-6">
             
             {/* Trending Sellers */}
             <motion.div
