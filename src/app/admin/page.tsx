@@ -18,8 +18,46 @@ export default function AdminPage() {
   const [userRole, setUserRole] = useState('')
 
   useEffect(() => {
-    checkAdmin()
-  }, [])
+  // Check admin access first
+  checkAdmin().then(() => {
+    // Initial fetch
+    fetchAll()
+
+    // Listen for new profiles (new users)
+    const profilesSub = supabase
+      .channel('profiles-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'profiles' },
+        () => { fetchAll() }
+      )
+      .subscribe()
+
+    // Listen for new rank requests
+    const rankSub = supabase
+      .channel('rank-requests-changes')
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'rank_requests' },
+        () => { fetchAll() }
+      )
+      .subscribe()
+
+    // Listen for new products
+    const productsSub = supabase
+      .channel('products-changes')
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'products' },
+        () => { fetchAll() }
+      )
+      .subscribe()
+
+    // Cleanup on unmount
+    return () => {
+      supabase.removeChannel(profilesSub)
+      supabase.removeChannel(rankSub)
+      supabase.removeChannel(productsSub)
+    }
+  })
+}, [])
 
   async function checkAdmin() {
     const { data: { user } } = await supabase.auth.getUser()
