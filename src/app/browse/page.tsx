@@ -29,7 +29,7 @@ function BrowseContent() {
       // Fetch products like homepage does
       let query = supabase
         .from('products')
-        .select('*')
+        .select('*, profiles(id, name, full_name, avatar_url, rank, banned)')
         .order('created_at', { ascending: false })
 
       if (category !== 'All') {
@@ -74,7 +74,14 @@ function BrowseContent() {
         }))
         
         const filtered = productsWithSellers.filter((p: any) => !p.profiles?.banned)
-        setProducts(filtered)
+        
+        // Sort products by rank (premium first, then verified, then starter, then none)
+        const rankOrder: Record<string, number> = { premium: 3, verified: 2, starter: 1, none: 0 }
+        const sorted = [...filtered].sort((a, b) => 
+          (rankOrder[a.profiles?.rank || 'none'] || 0) - (rankOrder[b.profiles?.rank || 'none'] || 0)
+        )
+        
+        setProducts(sorted)
       } else {
         setProducts([])
       }
@@ -174,7 +181,7 @@ function BrowseContent() {
                   transition: 'all 0.3s ease'
                 }}>
                   <div style={{ height: '200px', overflow: 'hidden', 
-                    background: 'rgba(255,255,255,0.04)' }}>
+                    background: 'rgba(255,255,255,0.04)', position: 'relative' }}>
                     {product.image_url ? (
                       <img
                         src={product.image_url 
@@ -191,6 +198,38 @@ function BrowseContent() {
                         justifyContent: 'center', color: 'rgba(255,255,255,0.2)' }}>
                         No Image
                       </div>
+                    )}
+                    
+                    {/* Rank Badges */}
+                    {product.profiles?.rank === 'starter' && (
+                      <span style={{
+                        position: 'absolute', top: '8px', right: '8px',
+                        background: 'rgba(59,130,246,0.3)',
+                        border: '1px solid rgba(59,130,246,0.5)',
+                        color: '#93c5fd', fontSize: '10px', fontWeight: '700',
+                        padding: '3px 8px', borderRadius: '9999px',
+                        backdropFilter: 'blur(8px)'
+                      }}>🥉 Starter</span>
+                    )}
+                    {product.profiles?.rank === 'verified' && (
+                      <span style={{
+                        position: 'absolute', top: '8px', right: '8px',
+                        background: 'rgba(0,78,100,0.4)',
+                        border: '1px solid rgba(0,78,100,0.6)',
+                        color: '#4DB8CC', fontSize: '10px', fontWeight: '700',
+                        padding: '3px 8px', borderRadius: '9999px',
+                        backdropFilter: 'blur(8px)'
+                      }}>✓ Verified</span>
+                    )}
+                    {product.profiles?.rank === 'premium' && (
+                      <span style={{
+                        position: 'absolute', top: '8px', right: '8px',
+                        background: 'rgba(232,201,126,0.3)',
+                        border: '1px solid rgba(232,201,126,0.5)',
+                        color: '#E8C97E', fontSize: '10px', fontWeight: '700',
+                        padding: '3px 8px', borderRadius: '9999px',
+                        backdropFilter: 'blur(8px)'
+                      }}>⭐ Premium</span>
                     )}
                   </div>
                   <div style={{ padding: '16px' }}>

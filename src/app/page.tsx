@@ -30,7 +30,7 @@ export default function HomePage() {
       // Fetch main product feed
       const { data: productsData } = await supabase
         .from('products')
-        .select('*')
+        .select('*, profiles(id, name, full_name, avatar_url, rank, banned)')
         .gt('stock', 0)
         .order('created_at', { ascending: false })
         .limit(10)
@@ -53,7 +53,14 @@ export default function HomePage() {
       })) || []
 
       const filtered = productsWithSellers.filter(p => !p.seller?.banned)
-      setProducts(filtered)
+      
+      // Sort products by rank (premium first, then verified, then starter, then none)
+      const rankOrder: Record<string, number> = { premium: 3, verified: 2, starter: 1, none: 0 }
+      const sorted = [...filtered].sort((a, b) => 
+        (rankOrder[a.seller?.rank || 'none'] || 0) - (rankOrder[b.seller?.rank || 'none'] || 0)
+      )
+      
+      setProducts(sorted)
 
       // Fetch trending sellers
       const { data: sellersData } = await supabase

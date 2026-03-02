@@ -19,6 +19,7 @@ interface ProductCardProps {
     seller?: {
       full_name?: string
       avatar_url?: string
+      rank?: string
     }
   }
 }
@@ -85,7 +86,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     >
       <Link href={`/products/${product.id}`}>
         {/* Image Area */}
-        <div className="h-48 overflow-hidden rounded-t-2xl">
+        <div style={{ position: 'relative' }} className="h-48 overflow-hidden rounded-t-2xl">
           {product.image_url && getImageUrl(product.image_url) ? (
             <img
               src={getImageUrl(product.image_url)!}
@@ -99,6 +100,38 @@ export default function ProductCard({ product }: ProductCardProps) {
             <div className="w-full h-full flex items-center justify-center bg-black/20">
               <span className="text-white/20 text-sm">No Image</span>
             </div>
+          )}
+          
+          {/* Rank Badges */}
+          {product.seller?.rank === 'starter' && (
+            <span style={{
+              position: 'absolute', top: '8px', right: '8px',
+              background: 'rgba(59,130,246,0.3)',
+              border: '1px solid rgba(59,130,246,0.5)',
+              color: '#93c5fd', fontSize: '10px', fontWeight: '700',
+              padding: '3px 8px', borderRadius: '9999px',
+              backdropFilter: 'blur(8px)'
+            }}>🥉 Starter</span>
+          )}
+          {product.seller?.rank === 'verified' && (
+            <span style={{
+              position: 'absolute', top: '8px', right: '8px',
+              background: 'rgba(0,78,100,0.4)',
+              border: '1px solid rgba(0,78,100,0.6)',
+              color: '#4DB8CC', fontSize: '10px', fontWeight: '700',
+              padding: '3px 8px', borderRadius: '9999px',
+              backdropFilter: 'blur(8px)'
+            }}>✓ Verified</span>
+          )}
+          {product.seller?.rank === 'premium' && (
+            <span style={{
+              position: 'absolute', top: '8px', right: '8px',
+              background: 'rgba(232,201,126,0.3)',
+              border: '1px solid rgba(232,201,126,0.5)',
+              color: '#E8C97E', fontSize: '10px', fontWeight: '700',
+              padding: '3px 8px', borderRadius: '9999px',
+              backdropFilter: 'blur(8px)'
+            }}>⭐ Premium</span>
           )}
         </div>
 

@@ -29,6 +29,7 @@ const sidebarItems = [
   { href: '/seller-dashboard/add-product', label: 'Add Product', icon: PlusCircle },
   { href: '/seller-dashboard/orders', label: 'Orders', icon: ShoppingCart },
   { href: '/seller-dashboard/analytics', label: 'Analytics', icon: BarChart3 },
+  { href: '/seller-dashboard/ranks', label: 'Get Ranked', icon: Settings },
   { href: '/seller-dashboard/settings', label: 'Settings', icon: Settings },
 ]
 
@@ -165,6 +166,7 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
             {sidebarItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href
+              const isRanksItem = item.href === '/seller-dashboard/ranks'
               
               return (
                 <Link key={item.href} href={item.href}>
@@ -172,6 +174,8 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
                     className={`flex items-center space-x-3 px-4 py-3 rounded-2xl mb-2 smooth-transition ${
                       isActive
                         ? 'bg-white/20 text-white shadow-lg shadow-white/10'
+                        : isRanksItem
+                        ? 'bg-[rgba(232,201,126,0.08)] text-[#E8C97E] border border-[rgba(232,201,126,0.15)]'
                         : 'text-white/70 hover:text-white hover:bg-white/10'
                     }`}
                     whileHover={{ scale: 1.02, x: 5 }}
@@ -256,6 +260,7 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
             {sidebarItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href
+              const isRanksItem = item.href === '/seller-dashboard/ranks'
               
               return (
                 <Link key={item.href} href={item.href}>
@@ -264,6 +269,8 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
                     className={`flex items-center space-x-3 px-4 py-3 rounded-2xl mb-2 smooth-transition ${
                       isActive
                         ? 'bg-white/20 text-white shadow-lg shadow-white/10'
+                        : isRanksItem
+                        ? 'bg-[rgba(232,201,126,0.08)] text-[#E8C97E] border border-[rgba(232,201,126,0.15)]'
                         : 'text-white/70 hover:text-white hover:bg-white/10'
                     }`}
                     whileHover={{ scale: 1.02, x: 5 }}
