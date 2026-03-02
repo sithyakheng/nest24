@@ -22,37 +22,41 @@ function BrowseContent() {
 
   async function fetchProducts() {
     setLoading(true)
-    let query = supabase
-      .from('products')
-      .select(`
-        *,
-        profiles!inner(
-          id,
-          name,
-          full_name,
-          avatar_url
-        )
-      `)
-      .order('created_at', { ascending: false })
+    
+    try {
+      let query = supabase
+        .from('products')
+        .select('*, profiles(id, name, full_name, avatar_url)')
+        .order('created_at', { ascending: false })
 
-    if (category && category !== 'All') {
-      query = query.eq('category', category)
+      if (category !== 'All') {
+        query = query.eq('category', category)
+      }
+
+      if (search && search.trim() !== '') {
+        query = query.ilike('name', `%${search.trim()}%`)
+      }
+
+      if (sort === 'price_asc') {
+        query = query.order('price', { ascending: true })
+      } else if (sort === 'price_desc') {
+        query = query.order('price', { ascending: false })
+      }
+
+      const { data, error } = await query
+      
+      if (error) {
+        console.error('Supabase error:', error)
+        setProducts([])
+      } else {
+        setProducts(data || [])
+      }
+    } catch (err) {
+      console.error('Fetch error:', err)
+      setProducts([])
+    } finally {
+      setLoading(false)
     }
-
-    if (search && search.trim() !== '') {
-      query = query.ilike('name', `%${search.trim()}%`)
-    }
-
-    if (sort === 'price_asc') {
-      query = query.order('price', { ascending: true })
-    } else if (sort === 'price_desc') {
-      query = query.order('price', { ascending: false })
-    }
-
-    const { data, error } = await query
-    console.log('products:', data, 'error:', error)
-    setProducts(data || [])
-    setLoading(false)
   }
 
   return (
@@ -141,7 +145,11 @@ function BrowseContent() {
                     background: 'rgba(255,255,255,0.04)' }}>
                     {product.image_url ? (
                       <img
-                        src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${product.image_url}`) : ''}
+                        src={product.image_url 
+                          ? (product.image_url.startsWith('http') 
+                            ? product.image_url 
+                            : `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${product.image_url}`)
+                          : ''}
                         alt={product.name}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
