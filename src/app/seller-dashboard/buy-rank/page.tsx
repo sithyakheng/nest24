@@ -4,17 +4,20 @@ import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { ArrowLeft, Crown, Star, Shield, Upload, CheckCircle, AlertCircle } from 'lucide-react'
 
 function BuyRankContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
+  const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedProduct, setSelectedProduct] = useState<any>(null)
   const [selectedRank, setSelectedRank] = useState<string>('')
-  const [productId, setProductId] = useState<string>('')
-  const [product, setProduct] = useState<any>(null)
-  const [pendingRequest, setPendingRequest] = useState<any>(null)
+  const [showPayment, setShowPayment] = useState(false)
+  const [pendingRequests, setPendingRequests] = useState<any[]>([])
   
   // Form states
   const [gmail, setGmail] = useState('')
@@ -24,8 +27,9 @@ function BuyRankContent() {
   const [screenshot, setScreenshot] = useState<File | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
 
-  const ranks = [
+  const rankTiers = [
     {
       id: 'elite',
       name: 'Elite',
@@ -34,7 +38,8 @@ function BuyRankContent() {
       color: '#93c5fd',
       bg: 'rgba(59,130,246,0.1)',
       border: 'rgba(59,130,246,0.3)',
-      description: 'Lower premium tier - Basic visibility boost'
+      description: 'Lower premium tier - Basic visibility boost',
+      icon: Shield
     },
     {
       id: 'premier',
@@ -44,7 +49,8 @@ function BuyRankContent() {
       color: '#4DB8CC',
       bg: 'rgba(0,78,100,0.15)',
       border: 'rgba(0,78,100,0.4)',
-      description: 'Middle tier - Enhanced visibility'
+      description: 'Middle tier - Enhanced visibility',
+      icon: Star
     },
     {
       id: 'crown',
@@ -54,12 +60,13 @@ function BuyRankContent() {
       color: '#E8C97E',
       bg: 'rgba(232,201,126,0.1)',
       border: 'rgba(232,201,126,0.3)',
-      description: 'Top tier - Maximum visibility'
+      description: 'Top tier - Maximum visibility',
+      icon: Crown
     }
   ]
 
   useEffect(() => {
-    async function loadUserAndProduct() {
+    async function loadSellerData() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
         router.push('/login')
@@ -82,85 +89,100 @@ function BuyRankContent() {
       setFullName(profile.full_name || profile.name || '')
       setShopName(profile.shop_name || '')
 
-      // Get rank and product from URL params
-      const rank = searchParams.get('rank')
-      const product = searchParams.get('product')
-      
-      if (!rank || !product) {
-        router.push('/seller-dashboard/buy-rank/select')
-        return
-      }
-
-      setSelectedRank(rank)
-      setProductId(product)
-
-      // Validate product ownership
-      const { data: productData } = await supabase
+      // Fetch seller's products
+      const { data: productsData } = await supabase
         .from('products')
         .select('*')
-        .eq('id', product)
         .eq('seller_id', user.id)
-        .single()
+        .order('created_at', { ascending: false })
 
-      if (!productData) {
-        router.push('/seller-dashboard/products')
-        return
-      }
+      setProducts(productsData || [])
 
-      setProduct(productData)
-
-      // Check for existing pending request
-      const { data: request } = await supabase
+      // Fetch pending requests
+      const { data: requests } = await supabase
         .from('rank_payments')
         .select('*')
         .eq('seller_id', user.id)
-        .eq('product_id', product)
         .eq('status', 'pending')
-        .single()
 
-      setPendingRequest(request)
+      setPendingRequests(requests || [])
       setLoading(false)
     }
-    loadUserAndProduct()
-  }, [router, searchParams])
+    loadSellerData()
+  }, [router])
+
+  const handleRankSelect = (product: any, rankId: string) => {
+    // Check if there's already a pending request for this product
+    const hasPending = pendingRequests.some(req => req.product_id === product.id)
+    if (hasPending) {
+      setError('You already have a pending request for this product. Please wait for admin approval.')
+      return
+    }
+
+    setSelectedProduct(product)
+    setSelectedRank(rankId)
+    setShowPayment(true)
+    setError('')
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please upload an image file (JPG, PNG, etc.)')
+        return
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('File size must be less than 5MB')
+        return
+      }
       setScreenshot(file)
+      setError('')
     }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!gmail || !fullName || !shopName || !phoneNumber || !screenshot || !selectedRank) {
-      alert('Please fill all fields and upload payment screenshot')
+    if (!gmail || !fullName || !shopName || !phoneNumber || !screenshot) {
+      setError('Please fill all fields and upload a screenshot')
+      return
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(gmail)) {
+      setError('Please enter a valid Gmail address')
       return
     }
 
     setSubmitting(true)
+    setError('')
 
     try {
-      // Upload screenshot
-      const fileExt = screenshot.name.split('.').pop()
-      const fileName = `payment-${Date.now()}.${fileExt}`
+      // Upload screenshot to Supabase storage
+      const fileName = `rank-payment-${user.id}-${Date.now()}.jpg`
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('rank-payments')
-        .upload(fileName, screenshot)
+        .upload(fileName, screenshot, {
+          contentType: 'image/jpeg'
+        })
 
       if (uploadError) throw uploadError
 
+      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('rank-payments')
         .getPublicUrl(fileName)
 
-      // Submit payment request
-      const { error: submitError } = await supabase
+      // Save payment request to database
+      const { data: paymentData, error: paymentError } = await supabase
         .from('rank_payments')
         .insert({
           seller_id: user.id,
-          product_id: productId,
+          product_id: selectedProduct.id,
           rank: selectedRank,
           gmail,
           full_name: fullName,
@@ -169,14 +191,16 @@ function BuyRankContent() {
           screenshot_url: publicUrl,
           status: 'pending'
         })
+        .select()
+        .single()
 
-      if (submitError) throw submitError
+      if (paymentError) throw paymentError
 
       setSubmitted(true)
-    } catch (error) {
-      console.error('Error submitting payment:', error)
-      alert('Error submitting payment. Please try again.')
-    } finally {
+      setSubmitting(false)
+    } catch (error: any) {
+      console.error('Payment submission error:', error)
+      setError(error.message || 'Failed to submit payment. Please try again.')
       setSubmitting(false)
     }
   }
@@ -184,12 +208,10 @@ function BuyRankContent() {
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: 'rgba(255,255,255,0.4)' }}>Loading...</div>
+        <div style={{ color: 'rgba(255,255,255,0.4)' }}>Loading your products...</div>
       </div>
     )
   }
-
-  const selectedRankData = ranks.find(r => r.id === selectedRank)
 
   return (
     <div style={{ minHeight: '100vh', background: '#080a0f', paddingTop: '100px', paddingBottom: '60px', position: 'relative' }}>
@@ -200,14 +222,7 @@ function BuyRankContent() {
         <div style={{ position: 'absolute', bottom: '-150px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,201,126,0.25) 0%, transparent 70%)', filter: 'blur(80px)' }} />
       </div>
 
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 10 }}>
-
-        {/* Back button */}
-        <Link href="/seller-dashboard">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginBottom: '32px', cursor: 'pointer' }}>
-            ← Back to Dashboard
-          </div>
-        </Link>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 10 }}>
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
@@ -215,265 +230,347 @@ function BuyRankContent() {
             Buy Premium Rank 🏆
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '16px', fontWeight: '300' }}>
-            Boost your product visibility with ABA payment
+            Select a product and choose your premium rank tier
           </p>
         </div>
 
-        {submitted ? (
-          /* Confirmation */
+        {/* Back button */}
+        <Link href="/seller-dashboard">
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginBottom: '32px', cursor: 'pointer' }}>
+            <ArrowLeft size={16} />
+            Back to Dashboard
+          </div>
+        </Link>
+
+        {products.length === 0 ? (
           <div style={{
-            background: 'rgba(0,200,100,0.1)',
-            border: '1px solid rgba(0,200,100,0.3)',
+            background: 'rgba(255,255,255,0.06)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            border: '1px solid rgba(255,255,255,0.12)',
             borderRadius: '24px',
-            padding: '40px',
+            padding: '60px',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
-            <h2 style={{ color: '#4ade80', fontSize: '24px', fontWeight: '800', margin: '0 0 8px 0' }}>
-              Payment Received!
-            </h2>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '16px', lineHeight: '1.5' }}>
-              Admin will review your request. Rank will be activated within 24 hours if approved.
+            <h3 style={{ color: 'white', fontSize: '24px', fontWeight: '700', margin: '0 0 16px 0' }}>
+              No Products Found
+            </h3>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px', lineHeight: '1.5' }}>
+              You need to have at least one product to buy a premium rank.
             </p>
+            <Link href="/seller-dashboard/add-product">
+              <motion.button
+                style={{
+                  background: 'linear-gradient(135deg, #E8C97E, #F0B429)',
+                  color: 'black',
+                  fontWeight: '800',
+                  fontSize: '16px',
+                  borderRadius: '12px',
+                  padding: '16px 32px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  marginTop: '24px'
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Add Your First Product
+              </motion.button>
+            </Link>
           </div>
         ) : (
-          /* Payment Form */
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
-            
-            {/* Left - Rank Selection & QR */}
-            <div>
-              {selectedRankData && product && (
-                <div style={{
-                  background: selectedRankData.bg,
-                  border: `1px solid ${selectedRankData.border}`,
-                  borderRadius: '24px',
-                  padding: '32px',
-                  marginBottom: '24px',
-                  textAlign: 'center'
-                }}>
-                  <div style={{ fontSize: '64px', marginBottom: '16px' }}>
-                    {selectedRankData.emoji}
-                  </div>
-                  <h2 style={{ color: selectedRankData.color, fontSize: '32px', fontWeight: '900', margin: '0 0 8px 0' }}>
-                    {selectedRankData.name}
-                  </h2>
-                  <p style={{ color: selectedRankData.color, fontSize: '20px', fontWeight: '700', margin: '0 0 16px 0' }}>
-                    {selectedRankData.price}
-                  </p>
-                  <div style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    marginBottom: '16px'
-                  }}>
-                    <p style={{ color: 'white', fontWeight: '600', margin: '0 0 8px 0' }}>
-                      Product: {product.name}
-                    </p>
-                    <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', margin: 0 }}>
-                      {product.description?.substring(0, 100)}{product.description?.length > 100 ? '...' : ''}
-                    </p>
-                  </div>
-                  <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px' }}>
-                    {selectedRankData.description}
-                  </p>
-                </div>
-              )}
+          <>
+            {/* Products Grid */}
+            <div style={{ marginBottom: '48px' }}>
+              <h2 style={{ color: 'white', fontSize: '20px', fontWeight: '800', marginBottom: '24px' }}>
+                Your Products
+              </h2>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                {products.map((product, index) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    style={{
+                      background: 'rgba(255,255,255,0.06)',
+                      backdropFilter: 'blur(24px)',
+                      WebkitBackdropFilter: 'blur(24px)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: '20px',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    {/* Product Image */}
+                    <div style={{ height: '160px', background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {product.image_url ? (
+                        <img
+                          src={product.image_url.startsWith('http') 
+                            ? product.image_url 
+                            : `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${product.image_url}`
+                          }
+                          alt={product.name}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <div style={{ color: 'rgba(255,255,255,0.2)', fontSize: '14px' }}>No Image</div>
+                      )}
+                    </div>
 
-              {/* ABA QR Code */}
-              <div style={{
-                background: 'rgba(255,255,255,0.06)',
-                backdropFilter: 'blur(24px)',
-                WebkitBackdropFilter: 'blur(24px)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: '20px',
-                padding: '24px',
-                textAlign: 'center'
-              }}>
-                <h3 style={{ color: 'white', fontSize: '18px', fontWeight: '700', margin: '0 0 16px 0' }}>
-                  ABA Payment
-                </h3>
-                
-                <div style={{
-                  background: 'white',
-                  padding: '16px',
-                  borderRadius: '12px',
-                  marginBottom: '16px',
-                  display: 'inline-block'
-                }}>
-                  <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ABA-PAYMENT-${selectedRank}-${productId}-${user?.id}`}
-                    alt="ABA QR Code"
-                    style={{ display: 'block', borderRadius: '8px' }}
-                  />
-                </div>
-
-                <div style={{
-                  background: 'rgba(232,201,126,0.1)',
-                  border: '1px solid rgba(232,201,126,0.3)',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  marginBottom: '16px'
-                }}>
-                  <p style={{ color: '#E8C97E', fontWeight: '600', margin: '0 0 8px 0' }}>
-                    ABA Account Details
-                  </p>
-                  <p style={{ color: 'white', fontSize: '14px', margin: '0' }}>
-                    Account: NestKH Official<br />
-                    Number: 123-456-789
-                  </p>
-                </div>
-
-                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', lineHeight: '1.4' }}>
-                  Scan QR, pay via ABA, then upload your payment screenshot. Fill your Gmail, name, shop name, and phone number. Wait up to 24 hours for confirmation.
-                </p>
+                    {/* Product Info */}
+                    <div style={{ padding: '20px' }}>
+                      <h3 style={{ color: 'white', fontSize: '16px', fontWeight: '700', margin: '0 0 8px 0', lineHeight: '1.3' }}>
+                        {product.name}
+                      </h3>
+                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', margin: '0 0 16px 0', lineHeight: '1.4' }}>
+                        {product.description?.substring(0, 100)}{product.description?.length > 100 ? '...' : ''}
+                      </p>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ color: '#E8C97E', fontSize: '18px', fontWeight: '800' }}>
+                          ${product.price}
+                        </span>
+                        <span style={{
+                          padding: '4px 12px',
+                          borderRadius: '9999px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          background: product.stock > 0 ? 'rgba(0,200,100,0.2)' : 'rgba(255,80,80,0.2)',
+                          color: product.stock > 0 ? '#4ade80' : '#f87171'
+                        }}>
+                          {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </div>
 
-            {/* Right - Form */}
+            {/* Rank Selection */}
             <div>
-              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                
-                {/* Gmail */}
-                <div>
-                  <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-                    Gmail Address *
-                  </label>
-                  <input
-                    type="email"
-                    value={gmail}
-                    onChange={(e) => setGmail(e.target.value)}
-                    placeholder="your.email@gmail.com"
-                    required
+              <h2 style={{ color: 'white', fontSize: '20px', fontWeight: '800', marginBottom: '24px' }}>
+                Select Rank Tier
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {rankTiers.map((tier, index) => (
+                  <motion.div
+                    key={tier.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
                     style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      borderRadius: '12px',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      background: 'rgba(255,255,255,0.06)',
-                      color: 'white',
-                      fontSize: '14px'
+                      background: tier.bg,
+                      border: `1px solid ${tier.border}`,
+                      borderRadius: '20px',
+                      padding: '24px',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
                     }}
-                  />
-                </div>
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+                      <div style={{
+                        width: '48px', height: '48px',
+                        background: tier.border,
+                        borderRadius: '50%',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: tier.color
+                      }}>
+                        <tier.icon size={24} />
+                      </div>
+                      <div>
+                        <h3 style={{ color: tier.color, fontSize: '20px', fontWeight: '900', margin: '0 0 4px 0' }}>
+                          {tier.name}
+                        </h3>
+                        <p style={{ color: tier.color, fontSize: '16px', fontWeight: '700', margin: 0 }}>
+                          {tier.price}
+                        </p>
+                      </div>
+                    </div>
+                    <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', lineHeight: '1.4', margin: '0 0 16px 0' }}>
+                      {tier.description}
+                    </p>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {products.map((product) => {
+                        const hasPending = pendingRequests.some(req => req.product_id === product.id)
+                        return (
+                          <motion.button
+                            key={product.id}
+                            onClick={() => handleRankSelect(product, tier.id)}
+                            disabled={hasPending}
+                            style={{
+                              background: hasPending ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                              border: hasPending ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.2)',
+                              color: hasPending ? 'rgba(255,255,255,0.3)' : 'white',
+                              borderRadius: '8px',
+                              padding: '8px 12px',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                              cursor: hasPending ? 'not-allowed' : 'pointer',
+                              transition: 'all 0.2s',
+                              opacity: hasPending ? 0.5 : 1
+                            }}
+                            whileHover={{ scale: hasPending ? 1 : 1.05, background: hasPending ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.2)' }}
+                            whileTap={{ scale: hasPending ? 1 : 0.95 }}
+                          >
+                            {hasPending ? 'Pending' : (product.name.length > 15 ? product.name.substring(0, 15) + '...' : product.name)}
+                          </motion.button>
+                        )
+                      })}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
-                {/* Full Name */}
-                <div>
-                  <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Enter your full name"
-                    required
+        {/* Payment Modal */}
+        {showPayment && selectedProduct && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}>
+            <div style={{
+              background: '#080a0f',
+              borderRadius: '24px',
+              maxWidth: '800px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              border: '1px solid rgba(255,255,255,0.12)'
+            }}>
+              {submitted ? (
+                <div style={{ padding: '40px', textAlign: 'center' }}>
+                  <CheckCircle size={64} color="#4ade80" style={{ margin: '0 auto 24px' }} />
+                  <h2 style={{ color: 'white', fontSize: '24px', fontWeight: '800', margin: '0 0 16px 0' }}>
+                    Payment Received!
+                  </h2>
+                  <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '16px', lineHeight: '1.5', margin: '0 0 32px 0' }}>
+                    Admin will review your request. Rank will be activated within 24 hours if approved.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setShowPayment(false)
+                      setSubmitted(false)
+                      setSelectedProduct(null)
+                      setSelectedRank('')
+                    }}
                     style={{
-                      width: '100%',
-                      padding: '12px 16px',
+                      background: 'linear-gradient(135deg, #E8C97E, #F0B429)',
+                      color: 'black',
+                      fontWeight: '800',
+                      fontSize: '16px',
                       borderRadius: '12px',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      background: 'rgba(255,255,255,0.06)',
-                      color: 'white',
-                      fontSize: '14px'
+                      padding: '16px 32px',
+                      border: 'none',
+                      cursor: 'pointer'
                     }}
-                  />
+                  >
+                    Close
+                  </button>
                 </div>
+              ) : (
+                <>
+                  <div style={{ padding: '24px', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <h2 style={{ color: 'white', fontSize: '20px', fontWeight: '800', margin: 0 }}>
+                        Complete Payment
+                      </h2>
+                      <button
+                        onClick={() => setShowPayment(false)}
+                        style={{ color: 'rgba(255,255,255,0.5)', fontSize: '24px', background: 'none', border: 'none', cursor: 'pointer' }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
 
-                {/* Shop Name */}
-                <div>
-                  <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-                    Shop Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={shopName}
-                    onChange={(e) => setShopName(e.target.value)}
-                    placeholder="Your shop name"
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      borderRadius: '12px',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      background: 'rgba(255,255,255,0.06)',
-                      color: 'white',
-                      fontSize: '14px'
-                    }}
-                  />
-                </div>
-
-                {/* Phone Number */}
-                <div>
-                  <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-                    Phone Number *
-                  </label>
-                  <input
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="+855 12 345 678"
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      borderRadius: '12px',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      background: 'rgba(255,255,255,0.06)',
-                      color: 'white',
-                      fontSize: '14px'
-                    }}
-                  />
-                </div>
-
-                {/* Screenshot Upload */}
-                <div>
-                  <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-                    Payment Screenshot *
-                  </label>
-                  <div style={{
-                    border: '2px dashed rgba(255,255,255,0.3)',
-                    borderRadius: '12px',
-                    padding: '24px',
-                    textAlign: 'center',
-                    background: 'rgba(255,255,255,0.02)',
-                    cursor: 'pointer'
-                  }}>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      required
-                      style={{ display: 'none' }}
-                      id="screenshot-upload"
-                    />
-                    <label htmlFor="screenshot-upload" style={{ cursor: 'pointer' }}>
-                      {screenshot ? (
-                        <div>
-                          <img
-                            src={URL.createObjectURL(screenshot)}
-                            alt="Payment screenshot"
-                            style={{ maxWidth: '100px', maxHeight: '100px', borderRadius: '8px', marginBottom: '8px' }}
-                          />
-                          <p style={{ color: '#4DB8CC', fontSize: '14px', margin: 0 }}>
-                            {screenshot.name}
+                  <div style={{ padding: '24px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+                      
+                      {/* Left - Product & Rank Info */}
+                      <div>
+                        <div style={{
+                          background: 'rgba(255,255,255,0.06)',
+                          borderRadius: '16px',
+                          padding: '20px',
+                          marginBottom: '24px'
+                        }}>
+                          <h3 style={{ color: 'white', fontSize: '16px', fontWeight: '700', margin: '0 0 12px 0' }}>
+                            Product Details
+                          </h3>
+                          <p style={{ color: 'white', fontWeight: '600', margin: '0 0 8px 0' }}>
+                            {selectedProduct.name}
+                          </p>
+                          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', margin: 0 }}>
+                            {selectedProduct.description?.substring(0, 100)}{selectedProduct.description?.length > 100 ? '...' : ''}
                           </p>
                         </div>
-                      ) : (
-                        <div>
-                          <div style={{
-                            width: '48px', height: '48px',
-                            background: 'rgba(255,255,255,0.1)',
-                            borderRadius: '50%',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            margin: '0 auto 8px auto'
-                          }}>
-                            <span style={{ fontSize: '24px' }}>📷</span>
+
+                        <div style={{
+                          background: rankTiers.find(t => t.id === selectedRank)?.bg,
+                          border: `1px solid ${rankTiers.find(t => t.id === selectedRank)?.border}`,
+                          borderRadius: '16px',
+                          padding: '20px',
+                          textAlign: 'center'
+                        }}>
+                          <div style={{ fontSize: '48px', marginBottom: '12px' }}>
+                            {rankTiers.find(t => t.id === selectedRank)?.emoji}
                           </div>
-                          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', margin: 0 }}>
-                            Click to upload payment screenshot
+                          <h3 style={{ color: rankTiers.find(t => t.id === selectedRank)?.color, fontSize: '20px', fontWeight: '900', margin: '0 0 8px 0' }}>
+                            {rankTiers.find(t => t.id === selectedRank)?.name}
+                          </h3>
+                          <p style={{ color: rankTiers.find(t => t.id === selectedRank)?.color, fontSize: '16px', fontWeight: '700', margin: '0 0 12px 0' }}>
+                            {rankTiers.find(t => t.id === selectedRank)?.price}
+                          </p>
+                          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px' }}>
+                            {rankTiers.find(t => t.id === selectedRank)?.description}
                           </p>
                         </div>
-                      )}
+                      </div>
+
+                      {/* Right - Payment Form */}
+                      <div>
+                        <div style={{
+                          background: 'rgba(232,201,126,0.1)',
+                          border: '1px solid rgba(232,201,126,0.3)',
+                          borderRadius: '16px',
+                          padding: '20px',
+                          marginBottom: '24px'
+                        }}>
+                          <h3 style={{ color: '#E8C97E', fontSize: '16px', fontWeight: '700', margin: '0 0 16px 0' }}>
+                            📸 Scan QR Code & Pay
+                          </h3>
+                          <div style={{
+                            background: 'white',
+                            padding: '16px',
+                            borderRadius: '12px',
+                            marginBottom: '16px',
+                            display: 'inline-block'
+                          }}>
+                            <img
+                              src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ABA-PAYMENT-${selectedRank}-${selectedProduct.id}-${user?.id}`}
+                              alt="ABA QR Code"
+                              style={{ display: 'block', borderRadius: '8px' }}
+                            />
+                          </div>
+                          <div style={{ color: 'white', fontSize: '14px', lineHeight: '1.4' }}>
+                            <p style={{ fontWeight: '700', margin: '0 0 8px 0' }}>ABA Account Details:</p>
+                            <p style={{ margin: '0 0 4px 0' }}>Account Name: <strong>NestKH Official</strong></p>
+                            <p style={{ margin: '0 0 16px 0' }}>Account Number: <strong>123-456-789</strong></p>
+                            <p style={{ color: '#E8C97E', fontWeight: '700', margin: 0 }}>
+                              ⚠️ After payment, upload screenshot and fill details below
+                            </p>
+                          </div>
+                        </div>
                     </label>
                   </div>
                 </div>
