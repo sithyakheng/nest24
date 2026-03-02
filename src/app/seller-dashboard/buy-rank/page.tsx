@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
-export default function BuyRankPage() {
+function BuyRankContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [user, setUser] = useState<any>(null)
@@ -472,5 +472,17 @@ export default function BuyRankPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function BuyRankPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: 'rgba(255,255,255,0.4)' }}>Loading...</div>
+      </div>
+    }>
+      <BuyRankContent />
+    </Suspense>
   )
 }
