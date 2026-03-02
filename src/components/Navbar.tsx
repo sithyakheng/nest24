@@ -119,13 +119,17 @@ export default function Navbar() {
           </Link>
           
           {/* Ranks - Only show for sellers */}
-          {user && user.user_metadata?.role === 'seller' && (
+          {userRole === 'seller' && (
             <Link href="/dashboard/ranks">
               <span style={{
                 color: '#E8C97E',
                 fontSize: '14px',
-                fontWeight: '600',
+                fontWeight: '700',
                 cursor: 'pointer',
+                padding: '6px 14px',
+                borderRadius: '9999px',
+                background: 'rgba(232,201,126,0.1)',
+                border: '1px solid rgba(232,201,126,0.2)',
                 transition: 'all 0.2s'
               }}>
                 🏆 Ranks

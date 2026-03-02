@@ -22,76 +22,33 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchHomepageData()
-  }, [])
-
-  const fetchHomepageData = async () => {
-    try {
-      // Fetch main product feed
-      const { data: productsData } = await supabase
+    async function fetchProducts() {
+      const { data, error } = await supabase
         .from('products')
         .select('*, profiles(id, name, full_name, avatar_url, rank, banned)')
-        .gt('stock', 0)
         .order('created_at', { ascending: false })
-        .limit(10)
 
-      // Fetch seller info for products
-      const sellerIds = [...new Set(productsData?.map(p => p.seller_id) || [])]
-      let sellerData: any[] = []
-      
-      if (sellerIds.length > 0) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('id, full_name, avatar_url')
-          .in('id', sellerIds)
-        sellerData = data || []
+      if (error) {
+        console.error('Error fetching products:', error)
+        return
       }
 
-      const productsWithSellers = productsData?.map(product => ({
-        ...product,
-        seller: sellerData.find(s => s.id === product.seller_id)
-      })) || []
-
-      const filtered = productsWithSellers.filter(p => !p.seller?.banned)
+      const visible = (data || []).filter(p => !p.profiles?.banned)
       
-      // Sort products by rank (premium first, then verified, then starter, then none)
-      const rankOrder: Record<string, number> = { premium: 3, verified: 2, starter: 1, none: 0 }
-      const sorted = [...filtered].sort((a, b) => 
-        (rankOrder[a.seller?.rank || 'none'] || 0) - (rankOrder[b.seller?.rank || 'none'] || 0)
+      const rankOrder: Record<string, number> = { 
+        premium: 3, verified: 2, starter: 1, none: 0 
+      }
+      const sorted = visible.sort((a, b) =>
+        (rankOrder[b.profiles?.rank || 'none'] || 0) - 
+        (rankOrder[b.profiles?.rank || 'none'] || 0)
       )
-      
+
       setProducts(sorted)
-
-      // Fetch trending sellers
-      const { data: sellersData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('role', 'seller')
-        .limit(5)
-      setTrendingSellers(sellersData || [])
-
-      // Fetch categories with product counts
-      const { data: categoryData } = await supabase
-        .from('products')
-        .select('category')
-        .gt('stock', 0)
-      
-      const categoryCounts = categoryData?.reduce((acc: any, product: any) => {
-        acc[product.category] = (acc[product.category] || 0) + 1
-        return acc
-      }, {}) || {}
-
-      setCategories(Object.entries(categoryCounts).map(([name, count]) => ({ name, count })))
-
       // Fetch recent products for sidebar
-      setRecentProducts(productsWithSellers.slice(0, 5))
-
-    } catch (error) {
-      console.error('Error fetching homepage data:', error)
-    } finally {
-      setLoading(false)
+      setRecentProducts(sorted.slice(0, 5))
     }
-  }
+    fetchProducts()
+  }, [])
 
   const glassStyle = {
     background: 'rgba(255, 255, 255, 0.06)',
