@@ -22,6 +22,7 @@ interface ProductCardProps {
       rank?: string
     }
   }
+  showBuyRank?: boolean
 }
 
 const getImageUrl = (image_url: string): string | null => {
@@ -30,7 +31,7 @@ const getImageUrl = (image_url: string): string | null => {
   return `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${image_url}` 
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, showBuyRank = false }: ProductCardProps) {
   const getStockStatus = () => {
     if (product.stock === 0) return { text: 'Out of Stock', color: 'text-red-400' }
     if (product.stock < 5) return { text: 'Low Stock', color: 'text-amber-400' }
@@ -170,9 +171,28 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* Seller */}
-          <div className="flex items-center space-x-2 text-white/35 text-xs">
-            <User className="w-3 h-3" />
-            <span>{product.seller?.full_name || 'Seller'}</span>
+          <div className="flex items-center justify-between text-white/35 text-xs">
+            <div className="flex items-center space-x-2">
+              <User className="w-3 h-3" />
+              <span>{product.seller?.full_name || 'Seller'}</span>
+            </div>
+            {showBuyRank && (
+              <Link href={`/seller-dashboard/buy-rank?product=${product.id}`}>
+                <span style={{
+                  background: 'rgba(232,201,126,0.1)',
+                  border: '1px solid rgba(232,201,126,0.3)',
+                  color: '#E8C97E',
+                  fontSize: '10px',
+                  fontWeight: '700',
+                  padding: '3px 8px',
+                  borderRadius: '9999px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}>
+                  🏆 Buy Rank
+                </span>
+              </Link>
+            )}
           </div>
         </div>
       </Link>

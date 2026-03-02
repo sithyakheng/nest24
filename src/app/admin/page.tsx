@@ -14,6 +14,7 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<any[]>([])
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [productCounts, setProductCounts] = useState<any[]>([])
+  const [rankPayments, setRankPayments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState('')
 
@@ -120,6 +121,13 @@ export default function AdminPage() {
       .order('created_at', { ascending: false })
     setOrders(ordersData || [])
 
+    // Fetch rank payments
+    const { data: paymentsData } = await supabase
+      .from('rank_payments')
+      .select('*, profiles(name, full_name, email), products(name)')
+      .order('created_at', { ascending: false })
+    setRankPayments(paymentsData || [])
+
     setLoading(false)
   }
 
@@ -145,6 +153,17 @@ export default function AdminPage() {
     fetchAll()
   }
 
+  async function approvePayment(paymentId: string, sellerId: string, rank: string) {
+    await supabase.from('rank_payments').update({ status: 'approved' }).eq('id', paymentId)
+    await supabase.from('profiles').update({ rank }).eq('id', sellerId)
+    fetchAll()
+  }
+
+  async function rejectPayment(paymentId: string) {
+    await supabase.from('rank_payments').update({ status: 'rejected' }).eq('id', paymentId)
+    fetchAll()
+  }
+
   if (loading) return (
     <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
       Loading Admin Panel...
@@ -166,6 +185,7 @@ export default function AdminPage() {
     { id: 'sellers', label: '👥 Sellers', count: sellers.length },
     { id: 'products', label: '📦 Products', count: products.length },
     { id: 'orders', label: '🛒 Orders', count: orders.length },
+    { id: 'payments', label: '💰 Rank Payments', count: rankPayments.filter(p => p.status === 'pending').length },
   ]
 
   return (
@@ -456,6 +476,124 @@ export default function AdminPage() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* RANK PAYMENTS TAB */}
+        {activeTab === 'payments' && (
+          <div style={{ ...glassCard, padding: '24px' }}>
+            <h2 style={{ color: 'white', fontWeight: '800', fontSize: '20px', marginBottom: '8px' }}>Rank Payments</h2>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '20px' }}>
+              Total: {rankPayments.length} payments ({rankPayments.filter(p => p.status === 'pending').length} pending)
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {rankPayments.map(payment => (
+                <div key={payment.id} style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '14px',
+                  padding: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '10px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{
+                      width: '40px', height: '40px', borderRadius: '50%',
+                      background: payment.rank === 'crown' 
+                        ? 'rgba(232,201,126,0.3)' 
+                        : payment.rank === 'premier' 
+                        ? 'rgba(0,78,100,0.4)' 
+                        : 'rgba(59,130,246,0.3)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: payment.rank === 'crown' ? '#E8C97E' : payment.rank === 'premier' ? '#4DB8CC' : '#93c5fd',
+                      fontWeight: '700', fontSize: '16px'
+                    }}>
+                      {payment.rank === 'crown' ? '👑' : payment.rank === 'premier' ? '✓' : '🥉'}
+                    </div>
+                    <div>
+                      <p style={{ color: 'white', fontWeight: '600', margin: '0 0 2px 0', fontSize: '14px' }}>
+                        {payment.profiles?.name || payment.profiles?.full_name || 'Unknown'}
+                      </p>
+                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '0' }}>
+                        {payment.gmail} • {payment.phone_number}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '11px', margin: '0 0 4px 0' }}>
+                      Product: {payment.products?.name || 'All products'}
+                    </p>
+                    <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px', margin: '0 0 4px 0' }}>
+                      {new Date(payment.created_at).toLocaleDateString()}
+                    </p>
+                    <span style={{
+                      padding: '4px 12px', borderRadius: '9999px', fontSize: '11px', fontWeight: '600',
+                      background: payment.status === 'approved' ? 'rgba(0,200,100,0.2)' : payment.status === 'rejected' ? 'rgba(255,80,80,0.2)' : 'rgba(232,201,126,0.2)',
+                      color: payment.status === 'approved' ? '#4ade80' : payment.status === 'rejected' ? '#f87171' : '#E8C97E'
+                    }}>
+                      {payment.status === 'approved' ? 'Approved ✓' : payment.status === 'rejected' ? 'Rejected ✗' : 'Pending ⏳'}
+                    </span>
+                  </div>
+
+                  {payment.status === 'pending' && (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={() => approvePayment(payment.id, payment.seller_id, payment.rank)}
+                        style={{
+                          background: 'rgba(0,200,100,0.2)',
+                          border: '1px solid rgba(0,200,100,0.4)',
+                          color: '#4ade80',
+                          borderRadius: '8px',
+                          padding: '6px 12px',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: '600'
+                        }}
+                      >
+                        Approve ✓
+                      </button>
+                      <button
+                        onClick={() => rejectPayment(payment.id)}
+                        style={{
+                          background: 'rgba(255,80,80,0.2)',
+                          border: '1px solid rgba(255,80,80,0.4)',
+                          color: '#f87171',
+                          borderRadius: '8px',
+                          padding: '6px 12px',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: '600'
+                        }}
+                      >
+                        Reject ✗
+                      </button>
+                    </div>
+                  )}
+
+                  {payment.screenshot_url && (
+                    <button
+                      onClick={() => window.open(payment.screenshot_url, '_blank')}
+                      style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        color: 'rgba(255,255,255,0.6)',
+                        borderRadius: '8px',
+                        padding: '6px 12px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: '600'
+                      }}
+                    >
+                      View Receipt 📷
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

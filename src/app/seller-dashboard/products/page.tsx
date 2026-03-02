@@ -299,6 +299,15 @@ export default function MyProducts() {
                     Edit
                   </motion.button>
                   <motion.button
+                    onClick={() => window.location.href = `/seller-dashboard/buy-rank?product=${product.id}`}
+                    className="flex-1 glass px-3 py-2 rounded-xl text-[#E8C97E] hover:text-[#F0B429] hover:bg-[#E8C97E]/10 smooth-transition text-sm font-medium"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <span className="w-4 h-4 inline mr-1">🏆</span>
+                    Buy Rank
+                  </motion.button>
+                  <motion.button
                     onClick={() => handleDelete(product.id)}
                     className="flex-1 glass px-3 py-2 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 smooth-transition text-sm font-medium"
                     whileHover={{ scale: 1.05 }}
