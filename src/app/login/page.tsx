@@ -23,7 +23,22 @@ export default function LoginPage() {
       setLoading(false)
       return
     }
-    const role = data.user?.user_metadata?.role
+
+    // Check if user is banned
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('banned, role')
+      .eq('id', data.user.id)
+      .single()
+
+    if (profile?.banned) {
+      await supabase.auth.signOut()
+      setError('Your account has been banned. Contact support.')
+      setLoading(false)
+      return
+    }
+
+    const role = profile?.role || data.user?.user_metadata?.role
     if (role === 'seller') {
       router.push('/seller-dashboard')
     } else {

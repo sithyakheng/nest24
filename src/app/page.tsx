@@ -52,7 +52,8 @@ export default function HomePage() {
         seller: sellerData.find(s => s.id === product.seller_id)
       })) || []
 
-      setProducts(productsWithSellers)
+      const filtered = productsWithSellers.filter(p => !p.seller?.banned)
+      setProducts(filtered)
 
       // Fetch trending sellers
       const { data: sellersData } = await supabase

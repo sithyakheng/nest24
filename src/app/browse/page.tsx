@@ -73,7 +73,8 @@ function BrowseContent() {
           profiles: sellerData.find(s => s.id === product.seller_id)
         }))
         
-        setProducts(productsWithSellers)
+        const filtered = productsWithSellers.filter((p: any) => !p.profiles?.banned)
+        setProducts(filtered)
       } else {
         setProducts([])
       }

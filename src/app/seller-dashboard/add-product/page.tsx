@@ -124,6 +124,18 @@ export default function AddProduct() {
         throw new Error('You must be logged in to add a product')
       }
 
+      // Check if seller is banned
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('banned')
+        .eq('id', authUser.id)
+        .single()
+
+      if (profile?.banned) {
+        alert('Your account has been banned. You cannot list products.')
+        return
+      }
+
       // Upload images
       const imageUrls = []
       for (const image of formData.images) {
