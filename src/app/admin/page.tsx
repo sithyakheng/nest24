@@ -489,7 +489,6 @@ export default function AdminPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {rankPayments.map(req => (
                 <div key={req.id} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px', marginBottom: '12px' }}>
-                  
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(0,78,100,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4DB8CC', fontWeight: '700', fontSize: '16px' }}>
@@ -514,48 +513,47 @@ export default function AdminPage() {
                   }}>
                     {req.rank === 'premium' ? '⭐ Premium' : req.rank === 'verified' ? '✓ Verified' : '🥉 Starter'}
                   </span>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginBottom: '16px' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '10px 14px' }}>
+                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px 0' }}>Shop Name</p>
+                      <p style={{ color: 'white', fontSize: '14px', fontWeight: '600', margin: 0 }}>{req.shop_name || 'N/A'}</p>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '10px 14px' }}>
+                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px 0' }}>Phone</p>
+                      <p style={{ color: 'white', fontSize: '14px', fontWeight: '600', margin: 0 }}>{req.phone || 'N/A'}</p>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '10px 14px' }}>
+                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px 0' }}>Submitted</p>
+                      <p style={{ color: 'white', fontSize: '14px', fontWeight: '600', margin: 0 }}>{new Date(req.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+
+                  {req.screenshot_url && (
+                    <div style={{ marginBottom: '16px' }}>
+                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>Payment Screenshot</p>
+                      <a href={req.screenshot_url} target="_blank" rel="noopener noreferrer">
+                        <img src={req.screenshot_url} alt="Payment proof" style={{ maxWidth: '300px', maxHeight: '200px', borderRadius: '12px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }} />
+                      </a>
+                      <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', marginTop: '6px' }}>Click to view full size</p>
+                    </div>
+                  )}
+
+                  {req.status === 'pending' ? (
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button onClick={() => approveRank(req.id, req.seller_id, req.rank)} style={{ background: 'rgba(0,78,100,0.4)', border: '1px solid rgba(0,78,100,0.6)', color: '#4DB8CC', borderRadius: '9999px', padding: '10px 24px', cursor: 'pointer', fontSize: '14px', fontWeight: '700' }}>
+                        Approve ✓
+                      </button>
+                      <button onClick={() => rejectRank(req.id)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '10px 24px', cursor: 'pointer', fontSize: '14px', fontWeight: '700' }}>
+                        Reject ✗
+                      </button>
+                    </div>
+                  ) : (
+                    <span style={{ padding: '8px 18px', borderRadius: '9999px', fontSize: '13px', fontWeight: '700', background: req.status === 'approved' ? 'rgba(0,200,100,0.15)' : 'rgba(255,80,80,0.15)', color: req.status === 'approved' ? '#4ade80' : '#f87171' }}>
+                      {req.status === 'approved' ? '✓ Approved' : '✗ Rejected'}
+                    </span>
+                  )}
                 </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginBottom: '16px' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '10px 14px' }}>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px 0' }}>Shop Name</p>
-                    <p style={{ color: 'white', fontSize: '14px', fontWeight: '600', margin: 0 }}>{req.shop_name || 'N/A'}</p>
-                  </div>
-                  <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '10px 14px' }}>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px 0' }}>Phone</p>
-                    <p style={{ color: 'white', fontSize: '14px', fontWeight: '600', margin: 0 }}>{req.phone || 'N/A'}</p>
-                  </div>
-                  <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '10px 14px' }}>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px 0' }}>Submitted</p>
-                    <p style={{ color: 'white', fontSize: '14px', fontWeight: '600', margin: 0 }}>{new Date(req.created_at).toLocaleDateString()}</p>
-                  </div>
-                </div>
-
-                {req.screenshot_url && (
-                  <div style={{ marginBottom: '16px' }}>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>Payment Screenshot</p>
-                    <a href={req.screenshot_url} target="_blank" rel="noopener noreferrer">
-                      <img src={req.screenshot_url} alt="Payment proof" style={{ maxWidth: '300px', maxHeight: '200px', borderRadius: '12px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }} />
-                    </a>
-                    <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', marginTop: '6px' }}>Click to view full size</p>
-                  </div>
-                )}
-
-                {req.status === 'pending' ? (
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button onClick={() => approveRank(req.id, req.seller_id, req.rank)} style={{ background: 'rgba(0,78,100,0.4)', border: '1px solid rgba(0,78,100,0.6)', color: '#4DB8CC', borderRadius: '9999px', padding: '10px 24px', cursor: 'pointer', fontSize: '14px', fontWeight: '700' }}>
-                      Approve ✓
-                    </button>
-                    <button onClick={() => rejectRank(req.id)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '10px 24px', cursor: 'pointer', fontSize: '14px', fontWeight: '700' }}>
-                      Reject ✗
-                    </button>
-                  </div>
-                ) : (
-                  <span style={{ padding: '8px 18px', borderRadius: '9999px', fontSize: '13px', fontWeight: '700', background: req.status === 'approved' ? 'rgba(0,200,100,0.15)' : 'rgba(255,80,80,0.15)', color: req.status === 'approved' ? '#4ade80' : '#f87171' }}>
-                    {req.status === 'approved' ? '✓ Approved' : '✗ Rejected'}
-                  </span>
-                )}
-              </div>
               ))}
             </div>
           </div>
