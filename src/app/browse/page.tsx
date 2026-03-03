@@ -24,7 +24,7 @@ function BrowseContent() {
   try {
     let query = supabase
       .from('products')
-      .select('*, profiles(id, name, full_name, avatar_url, rank, banned)')
+      .select('*')
       .order('created_at', { ascending: false })
 
     if (category !== 'All') {
@@ -41,15 +41,30 @@ function BrowseContent() {
       query = query.order('price', { ascending: false })
     }
 
-    const { data, error } = await query
+    const { data: productsData, error: productsError } = await query
     
-    if (error) {
-      console.error('Browse fetch error:', error)
+    if (productsError || !productsData) {
+      console.error('Browse products error:', productsError)
       setProducts([])
       return
     }
 
-    const visible = (data || []).filter((p: any) => !p.profiles?.banned)
+    // Get unique seller ids
+    const sellerIds = [...new Set(productsData.map((p: any) => p.seller_id))]
+
+    // Fetch seller profiles
+    const { data: profilesData } = await supabase
+      .from('profiles')
+      .select('id, name, full_name, avatar_url, rank, banned')
+      .in('id', sellerIds)
+
+    // Merge profiles into products
+    const merged = productsData.map((product: any) => ({
+      ...product,
+      profiles: profilesData?.find((p: any) => p.id === product.seller_id) || null
+    }))
+
+    const visible = merged.filter((p: any) => !p.profiles?.banned)
     
     const rankOrder: Record<string, number> = { 
       premium: 3, verified: 2, starter: 1, none: 0 

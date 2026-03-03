@@ -28,25 +28,46 @@ export default function HomePage() {
 
 async function fetchProducts() {
   setProductsLoading(true)
-  const { data, error } = await supabase
+  
+  const { data: productsData, error: productsError } = await supabase
     .from('products')
-    .select('*, profiles(id, name, full_name, avatar_url, rank, banned)')
+    .select('*')
     .order('created_at', { ascending: false })
 
-  console.log('Homepage products:', data, error)
-
-  if (!error && data) {
-    const visible = data.filter((p: any) => !p.profiles?.banned)
-    const rankOrder: Record<string, number> = {
-      premium: 3, verified: 2, starter: 1, none: 0
-    }
-    const sorted = [...visible].sort((a: any, b: any) =>
-      (rankOrder[b.profiles?.rank || 'none'] || 0) -
-      (rankOrder[a.profiles?.rank || 'none'] || 0)
-    )
-    setProducts(sorted)
-    setRecentProducts(sorted.slice(0, 5))
+  if (productsError || !productsData) {
+    console.error('Products error:', productsError)
+    setProductsLoading(false)
+    return
   }
+
+  // Get unique seller ids
+  const sellerIds = [...new Set(productsData.map((p: any) => p.seller_id))]
+
+  // Fetch seller profiles
+  const { data: profilesData } = await supabase
+    .from('profiles')
+    .select('id, name, full_name, avatar_url, rank, banned')
+    .in('id', sellerIds)
+
+  // Merge profiles into products
+  const merged = productsData.map((product: any) => ({
+    ...product,
+    profiles: profilesData?.find((p: any) => p.id === product.seller_id) || null
+  }))
+
+  const visible = merged.filter((p: any) => !p.profiles?.banned)
+
+  const rankOrder: Record<string, number> = {
+    premium: 3, verified: 2, starter: 1, none: 0
+  }
+
+  const sorted = [...visible].sort((a: any, b: any) =>
+    (rankOrder[b.profiles?.rank || 'none'] || 0) -
+    (rankOrder[a.profiles?.rank || 'none'] || 0)
+  )
+
+  setProducts(sorted)
+  setRecentProducts(sorted.slice(0, 5))
   setProductsLoading(false)
 }
 
