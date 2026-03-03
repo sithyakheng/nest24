@@ -85,6 +85,12 @@ export default function DashboardPage() {
   }, [])
 
   async function handleAddProduct() {
+    console.log('Starting add product...')
+    console.log('productName:', productName)
+    console.log('productPrice:', productPrice)
+    console.log('productStock:', productStock)
+    console.log('user:', user?.id)
+
     if (!productName || !productPrice || !productStock) {
       setAddError('Please fill in name, price and stock.')
       return
@@ -95,14 +101,17 @@ export default function DashboardPage() {
     let imageUrl = ''
 
     if (productImage) {
+      console.log('Uploading image...')
       const fileExt = productImage.name.split('.').pop()
       const fileName = `product-${user.id}-${Date.now()}.${fileExt}` 
-      const { error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('Product')
         .upload(fileName, productImage)
       
+      console.log('Upload result:', uploadData, uploadError)
+      
       if (uploadError) {
-        setAddError('Image upload failed. Try again.')
+        setAddError('Image upload failed: ' + uploadError.message)
         setAddingProduct(false)
         return
       }
@@ -111,9 +120,10 @@ export default function DashboardPage() {
         .from('Product')
         .getPublicUrl(fileName)
       imageUrl = urlData.publicUrl
+      console.log('Image URL:', imageUrl)
     }
 
-    const { error } = await supabase.from('products').insert({
+    const insertData = {
       seller_id: user.id,
       name: productName,
       description: productDesc,
@@ -122,15 +132,25 @@ export default function DashboardPage() {
       category: productCategory,
       discount: productDiscount ? parseFloat(productDiscount) : 0,
       image_url: imageUrl
-    })
+    }
+    
+    console.log('Inserting product:', insertData)
+
+    const { data, error } = await supabase
+      .from('products')
+      .insert(insertData)
+      .select()
+
+    console.log('Insert result:', data, error)
 
     if (error) {
-      setAddError('Failed to add product. Try again.')
+      setAddError('Failed to add product: ' + error.message)
       setAddingProduct(false)
       return
     }
 
     setAddSuccess(true)
+    // reset form
     setProductName('')
     setProductDesc('')
     setProductPrice('')
@@ -140,6 +160,7 @@ export default function DashboardPage() {
     setProductImagePreview(null)
     setAddingProduct(false)
 
+    // Refresh products list
     const { data: productsData } = await supabase
       .from('products')
       .select('*')
