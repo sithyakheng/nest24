@@ -100,6 +100,12 @@ html {
   animation: float 6s ease-in-out infinite;
 }
 
+/* Pulse animation */
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
 /* Glow effect */
 .glow {
   box-shadow: 0 0 20px rgba(0, 78, 100, 0.3);

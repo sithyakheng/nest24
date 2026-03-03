@@ -16,6 +16,7 @@ const getImageUrl = (image_url: string): string | null => {
 
 export default function HomePage() {
   const [products, setProducts] = useState<any[]>([])
+  const [productsLoading, setProductsLoading] = useState(true)
   const [trendingSellers, setTrendingSellers] = useState<any[]>([])
   const [categories, setCategories] = useState<any[]>([])
   const [recentProducts, setRecentProducts] = useState<any[]>([])
@@ -26,6 +27,7 @@ export default function HomePage() {
 }, [])
 
 async function fetchProducts() {
+  setProductsLoading(true)
   const { data, error } = await supabase
     .from('products')
     .select('*, profiles(id, name, full_name, avatar_url, rank, banned)')
@@ -33,22 +35,19 @@ async function fetchProducts() {
 
   console.log('Homepage products:', data, error)
 
-  if (error || !data) return
-
-  const visible = data.filter((p: any) => !p.profiles?.banned)
-
-  const rankOrder: Record<string, number> = {
-    premium: 3, verified: 2, starter: 1, none: 0
+  if (!error && data) {
+    const visible = data.filter((p: any) => !p.profiles?.banned)
+    const rankOrder: Record<string, number> = {
+      premium: 3, verified: 2, starter: 1, none: 0
+    }
+    const sorted = [...visible].sort((a: any, b: any) =>
+      (rankOrder[b.profiles?.rank || 'none'] || 0) -
+      (rankOrder[a.profiles?.rank || 'none'] || 0)
+    )
+    setProducts(sorted)
+    setRecentProducts(sorted.slice(0, 5))
   }
-
-  const sorted = [...visible].sort((a: any, b: any) =>
-    (rankOrder[b.profiles?.rank || 'none'] || 0) -
-    (rankOrder[a.profiles?.rank || 'none'] || 0)
-  )
-
-  setProducts(sorted)
-  setRecentProducts(sorted.slice(0, 5))
-  setLoading(false)
+  setProductsLoading(false)
 }
 
   const glassStyle = {
@@ -104,31 +103,29 @@ async function fetchProducts() {
               <p className="text-white/60 text-base md:text-lg">Discover premium Cambodian products</p>
             </div>
 
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-80 rounded-2xl animate-pulse bg-white/[0.02]" />
-                ))}
-              </div>
-            ) : products.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-white/60 text-lg">No products yet</p>
-                <p className="text-white/40 text-sm mt-2">Be the first to add a product!</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {products.map((product, index) => (
-                  <motion.div
-                    key={product.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 * index, duration: 0.5 }}
-                  >
-                    <ProductCard product={product} />
-                  </motion.div>
-                ))}
-              </div>
-            )}
+            {productsLoading ? (
+  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+    {[...Array(6)].map((_, i) => (
+      <div key={i} style={{
+        height: '320px',
+        background: 'rgba(255,255,255,0.04)',
+        borderRadius: '20px',
+        border: '1px solid rgba(255,255,255,0.06)',
+        animation: 'pulse 1.5s infinite'
+      }} />
+    ))}
+  </div>
+) : products.length === 0 ? (
+  <div style={{ textAlign: 'center', padding: '60px', color: 'rgba(255,255,255,0.4)' }}>
+    No products yet
+  </div>
+) : (
+  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+    {products.map((product: any) => (
+      <ProductCard key={product.id} product={product} />
+    ))}
+  </div>
+)}
           </div>
 
           {/* RIGHT - Sidebar (30%) - Hidden on mobile */}
