@@ -51,13 +51,13 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
 
           {product.profiles?.rank === 'starter' && (
-            <span style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(59,130,246,0.3)', border: '1px solid rgba(59,130,246,0.5)', color: '#93c5fd', fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '9999px', backdropFilter: 'blur(8px)' }}>🥉 Starter</span>
+            <span style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(59,130,246,0.4)', border: '1px solid rgba(59,130,246,0.6)', color: '#93c5fd', fontSize: '10px', fontWeight: '700', padding: '4px 10px', borderRadius: '9999px', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>🥉 Starter</span>
           )}
           {product.profiles?.rank === 'verified' && (
-            <span style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,78,100,0.4)', border: '1px solid rgba(0,78,100,0.6)', color: '#4DB8CC', fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '9999px', backdropFilter: 'blur(8px)' }}>✓ Verified</span>
+            <span style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,78,100,0.5)', border: '1px solid rgba(0,78,100,0.7)', color: '#4DB8CC', fontSize: '10px', fontWeight: '700', padding: '4px 10px', borderRadius: '9999px', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>✓ Verified</span>
           )}
           {product.profiles?.rank === 'premium' && (
-            <span style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(232,201,126,0.3)', border: '1px solid rgba(232,201,126,0.5)', color: '#E8C97E', fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '9999px', backdropFilter: 'blur(8px)' }}>⭐ Premium</span>
+            <span style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(232,201,126,0.4)', border: '1px solid rgba(232,201,126,0.6)', color: '#E8C97E', fontSize: '10px', fontWeight: '700', padding: '4px 10px', borderRadius: '9999px', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>⭐ Premium</span>
           )}
         </div>
 

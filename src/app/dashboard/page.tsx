@@ -322,6 +322,72 @@ export default function DashboardPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Rank Status */}
+              <div style={{
+                background: profile?.rank && profile.rank !== 'none'
+                  ? profile.rank === 'premium' 
+                    ? 'rgba(232,201,126,0.08)' 
+                    : profile.rank === 'verified'
+                    ? 'rgba(0,78,100,0.08)'
+                    : 'rgba(59,130,246,0.08)'
+                  : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${profile?.rank && profile.rank !== 'none'
+                  ? profile.rank === 'premium'
+                    ? 'rgba(232,201,126,0.25)'
+                    : profile.rank === 'verified'
+                    ? 'rgba(0,78,100,0.3)'
+                    : 'rgba(59,130,246,0.25)'
+                  : 'rgba(255,255,255,0.08)'}`,
+                borderRadius: '16px',
+                padding: '20px 24px',
+                marginTop: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '12px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <span style={{ fontSize: '32px' }}>
+                    {profile?.rank === 'premium' ? '⭐' : profile?.rank === 'verified' ? '✓' : profile?.rank === 'starter' ? '🥉' : '🏅'}
+                  </span>
+                  <div>
+                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 4px 0' }}>
+                      Your Rank
+                    </p>
+                    <p style={{ 
+                      fontWeight: '900', fontSize: '20px', margin: 0,
+                      color: profile?.rank === 'premium' ? '#E8C97E' : profile?.rank === 'verified' ? '#4DB8CC' : profile?.rank === 'starter' ? '#93c5fd' : 'rgba(255,255,255,0.4)'
+                    }}>
+                      {profile?.rank && profile.rank !== 'none' 
+                        ? profile.rank.charAt(0).toUpperCase() + profile.rank.slice(1) 
+                        : 'No Rank Yet'}
+                    </p>
+                    {profile?.rank && profile.rank !== 'none' && (
+                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '4px 0 0 0' }}>
+                        Your products have a {profile.rank} badge visible to all buyers
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <Link href="/dashboard/ranks">
+                  <button style={{
+                    background: profile?.rank && profile.rank !== 'none' 
+                      ? 'rgba(255,255,255,0.06)' 
+                      : 'linear-gradient(135deg, #E8C97E, #F0B429)',
+                    color: profile?.rank && profile.rank !== 'none' ? 'rgba(255,255,255,0.6)' : 'black',
+                    fontWeight: '700',
+                    borderRadius: '9999px',
+                    padding: '10px 22px',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    cursor: 'pointer',
+                    fontSize: '13px'
+                  }}>
+                    {profile?.rank && profile.rank !== 'none' ? 'Upgrade Rank' : '🏆 Get Ranked'}
+                  </button>
+                </Link>
+              </div>
             </div>
           )}
 
