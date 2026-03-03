@@ -334,7 +334,7 @@ export default function Navbar() {
                   )}
 
                   <Link 
-                    href="/seller-dashboard" 
+                    href="/dashboard" 
                     onClick={() => setDropdownOpen(false)}
                     style={{
                       display: 'block',

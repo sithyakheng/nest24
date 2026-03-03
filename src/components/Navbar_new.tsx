@@ -116,7 +116,7 @@ export default function Navbar() {
               <div className="flex items-center space-x-3">
                 {isSeller ? (
                   <Link 
-                    href="/seller-dashboard" 
+                    href="/dashboard" 
                     className="bg-amber-500 hover:bg-amber-600 text-white rounded-full px-4 py-2 text-sm font-medium transition-colors"
                   >
                     Dashboard
@@ -192,7 +192,7 @@ export default function Navbar() {
               ) : (
                 <div className="pt-4 border-t border-white/[0.12]">
                   {isSeller ? (
-                    <Link href="/seller-dashboard" className="block bg-amber-500 hover:bg-amber-600 text-white rounded-full px-4 py-2 text-center font-medium">
+                    <Link href="/dashboard" className="block bg-amber-500 hover:bg-amber-600 text-white rounded-full px-4 py-2 text-center font-medium">
                       Dashboard
                     </Link>
                   ) : (
