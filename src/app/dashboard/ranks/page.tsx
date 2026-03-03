@@ -5,6 +5,235 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
+function PaymentSection({ selectedRank, user, profile, onSubmitted }: any) {
+  const [sellerName, setSellerName] = useState('')
+  const [shopName, setShopName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [screenshot, setScreenshot] = useState<File | null>(null)
+  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState('')
+
+  function handleScreenshot(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setScreenshot(file)
+    setScreenshotPreview(URL.createObjectURL(file))
+  }
+
+  async function handleSubmit() {
+    if (!sellerName || !shopName || !phone || !screenshot) {
+      setError('Please fill in all fields and upload your payment screenshot.')
+      return
+    }
+    setUploading(true)
+    setError('')
+
+    // Upload screenshot to Supabase storage
+    const fileExt = screenshot.name.split('.').pop()
+    const fileName = `rank-payment-${user.id}-${Date.now()}.${fileExt}` 
+    
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('Product')
+      .upload(fileName, screenshot)
+
+    if (uploadError) {
+      setError('Failed to upload screenshot. Try again.')
+      setUploading(false)
+      return
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('Product')
+      .getPublicUrl(fileName)
+
+    const screenshotUrl = urlData.publicUrl
+
+    // Insert rank request with all info
+    const { error: insertError } = await supabase
+      .from('rank_requests')
+      .insert({
+        seller_id: user.id,
+        rank: selectedRank,
+        status: 'pending',
+        screenshot_url: screenshotUrl,
+        seller_name: sellerName,
+        shop_name: shopName,
+        phone: phone
+      })
+
+    if (insertError) {
+      setError('Failed to submit request. Try again.')
+      setUploading(false)
+      return
+    }
+
+    setUploading(false)
+    onSubmitted()
+  }
+
+  const inputStyle = {
+    width: '100%',
+    background: 'rgba(255,255,255,0.06)',
+    backdropFilter: 'blur(12px)',
+    WebkitBackdropFilter: 'blur(12px)',
+    border: '1px solid rgba(255,255,255,0.12)',
+    borderRadius: '12px',
+    color: 'white',
+    padding: '12px 16px',
+    fontSize: '14px',
+    outline: 'none',
+    boxSizing: 'border-box' as const
+  }
+
+  return (
+    <div style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.12)', borderTop: '1px solid rgba(255,255,255,0.22)', borderRadius: '24px', padding: '48px' }}>
+      
+      <h2 style={{ color: 'white', fontSize: '28px', fontWeight: '900', margin: '0 0 8px 0', textAlign: 'center' }}>
+        Get Your {selectedRank.charAt(0).toUpperCase() + selectedRank.slice(1)} Rank
+      </h2>
+      <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '40px', fontSize: '15px', textAlign: 'center' }}>
+        Scan: QR code, pay, then fill in your details below
+      </p>
+
+      {/* Steps */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '48px', flexWrap: 'wrap', marginBottom: '40px' }}>
+        {['Scan QR and Pay', 'Fill your details', 'Upload screenshot', 'Wait for approval'].map((step, i) => (
+          <div key={i} style={{ textAlign: 'center' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(0,78,100,0.3)', border: '2px solid rgba(0,78,100,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4DB8CC', fontWeight: '900', fontSize: '18px', margin: '0 auto 10px auto' }}>
+              {i + 1}
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', margin: 0 }}>{step}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ABA QR Code */}
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px' }}>
+          ABA Bank — Scan to Pay
+        </p>
+        <div style={{ display: 'inline-block', background: 'white', padding: '20px', borderRadius: '20px', boxShadow: '0 0 40px rgba(232,201,126,0.2)' }}>
+          <img
+            src={'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=NestKH-ABA-Payment-' + selectedRank}
+            alt="ABA Payment QR"
+            style={{ display: 'block', borderRadius: '10px' }}
+          />
+        </div>
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginTop: '12px' }}>
+          Pay to {selectedRank === 'premium' ? '$30' : selectedRank === 'verified' ? '$15' : '$5'} fee to activate your rank
+        </p>
+      </div>
+
+      {/* Form */}
+      <div style={{ maxWidth: '480px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        
+        <div>
+          <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
+            Your Full Name
+          </label>
+          <input
+            type="text"
+            placeholder="Enter your full name"
+            value={sellerName}
+            onChange={e => setSellerName(e.target.value)}
+            style={inputStyle}
+          />
+        </div>
+
+        <div>
+          <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
+            Shop Name
+          </label>
+          <input
+            type="text"
+            placeholder="Enter your shop name"
+            value={shopName}
+            onChange={e => setShopName(e.target.value)}
+            style={inputStyle}
+          />
+        </div>
+
+        <div>
+          <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
+            Phone Number
+          </label>
+          <input
+            type="text"
+            placeholder="Enter your phone number"
+            value={phone}
+            onChange={e => setPhone(e.target.value)}
+            style={inputStyle}
+          />
+        </div>
+
+        <div>
+          <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
+            Payment Screenshot
+          </label>
+          <div
+            onClick={() => document.getElementById('screenshot-upload')?.click()}
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: screenshotPreview ? '1px solid rgba(0,78,100,0.5)' : '2px dashed rgba(255,255,255,0.15)',
+              borderRadius: '16px',
+              padding: '24px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              overflow: 'hidden'
+            }}
+          >
+            {screenshotPreview ? (
+              <img src={screenshotPreview} alt="Screenshot preview" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px', objectFit: 'contain' }} />
+            ) : (
+              <div>
+                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', margin: '0 0 4px 0' }}>📸 Upload Payment Screenshot</p>
+                <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '12px', margin: 0 }}>Click to browse or drag and drop</p>
+              </div>
+            )}
+          </div>
+          <input
+            id="screenshot-upload"
+            type="file"
+            accept="image/*"
+            onChange={handleScreenshot}
+            style={{ display: 'none' }}
+          />
+        </div>
+
+        {error && (
+          <div style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.2)', borderRadius: '12px', padding: '12px 16px', color: '#f87171', fontSize: '14px' }}>
+            {error}
+          </div>
+        )}
+
+        <button
+          onClick={handleSubmit}
+          disabled={uploading}
+          style={{
+            background: uploading ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #E8C97E, #F0B429)',
+            color: uploading ? 'rgba(255,255,255,0.4)' : 'black',
+            fontWeight: '900',
+            fontSize: '16px',
+            borderRadius: '9999px',
+            padding: '16px 48px',
+            border: 'none',
+            cursor: uploading ? 'not-allowed' : 'pointer',
+            width: '100%',
+            marginTop: '8px',
+            boxShadow: uploading ? 'none' : '0 8px 24px rgba(232,201,126,0.3)',
+            transition: 'all 0.2s'
+          }}
+        >
+          {uploading ? 'Submitting...' : 'Submit Payment Request ✓'}
+        </button>
+
+      </div>
+    </div>
+  )
+}
+
 export default function RanksPage() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
@@ -229,51 +458,15 @@ export default function RanksPage() {
         </div>
 
         {selectedRank && !pendingRequest && (
-          <div style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.12)', borderTop: '1px solid rgba(255,255,255,0.22)', borderRadius: '24px', padding: '48px', textAlign: 'center' }}>
-
-            <h2 style={{ color: 'white', fontSize: '28px', fontWeight: '900', margin: '0 0 8px 0' }}>
-              Get Your {selectedRank.charAt(0).toUpperCase() + selectedRank.slice(1)} Rank
-            </h2>
-            <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '40px', fontSize: '15px' }}>
-              Follow these 3 simple steps
-            </p>
-
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '48px', flexWrap: 'wrap', marginBottom: '40px' }}>
-              {['Scan QR and Pay', 'Wait up to 24hrs', 'Rank activated!'].map((step, i) => (
-                <div key={i} style={{ textAlign: 'center' }}>
-                  <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(0,78,100,0.3)', border: '2px solid rgba(0,78,100,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4DB8CC', fontWeight: '900', fontSize: '20px', margin: '0 auto 12px auto' }}>
-                    {i + 1}
-                  </div>
-                  <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', margin: 0 }}>{step}</p>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display: 'inline-block', background: 'white', padding: '20px', borderRadius: '20px', marginBottom: '20px', boxShadow: '0 0 40px rgba(232,201,126,0.2)' }}>
-              <img
-                src={'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=NestKH-' + selectedRank + '-' + user?.id}
-                alt="Payment QR Code"
-                style={{ display: 'block', borderRadius: '10px' }}
-              />
-            </div>
-
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', marginBottom: '32px' }}>
-              Scan this QR code to pay for your {selectedRank} rank
-            </p>
-
-            {submitted ? (
-              <div style={{ background: 'rgba(0,200,100,0.1)', border: '1px solid rgba(0,200,100,0.3)', borderRadius: '16px', padding: '20px 28px', color: '#4ade80', fontWeight: '700', fontSize: '16px' }}>
-                ✅ Request submitted! We will review within 24 hours.
-              </div>
-            ) : (
-              <button
-                onClick={submitRequest}
-                style={{ background: 'linear-gradient(135deg, #E8C97E, #F0B429)', color: 'black', fontWeight: '900', fontSize: '16px', borderRadius: '9999px', padding: '16px 48px', border: 'none', cursor: 'pointer', width: '100%', maxWidth: '420px', boxShadow: '0 8px 24px rgba(232,201,126,0.3)' }}
-              >
-                I have Paid — Submit Request ✓
-              </button>
-            )}
-          </div>
+          <PaymentSection
+            selectedRank={selectedRank}
+            user={user}
+            profile={profile}
+            onSubmitted={() => {
+              setSubmitted(true)
+              setPendingRequest({ rank: selectedRank, status: 'pending' })
+            }}
+          />
         )}
 
       </div>
