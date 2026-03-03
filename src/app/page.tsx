@@ -23,29 +23,33 @@ export default function HomePage() {
 
   useEffect(() => {
     async function fetchProducts() {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*, profiles(id, name, full_name, avatar_url, rank, banned)')
-        .order('created_at', { ascending: false })
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*, profiles(id, name, full_name, avatar_url, rank, banned)')
+          .order('created_at', { ascending: false })
 
-      if (error) {
-        console.error('Error fetching products:', error)
-        return
+        if (error) {
+          console.error('Products fetch error:', error)
+          return
+        }
+
+        const visible = (data || []).filter((p: any) => !p.profiles?.banned)
+        
+        const rankOrder: Record<string, number> = { 
+          premium: 3, verified: 2, starter: 1, none: 0 
+        }
+        const sorted = [...visible].sort((a: any, b: any) =>
+          (rankOrder[b.profiles?.rank || 'none'] || 0) - 
+          (rankOrder[a.profiles?.rank || 'none'] || 0)
+        )
+
+        setProducts(sorted)
+        // Fetch recent products for sidebar
+        setRecentProducts(sorted.slice(0, 5))
+      } catch (err) {
+        console.error('Fetch error:', err)
       }
-
-      const visible = (data || []).filter(p => !p.profiles?.banned)
-      
-      const rankOrder: Record<string, number> = { 
-        premium: 3, verified: 2, starter: 1, none: 0 
-      }
-      const sorted = visible.sort((a, b) =>
-        (rankOrder[b.profiles?.rank || 'none'] || 0) - 
-        (rankOrder[b.profiles?.rank || 'none'] || 0)
-      )
-
-      setProducts(sorted)
-      // Fetch recent products for sidebar
-      setRecentProducts(sorted.slice(0, 5))
     }
     fetchProducts()
   }, [])

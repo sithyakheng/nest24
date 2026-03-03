@@ -21,77 +21,50 @@ function BrowseContent() {
   }, [category, sort])
 
   async function fetchProducts() {
-    setLoading(true)
-    
-    console.log('Fetching products...')
-    
-    try {
-      // Fetch products like homepage does
-      let query = supabase
-        .from('products')
-        .select('*, profiles(id, name, full_name, avatar_url, rank, banned)')
-        .order('created_at', { ascending: false })
+  try {
+    let query = supabase
+      .from('products')
+      .select('*, profiles(id, name, full_name, avatar_url, rank, banned)')
+      .order('created_at', { ascending: false })
 
-      if (category !== 'All') {
-        query = query.eq('category', category)
-      }
-
-      if (search && search.trim() !== '') {
-        query = query.ilike('name', `%${search.trim()}%`)
-      }
-
-      if (sort === 'price_asc') {
-        query = query.order('price', { ascending: true })
-      } else if (sort === 'price_desc') {
-        query = query.order('price', { ascending: false })
-      }
-
-      const { data: productsData, error } = await query
-      
-      console.log('Products data:', productsData)
-      console.log('Products error:', error)
-      console.log('Products count:', productsData?.length)
-      
-      if (error) {
-        console.error('Supabase error:', error)
-        setProducts([])
-      } else if (productsData) {
-        // Fetch seller info for products like homepage does
-        const sellerIds = [...new Set(productsData.map(p => p.seller_id).filter(Boolean))]
-        let sellerData: any[] = []
-        
-        if (sellerIds.length > 0) {
-          const { data } = await supabase
-            .from('profiles')
-            .select('id, name, full_name, avatar_url')
-            .in('id', sellerIds)
-          sellerData = data || []
-        }
-
-        const productsWithSellers = productsData.map(product => ({
-          ...product,
-          profiles: sellerData.find(s => s.id === product.seller_id)
-        }))
-        
-        const filtered = productsWithSellers.filter((p: any) => !p.profiles?.banned)
-        
-        // Sort products by rank (premium first, then verified, then starter, then none)
-        const rankOrder: Record<string, number> = { premium: 3, verified: 2, starter: 1, none: 0 }
-        const sorted = [...filtered].sort((a, b) => 
-          (rankOrder[a.profiles?.rank || 'none'] || 0) - (rankOrder[b.profiles?.rank || 'none'] || 0)
-        )
-        
-        setProducts(sorted)
-      } else {
-        setProducts([])
-      }
-    } catch (err) {
-      console.error('Fetch error:', err)
-      setProducts([])
-    } finally {
-      setLoading(false)
+    if (category !== 'All') {
+      query = query.eq('category', category)
     }
+
+    if (search && search.trim() !== '') {
+      query = query.ilike('name', `%${search.trim()}%`)
+    }
+
+    if (sort === 'price_asc') {
+      query = query.order('price', { ascending: true })
+    } else if (sort === 'price_desc') {
+      query = query.order('price', { ascending: false })
+    }
+
+    const { data, error } = await query
+    
+    if (error) {
+      console.error('Browse fetch error:', error)
+      setProducts([])
+      return
+    }
+
+    const visible = (data || []).filter((p: any) => !p.profiles?.banned)
+    
+    const rankOrder: Record<string, number> = { 
+      premium: 3, verified: 2, starter: 1, none: 0 
+    }
+    const sorted = [...visible].sort((a: any, b: any) =>
+      (rankOrder[b.profiles?.rank || 'none'] || 0) - 
+      (rankOrder[a.profiles?.rank || 'none'] || 0)
+    )
+
+    setProducts(sorted)
+  } catch (err) {
+    console.error('Fetch error:', err)
+    setProducts([])
   }
+}
 
   return (
     <div className="min-h-screen bg-[#0d0e12] pt-24 pb-16 px-4 md:px-6">
