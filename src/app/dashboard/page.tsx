@@ -11,15 +11,40 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState<any>(null)
   const [products, setProducts] = useState<any[]>([])
   const [orders, setOrders] = useState<any[]>([])
+  const [activeTab, setActiveTab] = useState('overview')
   const [loading, setLoading] = useState(true)
 
+  // Add Product form state
+  const [productName, setProductName] = useState('')
+  const [productDesc, setProductDesc] = useState('')
+  const [productPrice, setProductPrice] = useState('')
+  const [productCategory, setProductCategory] = useState('Electronics')
+  const [productStock, setProductStock] = useState('')
+  const [productDiscount, setProductDiscount] = useState('')
+  const [productImage, setProductImage] = useState<File | null>(null)
+  const [productImagePreview, setProductImagePreview] = useState<string | null>(null)
+  const [addingProduct, setAddingProduct] = useState(false)
+  const [addError, setAddError] = useState('')
+  const [addSuccess, setAddSuccess] = useState(false)
+
+  // Profile form state
+  const [fullName, setFullName] = useState('')
+  const [displayName, setDisplayName] = useState('')
+  const [bio, setBio] = useState('')
+  const [phone, setPhone] = useState('')
+  const [whatsapp, setWhatsapp] = useState('')
+  const [facebook, setFacebook] = useState('')
+  const [instagram, setInstagram] = useState('')
+  const [telegram, setTelegram] = useState('')
+  const [savingProfile, setSavingProfile] = useState(false)
+  const [profileSuccess, setProfileSuccess] = useState(false)
+
+  const CATEGORIES = ['Electronics', 'Fashion', 'Home Living', 'Beauty', 'Food', 'Gaming', 'Other']
+
   useEffect(() => {
-    async function loadDashboard() {
+    async function load() {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push('/login')
-        return
-      }
+      if (!user) { router.push('/login'); return }
 
       const { data: profile } = await supabase
         .from('profiles')
@@ -27,281 +52,447 @@ export default function DashboardPage() {
         .eq('id', user.id)
         .single()
 
-      if (profile?.role !== 'seller') {
-        router.push('/')
-        return
-      }
+      if (profile?.role !== 'seller') { router.push('/'); return }
 
       setUser(user)
       setProfile(profile)
+      setFullName(profile?.full_name || '')
+      setDisplayName(profile?.name || '')
+      setBio(profile?.bio || '')
+      setPhone(profile?.phone || '')
+      setWhatsapp(profile?.whatsapp || '')
+      setFacebook(profile?.facebook || '')
+      setInstagram(profile?.instagram || '')
+      setTelegram(profile?.telegram || '')
 
-      // Load products
-      const { data: products } = await supabase
+      const { data: productsData } = await supabase
         .from('products')
         .select('*')
         .eq('seller_id', user.id)
         .order('created_at', { ascending: false })
+      setProducts(productsData || [])
 
-      setProducts(products || [])
-
-      // Load orders
-      const { data: orders } = await supabase
+      const { data: ordersData } = await supabase
         .from('orders')
-        .select('*')
+        .select('*, products(name)')
         .eq('seller_id', user.id)
         .order('created_at', { ascending: false })
+      setOrders(ordersData || [])
 
-      setOrders(orders || [])
       setLoading(false)
     }
-
-    loadDashboard()
+    load()
   }, [])
 
-  if (loading) {
-    return (
-      <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '16px' }}>
-        Loading dashboard...
-      </div>
-    )
+  async function handleAddProduct() {
+    if (!productName || !productPrice || !productStock) {
+      setAddError('Please fill in name, price and stock.')
+      return
+    }
+    setAddingProduct(true)
+    setAddError('')
+
+    let imageUrl = ''
+
+    if (productImage) {
+      const fileExt = productImage.name.split('.').pop()
+      const fileName = `product-${user.id}-${Date.now()}.${fileExt}` 
+      const { error: uploadError } = await supabase.storage
+        .from('Product')
+        .upload(fileName, productImage)
+      
+      if (uploadError) {
+        setAddError('Image upload failed. Try again.')
+        setAddingProduct(false)
+        return
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('Product')
+        .getPublicUrl(fileName)
+      imageUrl = urlData.publicUrl
+    }
+
+    const { error } = await supabase.from('products').insert({
+      seller_id: user.id,
+      name: productName,
+      description: productDesc,
+      price: parseFloat(productPrice),
+      stock: parseInt(productStock),
+      category: productCategory,
+      discount: productDiscount ? parseFloat(productDiscount) : 0,
+      image_url: imageUrl
+    })
+
+    if (error) {
+      setAddError('Failed to add product. Try again.')
+      setAddingProduct(false)
+      return
+    }
+
+    setAddSuccess(true)
+    setProductName('')
+    setProductDesc('')
+    setProductPrice('')
+    setProductStock('')
+    setProductDiscount('')
+    setProductImage(null)
+    setProductImagePreview(null)
+    setAddingProduct(false)
+
+    const { data: productsData } = await supabase
+      .from('products')
+      .select('*')
+      .eq('seller_id', user.id)
+      .order('created_at', { ascending: false })
+    setProducts(productsData || [])
+
+    setTimeout(() => setAddSuccess(false), 3000)
   }
 
+  async function handleDeleteProduct(productId: string) {
+    if (!confirm('Delete this product?')) return
+    await supabase.from('products').delete().eq('id', productId)
+    setProducts(products.filter(p => p.id !== productId))
+  }
+
+  async function handleSaveProfile() {
+    setSavingProfile(true)
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        full_name: fullName,
+        name: displayName,
+        bio,
+        phone,
+        whatsapp,
+        facebook,
+        instagram,
+        telegram,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', user.id)
+    
+    setSavingProfile(false)
+    if (!error) {
+      setProfileSuccess(true)
+      setTimeout(() => setProfileSuccess(false), 3000)
+    }
+  }
+
+  if (loading) return (
+    <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '16px' }}>
+      Loading Dashboard...
+    </div>
+  )
+
+  const glassCard = {
+    background: 'rgba(255,255,255,0.06)',
+    backdropFilter: 'blur(24px)',
+    WebkitBackdropFilter: 'blur(24px)',
+    border: '1px solid rgba(255,255,255,0.12)',
+    borderTop: '1px solid rgba(255,255,255,0.22)',
+    borderRadius: '20px',
+  }
+
+  const inputStyle = {
+    width: '100%',
+    background: 'rgba(255,255,255,0.06)',
+    backdropFilter: 'blur(12px)',
+    WebkitBackdropFilter: 'blur(12px)',
+    border: '1px solid rgba(255,255,255,0.12)',
+    borderRadius: '12px',
+    color: 'white',
+    padding: '12px 16px',
+    fontSize: '14px',
+    outline: 'none',
+    boxSizing: 'border-box' as const
+  }
+
+  const navItems = [
+    { id: 'overview', label: '📊 Overview' },
+    { id: 'products', label: '📦 My Products' },
+    { id: 'add', label: '➕ Add Product' },
+    { id: 'orders', label: '🛒 Orders' },
+    { id: 'profile', label: '👤 Profile Settings' },
+  ]
+
   return (
-    <div style={{ minHeight: '100vh', background: '#080a0f', paddingTop: '100px', paddingBottom: '80px' }}>
-      {/* Background Effects */}
+    <div style={{ minHeight: '100vh', background: '#080a0f', paddingTop: '40px', paddingBottom: '60px', position: 'relative' }}>
+
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-150px', left: '-100px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,78,100,0.4) 0%, transparent 70%)', filter: 'blur(80px)' }} />
         <div style={{ position: 'absolute', bottom: '-150px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,201,126,0.25) 0%, transparent 70%)', filter: 'blur(80px)' }} />
       </div>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 10 }}>
-        
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-          <div>
-            <h1 style={{ color: 'white', fontSize: '36px', fontWeight: '900', margin: '0 0 8px 0' }}>
-              Welcome back, {profile?.name || profile?.full_name || 'Seller'}!
-            </h1>
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '16px', margin: 0 }}>
-              Manage your shop and track your sales
-            </p>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 10, display: 'grid', gridTemplateColumns: '260px 1fr', gap: '24px', alignItems: 'start' }}>
+
+        {/* SIDEBAR */}
+        <div style={{ ...glassCard, padding: '24px', position: 'sticky', top: '24px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(0,78,100,0.4)', border: '2px solid rgba(0,78,100,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4DB8CC', fontWeight: '900', fontSize: '24px', margin: '0 auto 12px auto' }}>
+              {(profile?.name || profile?.full_name || 'S').charAt(0).toUpperCase()}
+            </div>
+            <p style={{ color: 'white', fontWeight: '700', fontSize: '15px', margin: '0 0 4px 0' }}>{profile?.name || profile?.full_name || 'Seller'}</p>
+            <span style={{ background: 'rgba(0,78,100,0.3)', border: '1px solid rgba(0,78,100,0.5)', color: '#4DB8CC', fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '9999px' }}>Seller</span>
           </div>
-          
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <Link href="/dashboard/ranks">
-              <div style={{
-                background: 'linear-gradient(135deg, #E8C97E, #F0B429)',
-                color: 'black',
-                fontWeight: '900',
-                fontSize: '14px',
-                borderRadius: '9999px',
-                padding: '12px 24px',
-                cursor: 'pointer',
-                boxShadow: '0 4px 16px rgba(232,201,126,0.3)'
-              }}>
-                🏆 Get Rank
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <Link href="/">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: 'rgba(255,255,255,0.5)', fontSize: '14px', cursor: 'pointer', marginBottom: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                ← Back to Store
               </div>
             </Link>
-            
-            <Link href="/profile">
-              <div style={{
-                background: 'rgba(255,255,255,0.1)',
-                color: 'white',
-                fontWeight: '700',
-                fontSize: '14px',
-                borderRadius: '9999px',
-                padding: '12px 24px',
-                cursor: 'pointer',
-                border: '1px solid rgba(255,255,255,0.2)'
-              }}>
-                Profile
-              </div>
-            </Link>
-          </div>
-        </div>
 
-        {/* Stats Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '40px' }}>
-          <div style={{
-            background: 'rgba(255,255,255,0.06)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            borderTop: '1px solid rgba(255,255,255,0.22)',
-            borderRadius: '20px',
-            padding: '24px'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span style={{ fontSize: '32px' }}>📦</span>
-              <span style={{ color: '#4DB8CC', fontSize: '24px', fontWeight: '900' }}>{products.length}</span>
-            </div>
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', margin: 0 }}>Total Products</p>
-          </div>
-
-          <div style={{
-            background: 'rgba(255,255,255,0.06)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            borderTop: '1px solid rgba(255,255,255,0.22)',
-            borderRadius: '20px',
-            padding: '24px'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span style={{ fontSize: '32px' }}>🛒</span>
-              <span style={{ color: '#E8C97E', fontSize: '24px', fontWeight: '900' }}>{orders.length}</span>
-            </div>
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', margin: 0 }}>Total Orders</p>
-          </div>
-
-          <div style={{
-            background: 'rgba(255,255,255,0.06)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            borderTop: '1px solid rgba(255,255,255,0.22)',
-            borderRadius: '20px',
-            padding: '24px'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span style={{ fontSize: '32px' }}>⭐</span>
-              <span style={{ color: '#93c5fd', fontSize: '24px', fontWeight: '900' }}>
-                {profile?.rank === 'premium' ? 'Premium' : profile?.rank === 'verified' ? 'Verified' : profile?.rank === 'starter' ? 'Starter' : 'None'}
-              </span>
-            </div>
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', margin: 0 }}>Current Rank</p>
-          </div>
-        </div>
-
-        {/* Recent Products */}
-        <div style={{ marginBottom: '40px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-            <h2 style={{ color: 'white', fontSize: '24px', fontWeight: '800', margin: 0 }}>Recent Products</h2>
-            <Link href="/products">
-              <span style={{ color: '#4DB8CC', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>View All →</span>
-            </Link>
-          </div>
-          
-          {products.length === 0 ? (
-            <div style={{
-              background: 'rgba(255,255,255,0.06)',
-              backdropFilter: 'blur(24px)',
-              WebkitBackdropFilter: 'blur(24px)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              borderTop: '1px solid rgba(255,255,255,0.22)',
-              borderRadius: '20px',
-              padding: '48px',
-              textAlign: 'center'
-            }}>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px', margin: '0 0 24px 0' }}>No products yet</p>
-              <Link href="/products">
-                <div style={{
-                  background: 'linear-gradient(135deg, #4DB8CC, #0a7890)',
-                  color: 'white',
-                  fontWeight: '700',
-                  fontSize: '14px',
-                  borderRadius: '9999px',
-                  padding: '12px 24px',
+            {navItems.map(item => (
+              <div
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '10px',
+                  padding: '10px 14px', borderRadius: '12px',
+                  color: activeTab === item.id ? '#4DB8CC' : 'rgba(255,255,255,0.6)',
+                  fontSize: '14px', fontWeight: activeTab === item.id ? '600' : '400',
                   cursor: 'pointer',
-                  display: 'inline-block'
-                }}>
-                  Add Your First Product
-                </div>
-              </Link>
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
-              {products.slice(0, 3).map(product => (
-                <div key={product.id} style={{
-                  background: 'rgba(255,255,255,0.06)',
-                  backdropFilter: 'blur(24px)',
-                  WebkitBackdropFilter: 'blur(24px)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  borderTop: '1px solid rgba(255,255,255,0.22)',
-                  borderRadius: '20px',
-                  overflow: 'hidden'
-                }}>
-                  <div style={{ height: '160px', background: 'rgba(255,255,255,0.04)', position: 'relative' }}>
-                    {product.image_url ? (
-                      <img src={product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)' }}>
-                        No Image
-                      </div>
-                    )}
-                  </div>
-                  <div style={{ padding: '16px' }}>
-                    <h3 style={{ color: 'white', fontWeight: '600', fontSize: '16px', margin: '0 0 8px 0' }}>{product.name}</h3>
-                    <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '18px', margin: '0 0 8px 0' }}>${product.price}</p>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: 0 }}>Stock: {product.stock}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                  background: activeTab === item.id ? 'rgba(0,78,100,0.2)' : 'transparent',
+                  border: activeTab === item.id ? '1px solid rgba(0,78,100,0.3)' : '1px solid transparent',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {item.label}
+              </div>
+            ))}
 
-        {/* Recent Orders */}
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-            <h2 style={{ color: 'white', fontSize: '24px', fontWeight: '800', margin: 0 }}>Recent Orders</h2>
-            <Link href="/orders">
-              <span style={{ color: '#4DB8CC', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>View All →</span>
+            <Link href="/dashboard/ranks">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: '#E8C97E', fontSize: '14px', fontWeight: '600', cursor: 'pointer', marginTop: '8px', background: 'rgba(232,201,126,0.08)', border: '1px solid rgba(232,201,126,0.15)' }}>
+                🏆 Get Ranked
+              </div>
             </Link>
+
+            <div
+              onClick={async () => { await supabase.auth.signOut(); router.push('/') }}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: 'rgba(255,80,80,0.7)', fontSize: '14px', cursor: 'pointer', marginTop: '4px', transition: 'all 0.2s' }}
+            >
+              🚪 Sign Out
+            </div>
           </div>
-          
-          {orders.length === 0 ? (
-            <div style={{
-              background: 'rgba(255,255,255,0.06)',
-              backdropFilter: 'blur(24px)',
-              WebkitBackdropFilter: 'blur(24px)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              borderTop: '1px solid rgba(255,255,255,0.22)',
-              borderRadius: '20px',
-              padding: '48px',
-              textAlign: 'center'
-            }}>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px', margin: 0 }}>No orders yet</p>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {orders.slice(0, 3).map(order => (
-                <div key={order.id} style={{
-                  background: 'rgba(255,255,255,0.06)',
-                  backdropFilter: 'blur(24px)',
-                  WebkitBackdropFilter: 'blur(24px)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  borderTop: '1px solid rgba(255,255,255,0.22)',
-                  borderRadius: '16px',
-                  padding: '20px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <div>
-                    <p style={{ color: 'white', fontWeight: '600', fontSize: '16px', margin: '0 0 4px 0' }}>
-                      Order #{order.id.slice(0, 8)}
-                    </p>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', margin: 0 }}>
-                      {order.products?.name || 'Product'} • ${order.total}
-                    </p>
-                  </div>
-                  <span style={{
-                    padding: '6px 12px',
-                    borderRadius: '9999px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    background: order.status === 'completed' ? 'rgba(0,200,100,0.2)' : 'rgba(232,201,126,0.2)',
-                    color: order.status === 'completed' ? '#4ade80' : '#E8C97E'
-                  }}>
-                    {order.status}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
+        {/* MAIN CONTENT */}
+        <div>
+
+          {/* OVERVIEW */}
+          {activeTab === 'overview' && (
+            <div>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>DASHBOARD</p>
+              <h1 style={{ color: 'white', fontSize: '32px', fontWeight: '900', margin: '0 0 24px 0' }}>
+                Welcome, {profile?.name || profile?.full_name || 'Seller'} 👋
+              </h1>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                {[
+                  { label: 'Total Products', value: products.length, color: '#4DB8CC' },
+                  { label: 'Total Orders', value: orders.length, color: '#E8C97E' },
+                  { label: 'Pending Orders', value: orders.filter(o => o.status === 'pending').length, color: '#f87171' },
+                  { label: 'Current Rank', value: profile?.rank && profile.rank !== 'none' ? profile.rank.charAt(0).toUpperCase() + profile.rank.slice(1) : 'None', color: '#a78bfa' },
+                ].map((stat, i) => (
+                  <div key={i} style={{ ...glassCard, padding: '20px' }}>
+                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px 0' }}>{stat.label}</p>
+                    <p style={{ color: stat.color, fontSize: '32px', fontWeight: '900', margin: 0 }}>{stat.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* MY PRODUCTS */}
+          {activeTab === 'products' && (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                <h2 style={{ color: 'white', fontSize: '28px', fontWeight: '900', margin: 0 }}>My Products</h2>
+                <button onClick={() => setActiveTab('add')} style={{ background: 'linear-gradient(135deg, #E8C97E, #F0B429)', color: 'black', fontWeight: '700', borderRadius: '9999px', padding: '10px 24px', border: 'none', cursor: 'pointer', fontSize: '14px' }}>
+                  + Add Product
+                </button>
+              </div>
+              {products.length === 0 ? (
+                <div style={{ ...glassCard, padding: '48px', textAlign: 'center' }}>
+                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px', marginBottom: '16px' }}>No products yet</p>
+                  <button onClick={() => setActiveTab('add')} style={{ background: 'linear-gradient(135deg, #E8C97E, #F0B429)', color: 'black', fontWeight: '700', borderRadius: '9999px', padding: '12px 28px', border: 'none', cursor: 'pointer' }}>
+                    Add Your First Product
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {products.map(product => (
+                    <div key={product.id} style={{ ...glassCard, padding: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ width: '60px', height: '60px', borderRadius: '12px', overflow: 'hidden', background: 'rgba(255,255,255,0.06)', flexShrink: 0 }}>
+                        {product.image_url && <img src={product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ color: 'white', fontWeight: '600', margin: '0 0 4px 0' }}>{product.name}</p>
+                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', margin: 0 }}>{product.category} · ${product.price} · Stock: {product.stock}</p>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <Link href={`/products/${product.id}`}>
+                          <button style={{ background: 'rgba(0,78,100,0.3)', border: '1px solid rgba(0,78,100,0.5)', color: '#4DB8CC', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px' }}>
+                            View
+                          </button>
+                        </Link>
+                        <button onClick={() => handleDeleteProduct(product.id)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px' }}>
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ADD PRODUCT */}
+          {activeTab === 'add' && (
+            <div>
+              <h2 style={{ color: 'white', fontSize: '28px', fontWeight: '900', margin: '0 0 24px 0' }}>Add New Product</h2>
+              <div style={{ ...glassCard, padding: '32px', maxWidth: '600px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+                  <div>
+                    <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Name</label>
+                    <input type="text" value={productName} onChange={e => setProductName(e.target.value)} placeholder="Enter product name" style={inputStyle} />
+                  </div>
+
+                  <div>
+                    <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Description</label>
+                    <textarea value={productDesc} onChange={e => setProductDesc(e.target.value)} placeholder="Describe your product" rows={4} style={{ ...inputStyle, resize: 'vertical' }} />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div>
+                      <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Price ($)</label>
+                      <input type="number" value={productPrice} onChange={e => setProductPrice(e.target.value)} placeholder="0.00" style={inputStyle} />
+                    </div>
+                    <div>
+                      <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Stock</label>
+                      <input type="number" value={productStock} onChange={e => setProductStock(e.target.value)} placeholder="0" style={inputStyle} />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div>
+                      <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Category</label>
+                      <select value={productCategory} onChange={e => setProductCategory(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+                        {CATEGORIES.map(cat => <option key={cat} value={cat} style={{ background: '#0d0e12' }}>{cat}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Discount (%)</label>
+                      <input type="number" value={productDiscount} onChange={e => setProductDiscount(e.target.value)} placeholder="0" style={inputStyle} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Image</label>
+                    <div onClick={() => document.getElementById('product-image-upload')?.click()} style={{ background: 'rgba(255,255,255,0.04)', border: productImagePreview ? '1px solid rgba(0,78,100,0.5)' : '2px dashed rgba(255,255,255,0.15)', borderRadius: '16px', padding: '24px', textAlign: 'center', cursor: 'pointer', overflow: 'hidden' }}>
+                      {productImagePreview ? (
+                        <img src={productImagePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px', objectFit: 'contain' }} />
+                      ) : (
+                        <div>
+                          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', margin: '0 0 4px 0' }}>📸 Upload Product Image</p>
+                          <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '12px', margin: 0 }}>Click to browse</p>
+                        </div>
+                      )}
+                    </div>
+                    <input id="product-image-upload" type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) { setProductImage(f); setProductImagePreview(URL.createObjectURL(f)) } }} style={{ display: 'none' }} />
+                  </div>
+
+                  {addError && (
+                    <div style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.2)', borderRadius: '12px', padding: '12px 16px', color: '#f87171', fontSize: '14px' }}>
+                      {addError}
+                    </div>
+                  )}
+
+                  {addSuccess && (
+                    <div style={{ background: 'rgba(0,200,100,0.1)', border: '1px solid rgba(0,200,100,0.3)', borderRadius: '12px', padding: '12px 16px', color: '#4ade80', fontSize: '14px', fontWeight: '600' }}>
+                      ✅ Product added successfully!
+                    </div>
+                  )}
+
+                  <button onClick={handleAddProduct} disabled={addingProduct} style={{ background: addingProduct ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #E8C97E, #F0B429)', color: addingProduct ? 'rgba(255,255,255,0.4)' : 'black', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: addingProduct ? 'not-allowed' : 'pointer', width: '100%' }}>
+                    {addingProduct ? 'Adding Product...' : 'Add Product ✓'}
+                  </button>
+
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ORDERS */}
+          {activeTab === 'orders' && (
+            <div>
+              <h2 style={{ color: 'white', fontSize: '28px', fontWeight: '900', margin: '0 0 24px 0' }}>Orders</h2>
+              {orders.length === 0 ? (
+                <div style={{ ...glassCard, padding: '48px', textAlign: 'center' }}>
+                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px' }}>No orders yet</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {orders.map(order => (
+                    <div key={order.id} style={{ ...glassCard, padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: 'monospace', margin: 0 }}>#{order.id.slice(0,8)}</p>
+                      <p style={{ color: 'white', fontWeight: '600', margin: 0 }}>{order.products?.name}</p>
+                      <p style={{ color: '#E8C97E', fontWeight: '700', margin: 0 }}>${order.total_price}</p>
+                      <span style={{ padding: '4px 12px', borderRadius: '9999px', fontSize: '12px', fontWeight: '600', background: order.status === 'completed' ? 'rgba(0,200,100,0.15)' : order.status === 'cancelled' ? 'rgba(255,80,80,0.15)' : 'rgba(232,201,126,0.15)', color: order.status === 'completed' ? '#4ade80' : order.status === 'cancelled' ? '#f87171' : '#E8C97E' }}>
+                        {order.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* PROFILE SETTINGS */}
+          {activeTab === 'profile' && (
+            <div>
+              <h2 style={{ color: 'white', fontSize: '28px', fontWeight: '900', margin: '0 0 24px 0' }}>Profile Settings</h2>
+              <div style={{ ...glassCard, padding: '32px', maxWidth: '600px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+                  {[
+                    { label: 'Full Name', value: fullName, setter: setFullName, placeholder: 'Your full name' },
+                    { label: 'Display Name', value: displayName, setter: setDisplayName, placeholder: 'Your shop/display name' },
+                    { label: 'Bio', value: bio, setter: setBio, placeholder: 'Tell buyers about yourself', textarea: true },
+                    { label: 'Phone', value: phone, setter: setPhone, placeholder: '+855 xx xxx xxxx' },
+                    { label: 'WhatsApp', value: whatsapp, setter: setWhatsapp, placeholder: '+855 xx xxx xxxx' },
+                    { label: 'Facebook', value: facebook, setter: setFacebook, placeholder: 'facebook.com/yourpage' },
+                    { label: 'Instagram', value: instagram, setter: setInstagram, placeholder: '@yourhandle' },
+                    { label: 'Telegram', value: telegram, setter: setTelegram, placeholder: '@yourhandle' },
+                  ].map((field: any) => (
+                    <div key={field.label}>
+                      <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>{field.label}</label>
+                      {field.textarea ? (
+                        <textarea value={field.value} onChange={(e: any) => field.setter(e.target.value)} placeholder={field.placeholder} rows={3} style={{ ...inputStyle, resize: 'vertical' }} />
+                      ) : (
+                        <input type="text" value={field.value} onChange={(e: any) => field.setter(e.target.value)} placeholder={field.placeholder} style={inputStyle} />
+                      )}
+                    </div>
+                  ))}
+
+                  {profileSuccess && (
+                    <div style={{ background: 'rgba(0,200,100,0.1)', border: '1px solid rgba(0,200,100,0.3)', borderRadius: '12px', padding: '12px 16px', color: '#4ade80', fontSize: '14px', fontWeight: '600' }}>
+                      ✅ Profile saved successfully!
+                    </div>
+                  )}
+
+                  <button onClick={handleSaveProfile} disabled={savingProfile} style={{ background: savingProfile ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #E8C97E, #F0B429)', color: savingProfile ? 'rgba(255,255,255,0.4)' : 'black', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: savingProfile ? 'not-allowed' : 'pointer', width: '100%' }}>
+                    {savingProfile ? 'Saving...' : 'Save Changes ✓'}
+                  </button>
+
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
       </div>
     </div>
   )
