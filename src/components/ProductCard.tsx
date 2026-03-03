@@ -13,6 +13,8 @@ const getImageUrl = (url: string): string => {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  console.log('Product profiles rank:', product.profiles?.rank)
+  
   return (
     <Link href={`/products/${product.id}`}>
       <div

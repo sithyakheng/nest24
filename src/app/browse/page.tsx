@@ -75,6 +75,7 @@ function BrowseContent() {
     )
 
     setProducts(sorted)
+    console.log('First product profiles:', sorted[0]?.profiles)
   } catch (err) {
     console.error('Fetch error:', err)
     setProducts([])

@@ -69,6 +69,8 @@ async function fetchProducts() {
   setProducts(sorted)
   setRecentProducts(sorted.slice(0, 5))
   setProductsLoading(false)
+  
+  console.log('First product profiles:', sorted[0]?.profiles)
 }
 
   const glassStyle = {

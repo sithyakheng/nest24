@@ -42,47 +42,75 @@ export default function DashboardPage() {
   const CATEGORIES = ['Electronics', 'Fashion', 'Home Living', 'Beauty', 'Food', 'Gaming', 'Other']
 
   useEffect(() => {
-    async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
+  async function load() {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { router.push('/login'); return }
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
+    await loadProfile(user)
+    setUser(user)
+    setLoading(false)
+  }
+  load()
+}, [])
 
-      if (profile?.role !== 'seller') { router.push('/'); return }
+async function loadProfile(currentUser: any) {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', currentUser.id)
+    .single()
 
-      setUser(user)
-      setProfile(profile)
-      setFullName(profile?.full_name || '')
-      setDisplayName(profile?.name || '')
-      setBio(profile?.bio || '')
-      setPhone(profile?.phone || '')
-      setWhatsapp(profile?.whatsapp || '')
-      setFacebook(profile?.facebook || '')
-      setInstagram(profile?.instagram || '')
-      setTelegram(profile?.telegram || '')
+  if (profile?.role !== 'seller') { router.push('/'); return }
 
-      const { data: productsData } = await supabase
-        .from('products')
-        .select('*')
-        .eq('seller_id', user.id)
-        .order('created_at', { ascending: false })
-      setProducts(productsData || [])
+  setProfile(profile)
+  setFullName(profile?.full_name || '')
+  setDisplayName(profile?.name || '')
+  setBio(profile?.bio || '')
+  setPhone(profile?.phone || '')
+  setWhatsapp(profile?.whatsapp || '')
+  setFacebook(profile?.facebook || '')
+  setInstagram(profile?.instagram || '')
+  setTelegram(profile?.telegram || '')
 
-      const { data: ordersData } = await supabase
-        .from('orders')
-        .select('*, products(name)')
-        .eq('seller_id', user.id)
-        .order('created_at', { ascending: false })
-      setOrders(ordersData || [])
+  const { data: productsData } = await supabase
+    .from('products')
+    .select('*')
+    .eq('seller_id', currentUser.id)
+    .order('created_at', { ascending: false })
+  setProducts(productsData || [])
 
-      setLoading(false)
-    }
-    load()
-  }, [])
+  const { data: ordersData } = await supabase
+    .from('orders')
+    .select('*, products(name)')
+    .eq('seller_id', currentUser.id)
+    .order('created_at', { ascending: false })
+  setOrders(ordersData || [])
+}
+
+useEffect(() => {
+  let sub: any = null
+  
+  async function setup() {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    sub = supabase
+      .channel('profile-rank-update')
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'profiles',
+        filter: `id=eq.${user.id}` 
+      }, (payload) => {
+        console.log('Profile updated:', payload.new)
+        setProfile(payload.new)
+      })
+      .subscribe()
+  }
+  
+  setup()
+  return () => { if (sub) supabase.removeChannel(sub) }
+}, [])
 
   async function handleAddProduct() {
     console.log('Starting add product...')
