@@ -5,7 +5,12 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
-function PaymentSection({ selectedRank, user, profile, onSubmitted }: any) {
+function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
+  selectedRank: string
+  user: any
+  profile: any
+  onSubmitted: () => void
+}) {
   const [sellerName, setSellerName] = useState('')
   const [shopName, setShopName] = useState('')
   const [phone, setPhone] = useState('')
@@ -87,7 +92,7 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: any) {
   }
 
   return (
-    <div style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.12)', borderTop: '1px solid rgba(255,255,255,0.22)', borderRadius: '24px', padding: '48px' }}>
+    <div id="payment-section" style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.12)', borderTop: '1px solid rgba(255,255,255,0.22)', borderRadius: '24px', padding: '48px' }}>
       
       <h2 style={{ color: 'white', fontSize: '28px', fontWeight: '900', margin: '0 0 8px 0', textAlign: 'center' }}>
         Get Your {selectedRank.charAt(0).toUpperCase() + selectedRank.slice(1)} Rank
@@ -242,6 +247,9 @@ export default function RanksPage() {
   const [selectedRank, setSelectedRank] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  // Debug log for selectedRank
+  console.log('selectedRank:', selectedRank)
 
   useEffect(() => {
     async function load() {
@@ -437,7 +445,16 @@ export default function RanksPage() {
               </div>
 
               <button
-                onClick={(e) => { e.stopPropagation(); if (!pendingRequest) setSelectedRank(rank.id) }}
+                onClick={() => {
+                  if (!pendingRequest) {
+                    setSelectedRank(rank.id)
+                    setTimeout(() => {
+                      document.getElementById('payment-section')?.scrollIntoView({ 
+                        behavior: 'smooth' 
+                      })
+                    }, 100)
+                  }
+                }}
                 style={{
                   width: '100%',
                   padding: '13px',
