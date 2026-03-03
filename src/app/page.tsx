@@ -22,37 +22,34 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*, profiles(id, name, full_name, avatar_url, rank, banned)')
-          .order('created_at', { ascending: false })
+  fetchProducts()
+}, [])
 
-        if (error) {
-          console.error('Products fetch error:', error)
-          return
-        }
+async function fetchProducts() {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, profiles(id, name, full_name, avatar_url, rank, banned)')
+    .order('created_at', { ascending: false })
 
-        const visible = (data || []).filter((p: any) => !p.profiles?.banned)
-        
-        const rankOrder: Record<string, number> = { 
-          premium: 3, verified: 2, starter: 1, none: 0 
-        }
-        const sorted = [...visible].sort((a: any, b: any) =>
-          (rankOrder[b.profiles?.rank || 'none'] || 0) - 
-          (rankOrder[a.profiles?.rank || 'none'] || 0)
-        )
+  console.log('Homepage products:', data, error)
 
-        setProducts(sorted)
-        // Fetch recent products for sidebar
-        setRecentProducts(sorted.slice(0, 5))
-      } catch (err) {
-        console.error('Fetch error:', err)
-      }
-    }
-    fetchProducts()
-  }, [])
+  if (error || !data) return
+
+  const visible = data.filter((p: any) => !p.profiles?.banned)
+
+  const rankOrder: Record<string, number> = {
+    premium: 3, verified: 2, starter: 1, none: 0
+  }
+
+  const sorted = [...visible].sort((a: any, b: any) =>
+    (rankOrder[b.profiles?.rank || 'none'] || 0) -
+    (rankOrder[a.profiles?.rank || 'none'] || 0)
+  )
+
+  setProducts(sorted)
+  setRecentProducts(sorted.slice(0, 5))
+  setLoading(false)
+}
 
   const glassStyle = {
     background: 'rgba(255, 255, 255, 0.06)',
@@ -112,6 +109,11 @@ export default function HomePage() {
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="h-80 rounded-2xl animate-pulse bg-white/[0.02]" />
                 ))}
+              </div>
+            ) : products.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-white/60 text-lg">No products yet</p>
+                <p className="text-white/40 text-sm mt-2">Be the first to add a product!</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
