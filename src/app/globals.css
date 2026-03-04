@@ -1,36 +1,40 @@
 @import "tailwindcss";
 
+/* ================================
+   THEME VARIABLES
+================================ */
 :root {
   --font-inter: var(--font-inter);
   --primary-color: #004E64;
   --secondary-color: #E0E5E9;
   --bg-primary: #080a0f;
-  --bg-secondary: #0d1117;
-  --bg-glass: rgba(255, 255, 255, 0.06);
-  --bg-glass-hover: rgba(255, 255, 255, 0.10);
-  --border-glass: rgba(255, 255, 255, 0.12);
-  --border-glass-top: rgba(255, 255, 255, 0.22);
   --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.6);
-  --text-muted: rgba(255, 255, 255, 0.35);
-  --orb-teal: rgba(0, 78, 100, 0.4);
-  --orb-amber: rgba(232, 201, 126, 0.25);
+  --text-secondary: rgba(255,255,255,0.6);
+  --text-muted: rgba(255,255,255,0.35);
+  --glass-bg: rgba(255,255,255,0.06);
+  --glass-border: rgba(255,255,255,0.12);
+  --glass-border-top: rgba(255,255,255,0.22);
+  --input-bg: rgba(255,255,255,0.06);
+  --input-border: rgba(255,255,255,0.12);
+  --divider: rgba(255,255,255,0.08);
 }
 
-[data-theme="light"] {
+.light-mode {
   --bg-primary: #f0f4f8;
-  --bg-secondary: #e8edf2;
-  --bg-glass: rgba(255, 255, 255, 0.75);
-  --bg-glass-hover: rgba(255, 255, 255, 0.95);
-  --border-glass: rgba(0, 0, 0, 0.08);
-  --border-glass-top: rgba(255, 255, 255, 0.95);
   --text-primary: #0f172a;
-  --text-secondary: rgba(15, 23, 42, 0.65);
-  --text-muted: rgba(15, 23, 42, 0.4);
-  --orb-teal: rgba(0, 78, 100, 0.1);
-  --orb-amber: rgba(232, 201, 126, 0.15);
+  --text-secondary: rgba(15,23,42,0.65);
+  --text-muted: rgba(15,23,42,0.4);
+  --glass-bg: rgba(255,255,255,0.8);
+  --glass-border: rgba(0,0,0,0.08);
+  --glass-border-top: rgba(255,255,255,0.95);
+  --input-bg: rgba(0,0,0,0.05);
+  --input-border: rgba(0,0,0,0.12);
+  --divider: rgba(0,0,0,0.08);
 }
 
+/* ================================
+   BASE
+================================ */
 * {
   box-sizing: border-box;
 }
@@ -40,146 +44,119 @@ img {
   height: auto;
 }
 
+html, body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 body {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  overflow-x: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Base */
-html, body {
   background-color: var(--bg-primary) !important;
   color: var(--text-primary) !important;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
 }
 
-/* Light mode overrides */
-[data-theme="light"] body {
+/* ================================
+   LIGHT MODE — FORCE ALL TEXT DARK
+================================ */
+.light-mode * {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Force ALL text dark in light mode */
+.light-mode p,
+.light-mode h1,
+.light-mode h2,
+.light-mode h3,
+.light-mode h4,
+.light-mode h5,
+.light-mode h6,
+.light-mode span,
+.light-mode label,
+.light-mode li,
+.light-mode td,
+.light-mode th,
+.light-mode div {
+  color: #0f172a;
+}
+
+/* Keep accent colors in light mode */
+.light-mode *[style*="#4DB8CC"] { color: #0099b3 !important; }
+.light-mode *[style*="#E8C97E"] { color: #b8860b !important; }
+.light-mode *[style*="#93c5fd"] { color: #2563eb !important; }
+.light-mode *[style*="#f87171"] { color: #dc2626 !important; }
+.light-mode *[style*="#4ade80"] { color: #16a34a !important; }
+.light-mode *[style*="#a78bfa"] { color: #7c3aed !important; }
+
+/* Page backgrounds */
+.light-mode body,
+.light-mode main,
+.light-mode section {
   background-color: #f0f4f8 !important;
 }
 
-/* All page wrapper divs with dark background */
-[data-theme="light"] div[style*="#080a0f"],
-[data-theme="light"] div[style*="080a0f"] {
-  background: #f0f4f8 !important;
+/* All dark backgrounds → light */
+.light-mode div {
+  background-color: transparent;
 }
 
-[data-theme="light"] div[style*="#0d1117"],
-[data-theme="light"] div[style*="0d1117"] {
-  background: #e8edf2 !important;
+/* Glass cards → white glass */
+.light-mode nav {
+  background: rgba(255,255,255,0.9) !important;
+  border-color: rgba(0,0,0,0.1) !important;
 }
 
-/* Fixed backgrounds */
-[data-theme="light"] div[style*="position: fixed"][style*="background"],
-[data-theme="light"] div[style*="position:fixed"][style*="background"] {
-  background: #f0f4f8 !important;
-}
-
-/* Glass cards */
-[data-theme="light"] div[style*="rgba(255,255,255,0.06)"],
-[data-theme="light"] div[style*="rgba(255, 255, 255, 0.06)"] {
-  background: rgba(255, 255, 255, 0.8) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-}
-
-/* White text → dark in light mode */
-[data-theme="light"] *[style*="color: white"],
-[data-theme="light"] *[style*="color:white"],
-[data-theme="light"] *[style*="color: #ffffff"],
-[data-theme="light"] *[style*="color: #fff"] {
+/* Inputs */
+.light-mode input,
+.light-mode textarea,
+.light-mode select {
+  background: rgba(0,0,0,0.05) !important;
   color: #0f172a !important;
+  border-color: rgba(0,0,0,0.15) !important;
 }
 
-/* Muted white text → dark muted */
-[data-theme="light"] *[style*="color: rgba(255,255,255,0.6)"],
-[data-theme="light"] *[style*="color: rgba(255,255,255,0.5)"],
-[data-theme="light"] *[style*="color: rgba(255,255,255,0.4)"],
-[data-theme="light"] *[style*="color: rgba(255,255,255,0.3)"],
-[data-theme="light"] *[style*="color: rgba(255,255,255,0.35)"],
-[data-theme="light"] *[style*="color: rgba(255,255,255,0.65)"] {
-  color: rgba(15, 23, 42, 0.55) !important;
+.light-mode input::placeholder,
+.light-mode textarea::placeholder {
+  color: rgba(15,23,42,0.4) !important;
 }
 
-/* Navbar in light mode */
-[data-theme="light"] nav,
-[data-theme="light"] header {
-  background: rgba(255, 255, 255, 0.85) !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
+/* Buttons with dark text stay dark */
+.light-mode button {
+  color: inherit;
 }
 
-[data-theme="light"] nav *[style*="color: white"],
-[data-theme="light"] nav *[style*="color:white"],
-[data-theme="light"] header *[style*="color: white"] {
-  color: #0f172a !important;
+/* ================================
+   DARK MODE — FORCE ALL TEXT WHITE
+================================ */
+.dark-mode p,
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode h4,
+.dark-mode h5,
+.dark-mode h6,
+.dark-mode span,
+.dark-mode label,
+.dark-mode li {
+  color: #ffffff;
 }
 
-/* Input fields */
-[data-theme="light"] input,
-[data-theme="light"] textarea,
-[data-theme="light"] select {
-  background: rgba(0, 0, 0, 0.05) !important;
-  color: #0f172a !important;
-  border-color: rgba(0, 0, 0, 0.12) !important;
+/* ================================
+   SCROLLBAR
+================================ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px;
 }
 
-[data-theme="light"] input::placeholder,
-[data-theme="light"] textarea::placeholder {
-  color: rgba(15, 23, 42, 0.4) !important;
-}
-
-/* Keep accent colors unchanged */
-[data-theme="light"] *[style*="color: #4DB8CC"],
-[data-theme="light"] *[style*="color: #E8C97E"],
-[data-theme="light"] *[style*="color: #93c5fd"],
-[data-theme="light"] *[style*="color: #f87171"],
-[data-theme="light"] *[style*="color: #4ade80"],
-[data-theme="light"] *[style*="color: #a78bfa"] {
-  color: inherit !important;
-}
-
-/* Dividers in light mode */
-[data-theme="light"] *[style*="background: rgba(255,255,255,0.08)"],
-[data-theme="light"] *[style*="background: rgba(255,255,255,0.06)"],
-[data-theme="light"] *[style*="background: rgba(255,255,255,0.04)"] {
-  background: rgba(0, 0, 0, 0.06) !important;
-}
-
-/* Borders in light mode */
-[data-theme="light"] *[style*="border: 1px solid rgba(255,255,255,0.12)"],
-[data-theme="light"] *[style*="border: 1px solid rgba(255,255,255,0.08)"] {
-  border-color: rgba(0, 0, 0, 0.08) !important;
-}
-
-/* Skeleton loaders */
-[data-theme="light"] *[style*="background: rgba(255,255,255,0.04)"] {
-  background: rgba(0, 0, 0, 0.05) !important;
-}
-
-/* Scrollbar */
-[data-theme="light"] ::-webkit-scrollbar-track {
-  background: #e8edf2;
-}
-[data-theme="light"] ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-/* Muted text in light mode */
-[data-theme="light"] *[style*="color: rgba(255,255,255,0.6)"],
-[data-theme="light"] *[style*="color: rgba(255,255,255,0.5)"],
-[data-theme="light"] *[style*="color: rgba(255,255,255,0.4)"],
-[data-theme="light"] *[style*="color: rgba(255,255,255,0.3)"] {
-  color: rgba(15, 23, 42, 0.5) !important;
-}
-
-/* Keep colored badges and accents */
-[data-theme="light"] *[style*="color: #4DB8CC"],
-[data-theme="light"] *[style*="color: #E8C97E"],
-[data-theme="light"] *[style*="color: #93c5fd"],
-[data-theme="light"] *[style*="color: #f87171"],
-[data-theme="light"] *[style*="color: #4ade80"] {
-  color: inherit !important;
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
 }
 
 html {
