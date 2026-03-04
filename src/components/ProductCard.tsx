@@ -15,6 +15,54 @@ const getImageUrl = (url: string): string => {
 export default function ProductCard({ product }: ProductCardProps) {
   console.log('Product profiles rank:', product.profiles?.rank)
   
+  // Determine rank-based styling
+  const getRankStyle = () => {
+    const rank = product.profiles?.rank
+    if (rank === 'premium') {
+      return {
+        border: '2px solid rgba(232,201,126,0.5)',
+        boxShadow: '0 0 30px rgba(232,201,126,0.15)',
+        sellerColor: '#E8C97E',
+        badgeBg: 'rgba(232,201,126,0.4)',
+        badgeBorder: 'rgba(232,201,126,0.6)',
+        badgeColor: '#E8C97E',
+        badgeIcon: '⭐'
+      }
+    } else if (rank === 'verified') {
+      return {
+        border: '2px solid rgba(0,78,100,0.5)',
+        boxShadow: '0 0 20px rgba(0,78,100,0.15)',
+        sellerColor: '#4DB8CC',
+        badgeBg: 'rgba(0,78,100,0.5)',
+        badgeBorder: 'rgba(0,78,100,0.7)',
+        badgeColor: '#4DB8CC',
+        badgeIcon: '✓'
+      }
+    } else if (rank === 'starter') {
+      return {
+        border: '2px solid rgba(59,130,246,0.3)',
+        boxShadow: '0 0 15px rgba(59,130,246,0.1)',
+        sellerColor: '#93c5fd',
+        badgeBg: 'rgba(59,130,246,0.4)',
+        badgeBorder: 'rgba(59,130,246,0.6)',
+        badgeColor: '#93c5fd',
+        badgeIcon: '🥉'
+      }
+    } else {
+      return {
+        border: '1px solid rgba(255,255,255,0.12)',
+        boxShadow: 'none',
+        sellerColor: 'rgba(255,255,255,0.4)',
+        badgeBg: 'rgba(255,255,255,0.06)',
+        badgeBorder: 'rgba(255,255,255,0.12)',
+        badgeColor: 'rgba(255,255,255,0.6)',
+        badgeIcon: ''
+      }
+    }
+  }
+
+  const rankStyle = getRankStyle()
+  
   return (
     <Link href={`/products/${product.id}`}>
       <div
@@ -22,21 +70,22 @@ export default function ProductCard({ product }: ProductCardProps) {
           background: 'rgba(255,255,255,0.06)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          border: '1px solid rgba(255,255,255,0.12)',
+          border: rankStyle.border,
           borderTop: '1px solid rgba(255,255,255,0.22)',
           borderRadius: '20px',
           overflow: 'hidden',
           cursor: 'pointer',
           transition: 'all 0.3s ease',
-          position: 'relative'
+          position: 'relative',
+          boxShadow: rankStyle.boxShadow
         }}
         onMouseEnter={e => {
           e.currentTarget.style.transform = 'translateY(-4px)'
-          e.currentTarget.style.boxShadow = '0 16px 48px rgba(0,0,0,0.4)'
+          e.currentTarget.style.boxShadow = rankStyle.boxShadow ? rankStyle.boxShadow.replace('0 0', '0 8px') : '0 8px rgba(0,0,0,0.4)'
         }}
         onMouseLeave={e => {
           e.currentTarget.style.transform = 'translateY(0)'
-          e.currentTarget.style.boxShadow = 'none'
+          e.currentTarget.style.boxShadow = rankStyle.boxShadow
         }}
       >
         <div style={{ height: '200px', overflow: 'hidden', background: 'rgba(255,255,255,0.04)', position: 'relative' }}>
@@ -52,14 +101,24 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
-          {product.profiles?.rank === 'starter' && (
-            <span style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(59,130,246,0.4)', border: '1px solid rgba(59,130,246,0.6)', color: '#93c5fd', fontSize: '10px', fontWeight: '700', padding: '4px 10px', borderRadius: '9999px', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>🥉 Starter</span>
-          )}
-          {product.profiles?.rank === 'verified' && (
-            <span style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,78,100,0.5)', border: '1px solid rgba(0,78,100,0.7)', color: '#4DB8CC', fontSize: '10px', fontWeight: '700', padding: '4px 10px', borderRadius: '9999px', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>✓ Verified</span>
-          )}
-          {product.profiles?.rank === 'premium' && (
-            <span style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(232,201,126,0.4)', border: '1px solid rgba(232,201,126,0.6)', color: '#E8C97E', fontSize: '10px', fontWeight: '700', padding: '4px 10px', borderRadius: '9999px', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>⭐ Premium</span>
+          {/* Rank Badge - Always rendered outside image conditional */}
+          {product.profiles?.rank && (
+            <span style={{ 
+              position: 'absolute', 
+              top: '8px', 
+              right: '8px', 
+              background: rankStyle.badgeBg, 
+              border: `1px solid ${rankStyle.badgeBorder}`, 
+              color: rankStyle.badgeColor, 
+              fontSize: '10px', 
+              fontWeight: '700', 
+              padding: '4px 10px', 
+              borderRadius: '9999px', 
+              backdropFilter: 'blur(8px)', 
+              WebkitBackdropFilter: 'blur(8px)' 
+            }}>
+              {rankStyle.badgeIcon} {product.profiles.rank.charAt(0).toUpperCase() + product.profiles.rank.slice(1)}
+            </span>
           )}
         </div>
 
@@ -74,7 +133,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             ${product.price}
           </p>
           <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: 0 }}>
-            by {product.profiles?.name || product.profiles?.full_name || 'Seller'}
+            {rankStyle.badgeIcon} {product.profiles?.name || product.profiles?.full_name || 'Seller'}
           </p>
         </div>
       </div>

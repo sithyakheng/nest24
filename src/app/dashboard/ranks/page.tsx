@@ -305,8 +305,8 @@ export default function RanksPage() {
       benefits: [
         'Blue badge on all your products',
         'Products appear above unranked sellers',
-        'Trusted seller indicator on profile',
-        'Basic profile highlight'
+        'Appear in New Sellers section on homepage',
+        'Basic seller profile page'
       ]
     },
     {
@@ -322,9 +322,10 @@ export default function RanksPage() {
       benefits: [
         'Teal Verified badge on all products',
         'Products appear above Starter sellers',
-        'Featured in Trending Sellers section',
-        'Priority in search results',
-        'Verified checkmark on public profile'
+        'Featured in Trending Sellers on homepage',
+        'Verified Seller tag on product detail page',
+        'Buyers see trust checkmark when contacting you',
+        'Profile shows verified since date'
       ]
     },
     {
@@ -338,10 +339,13 @@ export default function RanksPage() {
       bg: 'rgba(232,201,126,0.1)',
       benefits: [
         'Gold Premium badge on all products',
-        'Products appear at the very top',
-        'Featured on homepage spotlight',
-        'Maximum visibility to all buyers',
-        'Gold border on public profile'
+        'Products at the very TOP of all listings',
+        'Featured spotlight section on homepage',
+        'Bold gold border around your product cards',
+        'Premium Seller banner on your profile page',
+        'Products show first in all category pages',
+        'Gold username color in seller info',
+        'Top Seller featured section on homepage'
       ]
     }
   ]
