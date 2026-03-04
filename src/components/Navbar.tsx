@@ -19,6 +19,12 @@ export default function Navbar() {
   const [userRole, setUserRole] = useState('')
   const { lang, toggleLang } = useLang()
 
+  function handleLangToggle() {
+    console.log('Current lang:', lang)
+    toggleLang()
+    console.log('Toggled!')
+  }
+
   useEffect(() => {
     const path = window.location.pathname
     if (path === '/') setActiveLink('home')
@@ -177,7 +183,7 @@ export default function Navbar() {
 
           {/* Language toggle */}
           <button
-            onClick={toggleLang}
+            onClick={handleLangToggle}
             style={{
               background: 'transparent',
               border: 'none',

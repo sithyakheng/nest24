@@ -5,10 +5,12 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ProductCard from '@/components/ProductCard'
+import { useLang } from '@/contexts/LanguageContext'
 
 const CATEGORIES = ['All', 'Electronics', 'Fashion', 'Home', 'Beauty', 'Food', 'Gaming', 'Other']
 
 function BrowseContent() {
+  const { t, lang } = useLang()
   const searchParams = useSearchParams()
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -83,12 +85,12 @@ function BrowseContent() {
 }
 
   return (
-    <div className="min-h-screen bg-[#0d0e12] pt-24 pb-16 px-4 md:px-6">
+    <div key={lang} className="min-h-screen bg-[#0d0e12] pt-24 pb-16 px-4 md:px-6">
       <div className="max-w-7xl mx-auto">
 
         <div className="mb-8">
           <p className="uppercase tracking-widest text-xs text-white/40 mb-2">MARKETPLACE</p>
-          <h1 className="text-4xl font-black text-white">Browse Products</h1>
+          <h1 className="text-4xl font-black text-white">{t('browse.title')}</h1>
         </div>
 
         <div className="flex gap-4 mb-6 flex-wrap">
@@ -144,13 +146,13 @@ function BrowseContent() {
         ) : products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center">
             <div className="bg-white/[0.06] border border-white/[0.12] rounded-2xl p-12">
-              <p className="text-white/40 text-lg mb-4">No products found</p>
+              <p className="text-white/40 text-lg mb-4">{t('browse.no_products')}</p>
               <button
                 onClick={() => { setCategory('All'); setSearch('') }}
                 className="px-6 py-2 rounded-full bg-teal-500/20 border 
                 border-teal-500/30 text-teal-300 text-sm"
               >
-                Clear Filters
+                {t('browse.all')}
               </button>
             </div>
           </div>

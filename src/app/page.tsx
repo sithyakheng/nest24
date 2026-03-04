@@ -7,6 +7,7 @@ import { TrendingUp, Package, User } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import ProductCard from '@/components/ProductCard'
 import { supabase } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 const getImageUrl = (image_url: string): string | null => {
   if (!image_url) return null
@@ -15,6 +16,7 @@ const getImageUrl = (image_url: string): string | null => {
 }
 
 export default function HomePage() {
+  const { t, lang } = useLang()
   const [products, setProducts] = useState<any[]>([])
   const [productsLoading, setProductsLoading] = useState(true)
   const [trendingSellers, setTrendingSellers] = useState<any[]>([])
@@ -135,7 +137,7 @@ async function fetchProducts() {
   }
 
   return (
-    <div className="relative z-10">
+    <div key={lang} className="relative z-10">
       <Navbar />
 
       {/* PREMIUM SELLERS SPOTLIGHT */}
@@ -297,8 +299,8 @@ async function fetchProducts() {
           {/* LEFT - Product Feed (70%) */}
           <div className="lg:col-span-2">
             <div className="mb-8">
-              <h1 className="text-2xl md:text-4xl font-black text-white mb-2">Latest Products</h1>
-              <p className="text-white/60 text-base md:text-lg">Discover premium Cambodian products</p>
+              <h1 className="text-2xl md:text-4xl font-black text-white mb-2">{t('home.featured')}</h1>
+              <p className="text-white/60 text-base md:text-lg">{t('home.badge')}</p>
             </div>
 
             {productsLoading ? (
@@ -315,7 +317,7 @@ async function fetchProducts() {
   </div>
 ) : products.length === 0 ? (
   <div style={{ textAlign: 'center', padding: '60px', color: 'rgba(255,255,255,0.4)' }}>
-    No products yet
+    {t('home.no_products')}
   </div>
 ) : (
   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
