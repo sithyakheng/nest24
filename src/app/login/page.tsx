@@ -40,9 +40,9 @@ export default function LoginPage() {
 
     const role = profile?.role || data.user?.user_metadata?.role
     if (role === 'seller') {
-      router.push('/seller-dashboard')
+      window.location.href = '/dashboard'
     } else {
-      router.push('/')
+      window.location.href = '/'
     }
   }
 

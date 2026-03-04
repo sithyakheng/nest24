@@ -47,6 +47,9 @@ export default function Navbar() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
+    setDropdownOpen(false)
+    setUserRole('')
+    window.location.href = '/'
   }
 
   const glassStyle = {

@@ -15,8 +15,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        window.location.href = '/'
+      }
+      if (event === 'SIGNED_IN') {
+        setUser(session?.user ?? null)
+      }
       setLoading(false)
     })
 

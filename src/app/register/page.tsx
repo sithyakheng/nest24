@@ -45,9 +45,9 @@ export default function RegisterPage() {
     }
 
     if (role === 'seller') {
-      router.push('/seller-dashboard')
+      window.location.href = '/dashboard'
     } else {
-      router.push('/')
+      window.location.href = '/'
     }
   }
 
