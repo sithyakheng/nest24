@@ -8,16 +8,22 @@ import { User, LayoutDashboard, ShoppingBag, LogOut } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { useLang } from '@/contexts/LanguageContext'
+import { useTheme } from '@/contexts/ThemeContext'
 import { supabase } from '@/lib/supabase'
 
 export default function Navbar() {
   const { user } = useAuth()
+  const { isDark } = useTheme()
   const router = useRouter()
   const isSeller = user?.user_metadata?.role === 'seller'
   const [activeLink, setActiveLink] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [userRole, setUserRole] = useState('')
   const { lang, toggleLang } = useLang()
+
+  const navTextColor = isDark ? 'white' : '#0f172a'
+  const navBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.9)'
+  const navBorder = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'
 
   function handleLangToggle() {
     console.log('Current lang:', lang)
@@ -62,11 +68,11 @@ export default function Navbar() {
   }
 
   const glassStyle = {
-    background: 'rgba(255, 255, 255, 0.06)',
+    background: navBg,
     backdropFilter: 'blur(40px) saturate(180%)',
     WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-    border: '1px solid rgba(255, 255, 255, 0.12)',
-    borderTop: '1px solid rgba(255, 255, 255, 0.22)',
+    border: `1px solid ${navBorder}`,
+    borderTop: `1px solid ${navBorder}`,
     boxShadow: `
       0 8px 32px rgba(0, 0, 0, 0.5),
       inset 0 1px 0 rgba(255, 255, 255, 0.15),
@@ -92,7 +98,7 @@ export default function Navbar() {
       <div className="flex items-center justify-between">
         {/* LEFT - Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <span className="font-black text-white tracking-tight text-lg">NestKH</span>
+          <span style={{ color: navTextColor, fontWeight: '900', fontSize: '20px' }}>NestKH</span>
           <div className="w-2 h-2 bg-teal-400 rounded-full shadow-[0_0_10px_rgba(0,254,226,0.4)]"></div>
         </Link>
 
@@ -101,8 +107,9 @@ export default function Navbar() {
           <Link
             href="/"
             className={`relative text-sm font-medium transition-all duration-200 ${
-              activeLink === 'home' ? 'text-white' : 'text-white/60 hover:text-white'
+              activeLink === 'home' ? '' : 'opacity-60 hover:opacity-100'
             }`}
+            style={{ color: navTextColor }}
             onClick={() => setActiveLink('home')}
           >
             Home
@@ -117,8 +124,9 @@ export default function Navbar() {
           <Link
             href="/browse"
             className={`relative text-sm font-medium transition-all duration-200 ${
-              activeLink === 'browse' ? 'text-white' : 'text-white/60 hover:text-white'
+              activeLink === 'browse' ? '' : 'opacity-60 hover:opacity-100'
             }`}
+            style={{ color: navTextColor }}
             onClick={() => setActiveLink('browse')}
           >
             Browse
@@ -152,8 +160,9 @@ export default function Navbar() {
           <Link
             href="/categories"
             className={`relative text-sm font-medium transition-all duration-200 ${
-              activeLink === 'categories' ? 'text-white' : 'text-white/60 hover:text-white'
+              activeLink === 'categories' ? '' : 'opacity-60 hover:opacity-100'
             }`}
+            style={{ color: navTextColor }}
             onClick={() => setActiveLink('categories')}
           >
             Categories
@@ -168,8 +177,9 @@ export default function Navbar() {
           <Link
             href="/about"
             className={`relative text-sm font-medium transition-all duration-200 ${
-              activeLink === 'about' ? 'text-white' : 'text-white/60 hover:text-white'
+              activeLink === 'about' ? '' : 'opacity-60 hover:opacity-100'
             }`}
+            style={{ color: navTextColor }}
             onClick={() => setActiveLink('about')}
           >
             About
@@ -190,7 +200,7 @@ export default function Navbar() {
               cursor: 'pointer',
               fontSize: '18px',
               padding: '4px',
-              color: 'white',
+              color: navTextColor,
               transition: 'all 0.2s'
             }}
             title={lang === 'en' ? 'Switch to Khmer' : 'Switch to English'}
@@ -231,13 +241,13 @@ export default function Navbar() {
                 width: '36px',
                 height: '36px',
                 borderRadius: '50%',
-                background: 'rgba(255,255,255,0.10)',
-                border: '1px solid rgba(255,255,255,0.15)',
+                background: navBg,
+                border: `1px solid ${navBorder}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                color: 'white'
+                color: navTextColor
               }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -256,16 +266,16 @@ export default function Navbar() {
                   width: '36px',
                   height: '36px',
                   borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.10)',
-                  border: '1px solid rgba(255,255,255,0.15)',
+                  background: navBg,
+                  border: `1px solid ${navBorder}`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  color: 'white'
+                  color: navTextColor
                 }}
               >
-                <User size={16} />
+                <User size={16} color={navTextColor} />
               </button>
 
               {dropdownOpen && (
@@ -274,11 +284,11 @@ export default function Navbar() {
                   top: '48px',
                   right: '0',
                   minWidth: '180px',
-                  background: 'rgba(15,17,21,0.95)',
+                  background: isDark ? 'rgba(10,12,18,0.95)' : 'rgba(255,255,255,0.98)',
                   backdropFilter: 'blur(24px)',
                   WebkitBackdropFilter: 'blur(24px)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  borderTop: '1px solid rgba(255,255,255,0.22)',
+                  border: `1px solid ${navBorder}`,
+                  borderTop: `1px solid ${navBorder}`,
                   borderRadius: '16px',
                   padding: '8px',
                   boxShadow: '0 16px 48px rgba(0,0,0,0.6)',
@@ -293,12 +303,12 @@ export default function Navbar() {
                         display: 'block',
                         padding: '10px 14px',
                         borderRadius: '10px',
-                        color: activeLink === 'home' ? 'white' : 'rgba(255,255,255,0.7)',
+                        color: navTextColor,
                         fontSize: '14px',
                         cursor: 'pointer',
                         textDecoration: 'none'
                       }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                      onMouseEnter={e => e.currentTarget.style.background = navBg}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
                       Home
@@ -310,12 +320,12 @@ export default function Navbar() {
                         display: 'block',
                         padding: '10px 14px',
                         borderRadius: '10px',
-                        color: activeLink === 'browse' ? 'white' : 'rgba(255,255,255,0.7)',
+                        color: navTextColor,
                         fontSize: '14px',
                         cursor: 'pointer',
                         textDecoration: 'none'
                       }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                      onMouseEnter={e => e.currentTarget.style.background = navBg}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
                       Browse
@@ -327,12 +337,12 @@ export default function Navbar() {
                         display: 'block',
                         padding: '10px 14px',
                         borderRadius: '10px',
-                        color: activeLink === 'categories' ? 'white' : 'rgba(255,255,255,0.7)',
+                        color: navTextColor,
                         fontSize: '14px',
                         cursor: 'pointer',
                         textDecoration: 'none'
                       }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                      onMouseEnter={e => e.currentTarget.style.background = navBg}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
                       Categories
@@ -344,12 +354,12 @@ export default function Navbar() {
                         display: 'block',
                         padding: '10px 14px',
                         borderRadius: '10px',
-                        color: activeLink === 'about' ? 'white' : 'rgba(255,255,255,0.7)',
+                        color: navTextColor,
                         fontSize: '14px',
                         cursor: 'pointer',
                         textDecoration: 'none'
                       }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                      onMouseEnter={e => e.currentTarget.style.background = navBg}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
                       About
@@ -391,16 +401,16 @@ export default function Navbar() {
                       display: 'block',
                       padding: '10px 14px',
                       borderRadius: '10px',
-                      color: 'rgba(255,255,255,0.7)',
+                      color: navTextColor,
                       fontSize: '14px',
                       cursor: 'pointer',
                       textDecoration: 'none'
                     }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                    onMouseEnter={e => e.currentTarget.style.background = navBg}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <LayoutDashboard size={14} />
+                      <LayoutDashboard size={14} color={navTextColor} />
                       Dashboard
                     </div>
                   </Link>
@@ -412,16 +422,16 @@ export default function Navbar() {
                       display: 'block',
                       padding: '10px 14px',
                       borderRadius: '10px',
-                      color: 'rgba(255,255,255,0.7)',
+                      color: navTextColor,
                       fontSize: '14px',
                       cursor: 'pointer',
                       textDecoration: 'none'
                     }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                    onMouseEnter={e => e.currentTarget.style.background = navBg}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <User size={14} />
+                      <User size={14} color={navTextColor} />
                       Profile
                     </div>
                   </Link>
@@ -450,7 +460,7 @@ export default function Navbar() {
                     onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,80,80,0.08)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
-                    <LogOut size={14} />
+                    <LogOut size={14} color="rgba(255,80,80,0.8)" />
                     Sign Out
                   </div>
                 </div>
@@ -464,10 +474,10 @@ export default function Navbar() {
                 <button
                   onClick={toggleLang}
                   style={{
-                    background: 'rgba(255,255,255,0.06)',
+                    background: navBg,
                     backdropFilter: 'blur(12px)',
                     WebkitBackdropFilter: 'blur(12px)',
-                    border: '1px solid rgba(255,255,255,0.12)',
+                    border: `1px solid ${navBorder}`,
                     borderRadius: '9999px',
                     padding: '6px 12px',
                     cursor: 'pointer',
@@ -475,7 +485,7 @@ export default function Navbar() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px',
-                    color: 'white',
+                    color: navTextColor,
                     fontWeight: '600',
                     transition: 'all 0.2s'
                   }}
@@ -490,7 +500,15 @@ export default function Navbar() {
 
               <Link
                 href="/login"
-                className="text-white/60 hover:text-white text-sm font-medium transition-all duration-200"
+                style={{
+                  color: navTextColor,
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  textDecoration: 'none',
+                  opacity: 0.6,
+                  transition: 'opacity 0.2s'
+                }}
+                className="hover:opacity-100"
               >
                 Sign In
               </Link>
