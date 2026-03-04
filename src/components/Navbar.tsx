@@ -76,8 +76,8 @@ export default function Navbar() {
         top: '20px',
         left: '50%',
         transform: 'translateX(-50%)',
-        width: 'calc(100% - 32px)',
-        maxWidth: '700px',
+        width: '98%',
+        maxWidth: '1400px',
         zIndex: 50,
         ...glassStyle
       }}
