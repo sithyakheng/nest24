@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { User, LayoutDashboard, ShoppingBag, LogOut } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { supabase } from '@/lib/supabase'
 
 export default function Navbar() {
