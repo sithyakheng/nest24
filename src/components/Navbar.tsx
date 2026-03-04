@@ -90,6 +90,44 @@ export default function Navbar() {
           <div className="w-2 h-2 bg-teal-400 rounded-full shadow-[0_0_10px_rgba(0,254,226,0.4)]"></div>
         </Link>
 
+        {/* ALWAYS VISIBLE: Theme and Language Toggles */}
+        <div style={{ 
+          position: 'absolute', 
+          right: '20px', 
+          top: '20px', 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          zIndex: 1000
+        }}>
+          {/* Language Toggle */}
+          <button
+            onClick={toggleLang}
+            style={{
+              background: 'rgba(255,255,255,0.06)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: '9999px',
+              padding: '6px 12px',
+              cursor: 'pointer',
+              fontSize: '18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              color: 'white',
+              fontWeight: '600',
+              transition: 'all 0.2s'
+            }}
+            title={lang === 'en' ? 'Switch to Khmer' : 'Switch to English'}
+          >
+            {lang === 'en' ? '🇰🇭' : '🇬🇧'}
+          </button>
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
+        </div>
+
         {/* CENTER - Navigation - Hidden on mobile */}
         <div className="hidden md:flex items-center space-x-8">
           <Link
