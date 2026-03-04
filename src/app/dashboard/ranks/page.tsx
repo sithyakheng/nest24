@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { Check, Star } from 'lucide-react'
+import { useMediaQuery } from '@/hooks/use-media-query'
 
 function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
   selectedRank: string
@@ -286,58 +289,60 @@ export default function RanksPage() {
     }
   }
 
-  if (loading) return (
-    <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '16px' }}>
-      Loading...
-    </div>
-  )
+  const isDesktop = useMediaQuery("(min-width: 768px)")
 
-  const ranks = [
+  const plans = [
     {
       id: 'starter',
-      name: 'Starter',
+      name: 'STARTER',
+      price: 5,
+      period: 'per month',
       emoji: '🥉',
-      price: '$5/month',
       color: '#93c5fd',
-      glow: 'rgba(59,130,246,0.3)',
       border: 'rgba(59,130,246,0.4)',
-      bg: 'rgba(59,130,246,0.1)',
-      benefits: [
+      bg: 'rgba(59,130,246,0.08)',
+      isPopular: false,
+      features: [
         'Blue badge on all your products',
         'Products appear above unranked sellers',
         'Appear in New Sellers section on homepage',
-        'Basic seller profile page'
-      ]
+        'Basic seller profile highlight'
+      ],
+      description: 'Perfect for new sellers getting started',
+      buttonText: 'Get Starter'
     },
     {
       id: 'verified',
-      name: 'Verified',
+      name: 'VERIFIED',
+      price: 15,
+      period: 'per month',
       emoji: '✓',
-      price: '$15/month',
       color: '#4DB8CC',
-      glow: 'rgba(0,78,100,0.4)',
       border: 'rgba(0,78,100,0.6)',
-      bg: 'rgba(0,78,100,0.15)',
-      popular: true,
-      benefits: [
+      bg: 'rgba(0,78,100,0.12)',
+      isPopular: true,
+      features: [
         'Teal Verified badge on all products',
         'Products appear above Starter sellers',
         'Featured in Trending Sellers on homepage',
         'Verified Seller tag on product detail page',
         'Buyers see trust checkmark when contacting you',
         'Profile shows verified since date'
-      ]
+      ],
+      description: 'Ideal for growing sellers who want trust',
+      buttonText: 'Get Verified'
     },
     {
       id: 'premium',
-      name: 'Premium',
+      name: 'PREMIUM',
+      price: 30,
+      period: 'per month',
       emoji: '⭐',
-      price: '$30/month',
       color: '#E8C97E',
-      glow: 'rgba(232,201,126,0.3)',
       border: 'rgba(232,201,126,0.5)',
-      bg: 'rgba(232,201,126,0.1)',
-      benefits: [
+      bg: 'rgba(232,201,126,0.08)',
+      isPopular: false,
+      features: [
         'Gold Premium badge on all products',
         'Products at the very TOP of all listings',
         'Featured spotlight section on homepage',
@@ -346,39 +351,51 @@ export default function RanksPage() {
         'Products show first in all category pages',
         'Gold username color in seller info',
         'Top Seller featured section on homepage'
-      ]
+      ],
+      description: 'For serious sellers who want maximum visibility',
+      buttonText: 'Get Premium'
     }
   ]
+
+  if (loading) return (
+    <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '16px' }}>
+      Loading...
+    </div>
+  )
 
   return (
     <div style={{ minHeight: '100vh', background: '#080a0f', paddingTop: '100px', paddingBottom: '80px', position: 'relative' }}>
 
+      {/* Background orbs */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-150px', left: '-100px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,78,100,0.4) 0%, transparent 70%)', filter: 'blur(80px)' }} />
         <div style={{ position: 'absolute', bottom: '-150px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,201,126,0.25) 0%, transparent 70%)', filter: 'blur(80px)' }} />
         <div style={{ position: 'absolute', top: '40%', left: '35%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(120,60,220,0.12) 0%, transparent 70%)', filter: 'blur(100px)' }} />
       </div>
 
-      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 10 }}>
 
+        {/* Back button */}
         <Link href="/dashboard">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginBottom: '40px', cursor: 'pointer' }}>
             ← Back to Dashboard
           </div>
         </Link>
 
+        {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '56px' }}>
           <span style={{ display: 'inline-block', background: 'rgba(0,78,100,0.3)', border: '1px solid rgba(0,78,100,0.5)', color: '#4DB8CC', fontSize: '12px', fontWeight: '600', padding: '6px 16px', borderRadius: '9999px', marginBottom: '20px', letterSpacing: '0.05em' }}>
             🏆 SELLER RANKS
           </span>
           <h1 style={{ color: 'white', fontSize: '48px', fontWeight: '900', margin: '0 0 16px 0', lineHeight: 1.1 }}>
-            Boost Your Shop
+            Boost Your Shop 🚀
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '18px', fontWeight: '300', maxWidth: '500px', margin: '0 auto' }}>
-            Buy a rank to get a badge on your products and stand out to buyers
+            Get a rank badge and make your products stand out
           </p>
         </div>
 
+        {/* Current rank display */}
         {profile?.rank && profile.rank !== 'none' && (
           <div style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.12)', borderTop: '1px solid rgba(255,255,255,0.22)', borderRadius: '20px', padding: '20px 28px', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '16px' }}>
             <span style={{ fontSize: '36px' }}>{profile.rank === 'premium' ? '⭐' : profile.rank === 'verified' ? '✓' : '🥉'}</span>
@@ -391,6 +408,7 @@ export default function RanksPage() {
           </div>
         )}
 
+        {/* Pending request notice */}
         {pendingRequest && (
           <div style={{ background: 'rgba(232,201,126,0.08)', border: '1px solid rgba(232,201,126,0.25)', borderRadius: '16px', padding: '18px 24px', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ fontSize: '24px' }}>⏳</span>
@@ -403,82 +421,133 @@ export default function RanksPage() {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '48px' }}>
-          {ranks.map(rank => (
-            <div
-              key={rank.id}
-              onClick={() => !pendingRequest && setSelectedRank(rank.id)}
+        {/* NEW PRICING CARDS */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '48px', alignItems: 'center' }}>
+          {plans.map((plan, index) => (
+            <motion.div
+              key={plan.id}
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ opacity: 1 }}
+              whileInView={
+                isDesktop ? {
+                  y: plan.isPopular ? -20 : 0,
+                  opacity: 1,
+                  x: index === 2 ? -20 : index === 0 ? 20 : 0,
+                  scale: index === 0 || index === 2 ? 0.95 : 1.0,
+                } : {}
+              }
+              viewport={{ once: true }}
+              transition={{
+                duration: 1.6,
+                type: 'spring',
+                stiffness: 100,
+                damping: 30,
+                delay: index * 0.1
+              }}
+              onClick={() => setSelectedRank(plan.id)}
               style={{
-                background: selectedRank === rank.id ? rank.bg : 'rgba(255,255,255,0.06)',
+                background: selectedRank === plan.id ? plan.bg : 'rgba(255,255,255,0.06)',
                 backdropFilter: 'blur(24px)',
                 WebkitBackdropFilter: 'blur(24px)',
-                border: `1px solid ${selectedRank === rank.id ? rank.border : 'rgba(255,255,255,0.12)'}`,
-                borderTop: `1px solid ${selectedRank === rank.id ? rank.border : 'rgba(255,255,255,0.22)'}`,
-                borderRadius: '24px',
-                padding: '32px',
+                border: `${plan.isPopular ? '2px' : '1px'} solid ${selectedRank === plan.id ? plan.border : plan.isPopular ? plan.border : 'rgba(255,255,255,0.12)'}`,
+                borderRadius: '20px',
+                padding: '32px 28px',
                 position: 'relative',
-                cursor: pendingRequest ? 'default' : 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: selectedRank === rank.id ? `0 0 50px ${rank.glow}` : '0 8px 32px rgba(0,0,0,0.3)'
+                cursor: 'pointer',
+                transition: 'box-shadow 0.3s ease, background 0.3s ease',
+                boxShadow: selectedRank === plan.id ? `0 0 40px ${plan.bg}` : plan.isPopular ? `0 0 30px ${plan.bg}` : 'none',
+                marginTop: plan.isPopular ? '0' : '20px'
               }}
             >
-              {rank.popular && (
-                <span style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, #E8C97E, #F0B429)', color: 'black', fontSize: '11px', fontWeight: '900', padding: '5px 18px', borderRadius: '9999px', whiteSpace: 'nowrap', letterSpacing: '0.05em' }}>
-                  MOST POPULAR
-                </span>
+              {/* Popular badge */}
+              {plan.isPopular && (
+                <div style={{
+                  position: 'absolute', top: '0', right: '0',
+                  background: plan.color === '#4DB8CC' ? 'rgba(0,78,100,0.8)' : 'rgba(232,201,126,0.8)',
+                  padding: '4px 12px',
+                  borderRadius: '0 20px 0 12px',
+                  display: 'flex', alignItems: 'center', gap: '4px'
+                }}>
+                  <Star size={12} color={plan.color} fill={plan.color} />
+                  <span style={{ color: plan.color, fontSize: '12px', fontWeight: '700' }}>Popular</span>
+                </div>
               )}
 
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-                <span style={{ fontSize: '40px' }}>{rank.emoji}</span>
-                <span style={{ background: rank.bg, border: `1px solid ${rank.border}`, color: rank.color, fontSize: '13px', fontWeight: '700', padding: '5px 14px', borderRadius: '9999px' }}>
-                  {rank.price}
+              {/* Plan name */}
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', fontWeight: '600', letterSpacing: '0.1em', margin: '0 0 20px 0' }}>
+                {plan.emoji} {plan.name}
+              </p>
+
+              {/* Price */}
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', marginBottom: '4px' }}>
+                <span style={{ color: plan.color, fontSize: '52px', fontWeight: '900', lineHeight: 1 }}>
+                  ${plan.price}
                 </span>
               </div>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '24px' }}>
+                / {plan.period}
+              </p>
 
-              <h3 style={{ color: rank.color, fontSize: '26px', fontWeight: '900', margin: '0 0 20px 0' }}>
-                {rank.name}
-              </h3>
-
+              {/* Features */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
-                {rank.benefits.map((benefit, i) => (
+                {plan.features.map((feature, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                    <span style={{ color: rank.color, fontSize: '13px', marginTop: '1px', flexShrink: 0, fontWeight: '700' }}>✓</span>
-                    <span style={{ color: 'rgba(255,255,255,0.65)', fontSize: '14px', lineHeight: '1.4' }}>{benefit}</span>
+                    <Check size={14} color={plan.color} style={{ marginTop: '2px', flexShrink: 0 }} />
+                    <span style={{ color: 'rgba(255,255,255,0.65)', fontSize: '13px', lineHeight: '1.4', textAlign: 'left' }}>{feature}</span>
                   </div>
                 ))}
               </div>
 
+              {/* Divider */}
+              <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', marginBottom: '20px' }} />
+
+              {/* Button */}
               <button
-                onClick={() => {
-                  if (!pendingRequest) {
-                    setSelectedRank(rank.id)
-                    setTimeout(() => {
-                      document.getElementById('payment-section')?.scrollIntoView({ 
-                        behavior: 'smooth' 
-                      })
-                    }, 100)
-                  }
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSelectedRank(plan.id)
+                  setTimeout(() => {
+                    document.getElementById('payment-section')?.scrollIntoView({ behavior: 'smooth' })
+                  }, 100)
                 }}
                 style={{
                   width: '100%',
                   padding: '13px',
-                  borderRadius: '9999px',
-                  border: `1px solid ${rank.border}`,
-                  background: selectedRank === rank.id ? rank.bg : 'transparent',
-                  color: rank.color,
+                  borderRadius: '12px',
+                  border: `1px solid ${plan.border}`,
+                  background: selectedRank === plan.id
+                    ? plan.id === 'verified' ? 'rgba(0,78,100,0.5)' : plan.id === 'premium' ? 'rgba(232,201,126,0.3)' : 'rgba(59,130,246,0.3)'
+                    : plan.isPopular ? plan.bg : 'transparent',
+                  color: plan.color,
                   fontWeight: '700',
                   fontSize: '15px',
-                  cursor: pendingRequest ? 'default' : 'pointer',
-                  transition: 'all 0.2s'
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  letterSpacing: '0.02em'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = plan.bg
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = selectedRank === plan.id ? plan.bg : plan.isPopular ? plan.bg : 'transparent'
+                  e.currentTarget.style.transform = 'translateY(0)'
                 }}
               >
-                {selectedRank === rank.id ? '✓ Selected' : 'Get ' + rank.name}
+                {selectedRank === plan.id ? '✓ Selected — Scroll to Pay' : plan.buttonText}
               </button>
-            </div>
+
+              {/* Description */}
+              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', textAlign: 'center', marginTop: '16px', lineHeight: '1.5' }}>
+                {plan.description}
+              </p>
+
+            </motion.div>
           ))}
         </div>
 
-        {selectedRank && !pendingRequest && (
+        {/* Payment Section */}
+        {selectedRank && (
           <PaymentSection
             selectedRank={selectedRank}
             user={user}
