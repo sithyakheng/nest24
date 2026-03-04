@@ -132,10 +132,39 @@ export default function AdminPage() {
   }
 
   async function approveRank(requestId: string, sellerId: string, rank: string) {
-    await supabase.from('rank_requests').update({ status: 'approved' }).eq('id', requestId)
-    await supabase.from('profiles').update({ rank }).eq('id', sellerId)
-    fetchAll()
+  console.log('Approving rank:', requestId, sellerId, rank)
+  
+  // Update rank request status
+  const { error: requestError } = await supabase
+    .from('rank_requests')
+    .update({ 
+      status: 'approved',
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', requestId)
+
+  console.log('Request update error:', requestError)
+
+  // Update seller profile rank
+  const { data, error: profileError } = await supabase
+    .from('profiles')
+    .update({ 
+      rank: rank,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', sellerId)
+    .select()
+
+  console.log('Profile update result:', data, profileError)
+
+  if (profileError) {
+    alert('Failed to update rank: ' + profileError.message)
+    return
   }
+
+  alert('Rank approved successfully!')
+  fetchAll()
+}
 
   async function rejectRank(requestId: string) {
     await supabase.from('rank_requests').update({ status: 'rejected' }).eq('id', requestId)
