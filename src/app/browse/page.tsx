@@ -14,74 +14,54 @@ function BrowseContent() {
   const searchParams = useSearchParams()
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [productsLoading, setProductsLoading] = useState(true)
   const [category, setCategory] = useState(searchParams.get('category') || 'All')
   const [search, setSearch] = useState(searchParams.get('search') || '')
   const [sort, setSort] = useState('newest')
 
   useEffect(() => {
     fetchProducts()
-  }, [category, sort])
+  }, [category, sort, search])
 
   async function fetchProducts() {
-  try {
-    let query = supabase
-      .from('products')
-      .select('*')
-      .order('created_at', { ascending: false })
+  setProductsLoading(true)
 
-    if (category !== 'All') {
-      query = query.eq('category', category)
-    }
+  const { data: productsData } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(50)
 
-    if (search && search.trim() !== '') {
-      query = query.ilike('name', `%${search.trim()}%`)
-    }
-
-    if (sort === 'price_asc') {
-      query = query.order('price', { ascending: true })
-    } else if (sort === 'price_desc') {
-      query = query.order('price', { ascending: false })
-    }
-
-    const { data: productsData, error: productsError } = await query
-    
-    if (productsError || !productsData) {
-      console.error('Browse products error:', productsError)
-      setProducts([])
-      return
-    }
-
-    // Get unique seller ids
-    const sellerIds = [...new Set(productsData.map((p: any) => p.seller_id))]
-
-    // Fetch seller profiles
-    const { data: profilesData } = await supabase
-      .from('profiles')
-      .select('id, name, full_name, avatar_url, rank, banned')
-      .in('id', sellerIds)
-
-    // Merge profiles into products
-    const merged = productsData.map((product: any) => ({
-      ...product,
-      profiles: profilesData?.find((p: any) => p.id === product.seller_id) || null
-    }))
-
-    const visible = merged.filter((p: any) => !p.profiles?.banned)
-    
-    const rankOrder: Record<string, number> = { 
-      premium: 3, verified: 2, starter: 1, none: 0 
-    }
-    const sorted = [...visible].sort((a: any, b: any) =>
-      (rankOrder[b.profiles?.rank || 'none'] || 0) - 
-      (rankOrder[a.profiles?.rank || 'none'] || 0)
-    )
-
-    setProducts(sorted)
-    console.log('First product profiles:', sorted[0]?.profiles)
-  } catch (err) {
-    console.error('Fetch error:', err)
-    setProducts([])
+  if (!productsData) {
+    setProductsLoading(false)
+    return
   }
+
+  const sellerIds = [...new Set(productsData.map((p: any) => p.seller_id))]
+
+  const { data: profilesData } = await supabase
+    .from('profiles')
+    .select('id, name, full_name, avatar_url, rank, banned')
+    .in('id', sellerIds)
+
+  const merged = productsData.map((product: any) => ({
+    ...product,
+    profiles: profilesData?.find((p: any) => p.id === product.seller_id) || null
+  }))
+
+  const visible = merged.filter((p: any) => !p.profiles?.banned)
+
+  const rankOrder: Record<string, number> = {
+    premium: 3, verified: 2, starter: 1, none: 0
+  }
+
+  const sorted = [...visible].sort((a: any, b: any) =>
+    (rankOrder[b.profiles?.rank || 'none'] || 0) -
+    (rankOrder[a.profiles?.rank || 'none'] || 0)
+  )
+
+  setProducts(sorted)
+  setProductsLoading(false)
 }
 
   return (
@@ -99,7 +79,7 @@ function BrowseContent() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && fetchProducts()}
-            placeholder="Search products..."
+            placeholder={t('home.search')}
             className="flex-1 min-w-64 bg-white/[0.06] border border-white/[0.12] 
             text-white placeholder:text-white/30 rounded-xl px-4 py-3 
             focus:outline-none focus:ring-2 focus:ring-teal-500/50"
@@ -137,13 +117,19 @@ function BrowseContent() {
           Products loaded: {products.length}
         </p>
 
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-80 bg-white/[0.04] rounded-2xl animate-pulse" />
-            ))}
-          </div>
-        ) : products.length === 0 ? (
+        {productsLoading ? (
+  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
+    {[...Array(8)].map((_, i) => (
+      <div key={i} style={{
+        height: '320px',
+        background: 'rgba(255,255,255,0.04)',
+        borderRadius: '20px',
+        border: '1px solid rgba(255,255,255,0.06)',
+        animation: 'pulse 1.5s ease-in-out infinite'
+      }} />
+    ))}
+  </div>
+) : products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center">
             <div className="bg-white/[0.06] border border-white/[0.12] rounded-2xl p-12">
               <p className="text-white/40 text-lg mb-4">{t('browse.no_products')}</p>
