@@ -17,6 +17,7 @@ export default function Navbar() {
   const [activeLink, setActiveLink] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [userRole, setUserRole] = useState('')
+  const { lang, toggleLang } = useLang()
 
   useEffect(() => {
     const path = window.location.pathname
@@ -412,6 +413,36 @@ export default function Navbar() {
             </div>
           ) : (
             <>
+              {/* Theme and Language Toggles */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {/* Language Toggle */}
+                <button
+                  onClick={toggleLang}
+                  style={{
+                    background: 'rgba(255,255,255,0.06)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    borderRadius: '9999px',
+                    padding: '6px 12px',
+                    cursor: 'pointer',
+                    fontSize: '18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    color: 'white',
+                    fontWeight: '600',
+                    transition: 'all 0.2s'
+                  }}
+                  title={lang === 'en' ? 'Switch to Khmer' : 'Switch to English'}
+                >
+                  {lang === 'en' ? '🇰🇭' : '🇬🇧'}
+                </button>
+
+                {/* Theme Toggle */}
+                <ThemeToggle />
+              </div>
+
               <Link
                 href="/login"
                 className="text-white/60 hover:text-white text-sm font-medium transition-all duration-200"
@@ -433,7 +464,6 @@ export default function Navbar() {
               >
                 Join Free
               </Link>
-              <ThemeToggle />
             </>
           )}
         </div>
