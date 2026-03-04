@@ -17,19 +17,21 @@
   --text-muted: rgba(255, 255, 255, 0.35);
   --orb-teal: rgba(0, 78, 100, 0.4);
   --orb-amber: rgba(232, 201, 126, 0.25);
+  --card-shadow: rgba(0, 0, 0, 0.3);
 }
 
 :root[data-theme="light"] {
   --bg-primary: #f0f4f8;
-  --bg-glass: rgba(255, 255, 255, 0.7);
-  --bg-glass-hover: rgba(255, 255, 255, 0.9);
+  --bg-glass: rgba(255, 255, 255, 0.75);
+  --bg-glass-hover: rgba(255, 255, 255, 0.95);
   --border-glass: rgba(0, 0, 0, 0.08);
-  --border-glass-top: rgba(255, 255, 255, 0.9);
+  --border-glass-top: rgba(255, 255, 255, 0.95);
   --text-primary: #0f172a;
-  --text-secondary: rgba(15, 23, 42, 0.6);
-  --text-muted: rgba(15, 23, 42, 0.35);
-  --orb-teal: rgba(0, 78, 100, 0.15);
-  --orb-amber: rgba(232, 201, 126, 0.2);
+  --text-secondary: rgba(15, 23, 42, 0.65);
+  --text-muted: rgba(15, 23, 42, 0.4);
+  --orb-teal: rgba(0, 78, 100, 0.12);
+  --orb-amber: rgba(232, 201, 126, 0.18);
+  --card-shadow: rgba(0, 0, 0, 0.08);
 }
 
 * {
@@ -47,6 +49,84 @@ body {
   color: var(--text-primary);
   overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* All text elements follow theme */
+h1, h2, h3, h4, h5, h6, p, span, a, label, button {
+  transition: color 0.3s ease;
+}
+
+/* Force text colors in light mode */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] p,
+[data-theme="light"] span:not(.badge) {
+  color: var(--text-primary);
+}
+
+/* Navbar in light mode */
+[data-theme="light"] nav {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] nav a,
+[data-theme="light"] nav span,
+[data-theme="light"] nav p {
+  color: #0f172a !important;
+}
+
+/* Glass cards in light mode */
+[data-theme="light"] .glass-card {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #0f172a !important;
+}
+
+/* Input fields in light mode */
+[data-theme="light"] input,
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: rgba(15, 23, 42, 0.4) !important;
+}
+
+/* Page backgrounds in light mode */
+[data-theme="light"] div[style*="background: #080a0f"],
+[data-theme="light"] div[style*="background:#080a0f"] {
+  background: #f0f4f8 !important;
+}
+
+/* All inline white text in light mode should be dark */
+[data-theme="light"] *[style*="color: white"],
+[data-theme="light"] *[style*="color:white"],
+[data-theme="light"] *[style*="color: #ffffff"],
+[data-theme="light"] *[style*="color: rgb(255, 255, 255)"] {
+  color: #0f172a !important;
+}
+
+/* Muted text in light mode */
+[data-theme="light"] *[style*="color: rgba(255,255,255,0.6)"],
+[data-theme="light"] *[style*="color: rgba(255,255,255,0.5)"],
+[data-theme="light"] *[style*="color: rgba(255,255,255,0.4)"],
+[data-theme="light"] *[style*="color: rgba(255,255,255,0.3)"] {
+  color: rgba(15, 23, 42, 0.5) !important;
+}
+
+/* Keep colored badges and accents */
+[data-theme="light"] *[style*="color: #4DB8CC"],
+[data-theme="light"] *[style*="color: #E8C97E"],
+[data-theme="light"] *[style*="color: #93c5fd"],
+[data-theme="light"] *[style*="color: #f87171"],
+[data-theme="light"] *[style*="color: #4ade80"] {
+  color: inherit !important;
 }
 
 html {
