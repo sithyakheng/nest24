@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 interface ProductCardProps {
@@ -13,6 +14,15 @@ const getImageUrl = (url: string): string => {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const [windowWidth, setWindowWidth] = useState(1200)
+  const isMobile = windowWidth < 768
+
+  useEffect(() => {
+    setWindowWidth(window.innerWidth)
+    const handleResize = () => setWindowWidth(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
   console.log('Product profiles rank:', product.profiles?.rank)
   
   // Determine rank-based styling
@@ -88,7 +98,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           e.currentTarget.style.boxShadow = rankStyle.boxShadow
         }}
       >
-        <div style={{ height: '200px', overflow: 'hidden', background: 'rgba(255,255,255,0.04)', position: 'relative' }}>
+        <div style={{ height: isMobile ? '160px' : '200px', overflow: 'hidden', background: 'rgba(255,255,255,0.04)', position: 'relative' }}>
           {product.image_url ? (
             <img
               src={getImageUrl(product.image_url)}
@@ -122,14 +132,14 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        <div style={{ padding: '16px' }}>
+        <div style={{ padding: isMobile ? '12px' : '16px' }}>
           <span style={{ color: '#4DB8CC', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '600' }}>
             {product.category}
           </span>
-          <p style={{ color: 'white', fontWeight: '600', fontSize: '15px', margin: '6px 0', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          <p style={{ color: 'white', fontWeight: '600', fontSize: isMobile ? '13px' : '15px', margin: '6px 0', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             {product.name}
           </p>
-          <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '18px', margin: '0 0 8px 0' }}>
+          <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: isMobile ? '16px' : '18px', margin: '0 0 8px 0' }}>
             ${product.price}
           </p>
           <Link href={`/seller/${product.profiles?.id}`} onClick={e => e.stopPropagation()}>

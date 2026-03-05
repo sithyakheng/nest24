@@ -10,6 +10,17 @@ export default function SellerShopPage() {
   const [seller, setSeller] = useState<any>(null)
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [windowWidth, setWindowWidth] = useState(1200)
+
+  const isMobile = windowWidth < 768
+  const isSmallMobile = windowWidth < 480
+
+  useEffect(() => {
+    setWindowWidth(window.innerWidth)
+    const handleResize = () => setWindowWidth(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   useEffect(() => {
     async function load() {
@@ -96,7 +107,7 @@ export default function SellerShopPage() {
             </div>
           )}
 
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '24px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '24px', flexWrap: 'wrap', flexDirection: isMobile ? 'column' : 'row' }}>
 
             {/* Avatar */}
             <div style={{
@@ -222,7 +233,7 @@ export default function SellerShopPage() {
               <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px' }}>This seller has no products yet</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isSmallMobile ? '1fr' : isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
               {products.map(product => (
                 <Link href={`/products/${product.id}`} key={product.id}>
                   <div

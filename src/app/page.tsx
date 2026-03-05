@@ -26,6 +26,17 @@ export default function HomePage() {
   const [premiumSellers, setPremiumSellers] = useState<any[]>([])
   const [topSellers, setTopSellers] = useState<any[]>([])
   const [newSellers, setNewSellers] = useState<any[]>([])
+  const [windowWidth, setWindowWidth] = useState(1200)
+
+  const isMobile = windowWidth < 768
+  const isSmallMobile = windowWidth < 480
+
+  useEffect(() => {
+    setWindowWidth(window.innerWidth)
+    const handleResize = () => setWindowWidth(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   useEffect(() => {
   fetchProducts()
@@ -304,7 +315,7 @@ async function fetchProducts() {
             </div>
 
             {productsLoading ? (
-  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+  <div style={{ display: 'grid', gridTemplateColumns: isSmallMobile ? '1fr' : isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
     {[...Array(6)].map((_, i) => (
       <div key={i} style={{
         height: '320px',
@@ -320,7 +331,7 @@ async function fetchProducts() {
     {t('home.no_products')}
   </div>
 ) : (
-  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+  <div style={{ display: 'grid', gridTemplateColumns: isSmallMobile ? '1fr' : isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
     {products.map((product: any) => (
       <ProductCard key={product.id} product={product} />
     ))}

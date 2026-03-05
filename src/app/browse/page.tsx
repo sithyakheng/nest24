@@ -18,6 +18,17 @@ function BrowseContent() {
   const [category, setCategory] = useState(searchParams.get('category') || 'All')
   const [search, setSearch] = useState(searchParams.get('search') || '')
   const [sort, setSort] = useState('newest')
+  const [windowWidth, setWindowWidth] = useState(1200)
+
+  const isMobile = windowWidth < 768
+  const isSmallMobile = windowWidth < 480
+
+  useEffect(() => {
+    setWindowWidth(window.innerWidth)
+    const handleResize = () => setWindowWidth(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   useEffect(() => {
     fetchProducts()
@@ -143,7 +154,7 @@ function BrowseContent() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" style={{ gridTemplateColumns: isSmallMobile ? '1fr' : isMobile ? 'repeat(2, 1fr)' : undefined }}>
             {products.map((product) => (
               <a href={`/products/${product.id}`} key={product.id}>
                 <div style={{

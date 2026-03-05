@@ -269,3 +269,22 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    overflow-x: hidden;
+  }
+
+  h1 { font-size: 28px !important; }
+  h2 { font-size: 22px !important; }
+
+  /* Hide scrollbar on horizontal scroll */
+  ::-webkit-scrollbar {
+    height: 0px;
+  }
+}

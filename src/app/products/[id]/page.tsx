@@ -11,6 +11,16 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<any>(null)
   const [seller, setSeller] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [windowWidth, setWindowWidth] = useState(1200)
+
+  const isMobile = windowWidth < 768
+
+  useEffect(() => {
+    setWindowWidth(window.innerWidth)
+    const handleResize = () => setWindowWidth(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   useEffect(() => {
     if (id) fetchProduct()
@@ -126,7 +136,7 @@ export default function ProductDetailPage() {
         {/* Main content */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 450px), 1fr))',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(100%, 450px), 1fr))',
           gap: '24px'
         }}>
 
@@ -139,7 +149,8 @@ export default function ProductDetailPage() {
             borderTop: '1px solid rgba(255,255,255,0.22)',
             borderRadius: '24px',
             overflow: 'hidden',
-            aspectRatio: '1',
+            height: isMobile ? '280px' : 'auto',
+            aspectRatio: isMobile ? undefined : '1',
           }}>
             {product.image_url ? (
               <img
@@ -168,7 +179,7 @@ export default function ProductDetailPage() {
             border: '1px solid rgba(255,255,255,0.12)',
             borderTop: '1px solid rgba(255,255,255,0.22)',
             borderRadius: '24px',
-            padding: '24px',
+            padding: isMobile ? '20px' : '24px',
             display: 'flex',
             flexDirection: 'column',
             gap: '16px'
