@@ -287,4 +287,18 @@ html {
   ::-webkit-scrollbar {
     height: 0px;
   }
+
+  /* Product card adjustments for 2 col */
+  .product-card-image {
+    height: 140px !important;
+  }
+  .product-card-padding {
+    padding: 10px !important;
+  }
+  .product-card-title {
+    font-size: 12px !important;
+  }
+  .product-card-price {
+    font-size: 14px !important;
+  }
 }

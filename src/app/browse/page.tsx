@@ -154,7 +154,7 @@ function BrowseContent() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" style={{ gridTemplateColumns: isSmallMobile ? '1fr' : isMobile ? 'repeat(2, 1fr)' : undefined }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" style={{ gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : undefined }}>
             {products.map((product) => (
               <a href={`/products/${product.id}`} key={product.id}>
                 <div style={{

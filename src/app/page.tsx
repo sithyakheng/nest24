@@ -315,7 +315,7 @@ async function fetchProducts() {
             </div>
 
             {productsLoading ? (
-  <div style={{ display: 'grid', gridTemplateColumns: isSmallMobile ? '1fr' : isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
     {[...Array(6)].map((_, i) => (
       <div key={i} style={{
         height: '320px',
@@ -331,7 +331,7 @@ async function fetchProducts() {
     {t('home.no_products')}
   </div>
 ) : (
-  <div style={{ display: 'grid', gridTemplateColumns: isSmallMobile ? '1fr' : isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
     {products.map((product: any) => (
       <ProductCard key={product.id} product={product} />
     ))}
