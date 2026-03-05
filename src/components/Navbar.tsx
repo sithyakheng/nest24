@@ -286,7 +286,7 @@ export default function Navbar() {
                   height: '2px', 
                   background: navTextColor, 
                   borderRadius: '2px', 
-                  transition: 'all 0.3s', 
+                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', 
                   transform: mobileMenuOpen ? 'rotate(45deg) translateY(7px)' : 'none' 
                 }} />
                 <div style={{ 
@@ -294,7 +294,7 @@ export default function Navbar() {
                   height: '2px', 
                   background: navTextColor, 
                   borderRadius: '2px', 
-                  transition: 'all 0.3s', 
+                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', 
                   opacity: mobileMenuOpen ? 0 : 1 
                 }} />
                 <div style={{ 
@@ -302,7 +302,7 @@ export default function Navbar() {
                   height: '2px', 
                   background: navTextColor, 
                   borderRadius: '2px', 
-                  transition: 'all 0.3s', 
+                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', 
                   transform: mobileMenuOpen ? 'rotate(-45deg) translateY(-7px)' : 'none' 
                 }} />
               </button>
@@ -597,7 +597,7 @@ export default function Navbar() {
           borderRight: `1px solid ${navBorder}`,
           zIndex: 999,
           transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 0.3s ease',
+          transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
           padding: '80px 24px 40px 24px',
           display: 'flex',
           flexDirection: 'column',
@@ -627,66 +627,36 @@ export default function Navbar() {
             <div className="w-2 h-2 bg-teal-400 rounded-full shadow-[0_0_10px_rgba(0,254,226,0.4)]"></div>
           </Link>
 
-          {/* Navigation Links */}
-          <Link
-            href="/browse"
-            onClick={() => setMobileMenuOpen(false)}
-            style={{
-              padding: '14px 16px',
-              borderRadius: '12px',
-              color: navTextColor,
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              border: '1px solid transparent',
-              display: 'block',
-              width: '100%'
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-          >
-            Browse
-          </Link>
-
-          <Link
-            href="/categories"
-            onClick={() => setMobileMenuOpen(false)}
-            style={{
-              padding: '14px 16px',
-              borderRadius: '12px',
-              color: navTextColor,
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              border: '1px solid transparent',
-              display: 'block',
-              width: '100%'
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-          >
-            Categories
-          </Link>
-
-          <Link
-            href="/about"
-            onClick={() => setMobileMenuOpen(false)}
-            style={{
-              padding: '14px 16px',
-              borderRadius: '12px',
-              color: navTextColor,
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              border: '1px solid transparent',
-              display: 'block',
-              width: '100%'
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-          >
-            About
-          </Link>
+          {/* Navigation Links with staggered animations */}
+          {[
+            { href: '/browse', label: 'Browse' },
+            { href: '/categories', label: 'Categories' },
+            { href: '/about', label: 'About' }
+          ].map((item, index) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              onClick={() => setMobileMenuOpen(false)}
+              style={{
+                padding: '14px 16px',
+                borderRadius: '12px',
+                color: navTextColor,
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                border: '1px solid transparent',
+                display: 'block',
+                width: '100%',
+                opacity: mobileMenuOpen ? 1 : 0,
+                transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(-20px)',
+                transition: `opacity 0.3s ease ${index * 0.05}s, transform 0.3s ease ${index * 0.05}s`
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              {item.label}
+            </Link>
+          ))}
 
           {/* Ranks for sellers */}
           {userRole === 'seller' && (
@@ -702,7 +672,10 @@ export default function Navbar() {
                 cursor: 'pointer',
                 border: '1px solid transparent',
                 display: 'block',
-                width: '100%'
+                width: '100%',
+                opacity: mobileMenuOpen ? 1 : 0,
+                transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(-20px)',
+                transition: 'opacity 0.3s ease 0.15s, transform 0.3s ease 0.15s'
               }}
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(232,201,126,0.1)'}
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -729,7 +702,10 @@ export default function Navbar() {
                   cursor: 'pointer',
                   border: '1px solid transparent',
                   display: 'block',
-                  width: '100%'
+                  width: '100%',
+                  opacity: mobileMenuOpen ? 1 : 0,
+                  transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(-20px)',
+                  transition: 'opacity 0.3s ease 0.2s, transform 0.3s ease 0.2s'
                 }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -748,7 +724,10 @@ export default function Navbar() {
                   cursor: 'pointer',
                   border: '1px solid transparent',
                   display: 'block',
-                  width: '100%'
+                  width: '100%',
+                  opacity: mobileMenuOpen ? 1 : 0,
+                  transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(-20px)',
+                  transition: 'opacity 0.3s ease 0.25s, transform 0.3s ease 0.25s'
                 }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -772,7 +751,10 @@ export default function Navbar() {
                   display: 'block',
                   width: '100%',
                   background: 'transparent',
-                  textAlign: 'left'
+                  textAlign: 'left',
+                  opacity: mobileMenuOpen ? 1 : 0,
+                  transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(-20px)',
+                  transition: 'opacity 0.3s ease 0.3s, transform 0.3s ease 0.3s'
                 }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,80,80,0.08)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -794,7 +776,10 @@ export default function Navbar() {
                   cursor: 'pointer',
                   border: '1px solid transparent',
                   display: 'block',
-                  width: '100%'
+                  width: '100%',
+                  opacity: mobileMenuOpen ? 1 : 0,
+                  transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(-20px)',
+                  transition: 'opacity 0.3s ease 0.2s, transform 0.3s ease 0.2s'
                 }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -815,7 +800,10 @@ export default function Navbar() {
                   border: 'none',
                   display: 'block',
                   width: '100%',
-                  textAlign: 'center'
+                  textAlign: 'center',
+                  opacity: mobileMenuOpen ? 1 : 0,
+                  transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(-20px)',
+                  transition: 'opacity 0.3s ease 0.25s, transform 0.3s ease 0.25s'
                 }}
               >
                 Join Free
@@ -834,7 +822,9 @@ export default function Navbar() {
             inset: 0, 
             zIndex: 998,
             background: 'rgba(0,0,0,0.5)',
-            display: mobileMenuOpen ? 'block' : 'none'
+            opacity: mobileMenuOpen ? 1 : 0,
+            pointerEvents: mobileMenuOpen ? 'all' : 'none',
+            transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
           }} 
         />
       )}
