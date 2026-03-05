@@ -303,9 +303,11 @@ export default function ProductDetailPage() {
                     )}
                   </div>
                   <div>
-                    <p style={{ color: 'white', fontWeight: '700', fontSize: '15px', margin: 0 }}>
-                      {seller.name || seller.full_name || 'Seller'}
-                    </p>
+                    <Link href={`/seller/${seller.id}`}>
+                      <p style={{ color: '#4DB8CC', fontWeight: '700', cursor: 'pointer' }}>
+                        {seller.name || seller.full_name}
+                      </p>
+                    </Link>
                     {seller.bio && (
                       <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', margin: '2px 0 0 0' }}>
                         {seller.bio}

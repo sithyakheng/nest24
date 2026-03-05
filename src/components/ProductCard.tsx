@@ -132,9 +132,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '18px', margin: '0 0 8px 0' }}>
             ${product.price}
           </p>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: 0 }}>
-            {rankStyle.badgeIcon} {product.profiles?.name || product.profiles?.full_name || 'Seller'}
-          </p>
+          <Link href={`/seller/${product.profiles?.id}`} onClick={e => e.stopPropagation()}>
+            <p style={{ color: '#4DB8CC', fontSize: '12px', margin: 0, cursor: 'pointer' }}>
+              by {product.profiles?.name || product.profiles?.full_name || 'Seller'}
+            </p>
+          </Link>
         </div>
       </div>
     </Link>

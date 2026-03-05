@@ -1,289 +1,282 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
-import { motion } from 'framer-motion'
-import Image from 'next/image'
-import Link from 'next/link'
-import { 
-  Phone, 
-  MessageCircle, 
-  Mail, 
-  Send, 
-  Facebook, 
-  Instagram, 
-  Package,
-  Calendar,
-  MapPin
-} from 'lucide-react'
-import PageWrapper from '@/components/PageWrapper'
-import ProductCard from '@/components/ProductCard'
+import { useEffect, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import Link from 'next/link'
 
-interface Seller {
-  id: string
-  full_name?: string
-  avatar_url?: string
-  bio?: string
-  phone?: string
-  whatsapp?: string
-  facebook?: string
-  instagram?: string
-  telegram?: string
-  email?: string
-  created_at?: string
-}
-
-interface Product {
-  id: string
-  name: string
-  price: number
-  original_price?: number
-  discount?: number
-  category: string
-  stock: number
-  image_url?: string
-  seller_id: string
-  created_at: string
-}
-
-export default function SellerProfilePage() {
-  const params = useParams()
-  const [seller, setSeller] = useState<Seller | null>(null)
-  const [products, setProducts] = useState<Product[]>([])
+export default function SellerShopPage() {
+  const { id } = useParams()
+  const [seller, setSeller] = useState<any>(null)
+  const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (params.id) {
-      fetchSellerData()
-    }
-  }, [params.id])
-
-  const fetchSellerData = async () => {
-    try {
+    async function load() {
       // Fetch seller profile
-      const { data: sellerData, error: sellerError } = await supabase
+      const { data: sellerData } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', params.id)
+        .eq('id', id)
         .single()
-
-      if (sellerError) throw sellerError
 
       setSeller(sellerData)
 
-      // Fetch seller's products
+      // Fetch seller products
       const { data: productsData } = await supabase
         .from('products')
         .select('*')
-        .eq('seller_id', params.id)
+        .eq('seller_id', id)
         .order('created_at', { ascending: false })
 
       setProducts(productsData || [])
-    } catch (error) {
-      console.error('Error fetching seller data:', error)
-    } finally {
       setLoading(false)
     }
+    load()
+  }, [id])
+
+  if (loading) return (
+    <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
+      Loading Shop...
+    </div>
+  )
+
+  if (!seller) return (
+    <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
+      Shop not found
+    </div>
+  )
+
+  const getImageUrl = (url: string) => {
+    if (!url) return ''
+    if (url.startsWith('http')) return url
+    return `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${url}` 
   }
 
-  if (loading) {
-    return (
-      <PageWrapper>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-white">Loading...</div>
-        </div>
-      </PageWrapper>
-    )
-  }
-
-  if (!seller) {
-    return (
-      <PageWrapper>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-white">Seller not found</div>
-        </div>
-      </PageWrapper>
-    )
-  }
-
-  const memberSince = seller.created_at 
-    ? new Date(seller.created_at).toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long' 
-      })
-    : 'Unknown'
-
-  const productCategories = [...new Set(products.map(p => p.category))]
+  const rankColor = seller.rank === 'premium' ? '#E8C97E' : seller.rank === 'verified' ? '#4DB8CC' : seller.rank === 'starter' ? '#93c5fd' : null
+  const rankBg = seller.rank === 'premium' ? 'rgba(232,201,126,0.15)' : seller.rank === 'verified' ? 'rgba(0,78,100,0.15)' : 'rgba(59,130,246,0.15)'
+  const rankBorder = seller.rank === 'premium' ? 'rgba(232,201,126,0.4)' : seller.rank === 'verified' ? 'rgba(0,78,100,0.4)' : 'rgba(59,130,246,0.4)'
 
   return (
-    <PageWrapper>
-      <div className="pt-24 px-6 pb-12">
-        
-        {/* Hero Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="max-w-4xl mx-auto mb-12"
-        >
-          <div className="bg-white/[0.06] backdrop-blur-xl border border-white/[0.12] rounded-2xl p-8">
-            
-            <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
-              
-              {/* Large Avatar */}
-              <div className="flex-shrink-0">
-                {seller.avatar_url ? (
-                  <div className="relative">
-                    <Image
-                      src={seller.avatar_url}
-                      alt={seller.full_name || 'Seller'}
-                      width={96}
-                      height={96}
-                      className="rounded-full object-cover border-2 border-amber-500/30"
-                    />
-                    <div className="absolute inset-0 rounded-full border-2 border-amber-500/30 animate-pulse"></div>
-                  </div>
-                ) : (
-                  <div className="w-24 h-24 bg-white/[0.12] rounded-full flex items-center justify-center border-2 border-amber-500/30">
-                    <span className="text-white text-3xl font-bold">
-                      {seller.full_name?.[0] || 'S'}
-                    </span>
-                  </div>
+    <div style={{ minHeight: '100vh', background: '#080a0f', paddingTop: '100px', paddingBottom: '60px', position: 'relative' }}>
+
+      {/* Orbs */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '-150px', left: '-100px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,78,100,0.4) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+        <div style={{ position: 'absolute', bottom: '-150px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,201,126,0.25) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+      </div>
+
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+
+        {/* Back button */}
+        <Link href="/browse">
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginBottom: '32px', cursor: 'pointer' }}>
+            ← Back to Browse
+          </div>
+        </Link>
+
+        {/* Shop Profile Header */}
+        <div style={{
+          background: 'rgba(255,255,255,0.06)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          border: rankColor ? `2px solid ${rankBorder}` : '1px solid rgba(255,255,255,0.12)',
+          borderTop: rankColor ? `2px solid ${rankBorder}` : '1px solid rgba(255,255,255,0.22)',
+          borderRadius: '24px',
+          padding: '40px',
+          marginBottom: '32px',
+          boxShadow: rankColor ? `0 0 40px ${rankBg}` : 'none'
+        }}>
+
+          {/* Premium banner */}
+          {seller.rank === 'premium' && (
+            <div style={{ background: 'rgba(232,201,126,0.1)', border: '1px solid rgba(232,201,126,0.3)', borderRadius: '12px', padding: '10px 16px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>⭐</span>
+              <p style={{ color: '#E8C97E', fontSize: '13px', fontWeight: '700', margin: 0 }}>Premium Seller — Top rated on NestKH</p>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '24px', flexWrap: 'wrap' }}>
+
+            {/* Avatar */}
+            <div style={{
+              width: '90px', height: '90px', borderRadius: '50%', flexShrink: 0,
+              background: rankColor ? rankBg : 'rgba(0,78,100,0.3)',
+              border: rankColor ? `3px solid ${rankBorder}` : '3px solid rgba(0,78,100,0.5)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: rankColor || '#4DB8CC', fontWeight: '900', fontSize: '32px',
+              overflow: 'hidden'
+            }}>
+              {seller.avatar_url ? (
+                <img src={seller.avatar_url} alt={seller.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                (seller.name || seller.full_name || 'S').charAt(0).toUpperCase()
+              )}
+            </div>
+
+            {/* Shop Info */}
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                <h1 style={{ color: 'white', fontSize: '28px', fontWeight: '900', margin: 0 }}>
+                  {seller.name || seller.full_name || 'Shop'}
+                </h1>
+                {rankColor && (
+                  <span style={{ background: rankBg, border: `1px solid ${rankBorder}`, color: rankColor, fontSize: '12px', fontWeight: '700', padding: '4px 12px', borderRadius: '9999px' }}>
+                    {seller.rank === 'premium' ? '⭐ Premium' : seller.rank === 'verified' ? '✓ Verified' : '🥉 Starter'}
+                  </span>
                 )}
               </div>
 
-              {/* Seller Info */}
-              <div className="flex-1 text-center md:text-left">
-                <h1 className="font-black text-white text-3xl mb-2">
-                  {seller.full_name || 'Seller'}
-                </h1>
-                
-                <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
-                  <span className="bg-teal-500/20 border border-teal-500/30 rounded-full px-3 py-1 text-sm text-teal-400 font-medium">
-                    Verified Seller
-                  </span>
-                  <span className="bg-white/[0.06] border border-white/[0.12] rounded-full px-3 py-1 text-sm text-white/60">
-                    Member Since {memberSince}
-                  </span>
-                  <span className="bg-white/[0.06] border border-white/[0.12] rounded-full px-3 py-1 text-sm text-white/60">
-                    {productCategories.length} Categories
-                  </span>
-                </div>
+              {seller.bio && (
+                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '15px', lineHeight: '1.6', margin: '0 0 16px 0', maxWidth: '600px' }}>
+                  {seller.bio}
+                </p>
+              )}
 
-                {seller.bio && (
-                  <p className="text-white/50 max-w-md leading-relaxed">
-                    {seller.bio}
-                  </p>
+              {/* Stats row */}
+              <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+                <div>
+                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 2px 0' }}>Products</p>
+                  <p style={{ color: 'white', fontWeight: '800', fontSize: '20px', margin: 0 }}>{products.length}</p>
+                </div>
+                {seller.rank && seller.rank !== 'none' && (
+                  <div>
+                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 2px 0' }}>Rank</p>
+                    <p style={{ color: rankColor || 'white', fontWeight: '800', fontSize: '20px', margin: 0 }}>
+                      {seller.rank.charAt(0).toUpperCase() + seller.rank.slice(1)}
+                    </p>
+                  </div>
                 )}
-
-                {/* Contact Icons */}
-                <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-6">
-                  {seller.phone && (
-                    <a
-                      href={`tel:${seller.phone}`}
-                      className="bg-white/[0.06] border border-white/[0.12] rounded-full p-3 text-white/60 hover:text-white hover:bg-white/[0.10] transition-all group hover:bg-green-600/20"
-                    >
-                      <Phone className="w-5 h-5" />
-                    </a>
-                  )}
-                  
-                  {seller.whatsapp && (
-                    <a
-                      href={`https://wa.me/${seller.whatsapp.replace(/[^\d]/g, '')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-white/[0.06] border border-white/[0.12] rounded-full p-3 text-white/60 hover:text-white hover:bg-white/[0.10] transition-all group hover:bg-green-600/20"
-                    >
-                      <MessageCircle className="w-5 h-5" />
-                    </a>
-                  )}
-                  
-                  {seller.facebook && (
-                    <a
-                      href={seller.facebook}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-white/[0.06] border border-white/[0.12] rounded-full p-3 text-white/60 hover:text-white hover:bg-white/[0.10] transition-all group hover:bg-indigo-600/20"
-                    >
-                      <Facebook className="w-5 h-5" />
-                    </a>
-                  )}
-                  
-                  {seller.instagram && (
-                    <a
-                      href={seller.instagram}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-white/[0.06] border border-white/[0.12] rounded-full p-3 text-white/60 hover:text-white hover:bg-white/[0.10] transition-all group hover:bg-pink-600/20"
-                    >
-                      <Instagram className="w-5 h-5" />
-                    </a>
-                  )}
-                  
-                  {seller.telegram && (
-                    <a
-                      href={`https://t.me/${seller.telegram.replace('@', '')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-white/[0.06] border border-white/[0.12] rounded-full p-3 text-white/60 hover:text-white hover:bg-white/[0.10] transition-all group hover:bg-blue-600/20"
-                    >
-                      <Send className="w-5 h-5" />
-                    </a>
-                  )}
-                </div>
+                {seller.rank === 'verified' || seller.rank === 'premium' ? (
+                  <div>
+                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 2px 0' }}>Status</p>
+                    <p style={{ color: '#4ade80', fontWeight: '700', fontSize: '14px', margin: 0 }}>🛡️ Trusted Seller</p>
+                  </div>
+                ) : null}
               </div>
             </div>
-          </div>
-        </motion.div>
 
-        {/* Products Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <div className="mb-6">
-            <span className="uppercase tracking-widest text-xs text-white/40 font-medium">LISTINGS</span>
-            <h2 className="font-black tracking-tight text-white text-2xl">
-              Products by {seller.full_name || 'Seller'}
+            {/* Contact Info */}
+            <div style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '16px',
+              padding: '20px',
+              minWidth: '200px'
+            }}>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px 0' }}>Contact</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {seller.phone && (
+                  <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: 0 }}>📞 {seller.phone}</p>
+                )}
+                {seller.whatsapp && (
+                  <a href={`https://wa.me/${seller.whatsapp.replace(/\D/g, '')}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none' }}>
+                    💬 WhatsApp
+                  </a>
+                )}
+                {seller.telegram && (
+                  <a href={`https://t.me/${seller.telegram.replace('@', '')}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none' }}>
+                    ✈️ Telegram
+                  </a>
+                )}
+                {seller.facebook && (
+                  <a href={seller.facebook.startsWith('http') ? seller.facebook : `https://${seller.facebook}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none' }}>
+                    👍 Facebook
+                  </a>
+                )}
+                {seller.instagram && (
+                  <a href={`https://instagram.com/${seller.instagram.replace('@', '')}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none' }}>
+                    📸 Instagram
+                  </a>
+                )}
+                {!seller.phone && !seller.whatsapp && !seller.telegram && !seller.facebook && !seller.instagram && (
+                  <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', margin: 0 }}>No contact info</p>
+                )}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Trusted seller message */}
+          {(seller.rank === 'verified' || seller.rank === 'premium') && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(0,200,100,0.08)', border: '1px solid rgba(0,200,100,0.2)', borderRadius: '10px', padding: '10px 14px', marginTop: '20px' }}>
+              <span>🛡️</span>
+              <p style={{ color: '#4ade80', fontSize: '13px', fontWeight: '600', margin: 0 }}>
+                This seller is trusted and verified by NestKH
+              </p>
+            </div>
+          )}
+
+        </div>
+
+        {/* Products Grid */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <h2 style={{ color: 'white', fontSize: '22px', fontWeight: '900', margin: 0 }}>
+              Products Listed ({products.length})
             </h2>
           </div>
 
           {products.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-white/[0.06] backdrop-blur-xl border border-white/[0.12] rounded-2xl p-12 text-center max-w-md mx-auto"
-            >
-              <Package className="w-12 h-12 text-white/30 mx-auto mb-4" />
-              <h3 className="font-black text-white text-xl mb-2">No products yet</h3>
-              <p className="text-white/50 mb-6">
-                This seller hasn't listed any products yet. Check back soon!
-              </p>
-              <Link
-                href="/browse"
-                className="inline-block bg-teal-500 hover:bg-teal-600 text-white rounded-full px-6 py-3 font-medium transition-colors"
-              >
-                Browse Other Products
-              </Link>
-            </motion.div>
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '60px', textAlign: 'center' }}>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px' }}>This seller has no products yet</p>
+            </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.08, duration: 0.5 }}
-                >
-                  <ProductCard product={product} />
-                </motion.div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
+              {products.map(product => (
+                <Link href={`/products/${product.id}`} key={product.id}>
+                  <div
+                    style={{
+                      background: 'rgba(255,255,255,0.06)',
+                      backdropFilter: 'blur(24px)',
+                      WebkitBackdropFilter: 'blur(24px)',
+                      border: rankColor ? `1px solid ${rankBorder}` : '1px solid rgba(255,255,255,0.12)',
+                      borderTop: '1px solid rgba(255,255,255,0.22)',
+                      borderRadius: '20px',
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.transform = 'translateY(-4px)'
+                      e.currentTarget.style.boxShadow = '0 16px 48px rgba(0,0,0,0.4)'
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.boxShadow = 'none'
+                    }}
+                  >
+                    <div style={{ height: '200px', overflow: 'hidden', background: 'rgba(255,255,255,0.04)', position: 'relative' }}>
+                      {product.image_url ? (
+                        <img src={getImageUrl(product.image_url)} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)' }}>No Image</div>
+                      )}
+                      {rankColor && (
+                        <span style={{ position: 'absolute', top: '8px', right: '8px', background: rankBg, border: `1px solid ${rankBorder}`, color: rankColor, fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '9999px', backdropFilter: 'blur(8px)' }}>
+                          {seller.rank === 'premium' ? '⭐ Premium' : seller.rank === 'verified' ? '✓ Verified' : '🥉 Starter'}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ padding: '16px' }}>
+                      <span style={{ color: '#4DB8CC', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '600' }}>{product.category}</span>
+                      <p style={{ color: 'white', fontWeight: '600', fontSize: '15px', margin: '6px 0', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</p>
+                      <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '18px', margin: '0 0 4px 0' }}>${product.price}</p>
+                      {product.stock <= 5 && product.stock > 0 && (
+                        <p style={{ color: '#f87171', fontSize: '12px', margin: 0 }}>Only {product.stock} left!</p>
+                      )}
+                      {product.stock === 0 && (
+                        <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', margin: 0 }}>Out of stock</p>
+                      )}
+                    </div>
+                  </div>
+                </Link>
               ))}
             </div>
           )}
-        </motion.div>
+        </div>
+
       </div>
-    </PageWrapper>
+    </div>
   )
 }
