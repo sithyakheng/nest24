@@ -179,20 +179,51 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
       </div>
 
       {/* ABA QR Code */}
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px' }}>
-          ABA Bank — Scan to Pay
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '12px',
+        marginBottom: '40px'
+      }}>
+        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
+          Scan to Pay
         </p>
-        <div style={{ display: 'inline-block', background: 'white', padding: '20px', borderRadius: '20px', boxShadow: '0 0 40px rgba(232,201,126,0.2)' }}>
+        <div style={{
+          background: 'white',
+          borderRadius: '16px',
+          padding: '12px',
+          boxShadow: '0 0 40px rgba(232,201,126,0.2)'
+        }}>
           <img
-            src={'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=NestKH-ABA-Payment-' + selectedRank}
-            alt="ABA Payment QR"
-            style={{ display: 'block', borderRadius: '10px' }}
+            src="https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/aba-qr.jpeg"
+            alt="ABA Bank QR Code"
+            style={{
+              width: '200px',
+              height: '200px',
+              objectFit: 'contain',
+              display: 'block',
+              borderRadius: '8px'
+            }}
           />
         </div>
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginTop: '12px' }}>
-          Pay to {selectedRank === 'premium' ? '$30' : selectedRank === 'verified' ? '$15' : '$5'} fee to activate your rank
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: 0, textAlign: 'center' }}>
+          Open ABA Mobile → Scan QR → Pay exact amount
         </p>
+        <div style={{
+          background: 'rgba(232,201,126,0.1)',
+          border: '1px solid rgba(232,201,126,0.3)',
+          borderRadius: '12px',
+          padding: '10px 20px',
+          textAlign: 'center'
+        }}>
+          <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '20px', margin: 0 }}>
+            ${selectedRank === 'starter' ? '5' : selectedRank === 'verified' ? '15' : '30'} USD
+          </p>
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '4px 0 0 0' }}>
+            {selectedRank === 'starter' ? 'Starter' : selectedRank === 'verified' ? 'Verified' : 'Premium'} Rank Payment
+          </p>
+        </div>
       </div>
 
       {/* Form */}
