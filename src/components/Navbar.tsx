@@ -51,12 +51,17 @@ export default function Navbar() {
 
   useEffect(() => {
     async function getRole() {
-      if (!user) return
+      if (!user) {
+        setUserRole('')
+        return
+      }
       const { data } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single()
+      
+      console.log('User role loaded:', data?.role)
       setUserRole(data?.role || '')
     }
     getRole()
@@ -297,6 +302,14 @@ export default function Navbar() {
                           <span>Profile</span>
                         </div>
                       </Link>
+                      {userRole === 'admin' && (
+                        <Link href="/admin" style={{ display: 'block', padding: '12px 16px', color: navTextColor, textDecoration: 'none', borderRadius: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <span style={{ fontSize: '14px' }}>⚙️</span>
+                            <span>Admin Panel</span>
+                          </div>
+                        </Link>
+                      )}
                       <button
                         onClick={handleSignOut}
                         style={{
@@ -510,7 +523,19 @@ export default function Navbar() {
                 </div>
                 {userRole === 'admin' && (
                   <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-                    <div style={{ padding: '12px 16px', borderRadius: '12px', color: '#E8C97E', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>⚙️ Admin Panel</div>
+                    <div style={{
+                      padding: '14px 16px',
+                      borderRadius: '12px',
+                      color: '#E8C97E',
+                      fontSize: '15px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      background: 'rgba(232,201,126,0.08)',
+                      border: '1px solid rgba(232,201,126,0.15)',
+                      marginTop: '4px'
+                    }}>
+                      ⚙️ Admin Panel
+                    </div>
                   </Link>
                 )}
                 {(userRole === 'seller' || userRole === 'admin') && (
