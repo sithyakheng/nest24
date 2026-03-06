@@ -232,24 +232,6 @@ export default function Navbar() {
 
             {/* RIGHT - Auth */}
             <div className="flex items-center space-x-2 md:space-x-4">
-              {/* Ranks - Only show for sellers (desktop only) */}
-              {userRole === 'seller' && (
-                <Link href="/dashboard/ranks">
-                  <span style={{
-                    color: '#E8C97E',
-                    fontSize: '14px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    padding: '6px 14px',
-                    borderRadius: '9999px',
-                    background: 'rgba(232,201,126,0.1)',
-                    border: '1px solid rgba(232,201,126,0.2)',
-                    transition: 'all 0.2s'
-                  }}>
-                    🏆 Ranks
-                  </span>
-                </Link>
-              )}
               
               {user ? (
                 <div style={{ position: 'relative' }}>

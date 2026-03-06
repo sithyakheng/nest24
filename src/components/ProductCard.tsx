@@ -111,8 +111,8 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
-          {/* Price Tag Badge - Top Left */}
-          {product.compare_price && product.compare_price > product.price && (
+          {/* Discount tag top left */}
+          {product.compare_price && Number(product.compare_price) > Number(product.price) && (
             <div style={{
               position: 'absolute',
               top: '0px',
@@ -127,10 +127,9 @@ export default function ProductCard({ product }: ProductCardProps) {
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
-              letterSpacing: '0.02em',
               boxShadow: '0 4px 12px rgba(239,68,68,0.4)'
             }}>
-              🏷️ {Math.round((1 - product.price / product.compare_price) * 100)}% OFF
+              🏷️ {Math.round((1 - Number(product.price) / Number(product.compare_price)) * 100)}% OFF
             </div>
           )}
 
@@ -163,7 +162,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </p>
           <div style={{ marginBottom: '8px' }}>
-          {product.compare_price && product.compare_price > product.price && (
+          {product.compare_price && Number(product.compare_price) > Number(product.price) && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
               <p style={{ 
                 color: 'rgba(255,255,255,0.35)', 
@@ -181,7 +180,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 padding: '2px 8px',
                 borderRadius: '9999px'
               }}>
-                -{Math.round((1 - product.price / product.compare_price) * 100)}% OFF
+                -{Math.round((1 - Number(product.price) / Number(product.compare_price)) * 100)}% OFF
               </span>
             </div>
           )}
