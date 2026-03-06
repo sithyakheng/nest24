@@ -11,14 +11,15 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-export const metadata: Metadata = {
-  title: "NestKH - Premium Cambodian Marketplace",
-  description: "Cambodia's premier digital marketplace connecting trusted local sellers with buyers.",
+export const metadata = {
+  title: 'NestKH - Premium Cambodian Marketplace',
+  description: "Cambodia's premier digital marketplace",
   icons: {
     icon: '/nestkh-logo.svg',
     apple: '/nestkh-logo.svg',
+    shortcut: '/nestkh-logo.svg',
   },
-};
+}
 
 export default function RootLayout({
   children,
