@@ -116,7 +116,16 @@ export default function Navbar() {
           <div className="flex items-center justify-between">
             {/* LEFT - Logo */}
             <Link href="/" className="flex items-center space-x-2">
-              <span style={{ color: navTextColor, fontWeight: '900', fontSize: '20px' }}>NestKH</span>
+              <img
+                src="https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/nestkh-logo.png"
+                alt="NestKH"
+                style={{
+                  height: '40px',
+                  width: 'auto',
+                  objectFit: 'contain',
+                  cursor: 'pointer'
+                }}
+              />
               <div className="w-2 h-2 bg-teal-400 rounded-full shadow-[0_0_10px_rgba(0,254,226,0.4)]"></div>
             </Link>
 
@@ -434,9 +443,15 @@ export default function Navbar() {
           }}>
             {/* Logo at top */}
             <div style={{ marginBottom: '32px', paddingBottom: '20px', borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}` }}>
-              <p style={{ color: navTextColor, fontWeight: '900', fontSize: '22px', margin: '0 0 4px 0' }}>
-                NestKH<span style={{ color: '#4DB8CC' }}>.</span>
-              </p>
+              <img
+                src="https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/nestkh-logo.png"
+                alt="NestKH"
+                style={{
+                  height: '44px',
+                  width: 'auto',
+                  objectFit: 'contain'
+                }}
+              />
               <p style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)', fontSize: '12px', margin: 0 }}>{t('home.badge')}</p>
             </div>
 

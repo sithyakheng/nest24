@@ -47,9 +47,20 @@ export default function AboutPage() {
           }}>
             {t('about.badge')}
           </span>
-          <h1 style={{ color: 'white', fontSize: '42px', fontWeight: '900', margin: '0 0 16px 0' }}>
-            {t('about.title')} NestKH
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+            <img
+              src="https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/nestkh-logo.png"
+              alt="NestKH"
+              style={{
+                height: '60px',
+                width: 'auto',
+                objectFit: 'contain'
+              }}
+            />
+            <h1 style={{ color: 'white', fontSize: '42px', fontWeight: '900', margin: 0 }}>
+              {t('about.title')}
+            </h1>
+          </div>
           <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '17px', lineHeight: '1.7', fontWeight: '300', margin: 0 }}>
             {t('about.desc')}
           </p>

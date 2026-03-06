@@ -76,6 +76,16 @@ export default function RegisterPage() {
         width: '100%',
         maxWidth: isMobile ? '100%' : '440px',
       }}>
+        <img
+          src="https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/nestkh-logo.png"
+          alt="NestKH"
+          style={{
+            height: '50px',
+            width: 'auto',
+            objectFit: 'contain',
+            marginBottom: '8px'
+          }}
+        />
         <h1 className="text-3xl font-black text-white mb-2">{t('auth.register_title')}</h1>
         <p className="text-white/50 font-light mb-8">{t('auth.register_sub')}</p>
 
