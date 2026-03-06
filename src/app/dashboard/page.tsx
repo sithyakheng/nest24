@@ -113,6 +113,54 @@ useEffect(() => {
   return () => { if (sub) supabase.removeChannel(sub) }
 }, [])
 
+async function compressImage(file: File): Promise<File> {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = (e) => {
+      const img = new Image()
+      img.src = e.target?.result as string
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        
+        // Max width 1200px
+        let width = img.width
+        let height = img.height
+        if (width > 1200) {
+          height = Math.round((height * 1200) / width)
+          width = 1200
+        }
+        
+        canvas.width = width
+        canvas.height = height
+        
+        const ctx = canvas.getContext('2d')
+        ctx?.drawImage(img, 0, 0, width, height)
+        
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File(
+                [blob], 
+                file.name.replace(/\.[^/.]+$/, '.webp'),
+                { type: 'image/webp' }
+              )
+              console.log(
+                `Compressed: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB` 
+              )
+              resolve(compressedFile)
+            } else {
+              resolve(file)
+            }
+          },
+          'image/webp',
+          0.82
+        )
+      }
+    }
+  })
+}
+
   async function handleAddProduct() {
     console.log('Starting add product...')
     console.log('productName:', productName)
@@ -130,15 +178,14 @@ useEffect(() => {
     let imageUrl = ''
 
     if (productImage) {
-      console.log('Uploading image...')
-      const fileExt = productImage.name.split('.').pop()
-      const fileName = `product-${user.id}-${Date.now()}.${fileExt}` 
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      console.log('Compressing image...')
+      const compressed = await compressImage(productImage)
+      
+      const fileName = `product-${user.id}-${Date.now()}.webp` 
+      const { error: uploadError } = await supabase.storage
         .from('Product')
-        .upload(fileName, productImage)
-      
-      console.log('Upload result:', uploadData, uploadError)
-      
+        .upload(fileName, compressed)
+
       if (uploadError) {
         setAddError('Image upload failed: ' + uploadError.message)
         setAddingProduct(false)
@@ -149,7 +196,6 @@ useEffect(() => {
         .from('Product')
         .getPublicUrl(fileName)
       imageUrl = urlData.publicUrl
-      console.log('Image URL:', imageUrl)
     }
 
     const insertData = {
@@ -598,8 +644,27 @@ useEffect(() => {
                         </div>
                       )}
                     </div>
-                    <input id="product-image-upload" type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) { setProductImage(f); setProductImagePreview(URL.createObjectURL(f)) } }} style={{ display: 'none' }} />
+                    <input id="product-image-upload" type="file" accept="image/*" onChange={e => {
+                      const f = e.target.files?.[0]
+                      if (!f) return
+                      
+                      // Check file size warning
+                      if (f.size > 10 * 1024 * 1024) {
+                        setAddError('Image too large. Max 10MB.')
+                        return
+                      }
+                      
+                      setProductImage(f)
+                      setProductImagePreview(URL.createObjectURL(f))
+                      setAddError('')
+                    }} style={{ display: 'none' }} />
                   </div>
+
+                  {productImage && (
+                    <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '11px', marginTop: '6px', textAlign: 'center' }}>
+                      Original: {(productImage.size / 1024 / 1024).toFixed(2)}MB → Will be compressed automatically ✓
+                    </p>
+                  )}
 
                   {addError && (
                     <div style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.2)', borderRadius: '12px', padding: '12px 16px', color: '#f87171', fontSize: '14px' }}>

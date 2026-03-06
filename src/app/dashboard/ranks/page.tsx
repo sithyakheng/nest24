@@ -22,6 +22,54 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
 
+  async function compressImage(file: File): Promise<File> {
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = (e) => {
+        const img = new Image()
+        img.src = e.target?.result as string
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          
+          // Max width 1200px
+          let width = img.width
+          let height = img.height
+          if (width > 1200) {
+            height = Math.round((height * 1200) / width)
+            width = 1200
+          }
+          
+          canvas.width = width
+          canvas.height = height
+          
+          const ctx = canvas.getContext('2d')
+          ctx?.drawImage(img, 0, 0, width, height)
+          
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const compressedFile = new File(
+                  [blob], 
+                  file.name.replace(/\.[^/.]+$/, '.webp'),
+                  { type: 'image/webp' }
+                )
+                console.log(
+                  `Compressed: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB` 
+                )
+                resolve(compressedFile)
+              } else {
+                resolve(file)
+              }
+            },
+            'image/webp',
+            0.82
+          )
+        }
+      }
+    })
+  }
+
   function handleScreenshot(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -37,13 +85,14 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
     setUploading(true)
     setError('')
 
-    // Upload screenshot to Supabase storage
-    const fileExt = screenshot.name.split('.').pop()
-    const fileName = `rank-payment-${user.id}-${Date.now()}.${fileExt}` 
+    // Upload screenshot to Supabase storage with compression
+    console.log('Compressing screenshot...')
+    const compressed = await compressImage(screenshot)
     
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const fileName = `rank-payment-${user.id}-${Date.now()}.webp` 
+    const { error: uploadError } = await supabase.storage
       .from('Product')
-      .upload(fileName, screenshot)
+      .upload(fileName, compressed)
 
     if (uploadError) {
       setError('Failed to upload screenshot. Try again.')
