@@ -479,7 +479,7 @@ async function fetchProducts() {
         <div style={{
           display: 'flex',
           width: 'max-content',
-          animation: 'marquee 25s linear infinite',
+          animation: 'marquee 45s linear infinite',
         }}>
           {[...Array(2)].map((_, dupIndex) => (
             <div key={dupIndex} style={{ display: 'flex', alignItems: 'center' }}>
