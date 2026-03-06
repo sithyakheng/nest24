@@ -234,7 +234,7 @@ export default function SellerShopPage() {
               <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px' }}>{t('seller.no_products')}</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: isMobile ? '10px' : '20px' }}>
               {products.map(product => (
                 <Link href={`/products/${product.id}`} key={product.id}>
                   <div
