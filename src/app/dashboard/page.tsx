@@ -236,7 +236,7 @@ useEffect(() => {
   )
 
   const glassCard = {
-    background: 'rgba(255,255,255,0.06)',
+    background: 'rgba(16,185,129,0.03)',
     backdropFilter: 'blur(24px)',
     WebkitBackdropFilter: 'blur(24px)',
     border: '1px solid rgba(255,255,255,0.12)',
@@ -258,6 +258,17 @@ useEffect(() => {
     boxSizing: 'border-box' as const
   }
 
+  const inputFocusProps = {
+    onFocus: (e: any) => { 
+      e.currentTarget.style.borderColor = 'rgba(16,185,129,0.4)'
+      e.currentTarget.style.boxShadow = '0 0 0 2px rgba(16,185,129,0.1)'
+    },
+    onBlur: (e: any) => { 
+      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'
+      e.currentTarget.style.boxShadow = 'none'
+    }
+  }
+
   const navItems = [
     { id: 'overview', label: '📊 Overview' },
     { id: 'products', label: '📦 My Products' },
@@ -270,8 +281,8 @@ useEffect(() => {
     <div style={{ minHeight: '100vh', background: '#080a0f', paddingTop: '40px', paddingBottom: '60px', position: 'relative' }}>
 
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-150px', left: '-100px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,78,100,0.4) 0%, transparent 70%)', filter: 'blur(80px)' }} />
-        <div style={{ position: 'absolute', bottom: '-150px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,201,126,0.25) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+        <div style={{ position: 'absolute', top: '-150px', left: '-100px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.3) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+        <div style={{ position: 'absolute', bottom: '-150px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,158,11,0.2) 0%, transparent 70%)', filter: 'blur(80px)' }} />
       </div>
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 10, display: 'grid', gridTemplateColumns: '260px 1fr', gap: '24px', alignItems: 'start' }}>
@@ -279,11 +290,11 @@ useEffect(() => {
         {/* SIDEBAR */}
         <div style={{ ...glassCard, padding: '24px', position: 'sticky', top: '24px' }}>
           <div style={{ textAlign: 'center', marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(0,78,100,0.4)', border: '2px solid rgba(0,78,100,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4DB8CC', fontWeight: '900', fontSize: '24px', margin: '0 auto 12px auto' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(16,185,129,0.4)', border: '2px solid rgba(16,185,129,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981', fontWeight: '900', fontSize: '24px', margin: '0 auto 12px auto' }}>
               {(profile?.name || profile?.full_name || 'S').charAt(0).toUpperCase()}
             </div>
             <p style={{ color: 'white', fontWeight: '700', fontSize: '15px', margin: '0 0 4px 0' }}>{profile?.name || profile?.full_name || 'Seller'}</p>
-            <span style={{ background: 'rgba(0,78,100,0.3)', border: '1px solid rgba(0,78,100,0.5)', color: '#4DB8CC', fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '9999px' }}>Seller</span>
+            <span style={{ background: 'rgba(16,185,129,0.3)', border: '1px solid rgba(16,185,129,0.5)', color: '#10B981', fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '9999px' }}>Seller</span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -300,11 +311,11 @@ useEffect(() => {
                 style={{
                   display: 'flex', alignItems: 'center', gap: '10px',
                   padding: '10px 14px', borderRadius: '12px',
-                  color: activeTab === item.id ? '#4DB8CC' : 'rgba(255,255,255,0.6)',
+                  color: activeTab === item.id ? '#10B981' : 'rgba(255,255,255,0.6)',
                   fontSize: '14px', fontWeight: activeTab === item.id ? '600' : '400',
                   cursor: 'pointer',
-                  background: activeTab === item.id ? 'rgba(0,78,100,0.2)' : 'transparent',
-                  border: activeTab === item.id ? '1px solid rgba(0,78,100,0.3)' : '1px solid transparent',
+                  background: activeTab === item.id ? 'rgba(16,185,129,0.2)' : 'transparent',
+                  border: activeTab === item.id ? '1px solid rgba(16,185,129,0.3)' : '1px solid transparent',
                   transition: 'all 0.2s'
                 }}
               >
@@ -313,7 +324,7 @@ useEffect(() => {
             ))}
 
             <Link href="/dashboard/ranks">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: '#E8C97E', fontSize: '14px', fontWeight: '600', cursor: 'pointer', marginTop: '8px', background: 'rgba(232,201,126,0.08)', border: '1px solid rgba(232,201,126,0.15)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: '#F59E0B', fontSize: '14px', fontWeight: '600', cursor: 'pointer', marginTop: '8px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)' }}>
                 🏆 Get Ranked
               </div>
             </Link>
@@ -339,8 +350,8 @@ useEffect(() => {
               </h1>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                 {[
-                  { label: 'Total Products', value: products.length, color: '#4DB8CC' },
-                  { label: 'Total Orders', value: orders.length, color: '#E8C97E' },
+                  { label: 'Total Products', value: products.length, color: '#10B981' },
+                  { label: 'Total Orders', value: orders.length, color: '#F59E0B' },
                   { label: 'Pending Orders', value: orders.filter(o => o.status === 'pending').length, color: '#f87171' },
                   { label: 'Current Rank', value: profile?.rank && profile.rank !== 'none' ? profile.rank.charAt(0).toUpperCase() + profile.rank.slice(1) : 'None', color: '#a78bfa' },
                 ].map((stat, i) => (
@@ -355,16 +366,16 @@ useEffect(() => {
               <div style={{
                 background: profile?.rank && profile.rank !== 'none'
                   ? profile.rank === 'premium' 
-                    ? 'rgba(232,201,126,0.08)' 
+                    ? 'rgba(245,158,11,0.08)' 
                     : profile.rank === 'verified'
-                    ? 'rgba(0,78,100,0.08)'
+                    ? 'rgba(16,185,129,0.08)'
                     : 'rgba(59,130,246,0.08)'
                   : 'rgba(255,255,255,0.04)',
                 border: `1px solid ${profile?.rank && profile.rank !== 'none'
                   ? profile.rank === 'premium'
-                    ? 'rgba(232,201,126,0.25)'
+                    ? 'rgba(245,158,11,0.25)'
                     : profile.rank === 'verified'
-                    ? 'rgba(0,78,100,0.3)'
+                    ? 'rgba(16,185,129,0.3)'
                     : 'rgba(59,130,246,0.25)'
                   : 'rgba(255,255,255,0.08)'}`,
                 borderRadius: '16px',
@@ -386,7 +397,7 @@ useEffect(() => {
                     </p>
                     <p style={{ 
                       fontWeight: '900', fontSize: '20px', margin: 0,
-                      color: profile?.rank === 'premium' ? '#E8C97E' : profile?.rank === 'verified' ? '#4DB8CC' : profile?.rank === 'starter' ? '#93c5fd' : 'rgba(255,255,255,0.4)'
+                      color: profile?.rank === 'premium' ? '#F59E0B' : profile?.rank === 'verified' ? '#10B981' : profile?.rank === 'starter' ? '#93c5fd' : 'rgba(255,255,255,0.4)'
                     }}>
                       {profile?.rank && profile.rank !== 'none' 
                         ? profile.rank.charAt(0).toUpperCase() + profile.rank.slice(1) 
@@ -403,7 +414,7 @@ useEffect(() => {
                   <button style={{
                     background: profile?.rank && profile.rank !== 'none' 
                       ? 'rgba(255,255,255,0.06)' 
-                      : 'linear-gradient(135deg, #E8C97E, #F0B429)',
+                      : 'linear-gradient(135deg, #F59E0B, #D97706)',
                     color: profile?.rank && profile.rank !== 'none' ? 'rgba(255,255,255,0.6)' : 'black',
                     fontWeight: '700',
                     borderRadius: '9999px',
@@ -448,7 +459,7 @@ useEffect(() => {
                       </div>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <Link href={`/products/${product.id}`}>
-                          <button style={{ background: 'rgba(0,78,100,0.3)', border: '1px solid rgba(0,78,100,0.5)', color: '#4DB8CC', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px' }}>
+                          <button style={{ background: 'rgba(16,185,129,0.3)', border: '1px solid rgba(16,185,129,0.5)', color: '#10B981', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px' }}>
                             View
                           </button>
                         </Link>
@@ -472,22 +483,22 @@ useEffect(() => {
 
                   <div>
                     <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Name</label>
-                    <input type="text" value={productName} onChange={e => setProductName(e.target.value)} placeholder="Enter product name" style={inputStyle} />
+                    <input type="text" value={productName} onChange={e => setProductName(e.target.value)} placeholder="Enter product name" style={inputStyle} {...inputFocusProps} />
                   </div>
 
                   <div>
                     <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Description</label>
-                    <textarea value={productDesc} onChange={e => setProductDesc(e.target.value)} placeholder="Describe your product" rows={4} style={{ ...inputStyle, resize: 'vertical' }} />
+                    <textarea value={productDesc} onChange={e => setProductDesc(e.target.value)} placeholder="Describe your product" rows={4} style={{ ...inputStyle, resize: 'vertical' }} {...inputFocusProps} />
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div>
                       <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Price ($)</label>
-                      <input type="number" value={productPrice} onChange={e => setProductPrice(e.target.value)} placeholder="0.00" style={inputStyle} />
+                      <input type="number" value={productPrice} onChange={e => setProductPrice(e.target.value)} placeholder="0.00" style={inputStyle} {...inputFocusProps} />
                     </div>
                     <div>
                       <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Stock</label>
-                      <input type="number" value={productStock} onChange={e => setProductStock(e.target.value)} placeholder="0" style={inputStyle} />
+                      <input type="number" value={productStock} onChange={e => setProductStock(e.target.value)} placeholder="0" style={inputStyle} {...inputFocusProps} />
                     </div>
                   </div>
 
@@ -500,13 +511,13 @@ useEffect(() => {
                     </div>
                     <div>
                       <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Discount (%)</label>
-                      <input type="number" value={productDiscount} onChange={e => setProductDiscount(e.target.value)} placeholder="0" style={inputStyle} />
+                      <input type="number" value={productDiscount} onChange={e => setProductDiscount(e.target.value)} placeholder="0" style={inputStyle} {...inputFocusProps} />
                     </div>
                   </div>
 
                   <div>
                     <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Image</label>
-                    <div onClick={() => document.getElementById('product-image-upload')?.click()} style={{ background: 'rgba(255,255,255,0.04)', border: productImagePreview ? '1px solid rgba(0,78,100,0.5)' : '2px dashed rgba(255,255,255,0.15)', borderRadius: '16px', padding: '24px', textAlign: 'center', cursor: 'pointer', overflow: 'hidden' }}>
+                    <div onClick={() => document.getElementById('product-image-upload')?.click()} style={{ background: 'rgba(255,255,255,0.04)', border: productImagePreview ? '1px solid rgba(16,185,129,0.5)' : '2px dashed rgba(255,255,255,0.15)', borderRadius: '16px', padding: '24px', textAlign: 'center', cursor: 'pointer', overflow: 'hidden' }}>
                       {productImagePreview ? (
                         <img src={productImagePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px', objectFit: 'contain' }} />
                       ) : (
@@ -531,7 +542,7 @@ useEffect(() => {
                     </div>
                   )}
 
-                  <button onClick={handleAddProduct} disabled={addingProduct} style={{ background: addingProduct ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #E8C97E, #F0B429)', color: addingProduct ? 'rgba(255,255,255,0.4)' : 'black', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: addingProduct ? 'not-allowed' : 'pointer', width: '100%' }}>
+                  <button onClick={handleAddProduct} disabled={addingProduct} style={{ background: addingProduct ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #10B981, #059669)', color: addingProduct ? 'rgba(255,255,255,0.4)' : 'white', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: addingProduct ? 'not-allowed' : 'pointer', width: '100%' }}>
                     {addingProduct ? 'Adding Product...' : 'Add Product ✓'}
                   </button>
 
@@ -585,9 +596,9 @@ useEffect(() => {
                     <div key={field.label}>
                       <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>{field.label}</label>
                       {field.textarea ? (
-                        <textarea value={field.value} onChange={(e: any) => field.setter(e.target.value)} placeholder={field.placeholder} rows={3} style={{ ...inputStyle, resize: 'vertical' }} />
+                        <textarea value={field.value} onChange={(e: any) => field.setter(e.target.value)} placeholder={field.placeholder} rows={3} style={{ ...inputStyle, resize: 'vertical' }} {...inputFocusProps} />
                       ) : (
-                        <input type="text" value={field.value} onChange={(e: any) => field.setter(e.target.value)} placeholder={field.placeholder} style={inputStyle} />
+                        <input type="text" value={field.value} onChange={(e: any) => field.setter(e.target.value)} placeholder={field.placeholder} style={inputStyle} {...inputFocusProps} />
                       )}
                     </div>
                   ))}
@@ -598,7 +609,7 @@ useEffect(() => {
                     </div>
                   )}
 
-                  <button onClick={handleSaveProfile} disabled={savingProfile} style={{ background: savingProfile ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #E8C97E, #F0B429)', color: savingProfile ? 'rgba(255,255,255,0.4)' : 'black', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: savingProfile ? 'not-allowed' : 'pointer', width: '100%' }}>
+                  <button onClick={handleSaveProfile} disabled={savingProfile} style={{ background: savingProfile ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #F59E0B, #D97706)', color: savingProfile ? 'rgba(255,255,255,0.4)' : 'black', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: savingProfile ? 'not-allowed' : 'pointer', width: '100%' }}>
                     {savingProfile ? 'Saving...' : 'Save Changes ✓'}
                   </button>
 
