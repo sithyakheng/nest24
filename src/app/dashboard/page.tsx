@@ -248,10 +248,37 @@ async function compressImage(file: File): Promise<File> {
     setTimeout(() => setAddSuccess(false), 3000)
   }
 
-  async function handleDeleteProduct(productId: string) {
-    if (!confirm('Delete this product?')) return
-    await supabase.from('products').delete().eq('id', productId)
-    setProducts(products.filter(p => p.id !== productId))
+  async function handleDeleteProduct(productId: string, imageUrl: string) {
+    if (!confirm('Are you sure you want to delete this product?')) return
+
+    // Extract file name from image URL and delete from storage
+    if (imageUrl) {
+      try {
+        const fileName = imageUrl.split('/Product/')[1]
+        if (fileName) {
+          const { error: storageError } = await supabase.storage
+            .from('Product')
+            .remove([fileName])
+          console.log('Image deleted from storage:', fileName, storageError)
+        }
+      } catch (e) {
+        console.log('Could not delete image from storage:', e)
+      }
+    }
+
+    // Delete product from database
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', productId)
+
+    if (error) {
+      alert('Failed to delete product: ' + error.message)
+      return
+    }
+
+    // Refresh products list
+    setProducts(prev => prev.filter((p: any) => p.id !== productId))
   }
 
   async function handleSaveProfile() {
@@ -531,7 +558,7 @@ async function compressImage(file: File): Promise<File> {
                             View
                           </button>
                         </Link>
-                        <button onClick={() => handleDeleteProduct(product.id)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px' }}>
+                        <button onClick={() => handleDeleteProduct(product.id, product.image_url)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px' }}>
                           Delete
                         </button>
                       </div>
