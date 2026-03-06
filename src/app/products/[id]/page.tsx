@@ -208,14 +208,22 @@ export default function ProductDetailPage() {
             </h1>
 
             {/* Price */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{
-                color: '#E8C97E',
-                fontSize: '32px',
-                fontWeight: '900'
-              }}>
-                ${product.price}
-              </span>
+            <div style={{ marginBottom: '16px' }}>
+              {product.compare_price && product.compare_price > product.price && (
+                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '16px', textDecoration: 'line-through', margin: '0 0 4px 0' }}>
+                  ${product.compare_price}
+                </p>
+              )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '32px', margin: '0 0 8px 0' }}>
+                  ${product.price}
+                  {product.compare_price && product.compare_price > product.price && (
+                    <span style={{ background: 'linear-gradient(135deg, #f87171, #ef4444)', color: 'white', fontSize: '13px', fontWeight: '800', padding: '3px 10px', borderRadius: '9999px', marginLeft: '12px' }}>
+                      {Math.round((1 - product.price / product.compare_price) * 100)}% OFF
+                    </span>
+                  )}
+                </p>
+              </div>
               {product.discount > 0 && (
                 <span style={{
                   color: 'rgba(255,255,255,0.3)',

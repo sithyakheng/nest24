@@ -296,6 +296,7 @@ export default function RanksPage() {
       id: 'starter',
       name: 'STARTER',
       price: 5,
+      originalPrice: 6,
       period: 'per month',
       emoji: '🥉',
       color: '#93c5fd',
@@ -315,6 +316,7 @@ export default function RanksPage() {
       id: 'verified',
       name: 'VERIFIED',
       price: 15,
+      originalPrice: 19,
       period: 'per month',
       emoji: '✓',
       color: '#4DB8CC',
@@ -336,6 +338,7 @@ export default function RanksPage() {
       id: 'premium',
       name: 'PREMIUM',
       price: 30,
+      originalPrice: 38,
       period: 'per month',
       emoji: '⭐',
       color: '#E8C97E',
@@ -478,7 +481,33 @@ export default function RanksPage() {
                 {plan.emoji} {plan.name}
               </p>
 
-              {/* Price */}
+              {/* 20% OFF badge */}
+              <span style={{
+                display: 'inline-block',
+                background: 'linear-gradient(135deg, #f87171, #ef4444)',
+                color: 'white',
+                fontSize: '11px',
+                fontWeight: '800',
+                padding: '3px 10px',
+                borderRadius: '9999px',
+                marginBottom: '8px',
+                letterSpacing: '0.05em'
+              }}>
+                20% OFF
+              </span>
+
+              {/* Original price crossed out */}
+              <p style={{
+                color: 'rgba(255,255,255,0.35)',
+                fontSize: '16px',
+                fontWeight: '600',
+                margin: '0 0 4px 0',
+                textDecoration: 'line-through'
+              }}>
+                ${plan.originalPrice}
+              </p>
+
+              {/* Real price */}
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', marginBottom: '4px' }}>
                 <span style={{ color: plan.color, fontSize: '52px', fontWeight: '900', lineHeight: 1 }}>
                   ${plan.price}

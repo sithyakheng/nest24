@@ -18,6 +18,7 @@ export default function DashboardPage() {
   const [productName, setProductName] = useState('')
   const [productDesc, setProductDesc] = useState('')
   const [productPrice, setProductPrice] = useState('')
+  const [comparePrice, setComparePrice] = useState('')
   const [productCategory, setProductCategory] = useState('Electronics')
   const [productStock, setProductStock] = useState('')
   const [productDiscount, setProductDiscount] = useState('')
@@ -156,6 +157,7 @@ useEffect(() => {
       name: productName,
       description: productDesc,
       price: parseFloat(productPrice),
+      compare_price: comparePrice ? parseFloat(comparePrice) : null,
       stock: parseInt(productStock),
       category: productCategory,
       discount: productDiscount ? parseFloat(productDiscount) : 0,
@@ -182,6 +184,7 @@ useEffect(() => {
     setProductName('')
     setProductDesc('')
     setProductPrice('')
+    setComparePrice('')
     setProductStock('')
     setProductDiscount('')
     setProductImage(null)
@@ -520,6 +523,55 @@ useEffect(() => {
                       <input type="number" value={productStock} onChange={e => setProductStock(e.target.value)} placeholder="0" style={inputStyle} {...inputFocusProps} />
                     </div>
                   </div>
+
+                  <div>
+                    <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
+                      Compare Price ($) <span style={{ color: 'rgba(15,23,42,0.35)', fontSize: '11px', fontWeight: '400', textTransform: 'none' }}>— shows as crossed out</span>
+                    </label>
+                    <input
+                      type="number"
+                      value={comparePrice}
+                      onChange={e => setComparePrice(e.target.value)}
+                      placeholder="0.00"
+                      style={inputStyle}
+                      onFocus={e => e.currentTarget.style.borderColor = 'rgba(16,185,129,0.5)'}
+                      onBlur={e => e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'}
+                    />
+                    <p style={{ color: 'rgba(15,23,42,0.35)', fontSize: '11px', marginTop: '4px' }}>
+                      Set higher than actual price to show a discount
+                    </p>
+                  </div>
+
+                  {/* Live preview */}
+                  {productPrice && comparePrice && parseFloat(comparePrice) > parseFloat(productPrice) && (
+                    <div style={{
+                      background: 'rgba(16,185,129,0.06)',
+                      border: '1px solid rgba(16,185,129,0.2)',
+                      borderRadius: '12px',
+                      padding: '12px 16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px'
+                    }}>
+                      <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '13px', margin: 0, textDecoration: 'line-through' }}>
+                        ${parseFloat(comparePrice).toFixed(2)}
+                      </p>
+                      <p style={{ color: '#10B981', fontWeight: '900', fontSize: '20px', margin: 0 }}>
+                        ${parseFloat(productPrice).toFixed(2)}
+                      </p>
+                      <span style={{
+                        background: 'linear-gradient(135deg, #f87171, #ef4444)',
+                        color: 'white',
+                        fontSize: '11px',
+                        fontWeight: '800',
+                        padding: '3px 10px',
+                        borderRadius: '9999px'
+                      }}>
+                        {Math.round((1 - parseFloat(productPrice) / parseFloat(comparePrice)) * 100)}% OFF
+                      </span>
+                      <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '12px', margin: 0 }}>Preview</p>
+                    </div>
+                  )}
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div>
