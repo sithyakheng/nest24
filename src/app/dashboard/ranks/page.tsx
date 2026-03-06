@@ -518,7 +518,7 @@ export default function RanksPage() {
         )}
 
         {/* NEW PRICING CARDS */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '48px', alignItems: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isDesktop ? 'repeat(3, 1fr)' : '1fr', gap: isDesktop ? '24px' : '16px', marginBottom: '48px', alignItems: isDesktop ? 'center' : 'stretch' }}>
           {plans.map((plan, index) => (
             <motion.div
               key={plan.id}

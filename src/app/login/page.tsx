@@ -1,11 +1,21 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
 export default function LoginPage() {
   const router = useRouter()
+  const [windowWidth, setWindowWidth] = useState(1200)
+  const isMobile = windowWidth < 768
+
+  useEffect(() => {
+    setWindowWidth(window.innerWidth)
+    const handleResize = () => setWindowWidth(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -47,7 +57,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#080a0f] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#080a0f] flex items-center justify-center" style={{ paddingTop: '100px', paddingBottom: '40px', paddingLeft: '16px', paddingRight: '16px' }}>
       <div style={{
         background: 'rgba(255,255,255,0.06)',
         backdropFilter: 'blur(24px) saturate(180%)',
@@ -56,9 +66,9 @@ export default function LoginPage() {
         borderTop: '1px solid rgba(255,255,255,0.22)',
         boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15)',
         borderRadius: '24px',
-        padding: '48px',
+        padding: isMobile ? '24px 20px' : '48px',
         width: '100%',
-        maxWidth: '440px'
+        maxWidth: isMobile ? '100%' : '440px',
       }}>
         <h1 className="text-3xl font-black text-white mb-2">Welcome Back</h1>
         <p className="text-white/50 font-light mb-8">Sign in to NestKH</p>

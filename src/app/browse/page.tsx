@@ -76,15 +76,15 @@ function BrowseContent() {
 }
 
   return (
-    <div key={lang} className="min-h-screen bg-[#0d0e12] pt-24 pb-16 px-4 md:px-6">
+    <div key={lang} className="min-h-screen bg-[#0d0e12]" style={{ paddingTop: isMobile ? '90px' : '120px', paddingBottom: isMobile ? '40px' : '60px', paddingLeft: isMobile ? '16px' : '24px', paddingRight: isMobile ? '16px' : '24px' }}>
       <div className="max-w-7xl mx-auto">
 
         <div className="mb-8">
           <p className="uppercase tracking-widest text-xs text-white/40 mb-2">MARKETPLACE</p>
-          <h1 className="text-4xl font-black text-white">{t('browse.title')}</h1>
+          <h1 className="font-black text-white" style={{ fontSize: isMobile ? '24px' : '36px' }}>{t('browse.title')}</h1>
         </div>
 
-        <div className="flex gap-4 mb-6 flex-wrap">
+        <div className="flex gap-4 mb-6" style={{ flexDirection: isMobile ? 'column' : 'row', flexWrap: 'wrap' }}>
           <input
             type="text"
             value={search}
@@ -107,7 +107,7 @@ function BrowseContent() {
           </select>
         </div>
 
-        <div className="flex gap-2 flex-wrap mb-8 overflow-x-auto whitespace-nowrap">
+        <div className="flex gap-2 flex-wrap mb-8 overflow-x-auto whitespace-nowrap" style={{ scrollbarWidth: 'none', paddingBottom: '8px' }}>
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
@@ -129,7 +129,7 @@ function BrowseContent() {
         </p>
 
         {productsLoading ? (
-  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
+  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: isMobile ? '12px' : '20px' }}>
     {[...Array(8)].map((_, i) => (
       <div key={i} style={{
         height: '320px',

@@ -162,7 +162,7 @@ async function fetchProducts() {
             </div>
           </div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
             {premiumSellers.map(seller => (
               <Link href={`/seller/${seller.id}`} key={seller.id}>
                 <div style={{
@@ -261,8 +261,8 @@ async function fetchProducts() {
       {newSellers.length > 0 && (
         <div style={{ marginTop: '48px' }}>
           <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>NEW SELLERS</p>
-          <h2 style={{ color: 'white', fontSize: '24px', fontWeight: '900', marginBottom: '20px' }}>Just Getting Started 🥉</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+          <h2 style={{ color: 'white', fontSize: isMobile ? '20px' : '24px', fontWeight: '900', marginBottom: isMobile ? '16px' : '20px' }}>Just Getting Started 🥉</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(220px, 1fr))', gap: isMobile ? '12px' : '16px' }}>
             {newSellers.map(seller => (
               <Link href={`/seller/${seller.id}`} key={seller.id}>
                 <div style={{
@@ -315,7 +315,7 @@ async function fetchProducts() {
             </div>
 
             {productsLoading ? (
-  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
+  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: isMobile ? '12px' : '20px' }}>
     {[...Array(6)].map((_, i) => (
       <div key={i} style={{
         height: '320px',
@@ -331,7 +331,7 @@ async function fetchProducts() {
     {t('home.no_products')}
   </div>
 ) : (
-  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
+  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: isMobile ? '12px' : '20px' }}>
     {products.map((product: any) => (
       <ProductCard key={product.id} product={product} />
     ))}

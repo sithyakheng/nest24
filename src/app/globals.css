@@ -276,35 +276,43 @@ html {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Mobile Responsive Styles */
-@media (max-width: 768px) {
-  * {
-    box-sizing: border-box;
-  }
-  
-  body {
-    overflow-x: hidden;
-  }
+/* ================================
+   GLOBAL MOBILE FIX
+================================ */
+* {
+  box-sizing: border-box;
+}
 
-  h1 { font-size: 28px !important; }
-  h2 { font-size: 22px !important; }
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+
+  /* Fix all page containers */
+  .page-container {
+    padding: 0 16px !important;
+  }
 
   /* Hide scrollbar on horizontal scroll */
   ::-webkit-scrollbar {
     height: 0px;
+    width: 4px;
   }
 
-  /* Product card adjustments for 2 col */
-  .product-card-image {
-    height: 140px !important;
+  /* Fix images not overflowing */
+  img {
+    max-width: 100%;
   }
-  .product-card-padding {
-    padding: 10px !important;
+
+  /* Fix all grids to stack on mobile */
+  .desktop-grid {
+    grid-template-columns: 1fr !important;
   }
-  .product-card-title {
-    font-size: 12px !important;
-  }
-  .product-card-price {
-    font-size: 14px !important;
-  }
+
+  /* Fix text sizes */
+  h1 { font-size: 26px !important; line-height: 1.2 !important; }
+  h2 { font-size: 22px !important; }
+  h3 { font-size: 18px !important; }
 }
