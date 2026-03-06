@@ -7,6 +7,8 @@ import Link from 'next/link'
 
 export default function DashboardPage() {
   const router = useRouter()
+  const [windowWidth, setWindowWidth] = useState(1200)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
 
@@ -18,6 +20,15 @@ export default function DashboardPage() {
       .replace(/on\w+=/gi, '')
       .trim()
   }
+
+  useEffect(() => {
+    setWindowWidth(window.innerWidth)
+    const handleResize = () => setWindowWidth(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const isMobile = windowWidth < 768
 
   const [products, setProducts] = useState<any[]>([])
   const [orders, setOrders] = useState<any[]>([])
@@ -400,7 +411,14 @@ async function compressImage(file: File): Promise<File> {
   ]
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafb', paddingTop: '40px', paddingBottom: '60px', position: 'relative' }}>
+    <div style={{
+      display: 'flex',
+      minHeight: '100vh',
+      background: '#f8fafb',
+      paddingTop: isMobile ? '0' : '0',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
 
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-150px', left: '-100px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%)', filter: 'blur(80px)' }} />
@@ -409,8 +427,83 @@ async function compressImage(file: File): Promise<File> {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 10, display: 'grid', gridTemplateColumns: '260px 1fr', gap: '24px', alignItems: 'start' }}>
 
+      {/* Mobile Top Bar */}
+      {isMobile && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          background: 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          borderBottom: '1px solid rgba(0,0,0,0.08)',
+          padding: '14px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <p style={{ color: '#0f172a', fontWeight: '900', fontSize: '18px', margin: 0 }}>
+            NestKH <span style={{ color: '#10B981', fontSize: '13px', fontWeight: '600' }}>Dashboard</span>
+          </p>
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{
+              background: 'rgba(0,0,0,0.06)',
+              border: '1px solid rgba(0,0,0,0.08)',
+              borderRadius: '10px',
+              padding: '8px 12px',
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px'
+            }}
+          >
+            <div style={{ width: '18px', height: '2px', background: '#0f172a', borderRadius: '2px', transition: 'all 0.3s', transform: sidebarOpen ? 'rotate(45deg) translateY(6px)' : 'none' }} />
+            <div style={{ width: '18px', height: '2px', background: '#0f172a', borderRadius: '2px', transition: 'all 0.3s', opacity: sidebarOpen ? 0 : 1 }} />
+            <div style={{ width: '18px', height: '2px', background: '#0f172a', borderRadius: '2px', transition: 'all 0.3s', transform: sidebarOpen ? 'rotate(-45deg) translateY(-6px)' : 'none' }} />
+          </button>
+        </div>
+      )}
+
         {/* SIDEBAR */}
-        <div style={{ ...glassCard, padding: '24px', position: 'sticky', top: '24px' }}>
+        <div style={{
+          ...glassCard, 
+          padding: '24px', 
+          position: isMobile ? 'fixed' : 'sticky',
+          top: isMobile ? 0 : '24px',
+          left: isMobile ? 0 : 'auto',
+          height: isMobile ? '100vh' : 'auto',
+          zIndex: isMobile ? 200 : 'auto',
+          transform: isMobile ? (sidebarOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none',
+          transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+          overflowY: 'auto'
+        }}>
+          {/* Add close button at top for mobile */}
+          {isMobile && (
+            <button
+              onClick={() => setSidebarOpen(false)}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'rgba(0,0,0,0.06)',
+                border: 'none',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                cursor: 'pointer',
+                color: '#0f172a',
+                fontSize: '18px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              ×
+            </button>
+          )}
           <div style={{ textAlign: 'center', marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
             <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(16,185,129,0.4)', border: '2px solid rgba(16,185,129,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981', fontWeight: '900', fontSize: '24px', margin: '0 auto 12px auto' }}>
               {(profile?.name || profile?.full_name || 'S').charAt(0).toUpperCase()}
@@ -429,7 +522,7 @@ async function compressImage(file: File): Promise<File> {
             {navItems.map(item => (
               <div
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => { setActiveTab(item.id); if(isMobile) setSidebarOpen(false) }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '10px',
                   padding: '10px 14px', borderRadius: '12px',
@@ -448,7 +541,7 @@ async function compressImage(file: File): Promise<File> {
             ))}
 
             <Link href="/dashboard/ranks">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: '#F59E0B', fontSize: '14px', fontWeight: '600', cursor: 'pointer', marginTop: '8px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)' }}>
+              <div onClick={() => { if(isMobile) setSidebarOpen(false) }} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: '#F59E0B', fontSize: '14px', fontWeight: '600', cursor: 'pointer', marginTop: '8px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)' }}>
                 🏆 Get Ranked
               </div>
             </Link>
@@ -464,8 +557,29 @@ async function compressImage(file: File): Promise<File> {
           </div>
         </div>
 
+        {/* Dark overlay for mobile */}
+        {isMobile && (
+          <div
+            onClick={() => setSidebarOpen(false)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 199,
+              background: 'rgba(0,0,0,0.4)',
+              opacity: sidebarOpen ? 1 : 0,
+              pointerEvents: sidebarOpen ? 'all' : 'none',
+              transition: 'opacity 0.4s ease'
+            }}
+          />
+        )}
+
         {/* MAIN CONTENT */}
-        <div>
+        <div style={{
+          flex: 1,
+          padding: isMobile ? '80px 16px 24px 16px' : '32px',
+          overflowY: 'auto',
+          minWidth: 0
+        }}>
 
           {/* OVERVIEW */}
           {activeTab === 'overview' && (
@@ -474,7 +588,7 @@ async function compressImage(file: File): Promise<File> {
               <h1 style={{ color: '#0f172a', fontSize: '32px', fontWeight: '900', margin: '0 0 24px 0' }}>
                 Welcome, {profile?.name || profile?.full_name || 'Seller'} 👋
               </h1>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                 {[
                   { label: 'Total Products', value: products.length, color: '#10B981' },
                   { label: 'Total Orders', value: orders.length, color: '#F59E0B' },
@@ -631,7 +745,7 @@ async function compressImage(file: File): Promise<File> {
                     <textarea value={productDesc} onChange={e => setProductDesc(e.target.value)} placeholder="Describe your product" rows={4} style={{ ...inputStyle, resize: 'vertical' }} {...inputFocusProps} />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
                     <div>
                       <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Price ($)</label>
                       <input type="number" value={productPrice} onChange={e => setProductPrice(e.target.value)} placeholder="0.00" style={inputStyle} {...inputFocusProps} />
