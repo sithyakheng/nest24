@@ -386,7 +386,7 @@ async function compressImage(file: File): Promise<File> {
     borderRadius: '12px',
     color: '#0f172a',
     padding: '12px 16px',
-    fontSize: '14px',
+    fontSize: isMobile ? '16px' : '14px',
     outline: 'none',
     boxSizing: 'border-box' as const
   }
@@ -415,9 +415,10 @@ async function compressImage(file: File): Promise<File> {
       display: 'flex',
       minHeight: '100vh',
       background: '#f8fafb',
-      paddingTop: isMobile ? '0' : '0',
-      position: 'relative',
-      overflow: 'hidden'
+      width: '100%',
+      overflowX: 'hidden',
+      WebkitTextSizeAdjust: '100%',
+      textSizeAdjust: '100%'
     }}>
 
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
@@ -425,7 +426,7 @@ async function compressImage(file: File): Promise<File> {
         <div style={{ position: 'absolute', bottom: '-150px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,158,11,0.1) 0%, transparent 70%)', filter: 'blur(80px)' }} />
       </div>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 10, display: 'grid', gridTemplateColumns: '260px 1fr', gap: '24px', alignItems: 'start' }}>
+      <div style={{ width: '100%', position: 'relative', zIndex: 10, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '260px 1fr', gap: '24px', alignItems: 'start' }}>
 
       {/* Mobile Top Bar */}
       {isMobile && (
@@ -576,7 +577,7 @@ async function compressImage(file: File): Promise<File> {
         {/* MAIN CONTENT */}
         <div style={{
           flex: 1,
-          padding: isMobile ? '80px 16px 24px 16px' : '32px',
+          padding: isMobile ? '70px 12px 40px 12px' : '32px',
           overflowY: 'auto',
           minWidth: 0
         }}>
@@ -585,10 +586,10 @@ async function compressImage(file: File): Promise<File> {
           {activeTab === 'overview' && (
             <div>
               <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>DASHBOARD</p>
-              <h1 style={{ color: '#0f172a', fontSize: '32px', fontWeight: '900', margin: '0 0 24px 0' }}>
+              <h1 style={{ color: '#0f172a', fontSize: isMobile ? '18px' : '32px', fontWeight: '900', margin: '0 0 24px 0', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                 Welcome, {profile?.name || profile?.full_name || 'Seller'} 👋
               </h1>
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: isMobile ? '10px' : '20px', marginBottom: '24px' }}>
                 {[
                   { label: 'Total Products', value: products.length, color: '#10B981' },
                   { label: 'Total Orders', value: orders.length, color: '#F59E0B' },
@@ -599,8 +600,8 @@ async function compressImage(file: File): Promise<File> {
                     background: 'rgba(255,255,255,0.9)', 
                     border: '1px solid rgba(0,0,0,0.06)', 
                     boxShadow: '0 2px 12px rgba(0,0,0,0.06)', 
-                    padding: '20px', 
-                    borderRadius: '16px' 
+                    padding: isMobile ? '16px' : '20px', 
+                    borderRadius: isMobile ? '16px' : '16px'
                   }}>
                     <p style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px 0' }}>{stat.label}</p>
                     <p style={{ color: stat.color, fontSize: '32px', fontWeight: '900', margin: 0 }}>{stat.value}</p>
@@ -624,14 +625,15 @@ async function compressImage(file: File): Promise<File> {
                     ? 'rgba(16,185,129,0.3)'
                     : 'rgba(59,130,246,0.25)'
                   : 'rgba(255,255,255,0.08)'}`,
-                borderRadius: '16px',
-                padding: '20px 24px',
+                borderRadius: isMobile ? '16px' : '16px',
+                padding: isMobile ? '16px' : '20px 24px',
                 marginTop: '16px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 flexWrap: 'wrap',
-                gap: '12px'
+                gap: isMobile ? '16px' : '12px',
+                flexDirection: isMobile ? 'column' : 'row'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <span style={{ fontSize: '32px' }}>
@@ -667,7 +669,8 @@ async function compressImage(file: File): Promise<File> {
                     padding: '10px 22px',
                     border: '1px solid rgba(255,255,255,0.1)',
                     cursor: 'pointer',
-                    fontSize: '13px'
+                    fontSize: '13px',
+                    width: isMobile ? '100%' : 'auto'
                   }}>
                     {profile?.rank && profile.rank !== 'none' ? 'Upgrade Rank' : '🏆 Get Ranked'}
                   </button>
@@ -680,7 +683,7 @@ async function compressImage(file: File): Promise<File> {
           {activeTab === 'products' && (
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-                <h2 style={{ color: 'white', fontSize: '28px', fontWeight: '900', margin: 0 }}>My Products</h2>
+                <h2 style={{ color: 'white', fontSize: isMobile ? '18px' : '28px', fontWeight: '900', margin: 0, overflowWrap: 'break-word', wordBreak: 'break-word' }}>My Products</h2>
                 <button onClick={() => setActiveTab('add')} style={{ background: 'linear-gradient(135deg, #E8C97E, #F0B429)', color: 'black', fontWeight: '700', borderRadius: '9999px', padding: '10px 24px', border: 'none', cursor: 'pointer', fontSize: '14px' }}>
                   + Add Product
                 </button>
@@ -701,23 +704,24 @@ async function compressImage(file: File): Promise<File> {
                     padding: '16px', 
                     display: 'flex', 
                     alignItems: 'center', 
-                    gap: '16px', 
-                    borderRadius: '16px' 
+                    gap: isMobile ? '10px' : '16px', 
+                    borderRadius: '16px',
+                    flexDirection: isMobile ? 'column' : 'row'
                   }}>
                       <div style={{ width: '60px', height: '60px', borderRadius: '12px', overflow: 'hidden', background: 'rgba(0,0,0,0.04)', flexShrink: 0 }}>
                         {product.image_url && <img src={product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                       </div>
                       <div style={{ flex: 1 }}>
-                        <p style={{ color: '#0f172a', fontWeight: '600', margin: '0 0 4px 0' }}>{product.name}</p>
+                        <p style={{ color: '#0f172a', fontWeight: '600', margin: '0 0 4px 0', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{product.name}</p>
                         <p style={{ color: 'rgba(15,23,42,0.5)', fontSize: '13px', margin: 0 }}>{product.category} · ${product.price} · Stock: {product.stock}</p>
                       </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
+                      <div style={{ display: 'flex', gap: '8px', flexDirection: isMobile ? 'row' : 'row', width: isMobile ? '100%' : 'auto' }}>
                         <Link href={`/products/${product.id}`}>
-                          <button style={{ background: 'rgba(16,185,129,0.3)', border: '1px solid rgba(16,185,129,0.5)', color: '#10B981', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px' }}>
+                          <button style={{ background: 'rgba(16,185,129,0.3)', border: '1px solid rgba(16,185,129,0.5)', color: '#10B981', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', flex: isMobile ? 1 : 'auto' }}>
                             View
                           </button>
                         </Link>
-                        <button onClick={() => handleDeleteProduct(product.id, product.image_url)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px' }}>
+                        <button onClick={() => handleDeleteProduct(product.id, product.image_url)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', flex: isMobile ? 1 : 'auto' }}>
                           Delete
                         </button>
                       </div>
@@ -731,8 +735,8 @@ async function compressImage(file: File): Promise<File> {
           {/* ADD PRODUCT */}
           {activeTab === 'add' && (
             <div>
-              <h2 style={{ color: '#0f172a', fontSize: '28px', fontWeight: '900', margin: '0 0 24px 0' }}>Add New Product</h2>
-              <div style={{ ...glassCard, padding: '32px', maxWidth: '600px' }}>
+              <h2 style={{ color: '#0f172a', fontSize: isMobile ? '18px' : '28px', fontWeight: '900', margin: '0 0 24px 0', overflowWrap: 'break-word', wordBreak: 'break-word' }}>Add New Product</h2>
+              <div style={{ ...glassCard, padding: isMobile ? '16px' : '32px', maxWidth: '600px', width: '100%' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
                   <div>
@@ -745,7 +749,7 @@ async function compressImage(file: File): Promise<File> {
                     <textarea value={productDesc} onChange={e => setProductDesc(e.target.value)} placeholder="Describe your product" rows={4} style={{ ...inputStyle, resize: 'vertical' }} {...inputFocusProps} />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '12px' : '12px' }}>
                     <div>
                       <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Price ($)</label>
                       <input type="number" value={productPrice} onChange={e => setProductPrice(e.target.value)} placeholder="0.00" style={inputStyle} {...inputFocusProps} />
@@ -881,7 +885,7 @@ async function compressImage(file: File): Promise<File> {
           {/* ORDERS */}
           {activeTab === 'orders' && (
             <div>
-              <h2 style={{ color: 'white', fontSize: '28px', fontWeight: '900', margin: '0 0 24px 0' }}>Orders</h2>
+              <h2 style={{ color: 'white', fontSize: isMobile ? '18px' : '28px', fontWeight: '900', margin: '0 0 24px 0', overflowWrap: 'break-word', wordBreak: 'break-word' }}>Orders</h2>
               {orders.length === 0 ? (
                 <div style={{ ...glassCard, padding: '48px', textAlign: 'center' }}>
                   <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px' }}>No orders yet</p>
@@ -889,9 +893,9 @@ async function compressImage(file: File): Promise<File> {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {orders.map(order => (
-                    <div key={order.id} style={{ ...glassCard, padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                    <div key={order.id} style={{ ...glassCard, padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', flexDirection: isMobile ? 'column' : 'row' }}>
                       <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: 'monospace', margin: 0 }}>#{order.id.slice(0,8)}</p>
-                      <p style={{ color: 'white', fontWeight: '600', margin: 0 }}>{order.products?.name}</p>
+                      <p style={{ color: 'white', fontWeight: '600', margin: 0, overflowWrap: 'break-word', wordBreak: 'break-word' }}>{order.products?.name}</p>
                       <p style={{ color: '#E8C97E', fontWeight: '700', margin: 0 }}>${order.total_price}</p>
                       <span style={{ padding: '4px 12px', borderRadius: '9999px', fontSize: '12px', fontWeight: '600', background: order.status === 'completed' ? 'rgba(0,200,100,0.15)' : order.status === 'cancelled' ? 'rgba(255,80,80,0.15)' : 'rgba(232,201,126,0.15)', color: order.status === 'completed' ? '#4ade80' : order.status === 'cancelled' ? '#f87171' : '#E8C97E' }}>
                         {order.status}
@@ -906,8 +910,8 @@ async function compressImage(file: File): Promise<File> {
           {/* PROFILE SETTINGS */}
           {activeTab === 'profile' && (
             <div>
-              <h2 style={{ color: '#0f172a', fontSize: '28px', fontWeight: '900', margin: '0 0 24px 0' }}>Profile Settings</h2>
-              <div style={{ ...glassCard, padding: '32px', maxWidth: '600px' }}>
+              <h2 style={{ color: '#0f172a', fontSize: isMobile ? '18px' : '28px', fontWeight: '900', margin: '0 0 24px 0', overflowWrap: 'break-word', wordBreak: 'break-word' }}>Profile Settings</h2>
+              <div style={{ ...glassCard, padding: isMobile ? '16px' : '32px', maxWidth: '600px', width: '100%' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
                   {[
