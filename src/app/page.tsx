@@ -465,6 +465,63 @@ async function fetchProducts() {
           </div>
         </div>
       </motion.div>
+
+      {/* Trust Banner */}
+      <div style={{
+        width: '100%',
+        background: '#000000',
+        borderTop: '1px solid rgba(255,255,255,0.1)',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        overflow: 'hidden',
+        padding: '14px 0',
+        marginTop: '60px'
+      }}>
+        <div style={{
+          display: 'flex',
+          width: 'max-content',
+          animation: 'marquee 25s linear infinite',
+        }}>
+          {[...Array(2)].map((_, dupIndex) => (
+            <div key={dupIndex} style={{ display: 'flex', alignItems: 'center' }}>
+              {[
+                { icon: '🚀', text: 'NEW PRODUCTS ADDED DAILY' },
+                { icon: '📱', text: 'EASY CONTACT VIA WHATSAPP & TELEGRAM' },
+                { icon: '⭐', text: 'RANKED & TRUSTED SHOPS' },
+                { icon: '🔍', text: 'BROWSE 100+ PRODUCTS' },
+                { icon: '💬', text: 'CHAT DIRECTLY — NO MIDDLEMAN' },
+                { icon: '🇰🇭', text: '100% LOCAL CAMBODIAN SELLERS' },
+                { icon: '✓', text: 'VERIFIED SELLERS ONLY' },
+                { icon: '🏪', text: 'REAL SHOPS, REAL PEOPLE' },
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '0 32px',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    <span style={{ fontSize: '14px' }}>{item.icon}</span>
+                    <span style={{
+                      color: '#ffffff',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      letterSpacing: '0.08em',
+                    }}>
+                      {item.text}
+                    </span>
+                  </div>
+                  <span style={{
+                    color: 'rgba(255,255,255,0.25)',
+                    fontSize: '16px',
+                    flexShrink: 0
+                  }}>•</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
