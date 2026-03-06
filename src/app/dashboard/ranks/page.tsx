@@ -82,6 +82,19 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
       setError('Please fill in all fields and upload your payment screenshot.')
       return
     }
+
+    const { data: existing } = await supabase
+      .from('rank_requests')
+      .select('id')
+      .eq('seller_id', user.id)
+      .eq('status', 'pending')
+      .maybeSingle()
+
+    if (existing) {
+      setError('You already have a pending request. Wait for admin approval.')
+      return
+    }
+
     setUploading(true)
     setError('')
 

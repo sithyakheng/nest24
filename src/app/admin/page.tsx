@@ -17,64 +17,59 @@ export default function AdminPage() {
   const [rankPayments, setRankPayments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState('')
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
-  // Check admin access first
-  checkAdmin().then(() => {
-    // Initial fetch
-    fetchAll()
+    async function checkAdmin() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { window.location.href = '/'; return }
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      if (profile?.role !== 'admin') { window.location.href = '/'; return }
+      setIsAdmin(true)
+      
+      // Initial fetch
+      fetchAll()
 
-    // Listen for new profiles (new users)
-    const profilesSub = supabase
-      .channel('profiles-changes')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'profiles' },
-        () => { fetchAll() }
-      )
-      .subscribe()
+      // Listen for new profiles (new users)
+      const profilesSub = supabase
+        .channel('profiles-changes')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'profiles' },
+          () => { fetchAll() }
+        )
+        .subscribe()
 
-    // Listen for new rank requests
-    const rankSub = supabase
-      .channel('rank-requests-changes')
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'rank_requests' },
-        () => { fetchAll() }
-      )
-      .subscribe()
+      // Listen for new rank requests
+      const rankSub = supabase
+        .channel('rank-requests-changes')
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'rank_requests' },
+          () => { fetchAll() }
+        )
+        .subscribe()
 
-    // Listen for new products
-    const productsSub = supabase
-      .channel('products-changes')
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'products' },
-        () => { fetchAll() }
-      )
-      .subscribe()
+      // Listen for new products
+      const productsSub = supabase
+        .channel('products-changes')
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'products' },
+          () => { fetchAll() }
+        )
+        .subscribe()
 
-    // Cleanup on unmount
-    return () => {
-      supabase.removeChannel(profilesSub)
-      supabase.removeChannel(rankSub)
-      supabase.removeChannel(productsSub)
+      // Cleanup on unmount
+      return () => {
+        supabase.removeChannel(profilesSub)
+        supabase.removeChannel(rankSub)
+        supabase.removeChannel(productsSub)
+      }
     }
-  })
-}, [])
-
-  async function checkAdmin() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/login'); return }
-    
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-    
-    if (profile?.role !== 'admin') { router.push('/'); return }
-    
-    setUserRole('admin')
-    fetchAll()
-  }
+    checkAdmin()
+  }, [])
 
   async function fetchAll() {
     setLoading(true)
@@ -227,6 +222,12 @@ export default function AdminPage() {
     await supabase.from('rank_payments').update({ status: 'rejected' }).eq('id', paymentId)
     fetchAll()
   }
+
+  if (!isAdmin) return (
+    <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <p style={{ color: 'rgba(255,255,255,0.4)' }}>Access denied.</p>
+    </div>
+  )
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>

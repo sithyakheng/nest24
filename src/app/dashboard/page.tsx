@@ -9,6 +9,16 @@ export default function DashboardPage() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
+
+  function sanitize(str: string): string {
+    return str
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+=/gi, '')
+      .trim()
+  }
+
   const [products, setProducts] = useState<any[]>([])
   const [orders, setOrders] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState('overview')
@@ -46,9 +56,9 @@ export default function DashboardPage() {
   async function load() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/login'); return }
-
-    await loadProfile(user)
     setUser(user)
+    
+    await loadProfile(user)
     setLoading(false)
   }
   load()
@@ -60,6 +70,12 @@ async function loadProfile(currentUser: any) {
     .select('*')
     .eq('id', currentUser.id)
     .single()
+
+  if (profile?.banned) {
+    await supabase.auth.signOut()
+    window.location.href = '/'
+    return
+  }
 
   if (profile?.role !== 'seller') { router.push('/'); return }
 
@@ -172,6 +188,35 @@ async function compressImage(file: File): Promise<File> {
       setAddError('Please fill in name, price and stock.')
       return
     }
+
+    const price = parseFloat(productPrice)
+    const stock = parseInt(productStock)
+
+    if (isNaN(price) || price <= 0) {
+      setAddError('Please enter a valid price.')
+      return
+    }
+
+    if (isNaN(stock) || stock < 0) {
+      setAddError('Please enter a valid stock number.')
+      return
+    }
+
+    if (comparePrice && parseFloat(comparePrice) <= price) {
+      setAddError('Compare price must be higher than actual price.')
+      return
+    }
+
+    if (productName.length < 3) {
+      setAddError('Product name must be at least 3 characters.')
+      return
+    }
+
+    if (productName.length > 100) {
+      setAddError('Product name too long. Max 100 characters.')
+      return
+    }
+
     setAddingProduct(true)
     setAddError('')
 
@@ -200,8 +245,8 @@ async function compressImage(file: File): Promise<File> {
 
     const insertData = {
       seller_id: user.id,
-      name: productName,
-      description: productDesc,
+      name: sanitize(productName),
+      description: sanitize(productDesc),
       price: parseFloat(productPrice),
       compare_price: comparePrice ? parseFloat(comparePrice) : null,
       stock: parseInt(productStock),
@@ -674,13 +719,18 @@ async function compressImage(file: File): Promise<File> {
                     <input id="product-image-upload" type="file" accept="image/*" onChange={e => {
                       const f = e.target.files?.[0]
                       if (!f) return
-                      
-                      // Check file size warning
+
+                      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+                      if (!allowedTypes.includes(f.type)) {
+                        setAddError('Only JPG, PNG or WebP images allowed.')
+                        return
+                      }
+
                       if (f.size > 10 * 1024 * 1024) {
                         setAddError('Image too large. Max 10MB.')
                         return
                       }
-                      
+
                       setProductImage(f)
                       setProductImagePreview(URL.createObjectURL(f))
                       setAddError('')
