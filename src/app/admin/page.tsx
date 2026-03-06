@@ -131,9 +131,7 @@ export default function AdminPage() {
     setLoading(false)
   }
 
-  async function approveRank(requestId: string, sellerId: string, rank: string) {
-  console.log('Approving rank:', requestId, sellerId, rank)
-  
+  async function approveRank(requestId: string, sellerId: string, rank: string, screenshotUrl: string) {
   // Update rank request status
   const { error: requestError } = await supabase
     .from('rank_requests')
@@ -143,31 +141,68 @@ export default function AdminPage() {
     })
     .eq('id', requestId)
 
-  console.log('Request update error:', requestError)
+  if (requestError) {
+    alert('Failed to update request: ' + requestError.message)
+    return
+  }
 
   // Update seller profile rank
-  const { data, error: profileError } = await supabase
+  const { error: profileError } = await supabase
     .from('profiles')
-    .update({ 
-      rank: rank,
-      updated_at: new Date().toISOString()
-    })
+    .update({ rank: rank })
     .eq('id', sellerId)
-    .select()
-
-  console.log('Profile update result:', data, profileError)
 
   if (profileError) {
     alert('Failed to update rank: ' + profileError.message)
     return
   }
 
-  alert('Rank approved successfully!')
+  // Delete screenshot from storage to free up space
+  if (screenshotUrl) {
+    try {
+      const fileName = screenshotUrl.split('/Product/')[1]
+      if (fileName) {
+        await supabase.storage.from('Product').remove([fileName])
+        console.log('Screenshot deleted from storage:', fileName)
+      }
+    } catch (e) {
+      console.log('Could not delete screenshot:', e)
+    }
+  }
+
+  alert('Rank approved!')
   fetchAll()
 }
 
-  async function rejectRank(requestId: string) {
-    await supabase.from('rank_requests').update({ status: 'rejected' }).eq('id', requestId)
+  async function rejectRank(requestId: string, screenshotUrl: string) {
+    // Update rank request status
+    const { error } = await supabase
+      .from('rank_requests')
+      .update({ 
+        status: 'rejected',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', requestId)
+
+    if (error) {
+      alert('Failed to reject: ' + error.message)
+      return
+    }
+
+    // Delete screenshot from storage to free up space
+    if (screenshotUrl) {
+      try {
+        const fileName = screenshotUrl.split('/Product/')[1]
+        if (fileName) {
+          await supabase.storage.from('Product').remove([fileName])
+          console.log('Screenshot deleted from storage:', fileName)
+        }
+      } catch (e) {
+        console.log('Could not delete screenshot:', e)
+      }
+    }
+
+    alert('Rank rejected!')
     fetchAll()
   }
 
@@ -287,10 +322,10 @@ export default function AdminPage() {
                     <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px' }}>{new Date(req.created_at).toLocaleDateString()}</p>
                     {req.status === 'pending' ? (
                       <div style={{ display: 'flex', gap: '8px' }}>
-                        <button onClick={() => approveRank(req.id, req.seller_id, req.rank)} style={{ background: 'rgba(0,78,100,0.4)', border: '1px solid rgba(0,78,100,0.6)', color: '#4DB8CC', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+                        <button onClick={() => approveRank(req.id, req.seller_id, req.rank, req.screenshot_url)} style={{ background: 'rgba(0,78,100,0.4)', border: '1px solid rgba(0,78,100,0.6)', color: '#4DB8CC', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
                           Approve ✓
                         </button>
-                        <button onClick={() => rejectRank(req.id)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+                        <button onClick={() => rejectRank(req.id, req.screenshot_url)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
                           Reject ✗
                         </button>
                       </div>
@@ -570,10 +605,10 @@ export default function AdminPage() {
 
                   {req.status === 'pending' ? (
                     <div style={{ display: 'flex', gap: '10px' }}>
-                      <button onClick={() => approveRank(req.id, req.seller_id, req.rank)} style={{ background: 'rgba(0,78,100,0.4)', border: '1px solid rgba(0,78,100,0.6)', color: '#4DB8CC', borderRadius: '9999px', padding: '10px 24px', cursor: 'pointer', fontSize: '14px', fontWeight: '700' }}>
+                      <button onClick={() => approveRank(req.id, req.seller_id, req.rank, req.screenshot_url)} style={{ background: 'rgba(0,78,100,0.4)', border: '1px solid rgba(0,78,100,0.6)', color: '#4DB8CC', borderRadius: '9999px', padding: '10px 24px', cursor: 'pointer', fontSize: '14px', fontWeight: '700' }}>
                         Approve ✓
                       </button>
-                      <button onClick={() => rejectRank(req.id)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '10px 24px', cursor: 'pointer', fontSize: '14px', fontWeight: '700' }}>
+                      <button onClick={() => rejectRank(req.id, req.screenshot_url)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '10px 24px', cursor: 'pointer', fontSize: '14px', fontWeight: '700' }}>
                         Reject ✗
                       </button>
                     </div>
