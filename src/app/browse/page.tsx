@@ -129,7 +129,7 @@ function BrowseContent() {
         </p>
 
         {productsLoading ? (
-  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: isMobile ? '10px' : '20px' }}>
+  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: isMobile ? '10px' : '20px' }}>
     {[...Array(8)].map((_, i) => (
       <div key={i} style={{
         height: '320px',

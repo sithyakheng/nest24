@@ -98,7 +98,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           e.currentTarget.style.boxShadow = rankStyle.boxShadow
         }}
       >
-        <div style={{ height: '130px', overflow: 'hidden', background: 'rgba(255,255,255,0.04)', position: 'relative' }}>
+        <div style={{ height: '160px', overflow: 'hidden', background: 'rgba(255,255,255,0.04)', position: 'relative' }}>
           {product.image_url ? (
             <img
               src={getImageUrl(product.image_url)}
@@ -120,7 +120,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               background: 'linear-gradient(135deg, #ef4444, #dc2626)',
               color: 'white',
               fontSize: '10px',
-              padding: isMobile ? '4px 8px' : '6px 12px',
+              padding: '12px 12px',
               borderRadius: '0 0 12px 0',
               zIndex: 2,
               display: 'flex',
@@ -141,8 +141,8 @@ export default function ProductCard({ product }: ProductCardProps) {
               background: rankStyle.badgeBg, 
               border: `1px solid ${rankStyle.badgeBorder}`, 
               color: rankStyle.badgeColor, 
-              fontSize: '9px', 
-              padding: '2px 5px',
+              fontSize: '10px', 
+              padding: '4px 10px',
               fontWeight: '700', 
               borderRadius: '9999px', 
               backdropFilter: 'blur(8px)', 
@@ -154,10 +154,10 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <div style={{ padding: isMobile ? '12px' : '16px' }}>
-          <span style={{ color: '#4DB8CC', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '600' }}>
+          <span style={{ color: '#4DB8CC', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '600' }}>
             {product.category}
           </span>
-          <p style={{ color: 'white', fontWeight: '600', fontSize: '12px', margin: '6px 0', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          <p style={{ color: 'white', fontWeight: '600', fontSize: '13px', margin: '6px 0', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             {product.name}
           </p>
           <div style={{ marginBottom: '8px' }}>
@@ -174,21 +174,21 @@ export default function ProductCard({ product }: ProductCardProps) {
               <span style={{
                 background: 'linear-gradient(135deg, #f87171, #ef4444)',
                 color: 'white',
-                fontSize: isMobile ? '9px' : '10px',
+                fontSize: '10px',
                 fontWeight: '900',
-                padding: isMobile ? '2px 6px' : '2px 8px',
+                padding: isMobile ? '4px 8px' : '6px 12px',
                 borderRadius: '9999px'
               }}>
                 -{Math.round((1 - Number(product.price) / Number(product.compare_price)) * 100)}% OFF
               </span>
             </div>
           )}
-          <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '14px', margin: 0 }}>
+          <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '16px', margin: 0 }}>
             ${product.price}
           </p>
         </div>
           <Link href={`/seller/${product.profiles?.id}`} onClick={e => e.stopPropagation()}>
-            <p style={{ color: '#4DB8CC', fontSize: '10px', margin: 0, cursor: 'pointer' }}>
+            <p style={{ color: '#4DB8CC', fontSize: '11px', margin: 0, cursor: 'pointer' }}>
               by {product.profiles?.name || product.profiles?.full_name || 'Seller'}
             </p>
           </Link>
