@@ -230,28 +230,29 @@ useEffect(() => {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '16px' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(15,23,42,0.4)', fontSize: '16px' }}>
       Loading Dashboard...
     </div>
   )
 
   const glassCard = {
-    background: 'rgba(16,185,129,0.03)',
+    background: 'rgba(255,255,255,0.9)',
     backdropFilter: 'blur(24px)',
     WebkitBackdropFilter: 'blur(24px)',
-    border: '1px solid rgba(255,255,255,0.12)',
-    borderTop: '1px solid rgba(255,255,255,0.22)',
+    border: '1px solid rgba(0,0,0,0.08)',
+    borderTop: '1px solid rgba(255,255,255,0.95)',
     borderRadius: '20px',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.06)'
   }
 
   const inputStyle = {
     width: '100%',
-    background: 'rgba(255,255,255,0.06)',
+    background: 'rgba(0,0,0,0.04)',
     backdropFilter: 'blur(12px)',
     WebkitBackdropFilter: 'blur(12px)',
-    border: '1px solid rgba(255,255,255,0.12)',
+    border: '1px solid rgba(0,0,0,0.1)',
     borderRadius: '12px',
-    color: 'white',
+    color: '#0f172a',
     padding: '12px 16px',
     fontSize: '14px',
     outline: 'none',
@@ -260,11 +261,11 @@ useEffect(() => {
 
   const inputFocusProps = {
     onFocus: (e: any) => { 
-      e.currentTarget.style.borderColor = 'rgba(16,185,129,0.4)'
+      e.currentTarget.style.borderColor = 'rgba(16,185,129,0.5)'
       e.currentTarget.style.boxShadow = '0 0 0 2px rgba(16,185,129,0.1)'
     },
     onBlur: (e: any) => { 
-      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'
+      e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'
       e.currentTarget.style.boxShadow = 'none'
     }
   }
@@ -278,28 +279,28 @@ useEffect(() => {
   ]
 
   return (
-    <div style={{ minHeight: '100vh', background: '#080a0f', paddingTop: '40px', paddingBottom: '60px', position: 'relative' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafb', paddingTop: '40px', paddingBottom: '60px', position: 'relative' }}>
 
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-150px', left: '-100px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.3) 0%, transparent 70%)', filter: 'blur(80px)' }} />
-        <div style={{ position: 'absolute', bottom: '-150px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,158,11,0.2) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+        <div style={{ position: 'absolute', top: '-150px', left: '-100px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+        <div style={{ position: 'absolute', bottom: '-150px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,158,11,0.1) 0%, transparent 70%)', filter: 'blur(80px)' }} />
       </div>
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 10, display: 'grid', gridTemplateColumns: '260px 1fr', gap: '24px', alignItems: 'start' }}>
 
         {/* SIDEBAR */}
         <div style={{ ...glassCard, padding: '24px', position: 'sticky', top: '24px' }}>
-          <div style={{ textAlign: 'center', marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
             <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(16,185,129,0.4)', border: '2px solid rgba(16,185,129,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981', fontWeight: '900', fontSize: '24px', margin: '0 auto 12px auto' }}>
               {(profile?.name || profile?.full_name || 'S').charAt(0).toUpperCase()}
             </div>
-            <p style={{ color: 'white', fontWeight: '700', fontSize: '15px', margin: '0 0 4px 0' }}>{profile?.name || profile?.full_name || 'Seller'}</p>
-            <span style={{ background: 'rgba(16,185,129,0.3)', border: '1px solid rgba(16,185,129,0.5)', color: '#10B981', fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '9999px' }}>Seller</span>
+            <p style={{ color: '#0f172a', fontWeight: '700', fontSize: '15px', margin: '0 0 4px 0' }}>{profile?.name || profile?.full_name || 'Seller'}</p>
+            <span style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', color: '#10B981', fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '9999px' }}>Seller</span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <Link href="/">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: 'rgba(255,255,255,0.5)', fontSize: '14px', cursor: 'pointer', marginBottom: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: 'rgba(15,23,42,0.5)', fontSize: '14px', cursor: 'pointer', marginBottom: '8px', background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.04)' }}>
                 ← Back to Store
               </div>
             </Link>
@@ -311,13 +312,15 @@ useEffect(() => {
                 style={{
                   display: 'flex', alignItems: 'center', gap: '10px',
                   padding: '10px 14px', borderRadius: '12px',
-                  color: activeTab === item.id ? '#10B981' : 'rgba(255,255,255,0.6)',
+                  color: activeTab === item.id ? '#10B981' : 'rgba(15,23,42,0.6)',
                   fontSize: '14px', fontWeight: activeTab === item.id ? '600' : '400',
                   cursor: 'pointer',
-                  background: activeTab === item.id ? 'rgba(16,185,129,0.2)' : 'transparent',
-                  border: activeTab === item.id ? '1px solid rgba(16,185,129,0.3)' : '1px solid transparent',
+                  background: activeTab === item.id ? 'rgba(16,185,129,0.1)' : 'transparent',
+                  border: activeTab === item.id ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent',
                   transition: 'all 0.2s'
                 }}
+                onMouseEnter={e => e.currentTarget.style.background = activeTab === item.id ? 'rgba(16,185,129,0.1)' : 'rgba(0,0,0,0.04)'}
+                onMouseLeave={e => e.currentTarget.style.background = activeTab === item.id ? 'rgba(16,185,129,0.1)' : 'transparent'}
               >
                 {item.label}
               </div>
@@ -331,7 +334,9 @@ useEffect(() => {
 
             <div
               onClick={async () => { await supabase.auth.signOut(); router.push('/') }}
-              style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: 'rgba(255,80,80,0.7)', fontSize: '14px', cursor: 'pointer', marginTop: '4px', transition: 'all 0.2s' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: '#ef4444', fontSize: '14px', cursor: 'pointer', marginTop: '4px', transition: 'all 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             >
               🚪 Sign Out
             </div>
@@ -344,8 +349,8 @@ useEffect(() => {
           {/* OVERVIEW */}
           {activeTab === 'overview' && (
             <div>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>DASHBOARD</p>
-              <h1 style={{ color: 'white', fontSize: '32px', fontWeight: '900', margin: '0 0 24px 0' }}>
+              <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>DASHBOARD</p>
+              <h1 style={{ color: '#0f172a', fontSize: '32px', fontWeight: '900', margin: '0 0 24px 0' }}>
                 Welcome, {profile?.name || profile?.full_name || 'Seller'} 👋
               </h1>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
@@ -355,8 +360,14 @@ useEffect(() => {
                   { label: 'Pending Orders', value: orders.filter(o => o.status === 'pending').length, color: '#f87171' },
                   { label: 'Current Rank', value: profile?.rank && profile.rank !== 'none' ? profile.rank.charAt(0).toUpperCase() + profile.rank.slice(1) : 'None', color: '#a78bfa' },
                 ].map((stat, i) => (
-                  <div key={i} style={{ ...glassCard, padding: '20px' }}>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px 0' }}>{stat.label}</p>
+                  <div key={i} style={{ 
+                    background: 'rgba(255,255,255,0.9)', 
+                    border: '1px solid rgba(0,0,0,0.06)', 
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)', 
+                    padding: '20px', 
+                    borderRadius: '16px' 
+                  }}>
+                    <p style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px 0' }}>{stat.label}</p>
                     <p style={{ color: stat.color, fontSize: '32px', fontWeight: '900', margin: 0 }}>{stat.value}</p>
                   </div>
                 ))}
@@ -392,19 +403,19 @@ useEffect(() => {
                     {profile?.rank === 'premium' ? '⭐' : profile?.rank === 'verified' ? '✓' : profile?.rank === 'starter' ? '🥉' : '🏅'}
                   </span>
                   <div>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 4px 0' }}>
+                    <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 4px 0' }}>
                       Your Rank
                     </p>
                     <p style={{ 
                       fontWeight: '900', fontSize: '20px', margin: 0,
-                      color: profile?.rank === 'premium' ? '#F59E0B' : profile?.rank === 'verified' ? '#10B981' : profile?.rank === 'starter' ? '#93c5fd' : 'rgba(255,255,255,0.4)'
+                      color: profile?.rank === 'premium' ? '#F59E0B' : profile?.rank === 'verified' ? '#10B981' : profile?.rank === 'starter' ? '#93c5fd' : 'rgba(15,23,42,0.4)'
                     }}>
                       {profile?.rank && profile.rank !== 'none' 
                         ? profile.rank.charAt(0).toUpperCase() + profile.rank.slice(1) 
                         : 'No Rank Yet'}
                     </p>
                     {profile?.rank && profile.rank !== 'none' && (
-                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '4px 0 0 0' }}>
+                      <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '12px', margin: '4px 0 0 0' }}>
                         Your products have a {profile.rank} badge visible to all buyers
                       </p>
                     )}
@@ -415,7 +426,7 @@ useEffect(() => {
                     background: profile?.rank && profile.rank !== 'none' 
                       ? 'rgba(255,255,255,0.06)' 
                       : 'linear-gradient(135deg, #F59E0B, #D97706)',
-                    color: profile?.rank && profile.rank !== 'none' ? 'rgba(255,255,255,0.6)' : 'black',
+                    color: profile?.rank && profile.rank !== 'none' ? 'rgba(15,23,42,0.6)' : 'black',
                     fontWeight: '700',
                     borderRadius: '9999px',
                     padding: '10px 22px',
@@ -449,13 +460,21 @@ useEffect(() => {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {products.map(product => (
-                    <div key={product.id} style={{ ...glassCard, padding: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <div style={{ width: '60px', height: '60px', borderRadius: '12px', overflow: 'hidden', background: 'rgba(255,255,255,0.06)', flexShrink: 0 }}>
+                    <div key={product.id} style={{ 
+                    background: 'rgba(255,255,255,0.8)', 
+                    border: '1px solid rgba(0,0,0,0.06)', 
+                    padding: '16px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '16px', 
+                    borderRadius: '16px' 
+                  }}>
+                      <div style={{ width: '60px', height: '60px', borderRadius: '12px', overflow: 'hidden', background: 'rgba(0,0,0,0.04)', flexShrink: 0 }}>
                         {product.image_url && <img src={product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                       </div>
                       <div style={{ flex: 1 }}>
-                        <p style={{ color: 'white', fontWeight: '600', margin: '0 0 4px 0' }}>{product.name}</p>
-                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', margin: 0 }}>{product.category} · ${product.price} · Stock: {product.stock}</p>
+                        <p style={{ color: '#0f172a', fontWeight: '600', margin: '0 0 4px 0' }}>{product.name}</p>
+                        <p style={{ color: 'rgba(15,23,42,0.5)', fontSize: '13px', margin: 0 }}>{product.category} · ${product.price} · Stock: {product.stock}</p>
                       </div>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <Link href={`/products/${product.id}`}>
@@ -477,53 +496,53 @@ useEffect(() => {
           {/* ADD PRODUCT */}
           {activeTab === 'add' && (
             <div>
-              <h2 style={{ color: 'white', fontSize: '28px', fontWeight: '900', margin: '0 0 24px 0' }}>Add New Product</h2>
+              <h2 style={{ color: '#0f172a', fontSize: '28px', fontWeight: '900', margin: '0 0 24px 0' }}>Add New Product</h2>
               <div style={{ ...glassCard, padding: '32px', maxWidth: '600px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
                   <div>
-                    <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Name</label>
+                    <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Name</label>
                     <input type="text" value={productName} onChange={e => setProductName(e.target.value)} placeholder="Enter product name" style={inputStyle} {...inputFocusProps} />
                   </div>
 
                   <div>
-                    <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Description</label>
+                    <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Description</label>
                     <textarea value={productDesc} onChange={e => setProductDesc(e.target.value)} placeholder="Describe your product" rows={4} style={{ ...inputStyle, resize: 'vertical' }} {...inputFocusProps} />
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div>
-                      <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Price ($)</label>
+                      <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Price ($)</label>
                       <input type="number" value={productPrice} onChange={e => setProductPrice(e.target.value)} placeholder="0.00" style={inputStyle} {...inputFocusProps} />
                     </div>
                     <div>
-                      <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Stock</label>
+                      <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Stock</label>
                       <input type="number" value={productStock} onChange={e => setProductStock(e.target.value)} placeholder="0" style={inputStyle} {...inputFocusProps} />
                     </div>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div>
-                      <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Category</label>
+                      <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Category</label>
                       <select value={productCategory} onChange={e => setProductCategory(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
                         {CATEGORIES.map(cat => <option key={cat} value={cat} style={{ background: '#0d0e12' }}>{cat}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Discount (%)</label>
+                      <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Discount (%)</label>
                       <input type="number" value={productDiscount} onChange={e => setProductDiscount(e.target.value)} placeholder="0" style={inputStyle} {...inputFocusProps} />
                     </div>
                   </div>
 
                   <div>
-                    <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Image</label>
-                    <div onClick={() => document.getElementById('product-image-upload')?.click()} style={{ background: 'rgba(255,255,255,0.04)', border: productImagePreview ? '1px solid rgba(16,185,129,0.5)' : '2px dashed rgba(255,255,255,0.15)', borderRadius: '16px', padding: '24px', textAlign: 'center', cursor: 'pointer', overflow: 'hidden' }}>
+                    <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Image</label>
+                    <div onClick={() => document.getElementById('product-image-upload')?.click()} style={{ background: 'rgba(0,0,0,0.02)', border: productImagePreview ? '1px solid rgba(16,185,129,0.5)' : '2px dashed rgba(15,23,42,0.15)', borderRadius: '16px', padding: '24px', textAlign: 'center', cursor: 'pointer', overflow: 'hidden' }}>
                       {productImagePreview ? (
                         <img src={productImagePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px', objectFit: 'contain' }} />
                       ) : (
                         <div>
-                          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', margin: '0 0 4px 0' }}>📸 Upload Product Image</p>
-                          <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '12px', margin: 0 }}>Click to browse</p>
+                          <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '14px', margin: '0 0 4px 0' }}>📸 Upload Product Image</p>
+                          <p style={{ color: 'rgba(15,23,42,0.25)', fontSize: '12px', margin: 0 }}>Click to browse</p>
                         </div>
                       )}
                     </div>
@@ -579,7 +598,7 @@ useEffect(() => {
           {/* PROFILE SETTINGS */}
           {activeTab === 'profile' && (
             <div>
-              <h2 style={{ color: 'white', fontSize: '28px', fontWeight: '900', margin: '0 0 24px 0' }}>Profile Settings</h2>
+              <h2 style={{ color: '#0f172a', fontSize: '28px', fontWeight: '900', margin: '0 0 24px 0' }}>Profile Settings</h2>
               <div style={{ ...glassCard, padding: '32px', maxWidth: '600px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
@@ -594,7 +613,7 @@ useEffect(() => {
                     { label: 'Telegram', value: telegram, setter: setTelegram, placeholder: '@yourhandle' },
                   ].map((field: any) => (
                     <div key={field.label}>
-                      <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>{field.label}</label>
+                      <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>{field.label}</label>
                       {field.textarea ? (
                         <textarea value={field.value} onChange={(e: any) => field.setter(e.target.value)} placeholder={field.placeholder} rows={3} style={{ ...inputStyle, resize: 'vertical' }} {...inputFocusProps} />
                       ) : (
