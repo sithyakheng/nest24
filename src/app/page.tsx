@@ -157,8 +157,8 @@ async function fetchProducts() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
             <span style={{ fontSize: '20px' }}>⭐</span>
             <div>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>PREMIUM SELLERS</p>
-              <h2 style={{ color: 'white', fontSize: '24px', fontWeight: '900', margin: 0 }}>Featured Spotlight</h2>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>{t('home.premium_sellers')}</p>
+              <h2 style={{ color: 'white', fontSize: '24px', fontWeight: '900', margin: 0 }}>{t('home.premium_spotlight')}</h2>
             </div>
           </div>
           
@@ -203,7 +203,7 @@ async function fetchProducts() {
                       </div>
                     </div>
                     <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '2px 0 0 0' }}>
-                      {seller.products?.length || 0} products listed
+                      {seller.products?.length || 0} {t('home.products_listed')}
                     </p>
                   </div>
                   {seller.bio && (
@@ -211,7 +211,7 @@ async function fetchProducts() {
                       {seller.bio}
                     </p>
                   )}
-                  <p style={{ color: '#E8C97E', fontSize: '13px', fontWeight: '600', margin: 0 }}>View Shop →</p>
+                  <p style={{ color: '#E8C97E', fontSize: '13px', fontWeight: '600', margin: 0 }}>{t('home.view_shop')}</p>
                 </div>
               </Link>
             ))}
@@ -223,7 +223,7 @@ async function fetchProducts() {
       {topSellers.length > 0 && (
         <div style={{ marginBottom: '40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>TOP SELLERS</p>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>{t('home.top_sellers')}</p>
           </div>
           <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px' }}>
             {topSellers.map(seller => (
@@ -260,8 +260,8 @@ async function fetchProducts() {
       {/* NEW SELLERS SECTION */}
       {newSellers.length > 0 && (
         <div style={{ marginTop: '48px' }}>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>NEW SELLERS</p>
-          <h2 style={{ color: 'white', fontSize: isMobile ? '20px' : '24px', fontWeight: '900', marginBottom: isMobile ? '16px' : '20px' }}>Just Getting Started 🥉</h2>
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>{t('home.new_sellers')}</p>
+          <h2 style={{ color: 'white', fontSize: isMobile ? '20px' : '24px', fontWeight: '900', marginBottom: isMobile ? '16px' : '20px' }}>{t('home.just_started')}</h2>
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(220px, 1fr))', gap: isMobile ? '12px' : '16px' }}>
             {newSellers.map(seller => (
               <Link href={`/seller/${seller.id}`} key={seller.id}>
@@ -284,7 +284,7 @@ async function fetchProducts() {
                     🥉 {seller.name || seller.full_name}
                   </p>
                   <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: 0 }}>
-                    {seller.products?.length || 0} products
+                    {seller.products?.length || 0} {t('home.products_listed')}
                   </p>
                 </div>
               </Link>

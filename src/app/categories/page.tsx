@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { useLang } from '@/contexts/LanguageContext'
 
 const CATEGORIES = [
   { name: 'Electronics', emoji: '📱' },
@@ -15,6 +16,7 @@ const CATEGORIES = [
 ]
 
 export default function CategoriesPage() {
+  const { t } = useLang()
   const [counts, setCounts] = useState<Record<string, number>>({})
 
   useEffect(() => {
@@ -48,8 +50,8 @@ export default function CategoriesPage() {
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 10 }}>
         
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>BROWSE</p>
-        <h1 style={{ color: 'white', fontSize: '40px', fontWeight: '900', marginBottom: '40px' }}>Categories</h1>
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>{t('categories.browse')}</p>
+        <h1 style={{ color: 'white', fontSize: '40px', fontWeight: '900', marginBottom: '40px' }}>{t('categories.title')}</h1>
 
         <div style={{
           display: 'grid',
@@ -87,7 +89,7 @@ export default function CategoriesPage() {
                 <div>
                   <p style={{ color: 'white', fontWeight: '700', fontSize: '18px', margin: 0 }}>{cat.name}</p>
                   <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', margin: '4px 0 0 0' }}>
-                    {counts[cat.name] || 0} products
+                    {counts[cat.name] || 0} {t('categories.products')}
                   </p>
                 </div>
               </div>

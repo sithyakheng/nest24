@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { useLang } from '@/contexts/LanguageContext'
 
 export default function SellerShopPage() {
+  const { t } = useLang()
   const { id } = useParams()
   const [seller, setSeller] = useState<any>(null)
   const [products, setProducts] = useState<any[]>([])
@@ -48,13 +50,13 @@ export default function SellerShopPage() {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
-      Loading Shop...
+      {t('seller.loading')}
     </div>
   )
 
   if (!seller) return (
     <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
-      Shop not found
+      {t('seller.not_found')}
     </div>
   )
 
@@ -82,7 +84,7 @@ export default function SellerShopPage() {
         {/* Back button */}
         <Link href="/browse">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginBottom: '32px', cursor: 'pointer' }}>
-            ← Back to Browse
+            {t('seller.back')}
           </div>
         </Link>
 
@@ -161,7 +163,6 @@ export default function SellerShopPage() {
                 {seller.rank === 'verified' || seller.rank === 'premium' ? (
                   <div>
                     <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 2px 0' }}>Status</p>
-                    <p style={{ color: '#4ade80', fontWeight: '700', fontSize: '14px', margin: 0 }}>🛡️ Trusted Seller</p>
                   </div>
                 ) : null}
               </div>
@@ -175,7 +176,7 @@ export default function SellerShopPage() {
               padding: '20px',
               minWidth: '200px'
             }}>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px 0' }}>Contact</p>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px 0' }}>{t('seller.contact')}</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {seller.phone && (
                   <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: 0 }}>📞 {seller.phone}</p>
@@ -201,7 +202,7 @@ export default function SellerShopPage() {
                   </a>
                 )}
                 {!seller.phone && !seller.whatsapp && !seller.telegram && !seller.facebook && !seller.instagram && (
-                  <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', margin: 0 }}>No contact info</p>
+                  <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', margin: 0 }}>{t('seller.no_contact_info')}</p>
                 )}
               </div>
             </div>
@@ -213,7 +214,7 @@ export default function SellerShopPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(0,200,100,0.08)', border: '1px solid rgba(0,200,100,0.2)', borderRadius: '10px', padding: '10px 14px', marginTop: '20px' }}>
               <span>🛡️</span>
               <p style={{ color: '#4ade80', fontSize: '13px', fontWeight: '600', margin: 0 }}>
-                This seller is trusted and verified by NestKH
+                {t('seller.trusted')}
               </p>
             </div>
           )}
@@ -224,13 +225,13 @@ export default function SellerShopPage() {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
             <h2 style={{ color: 'white', fontSize: '22px', fontWeight: '900', margin: 0 }}>
-              Products Listed ({products.length})
+              {t('seller.products')} ({products.length})
             </h2>
           </div>
 
           {products.length === 0 ? (
             <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '60px', textAlign: 'center' }}>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px' }}>This seller has no products yet</p>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px' }}>{t('seller.no_products')}</p>
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>

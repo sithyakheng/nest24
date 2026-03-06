@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { useLang } from '@/contexts/LanguageContext'
 
 export default function RegisterPage() {
+  const { t } = useLang()
   const router = useRouter()
   const [windowWidth, setWindowWidth] = useState(1200)
   const isMobile = windowWidth < 768
@@ -74,10 +76,8 @@ export default function RegisterPage() {
         width: '100%',
         maxWidth: isMobile ? '100%' : '440px',
       }}>
-        <h1 className="text-3xl font-black text-white mb-2">Join NestKH</h1>
-        <p className="text-white/50 font-light mb-6">
-          Create your account
-        </p>
+        <h1 className="text-3xl font-black text-white mb-2">{t('auth.register_title')}</h1>
+        <p className="text-white/50 font-light mb-8">{t('auth.register_sub')}</p>
 
         {/* Role Toggle */}
         <div className="flex gap-2 mb-6 p-1 rounded-full"
@@ -96,7 +96,7 @@ export default function RegisterPage() {
                 ? '1px solid rgba(0,78,100,0.5)' : '1px solid transparent'
             }}
           >
-            I'm a Buyer
+            {t('auth.i_am')} {t('auth.buyer')}
           </button>
           <button
             type="button"
@@ -111,7 +111,7 @@ export default function RegisterPage() {
                 ? '1px solid rgba(0,78,100,0.5)' : '1px solid transparent'
             }}
           >
-            I'm a Seller
+            {t('auth.i_am')} {t('auth.seller')}
           </button>
         </div>
 
@@ -126,7 +126,7 @@ export default function RegisterPage() {
         <form onSubmit={handleRegister} className="space-y-4">
           <input
             type="text"
-            placeholder="Full Name"
+            placeholder={t('auth.full_name')}
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
@@ -138,7 +138,7 @@ export default function RegisterPage() {
           />
           <input
             type="email"
-            placeholder="Email"
+            placeholder={t('auth.email')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -150,7 +150,7 @@ export default function RegisterPage() {
           />
           <input
             type="password"
-            placeholder="Password"
+            placeholder={t('auth.password')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -168,15 +168,15 @@ export default function RegisterPage() {
               background: 'linear-gradient(135deg, #E8C97E, #F0B429)'
             }}
           >
-            {loading ? 'Creating account...' : 'Create Account'}
+            {loading ? t('auth.creating') : t('auth.register_btn')}
           </button>
         </form>
 
         <p className="text-white/40 text-sm text-center mt-6">
-          Already have an account?{' '}
+          {t('auth.have_account')}{' '}
           <Link href="/login" 
             className="text-teal-400 hover:text-teal-300">
-            Sign In
+            {t('auth.login_btn')}
           </Link>
         </p>
       </div>

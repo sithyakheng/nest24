@@ -101,9 +101,9 @@ function BrowseContent() {
             className="bg-white/[0.06] border border-white/[0.12] text-white 
             rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500/50"
           >
-            <option value="newest">Newest</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
+            <option value="newest">{t('browse.sort_newest')}</option>
+            <option value="price_asc">{t('browse.sort_low')}</option>
+            <option value="price_desc">{t('browse.sort_high')}</option>
           </select>
         </div>
 
@@ -118,7 +118,7 @@ function BrowseContent() {
                   : 'bg-white/[0.06] border-white/[0.12] text-white/60 hover:text-white'
                 }`}
             >
-              {cat}
+              {cat === 'All' ? t('browse.all') : cat}
             </button>
           ))}
         </div>

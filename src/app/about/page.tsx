@@ -1,8 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import { useLang } from '@/contexts/LanguageContext'
 
 export default function AboutPage() {
+  const { t } = useLang()
   return (
     <div style={{
       minHeight: '100vh',
@@ -43,16 +45,13 @@ export default function AboutPage() {
             marginBottom: '24px',
             letterSpacing: '0.05em'
           }}>
-            🇰🇭 Made in Cambodia
+            {t('about.badge')}
           </span>
           <h1 style={{ color: 'white', fontSize: '42px', fontWeight: '900', margin: '0 0 16px 0' }}>
-            About NestKH
+            {t('about.title')} NestKH
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '17px', lineHeight: '1.7', fontWeight: '300', margin: 0 }}>
-            NestKH is Cambodia's premier digital marketplace connecting 
-            trusted local sellers with buyers across the country. 
-            We believe in supporting local businesses and making 
-            quality products accessible to everyone.
+            {t('about.desc')}
           </p>
         </div>
 
@@ -90,10 +89,10 @@ export default function AboutPage() {
           textAlign: 'center'
         }}>
           <h2 style={{ color: 'white', fontSize: '28px', fontWeight: '900', margin: '0 0 12px 0' }}>
-            Ready to start?
+            {t('about.ready')}
           </h2>
           <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '24px' }}>
-            Browse products or become a seller today
+            {t('about.ready')}
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/browse">
@@ -107,7 +106,7 @@ export default function AboutPage() {
                 cursor: 'pointer',
                 fontSize: '15px'
               }}>
-                Browse Products
+                {t('about.browse_btn')}
               </button>
             </Link>
             <Link href="/register">
@@ -121,7 +120,7 @@ export default function AboutPage() {
                 cursor: 'pointer',
                 fontSize: '15px'
               }}>
-                Become a Seller
+                {t('about.seller_btn')}
               </button>
             </Link>
           </div>

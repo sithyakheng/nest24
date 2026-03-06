@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { useLang } from '@/contexts/LanguageContext'
 
 export default function ProductDetailPage() {
+  const { t } = useLang()
   const { id } = useParams()
   const router = useRouter()
   const [product, setProduct] = useState<any>(null)
@@ -89,8 +91,8 @@ export default function ProductDetailPage() {
         fontSize: '16px',
         gap: '16px'
       }}>
-        <p>Product not found</p>
-        <Link href="/" style={{ color: '#4DB8CC' }}>Back to Home</Link>
+        <p>{t('product.not_found')}</p>
+        <Link href="/" style={{ color: '#4DB8CC' }}>{t('product.back')}</Link>
       </div>
     )
   }
@@ -129,7 +131,7 @@ export default function ProductDetailPage() {
             marginBottom: '32px',
             cursor: 'pointer'
           }}>
-            ← Back to Store
+            ← {t('product.back_to_store')}
           </div>
         </Link>
 
@@ -166,7 +168,7 @@ export default function ProductDetailPage() {
                 color: 'rgba(255,255,255,0.2)',
                 fontSize: '14px'
               }}>
-                No Image
+                {t('product.no_image')}
               </div>
             )}
           </div>
@@ -193,7 +195,7 @@ export default function ProductDetailPage() {
               letterSpacing: '0.1em',
               fontWeight: '600'
             }}>
-              {product.category}
+              {t('product.category')} {product.category}
             </span>
 
             {/* Name */}
@@ -219,7 +221,7 @@ export default function ProductDetailPage() {
                   ${product.price}
                   {product.compare_price && product.compare_price > product.price && (
                     <span style={{ background: 'linear-gradient(135deg, #f87171, #ef4444)', color: 'white', fontSize: '13px', fontWeight: '800', padding: '3px 10px', borderRadius: '9999px', marginLeft: '12px' }}>
-                      {Math.round((1 - product.price / product.compare_price) * 100)}% OFF
+                      {Math.round((1 - product.price / product.compare_price) * 100)}% {t('product.off')}
                     </span>
                   )}
                 </p>
@@ -259,7 +261,7 @@ export default function ProductDetailPage() {
                   ? 'rgba(232,201,126,0.3)'
                   : 'rgba(255,80,80,0.3)'}`
               }}>
-                {product.stock > 5 ? '✓ In Stock' : product.stock > 0 ? `⚠ Only ${product.stock} left` : '✗ Out of Stock'}
+                {product.stock > 5 ? t('product.in_stock') : product.stock > 0 ? `⚠ Only ${product.stock} left` : t('product.out_of_stock')}
               </span>
             </div>
 
@@ -291,7 +293,7 @@ export default function ProductDetailPage() {
                   textTransform: 'uppercase',
                   letterSpacing: '0.1em'
                 }}>
-                  Sold By
+                  {t('product.sold_by')}
                 </span>
 
                 <div style={{
@@ -339,25 +341,25 @@ export default function ProductDetailPage() {
                 <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {seller.phone && (
                     <div>
-                      <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Phone</span>
+                      <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('product.phone')}</span>
                       <p style={{ color: 'white', fontSize: '14px', margin: '2px 0 0 0' }}>{seller.phone}</p>
                     </div>
                   )}
                   {seller.whatsapp && (
                     <div>
-                      <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>WhatsApp</span>
+                      <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('product.whatsapp')}</span>
                       <a href={`https://wa.me/${seller.whatsapp.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" style={{ color: '#4DB8CC', fontSize: '14px', display: 'block', marginTop: '2px' }}>{seller.whatsapp}</a>
                     </div>
                   )}
                   {seller.telegram && (
                     <div>
-                      <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Telegram</span>
+                      <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('product.telegram')}</span>
                       <a href={`https://t.me/${seller.telegram.replace('@','')}`} target="_blank" rel="noopener noreferrer" style={{ color: '#4DB8CC', fontSize: '14px', display: 'block', marginTop: '2px' }}>{seller.telegram}</a>
                     </div>
                   )}
                   {seller.facebook && (
                     <div>
-                      <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Facebook</span>
+                      <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('product.facebook')}</span>
                       <a href={seller.facebook.startsWith('http') ? seller.facebook : `https://facebook.com/${seller.facebook}`} target="_blank" rel="noopener noreferrer" style={{ color: '#4DB8CC', fontSize: '14px', display: 'block', marginTop: '2px' }}>{seller.facebook}</a>
                     </div>
                   )}

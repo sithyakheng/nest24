@@ -21,7 +21,7 @@ export default function Navbar() {
   const [userRole, setUserRole] = useState('')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [windowWidth, setWindowWidth] = useState(1200)
-  const { lang, toggleLang } = useLang()
+  const { lang, toggleLang, t } = useLang()
 
   const navTextColor = isDark ? 'white' : '#0f172a'
   const navBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.9)'
@@ -147,7 +147,7 @@ export default function Navbar() {
                 style={{ color: navTextColor }}
                 onClick={() => setActiveLink('browse')}
               >
-                Browse
+                {t('nav.browse')}
                 {activeLink === 'browse' && (
                   <motion.div
                     layoutId="nav-underline"
@@ -170,7 +170,7 @@ export default function Navbar() {
                     border: '1px solid rgba(232,201,126,0.2)',
                     transition: 'all 0.2s'
                   }}>
-                    🏆 Ranks
+                    🏆 {t('nav.ranks')}
                   </span>
                 </Link>
               )}
@@ -183,7 +183,7 @@ export default function Navbar() {
                 style={{ color: navTextColor }}
                 onClick={() => setActiveLink('categories')}
               >
-                Categories
+                {t('nav.categories')}
                 {activeLink === 'categories' && (
                   <motion.div
                     layoutId="nav-underline"
@@ -200,7 +200,7 @@ export default function Navbar() {
                 style={{ color: navTextColor }}
                 onClick={() => setActiveLink('about')}
               >
-                About
+                {t('nav.about')}
                 {activeLink === 'about' && (
                   <motion.div
                     layoutId="nav-underline"
@@ -275,20 +275,20 @@ export default function Navbar() {
                       <Link href="/dashboard" style={{ display: 'block', padding: '12px 16px', color: navTextColor, textDecoration: 'none', borderRadius: '8px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <LayoutDashboard size={16} />
-                          <span>Dashboard</span>
+                          <span>{t('nav.dashboard')}</span>
                         </div>
                       </Link>
                       <Link href="/profile" style={{ display: 'block', padding: '12px 16px', color: navTextColor, textDecoration: 'none', borderRadius: '8px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <User size={16} />
-                          <span>Profile</span>
+                          <span>{t('nav.my_account')}</span>
                         </div>
                       </Link>
                       {userRole === 'admin' && (
                         <Link href="/admin" style={{ display: 'block', padding: '12px 16px', color: navTextColor, textDecoration: 'none', borderRadius: '8px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <span style={{ fontSize: '14px' }}>⚙️</span>
-                            <span>Admin Panel</span>
+                            <span>{t('nav.admin')}</span>
                           </div>
                         </Link>
                       )}
@@ -309,7 +309,7 @@ export default function Navbar() {
                         }}
                       >
                         <LogOut size={16} />
-                        Sign Out
+                        {t('nav.signout')}
                       </button>
                     </div>
                   )}
@@ -350,7 +350,7 @@ export default function Navbar() {
                     }}
                     className="hover:opacity-100"
                   >
-                    Sign In
+                    {t('nav.signin')}
                   </Link>
                   <Link
                     href="/register"
@@ -365,7 +365,7 @@ export default function Navbar() {
                       boxShadow: '0 4px 20px rgba(232, 201, 126, 0.3)'
                     }}
                   >
-                    Join Free
+                    {t('nav.register')}
                   </Link>
                 </>
               )}
@@ -437,7 +437,7 @@ export default function Navbar() {
               <p style={{ color: navTextColor, fontWeight: '900', fontSize: '22px', margin: '0 0 4px 0' }}>
                 NestKH<span style={{ color: '#4DB8CC' }}>.</span>
               </p>
-              <p style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)', fontSize: '12px', margin: 0 }}>Cambodia Marketplace</p>
+              <p style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)', fontSize: '12px', margin: 0 }}>{t('home.badge')}</p>
             </div>
 
             {/* Theme + Language toggles */}
@@ -452,10 +452,10 @@ export default function Navbar() {
 
             {/* Nav links */}
             {[
-              { label: '🏠 Home', href: '/' },
-              { label: '🔍 Browse', href: '/browse' },
-              { label: '📂 Categories', href: '/categories' },
-              { label: '📖 About', href: '/about' },
+              { label: `🏠 Home`, href: '/' },
+              { label: `🔍 ${t('nav.browse')}`, href: '/browse' },
+              { label: `📂 ${t('nav.categories')}`, href: '/categories' },
+              { label: `📖 ${t('nav.about')}`, href: '/about' },
             ].map((item, index) => (
               <Link href={item.href} key={item.label} onClick={() => setMobileMenuOpen(false)}>
                 <div style={{
@@ -483,7 +483,7 @@ export default function Navbar() {
             {userRole === 'seller' && (
               <Link href="/dashboard/ranks" onClick={() => setMobileMenuOpen(false)}>
                 <div style={{ padding: '14px 16px', borderRadius: '12px', color: '#E8C97E', fontSize: '15px', fontWeight: '700', cursor: 'pointer', background: 'rgba(232,201,126,0.08)', border: '1px solid rgba(232,201,126,0.15)', marginTop: '4px' }}>
-                  🏆 Get Ranked
+                  🏆 {t('nav.ranks')}
                 </div>
               </Link>
             )}
@@ -499,7 +499,7 @@ export default function Navbar() {
                     {(user?.email || 'U').charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p style={{ color: navTextColor, fontWeight: '700', fontSize: '14px', margin: 0 }}>My Account</p>
+                    <p style={{ color: navTextColor, fontWeight: '700', fontSize: '14px', margin: 0 }}>{t('nav.my_account')}</p>
                     <p style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)', fontSize: '12px', margin: 0 }}>{user?.email}</p>
                   </div>
                 </div>
@@ -516,7 +516,7 @@ export default function Navbar() {
                       border: '1px solid rgba(232,201,126,0.15)',
                       marginTop: '4px'
                     }}>
-                      ⚙️ Admin Panel
+                      ⚙️ {t('nav.admin')}
                     </div>
                   </Link>
                 )}
@@ -529,19 +529,19 @@ export default function Navbar() {
                   onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }}
                   style={{ padding: '12px 16px', borderRadius: '12px', color: '#f87171', fontSize: '14px', fontWeight: '600', cursor: 'pointer', marginTop: '4px' }}
                 >
-                  🚪 Sign Out
+                  🚪 {t('nav.signout')}
                 </div>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
                   <div style={{ padding: '14px 16px', borderRadius: '12px', color: navTextColor, fontSize: '15px', fontWeight: '600', cursor: 'pointer', border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)'}`, textAlign: 'center' }}>
-                    Sign In
+                    {t('nav.signin')}
                   </div>
                 </Link>
                 <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
                   <div style={{ padding: '14px 16px', borderRadius: '12px', color: 'black', fontSize: '15px', fontWeight: '700', cursor: 'pointer', background: 'linear-gradient(135deg, #E8C97E, #F0B429)', textAlign: 'center' }}>
-                    Register
+                    {t('nav.register')}
                   </div>
                 </Link>
               </div>
