@@ -445,20 +445,9 @@ async function compressImage(file: File): Promise<File> {
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img
-              src="https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/nestkh-logo.png"
-              alt="NestKH"
-              style={{
-                height: '32px',
-                width: 'auto',
-                objectFit: 'contain'
-              }}
-            />
-            <p style={{ color: '#0f172a', fontWeight: '900', fontSize: '18px', margin: 0 }}>
-              <span style={{ color: '#10B981', fontSize: '13px', fontWeight: '600' }}>Dashboard</span>
-            </p>
-          </div>
+          <p style={{ color: '#0f172a', fontWeight: '900', fontSize: '18px', margin: 0 }}>
+            NestKH<span style={{ color: '#10B981' }}>.</span>
+          </p>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             style={{
