@@ -111,7 +111,28 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
-          {/* Rank Badge - Always rendered outside image conditional */}
+          {/* Discount Badge - Top Left */}
+          {product.compare_price && product.compare_price > product.price && (
+            <span style={{
+              position: 'absolute',
+              top: '8px',
+              left: '8px',
+              background: 'linear-gradient(135deg, #f87171, #ef4444)',
+              color: 'white',
+              fontSize: '11px',
+              fontWeight: '900',
+              padding: '4px 10px',
+              borderRadius: '9999px',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              zIndex: 2,
+              letterSpacing: '0.02em'
+            }}>
+              -{Math.round((1 - product.price / product.compare_price) * 100)}%
+            </span>
+          )}
+
+          {/* Rank Badge - Top Right */}
           {product.profiles?.rank && (
             <span style={{ 
               position: 'absolute', 
@@ -139,28 +160,33 @@ export default function ProductCard({ product }: ProductCardProps) {
           <p style={{ color: 'white', fontWeight: '600', fontSize: isMobile ? '12px' : '15px', margin: '6px 0', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             {product.name}
           </p>
+          <div style={{ marginBottom: '8px' }}>
           {product.compare_price && product.compare_price > product.price && (
-            <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', margin: '0 0 2px 0', textDecoration: 'line-through' }}>
-              ${product.compare_price}
-            </p>
-          )}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: isMobile ? '14px' : '18px', margin: 0 }}>
-              ${product.price}
-            </p>
-            {product.compare_price && product.compare_price > product.price && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+              <p style={{ 
+                color: 'rgba(255,255,255,0.35)', 
+                fontSize: '13px', 
+                margin: 0, 
+                textDecoration: 'line-through' 
+              }}>
+                ${product.compare_price}
+              </p>
               <span style={{
                 background: 'linear-gradient(135deg, #f87171, #ef4444)',
                 color: 'white',
                 fontSize: '10px',
-                fontWeight: '800',
-                padding: '2px 7px',
+                fontWeight: '900',
+                padding: '2px 8px',
                 borderRadius: '9999px'
               }}>
-                {Math.round((1 - product.price / product.compare_price) * 100)}% OFF
+                -{Math.round((1 - product.price / product.compare_price) * 100)}% OFF
               </span>
-            )}
-          </div>
+            </div>
+          )}
+          <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '18px', margin: 0 }}>
+            ${product.price}
+          </p>
+        </div>
           <Link href={`/seller/${product.profiles?.id}`} onClick={e => e.stopPropagation()}>
             <p style={{ color: '#4DB8CC', fontSize: '11px', margin: 0, cursor: 'pointer' }}>
               by {product.profiles?.name || product.profiles?.full_name || 'Seller'}
