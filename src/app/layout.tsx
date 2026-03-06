@@ -12,8 +12,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "NestKH - Premium Lifestyle Marketplace",
-  description: "Curated products. Modern living. Trusted quality in Cambodia.",
+  title: "NestKH - Premium Cambodian Marketplace",
+  description: "Cambodia's premier digital marketplace connecting trusted local sellers with buyers.",
+  icons: {
+    icon: '/nestkh-logo.svg',
+    apple: '/nestkh-logo.svg',
+  },
 };
 
 export default function RootLayout({

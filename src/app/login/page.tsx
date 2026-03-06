@@ -72,9 +72,16 @@ export default function LoginPage() {
         width: '100%',
         maxWidth: isMobile ? '100%' : '440px',
       }}>
-        <p style={{ color: 'white', fontWeight: '900', fontSize: '28px', margin: '0 0 4px 0', textAlign: 'center' }}>
-          NestKH<span style={{ color: '#4DB8CC' }}>.</span>
-        </p>
+        <img
+          src="/nestkh-logo.svg"
+          alt="NestKH"
+          style={{
+            height: '48px',
+            width: 'auto',
+            objectFit: 'contain',
+            marginBottom: '8px'
+          }}
+        />
         <h1 className="text-3xl font-black text-white mb-2">{t('auth.login_title')}</h1>
         <p className="text-white/50 font-light mb-8">{t('auth.login_sub')}</p>
         
