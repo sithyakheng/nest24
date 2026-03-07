@@ -302,25 +302,31 @@ async function compressImage(file: File): Promise<File> {
   async function handleDeleteProduct(productId: string, imageUrl: string) {
   if (!confirm('Are you sure you want to delete this product?')) return
 
-  if (imageUrl && imageUrl.includes('cloudinary.com')) {
-  try {
-    const urlParts = imageUrl.split('/upload/')
-    if (urlParts[1]) {
-      let publicId = urlParts[1].replace(/^v\d+\//, '')
-      publicId = publicId.replace(/\.[^/.]+$/, '')
-      console.log('Deleting from Cloudinary:', publicId)
-      await fetch('/api/delete-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ public_id: publicId })
-      })
-    }
-  } catch (e) {
-    console.log('Cloudinary delete error:', e)
-  }
-}
+  console.log('Deleting product:', productId)
+  console.log('Image URL:', imageUrl)
 
-  // Delete product from database
+  // Delete image from Cloudinary
+  if (imageUrl && imageUrl.includes('cloudinary.com')) {
+    try {
+      const urlParts = imageUrl.split('/upload/')
+      if (urlParts[1]) {
+        let publicId = urlParts[1].replace(/^v\d+\//, '')
+        publicId = publicId.replace(/\.[^/.]+$/, '')
+        console.log('Deleting from Cloudinary, public_id:', publicId)
+        const res = await fetch('/api/delete-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ public_id: publicId })
+        })
+        const result = await res.json()
+        console.log('Cloudinary delete result:', result)
+      }
+    } catch (e) {
+      console.log('Cloudinary delete error:', e)
+    }
+  }
+
+  // Delete product from Supabase database
   const { error } = await supabase
     .from('products')
     .delete()
@@ -332,6 +338,7 @@ async function compressImage(file: File): Promise<File> {
   }
 
   setProducts(prev => prev.filter((p: any) => p.id !== productId))
+  console.log('Product deleted successfully')
 }
 
   async function handleSaveProfile() {
