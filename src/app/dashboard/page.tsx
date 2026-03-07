@@ -300,37 +300,61 @@ async function compressImage(file: File): Promise<File> {
   }
 
   async function handleDeleteProduct(productId: string, imageUrl: string) {
-    if (!confirm('Are you sure you want to delete this product?')) return
+  if (!confirm('Are you sure you want to delete this product?')) return
 
-    // Extract file name from image URL and delete from storage
-    if (imageUrl) {
-      try {
-        const fileName = imageUrl.split('/Product/')[1]
-        if (fileName) {
-          const { error: storageError } = await supabase.storage
-            .from('Product')
-            .remove([fileName])
-          console.log('Image deleted from storage:', fileName, storageError)
-        }
-      } catch (e) {
-        console.log('Could not delete image from storage:', e)
+  // Delete from Cloudinary
+  if (imageUrl && imageUrl.includes('cloudinary.com')) {
+    try {
+      // Extract public_id from Cloudinary URL
+      // URL format: https://res.cloudinary.com/dis7tyccn/image/upload/v123456/nestkh/filename.jpg
+      const urlParts = imageUrl.split('/upload/')
+      if (urlParts[1]) {
+        // Remove version number (v123456/) if present
+        let publicId = urlParts[1].replace(/^v\d+\//, '')
+        // Remove file extension
+        publicId = publicId.replace(/\.[^/.]+$/, '')
+        
+        console.log('Deleting from Cloudinary:', publicId)
+        
+        const response = await fetch('/api/delete-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ public_id: publicId })
+        })
+        
+        const result = await response.json()
+        console.log('Cloudinary delete result:', result)
       }
+    } catch (e) {
+      console.log('Could not delete from Cloudinary:', e)
     }
-
-    // Delete product from database
-    const { error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', productId)
-
-    if (error) {
-      alert('Failed to delete product: ' + error.message)
-      return
-    }
-
-    // Refresh products list
-    setProducts(prev => prev.filter((p: any) => p.id !== productId))
   }
+
+  // Delete from Supabase storage (old images)
+  if (imageUrl && imageUrl.includes('supabase')) {
+    try {
+      const fileName = imageUrl.split('/Product/')[1]
+      if (fileName) {
+        await supabase.storage.from('Product').remove([fileName])
+      }
+    } catch (e) {
+      console.log('Could not delete from Supabase:', e)
+    }
+  }
+
+  // Delete product from database
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', productId)
+
+  if (error) {
+    alert('Failed to delete: ' + error.message)
+    return
+  }
+
+  setProducts(prev => prev.filter((p: any) => p.id !== productId))
+}
 
   async function handleSaveProfile() {
     setSavingProfile(true)
