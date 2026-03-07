@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { uploadImage } from '@/lib/uploadImage'
 import Link from 'next/link'
 
 export default function DashboardPage() {
@@ -234,24 +235,18 @@ async function compressImage(file: File): Promise<File> {
     let imageUrl = ''
 
     if (productImage) {
-      console.log('Compressing image...')
-      const compressed = await compressImage(productImage)
-      
-      const fileName = `product-${user.id}-${Date.now()}.webp` 
-      const { error: uploadError } = await supabase.storage
-        .from('Product')
-        .upload(fileName, compressed)
-
-      if (uploadError) {
-        setAddError('Image upload failed: ' + uploadError.message)
+      try {
+        setAddError('')
+        console.log('Compressing image...')
+        const compressed = await compressImage(productImage)
+        console.log('Uploading to Cloudinary...')
+        imageUrl = await uploadImage(compressed)
+        console.log('Cloudinary URL:', imageUrl)
+      } catch (err: any) {
+        setAddError('Image upload failed: ' + err.message)
         setAddingProduct(false)
         return
       }
-
-      const { data: urlData } = supabase.storage
-        .from('Product')
-        .getPublicUrl(fileName)
-      imageUrl = urlData.publicUrl
     }
 
     const insertData = {
