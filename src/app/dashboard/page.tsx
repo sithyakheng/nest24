@@ -816,9 +816,28 @@ async function compressImage(file: File): Promise<File> {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div>
                       <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Category</label>
-                      <select value={productCategory} onChange={e => setProductCategory(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
-                        {CATEGORIES.map(cat => <option key={cat} value={cat} style={{ background: '#0d0e12' }}>{cat}</option>)}
+                      <select 
+                        value={productCategory} 
+                        onChange={e => setProductCategory(e.target.value)} 
+                        style={{
+                          backgroundColor: 'white',
+                          color: '#1a1a1a',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          padding: '10px 12px',
+                          width: '100%',
+                          fontSize: '14px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                       </select>
+                      <style jsx>{`
+                        select option {
+                          background-color: white !important;
+                          color: #1a1a1a !important;
+                        }
+                      `}</style>
                     </div>
                     <div>
                       <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Discount (%)</label>
