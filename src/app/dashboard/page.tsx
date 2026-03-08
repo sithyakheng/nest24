@@ -551,6 +551,27 @@ async function compressImage(file: File): Promise<File> {
               </div>
             </Link>
 
+            <button
+              onClick={() => router.push(`/seller/${user?.id}`)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                width: '100%',
+                padding: '12px 16px',
+                background: 'linear-gradient(135deg, #46ABB8, #10B981)',
+                border: 'none',
+                borderRadius: '10px',
+                color: 'white',
+                fontWeight: '700',
+                fontSize: '14px',
+                cursor: 'pointer',
+                marginTop: '8px'
+              }}
+            >
+              🏪 Visit My Store
+            </button>
+
             <div
               onClick={async () => { await supabase.auth.signOut(); router.push('/') }}
               style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: '#ef4444', fontSize: '14px', cursor: 'pointer', marginTop: '4px', transition: 'all 0.2s' }}

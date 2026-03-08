@@ -187,10 +187,20 @@ export default function ProductCard({ product }: ProductCardProps) {
             ${product.price}
           </p>
         </div>
-          <Link href={`/seller/${product.profiles?.id}`} onClick={e => e.stopPropagation()}>
-            <p style={{ color: '#4DB8CC', fontSize: '11px', margin: 0, cursor: 'pointer' }}>
-              by {product.profiles?.name || product.profiles?.full_name || 'Seller'}
-            </p>
+          <Link 
+            href={`/seller/${product.profiles?.id}`}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              textDecoration: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            <span style={{ fontSize: '12px', color: '#46ABB8' }}>
+              {product.profiles?.name || product.profiles?.full_name || 'View Shop'}
+            </span>
           </Link>
         </div>
       </div>
