@@ -15,6 +15,7 @@ export default function AdminPage() {
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [productCounts, setProductCounts] = useState<any[]>([])
   const [rankPayments, setRankPayments] = useState<any[]>([])
+  const [reports, setReports] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
@@ -248,9 +249,10 @@ export default function AdminPage() {
     { id: 'requests', label: '📋 Rank Requests', count: rankRequests.filter(r => r.status === 'pending').length },
     { id: 'users', label: '👤 All Users', count: allUsers.length },
     { id: 'sellers', label: '👥 Sellers', count: sellers.length },
+    { id: 'reports', label: '🚩 Reports', count: reports.length },
     { id: 'products', label: '📦 Products', count: products.length },
     { id: 'orders', label: '🛒 Orders', count: orders.length },
-    { id: 'payments', label: '💰 Rank Payments', count: rankPayments.filter(p => p.status === 'pending').length },
+    { id: 'payments', label: '💰 Payments', count: rankPayments.length },
   ]
 
   return (
@@ -624,6 +626,87 @@ export default function AdminPage() {
           </div>
         )}
 
+        {/* REPORTS TAB */}
+        {activeTab === 'reports' && (
+          <div style={{ ...glassCard, padding: '24px' }}>
+            <h2 style={{ color: 'white', fontWeight: '800', fontSize: '20px', marginBottom: '20px' }}>Reports</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {reports.length === 0 ? (
+                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '20px' }}>No reports submitted yet.</p>
+              ) : (
+                reports.map(report => (
+                  <div key={report.id} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(0,78,100,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4DB8CC', fontWeight: '700', fontSize: '16px' }}>
+                          {(report.seller?.name || report.seller_name || report.profiles?.full_name || 'S').charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p style={{ color: 'white', fontWeight: '700', margin: '0 0 2px 0' }}>
+                            {report.seller_name || report.seller_name || report.profiles?.full_name || 'Unknown'}
+                          </p>
+                          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: 0 }}>
+                            {report.seller?.email}
+                          </p>
+                        </div>
+                      </div>
+                      <div style={{ padding: '16px' }}>
+                        <span style={{ color: '#FF6B6B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '600', padding: '3px 8px', borderRadius: '4px' }}>
+                          {report.reason}
+                        </span>
+                        {report.details && (
+                          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '8px 0 0 0' }}>
+                            {report.details}
+                          </p>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          onClick={async () => {
+                            await supabase.from('reports').update({ status: 'reviewed' }).eq('id', report.id)
+                          }}
+                          style={{
+                            padding: '8px 16px',
+                            borderRadius: '8px',
+                            border: 'none',
+                            background: '#10B981',
+                            color: 'white',
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            fontWeight: '700'
+                          }}
+                        >
+                          Mark Reviewed
+                        </button>
+                        <button
+                          onClick={async () => {
+                            await supabase.from('profiles').update({ banned: true }).eq('id', report.seller_id)
+                            await supabase.from('reports').update({ status: 'reviewed' }).eq('id', report.id)
+                          }}
+                          style={{
+                            padding: '8px 16px',
+                            borderRadius: '8px',
+                            border: 'none',
+                            background: '#EF4444',
+                            color: 'white',
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            fontWeight: '700'
+                          }}
+                        >
+                          Ban Seller
+                        </button>
+                      </div>
+                    </div>
+                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', margin: '8px 0 0 0' }}>
+                      {new Date(report.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

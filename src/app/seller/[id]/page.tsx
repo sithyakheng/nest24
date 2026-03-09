@@ -16,6 +16,11 @@ export default function SellerShopPage() {
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [windowWidth, setWindowWidth] = useState(1200)
+  const [showReportModal, setShowReportModal] = useState(false)
+  const [reportReason, setReportReason] = useState('')
+  const [reportDetails, setReportDetails] = useState('')
+  const [reportSubmitting, setReportSubmitting] = useState(false)
+  const [reportSuccess, setReportSuccess] = useState(false)
 
   const isMobile = windowWidth < 768
   const isSmallMobile = windowWidth < 480
@@ -278,6 +283,25 @@ export default function SellerShopPage() {
 
         </div>
 
+          {/* Report button */}
+          <button
+            onClick={() => setShowReportModal(true)}
+            style={{
+              background: 'transparent',
+              border: '1px solid #ef4444',
+              color: '#ef4444',
+              borderRadius: '8px',
+              padding: '8px 16px',
+              fontSize: '13px',
+              cursor: 'pointer',
+              marginTop: '12px'
+            }}
+          >
+            🚩 Report Shop
+          </button>
+
+        </div>
+
         {/* Products Grid */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
@@ -345,7 +369,147 @@ export default function SellerShopPage() {
           )}
         </div>
       </div>
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: isDark ? '#0f1a2e' : 'white',
+            borderRadius: '16px',
+            padding: '24px',
+            width: '100%',
+            maxWidth: '420px'
+          }}>
+            <h3 style={{ color: isDark ? 'white' : '#0f172a', margin: '0 0 16px 0' }}>
+              🚩 Report Shop
+            </h3>
+
+            {reportSuccess ? (
+              <p style={{ color: '#10B981', textAlign: 'center', padding: '20px 0' }}>
+                ✅ Report submitted. We will review it shortly.
+              </p>
+            ) : (
+              <>
+                <p style={{ color: isDark ? '#94a3b8' : '#64748b', fontSize: '13px', margin: '0 0 16px 0' }}>
+                  Select a reason for reporting this shop:
+                </p>
+
+                <select
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #e2e8f0',
+                    fontSize: '14px',
+                    marginBottom: '12px',
+                    background: isDark ? '#1e293b' : 'white',
+                    color: isDark ? 'white' : '#0f172a'
+                  }}
+                >
+                  <option value="">Select reason...</option>
+                  <option value="scam">Scam / Fraud</option>
+                  <option value="fake">Fake Products</option>
+                  <option value="inappropriate">Inappropriate Content</option>
+                  <option value="spam">Spam</option>
+                  <option value="other">Other</option>
+                </select>
+
+                <textarea
+                  value={reportDetails}
+                  onChange={(e) => setReportDetails(e.target.value)}
+                  placeholder="Additional details (optional)..."
+                  rows={3}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #e2e8f0',
+                    fontSize: '14px',
+                    marginBottom: '16px',
+                    background: isDark ? '#1e293b' : 'white',
+                    color: isDark ? 'white' : '#0f172a',
+                    resize: 'none'
+                  }}
+                />
+
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    onClick={() => setShowReportModal(false)}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      borderRadius: '8px',
+                      border: '1px solid #e2e8f0',
+                      background: 'transparent',
+                      color: isDark ? 'white' : '#0f172a',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!reportReason) {
+                        alert('Please select a reason')
+                        return
+                      }
+                      setReportSubmitting(true)
+                      const { error } = await supabase
+                        .from('reports')
+                        .insert({
+                          seller_id: seller?.id,
+                          reason: reportReason,
+                          details: reportDetails,
+                        })
+                      setReportSubmitting(false)
+                      if (!error) {
+                        setReportSuccess(true)
+                        setTimeout(() => {
+                          setShowReportModal(false)
+                          setReportSuccess(false)
+                          setReportReason('')
+                          setReportDetails('')
+                        }, 3000)
+                      } else {
+                        alert('Failed to submit report')
+                      }
+                    }}
+                    disabled={reportSubmitting}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      borderRadius: '8px',
+                      border: 'none',
+                      background: '#ef4444',
+                      color: 'white',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '700'
+                    }}
+                  >
+                    {reportSubmitting ? 'Submitting...' : 'Submit Report'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   </div>
+  )
+}</div>
   )
 }
