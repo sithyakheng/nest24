@@ -224,7 +224,9 @@ export default function SellerShopPage() {
               padding: '20px',
               minWidth: '200px'
             }}>
-              {languageText.contact}</p>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px 0' }}>
+                {languageText.contact}
+              </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {seller.phone && (
                   <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: 0 }}>📞 {seller.phone}</p>
@@ -287,7 +289,7 @@ export default function SellerShopPage() {
                 <Link href={`/products/${product.id}`} key={product.id}>
                   <div
                     style={{
-                      background: 'rgba(255,255,255,0.06)',
+                      background: isDark ? '#0f1a2e' : 'white',
                       backdropFilter: 'blur(24px)',
                       WebkitBackdropFilter: 'blur(24px)',
                       border: rankColor ? `1px solid ${rankBorder}` : '1px solid rgba(255,255,255,0.12)',
@@ -319,9 +321,9 @@ export default function SellerShopPage() {
                       )}
                     </div>
                     <div style={{ padding: '16px' }}>
-                      <span style={{ color: '#4DB8CC', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '600' }}>{product.category}</span>
-                      <p style={{ color: 'white', fontWeight: '600', fontSize: '15px', margin: '6px 0', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</p>
-                      <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '18px', margin: '0 0 4px 0' }}>${product.price}</p>
+                      <span style={{ color: isDark ? '#94a3b8' : '#64748b', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '600' }}>{product.category}</span>
+                      <p style={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: '600', fontSize: '15px', margin: '6px 0', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</p>
+                      <p style={{ color: isDark ? '#E8C97E' : '#059669', fontWeight: '900', fontSize: '18px', margin: '0 0 4px 0' }}>${product.price}</p>
                       {product.stock <= 5 && product.stock > 0 && (
                         <p style={{ color: '#f87171', fontSize: '12px', margin: 0 }}>Only {product.stock} left!</p>
                       )}
@@ -335,7 +337,6 @@ export default function SellerShopPage() {
             </div>
           )}
         </div>
-
       </div>
     </div>
   )
