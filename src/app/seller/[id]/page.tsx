@@ -225,18 +225,18 @@ export default function SellerShopPage() {
 
             {/* Contact Info */}
             <div style={{
-              background: 'rgba(255,255,255,0.04)',
+              background: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9',
               border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: '16px',
               padding: '20px',
               minWidth: '200px'
             }}>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px 0' }}>
+              <p style={{ color: isDark ? '#ffffff' : '#1a1a1a', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px 0' }}>
                 {languageText.contact}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {seller.phone && (
-                  <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: 0 }}>📞 {seller.phone}</p>
+                  <p style={{ color: isDark ? '#ffffff' : '#1a1a1a', fontSize: '14px', margin: 0 }}>📞 {seller.phone}</p>
                 )}
                 {seller.whatsapp && (
                   <a href={`https://wa.me/${seller.whatsapp.replace(/\D/g, '')}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none' }}>
@@ -259,7 +259,7 @@ export default function SellerShopPage() {
                   </a>
                 )}
                 {!seller.phone && !seller.whatsapp && !seller.telegram && !seller.facebook && !seller.instagram && (
-                  <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', margin: 0 }}>{languageText.noContactInfo}</p>
+                  <p style={{ color: isDark ? '#ffffff' : '#1a1a1a', fontSize: '13px', margin: 0 }}>{languageText.noContactInfo}</p>
                 )}
               </div>
             </div>
