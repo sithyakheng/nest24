@@ -101,8 +101,8 @@ export default function SellerShopPage() {
   )
 
   if (!seller) return (
-    <div style={{ minHeight: '100vh', background: isDark ? '#080a0f' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
-      {languageText.noProducts}
+    <div style={{ minHeight: '100vh', background: background, display: 'flex', alignItems: 'center', justifyContent: 'center', color: textSecondary }}>
+      {languageText.notFound}
     </div>
   )
 
@@ -138,18 +138,18 @@ export default function SellerShopPage() {
 
         {/* Back button */}
         <Link href="/browse">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: theme.textSecondary, fontSize: '14px', marginBottom: '32px', cursor: 'pointer' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: isDark ? '#94a3b8' : '#64748b', fontSize: '14px', marginBottom: '32px', cursor: 'pointer' }}>
             {languageText.back}
           </div>
         </Link>
 
         {/* Shop Profile Header */}
         <div style={{
-          background: theme.backgroundSecondary,
+          background: isDark ? '#0f1a2e' : '#ffffff',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          border: rankColor ? `1px solid ${rankBorder}` : theme.border,
-          borderTop: rankColor ? `1px solid ${rankBorder}` : theme.border,
+          border: rankColor ? `1px solid ${rankBorder}` : isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
+          borderTop: rankColor ? `1px solid ${rankBorder}` : isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
           borderRadius: '24px',
           padding: '40px',
           marginBottom: '32px',
