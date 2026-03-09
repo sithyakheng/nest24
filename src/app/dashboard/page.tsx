@@ -13,6 +13,10 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
 
+  // Shop URL variables
+  const [shopSlug, setShopSlug] = useState('')
+  const [shopUrl, setShopUrl] = useState('')
+
   function sanitize(str: string): string {
     return str
       .replace(/</g, '&lt;')
