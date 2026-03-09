@@ -572,6 +572,70 @@ async function compressImage(file: File): Promise<File> {
               🏪 Visit My Store
             </button>
 
+            {/* Shop URL copy section */}
+            <div style={{
+              background: '#f0fdf4',
+              border: '1px solid #10B981',
+              borderRadius: '12px',
+              padding: '14px 16px',
+              marginTop: '12px'
+            }}>
+              <p style={{ 
+                fontSize: '12px', 
+                fontWeight: '700', 
+                color: '#10B981',
+                margin: '0 0 8px 0'
+              }}>
+                🔗 My Shop Link
+              </p>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: 'white',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                padding: '8px 12px'
+              }}>
+                <span style={{ 
+                  fontSize: '11px', 
+                  color: '#64748b',
+                  flex: 1,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>
+                  nest24.vercel.app/seller/{user?.id}
+                </span>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(`https://nest24.vercel.app/seller/${user?.id}`)
+                    alert('Link copied!')
+                  }}
+                  style={{
+                    background: '#10B981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '4px 10px',
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  Copy
+                </button>
+              </div>
+              <p style={{ 
+                fontSize: '10px', 
+                color: '#94a3b8',
+                margin: '6px 0 0 0'
+              }}>
+                Share this link on TikTok, Instagram, Facebook etc.
+              </p>
+            </div>
+
             <div
               onClick={async () => { await supabase.auth.signOut(); router.push('/') }}
               style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: '#ef4444', fontSize: '14px', cursor: 'pointer', marginTop: '4px', transition: 'all 0.2s' }}
