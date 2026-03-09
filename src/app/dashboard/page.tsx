@@ -205,6 +205,37 @@ async function compressImage(file: File): Promise<File> {
     console.log('productStock:', productStock)
     console.log('user:', user?.id)
 
+    // Check product limit based on seller tier
+    const { data: sellerProfile } = await supabase
+      .from('profiles')
+      .select('rank')
+      .eq('id', user?.id)
+      .single()
+
+    // Count current products
+    const { data: currentProducts } = await supabase
+      .from('products')
+      .select('id')
+      .eq('seller_id', user?.id)
+
+    const currentProductCount = currentProducts?.length || 0
+    const sellerTier = sellerProfile?.rank || 0
+    
+    // Define limits based on tier
+    const limits = {
+      0: 5,    // no rank
+      1: 30,   // tier 1
+      2: 150,  // tier 2  
+      3: 300   // tier 3
+    }
+    
+    const maxProducts = limits[sellerTier] || 5
+    
+    if (currentProductCount >= maxProducts) {
+      setAddError(`You've reached your plan limit. Upgrade your tier to list more products.`)
+      return
+    }
+
     if (!productName || !productPrice || !productStock) {
       setAddError('Please fill in name, price and stock.')
       return
