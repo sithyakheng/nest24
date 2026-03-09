@@ -222,7 +222,7 @@ async function compressImage(file: File): Promise<File> {
     const sellerTier = sellerProfile?.rank || 0
     
     // Define limits based on tier
-    const limits = {
+    const limits: Record<number, number> = {
       0: 5,    // no rank
       1: 30,   // tier 1
       2: 150,  // tier 2  
