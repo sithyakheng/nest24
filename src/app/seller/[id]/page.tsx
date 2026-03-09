@@ -76,7 +76,7 @@ export default function SellerShopPage() {
       const { data: sellerData } = await supabase
         .from('profiles')
         .select('*')
-        .or(`id.eq.${id}`, `shop_slug.eq.${id}`)
+        .or(`id.eq.${id},shop_slug.eq.${id}`)
         .single()
 
       setSeller(sellerData)
