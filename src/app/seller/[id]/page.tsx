@@ -10,7 +10,7 @@ import Navbar from '@/components/Navbar'
 
 export default function SellerShopPage() {
   const { lang } = useLang()
-  const { isDark } = useTheme()
+  const { theme, isDark, background, backgroundSecondary, text, textSecondary, border } = useTheme()
   const { id } = useParams()
   const [seller, setSeller] = useState<any>(null)
   const [products, setProducts] = useState<any[]>([])
@@ -20,7 +20,7 @@ export default function SellerShopPage() {
   const isMobile = windowWidth < 768
   const isSmallMobile = windowWidth < 480
 
-  const text = {
+  const translations = {
     en: {
       products: 'Products',
       noProducts: 'No products yet',
@@ -61,7 +61,7 @@ export default function SellerShopPage() {
     }
   }
 
-  const languageText = lang === 'kh' ? text.kh : text.en
+  const languageText = lang === 'kh' ? translations.kh : translations.en
 
   useEffect(() => {
     setWindowWidth(window.innerWidth)
@@ -119,7 +119,14 @@ export default function SellerShopPage() {
   return (
     <div>
       <Navbar />
-      <div style={{ minHeight: '100vh', background: '#080a0f', paddingTop: '100px', paddingBottom: '60px', position: 'relative' }}>
+      <div style={{ 
+        minHeight: '100vh', 
+        background: isDark ? '#080a0f' : '#f8fafc',
+        color: isDark ? '#ffffff' : '#0f172a',
+        paddingTop: '100px', 
+        paddingBottom: '60px', 
+        position: 'relative' 
+      }}>
 
       {/* Orbs */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
@@ -131,18 +138,18 @@ export default function SellerShopPage() {
 
         {/* Back button */}
         <Link href="/browse">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginBottom: '32px', cursor: 'pointer' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: theme.textSecondary, fontSize: '14px', marginBottom: '32px', cursor: 'pointer' }}>
             {languageText.back}
           </div>
         </Link>
 
         {/* Shop Profile Header */}
         <div style={{
-          background: 'rgba(255,255,255,0.06)',
+          background: theme.backgroundSecondary,
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          border: rankColor ? `2px solid ${rankBorder}` : '1px solid rgba(255,255,255,0.12)',
-          borderTop: rankColor ? `2px solid ${rankBorder}` : '1px solid rgba(255,255,255,0.22)',
+          border: rankColor ? `1px solid ${rankBorder}` : theme.border,
+          borderTop: rankColor ? `1px solid ${rankBorder}` : theme.border,
           borderRadius: '24px',
           padding: '40px',
           marginBottom: '32px',
@@ -274,7 +281,7 @@ export default function SellerShopPage() {
         {/* Products Grid */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <h2 style={{ color: 'white', fontSize: '22px', fontWeight: '900', margin: 0 }}>
+            <div style={{ color: isDark ? '#ffffff' : '#0f172a', fontSize: '22px', fontWeight: '900', margin: 0 }}>
               {languageText.products} ({products.length})
             </h2>
           </div>
