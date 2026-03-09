@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useLang } from '@/contexts/LanguageContext'
+import Navbar from '@/components/Navbar'
 
 export default function SellerShopPage() {
   const { t } = useLang()
@@ -71,7 +72,9 @@ export default function SellerShopPage() {
   const rankBorder = seller.rank === 'premium' ? 'rgba(232,201,126,0.4)' : seller.rank === 'verified' ? 'rgba(0,78,100,0.4)' : 'rgba(59,130,246,0.4)'
 
   return (
-    <div style={{ minHeight: '100vh', background: '#080a0f', paddingTop: '100px', paddingBottom: '60px', position: 'relative' }}>
+    <div>
+      <Navbar />
+      <div style={{ minHeight: '100vh', background: '#080a0f', paddingTop: '100px', paddingBottom: '60px', position: 'relative' }}>
 
       {/* Orbs */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
@@ -289,6 +292,7 @@ export default function SellerShopPage() {
         </div>
 
       </div>
+    </div>
     </div>
   )
 }
