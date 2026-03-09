@@ -281,9 +281,9 @@ export default function SellerShopPage() {
         {/* Products Grid */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <div style={{ color: text, fontSize: '22px', fontWeight: '900', margin: 0 }}>
+            <h2 style={{ color: text, fontSize: '22px', fontWeight: '900', margin: 0 }}>
               {languageText.products} ({products.length})
-            </div>
+            </h2>
           </div>
 
           {products.length === 0 ? (
