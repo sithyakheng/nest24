@@ -65,7 +65,6 @@ export default function DashboardPage() {
   const [facebook, setFacebook] = useState('')
   const [instagram, setInstagram] = useState('')
   const [telegram, setTelegram] = useState('')
-  const [shopSlug, setShopSlug] = useState('')
   const [savingProfile, setSavingProfile] = useState(false)
   const [profileSuccess, setProfileSuccess] = useState(false)
 
