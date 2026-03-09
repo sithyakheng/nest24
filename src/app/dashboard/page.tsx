@@ -628,6 +628,14 @@ const displayUrl = shopSlug
   ? `nest24.vercel.app/seller/${shopSlug}` 
   : `nest24.vercel.app/seller/${user?.id?.slice(0, 8)}...` 
 
+              const shopUrl = shopSlug 
+  ? `https://nest24.vercel.app/seller/${shopSlug}` 
+  : `https://nest24.vercel.app/seller/${user?.id}` 
+
+const displayUrl = shopSlug
+  ? `nest24.vercel.app/seller/${shopSlug}` 
+  : `nest24.vercel.app/seller/${user?.id?.slice(0, 8)}...` 
+
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
