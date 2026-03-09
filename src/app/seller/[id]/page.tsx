@@ -5,10 +5,12 @@ import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useLang } from '@/contexts/LanguageContext'
+import { useTheme } from '@/contexts/ThemeContext'
 import Navbar from '@/components/Navbar'
 
 export default function SellerShopPage() {
-  const { t } = useLang()
+  const { lang } = useLang()
+  const { isDark } = useTheme()
   const { id } = useParams()
   const [seller, setSeller] = useState<any>(null)
   const [products, setProducts] = useState<any[]>([])
@@ -17,6 +19,49 @@ export default function SellerShopPage() {
 
   const isMobile = windowWidth < 768
   const isSmallMobile = windowWidth < 480
+
+  const text = {
+    en: {
+      products: 'Products',
+      noProducts: 'No products yet',
+      notFound: 'Seller not found',
+      back: 'Back to Store',
+      contact: 'Contact Seller',
+      trusted: 'Trusted Seller',
+      followers: 'Products Listed',
+      visit: 'Visit Shop',
+      phone: 'Phone',
+      whatsapp: 'WhatsApp',
+      telegram: 'Telegram',
+      facebook: 'Facebook',
+      instagram: 'Instagram',
+      share: 'Share Shop',
+      copied: 'Link Copied!',
+      loading: 'Loading...',
+      noContactInfo: 'No contact info available',
+    },
+    kh: {
+      products: 'ផលិតផល',
+      noProducts: 'មិនទាន់មានផលិតផលទេ',
+      notFound: 'មិនទាន់មានផលិតផលទេ',
+      back: 'ត្រឡប់ទៅហាង',
+      contact: 'ទំនាក់ទំនងអ្នកលក់',
+      trusted: 'អ្នកលក់ទុកចិត្ត',
+      followers: 'ផលិតផលដែលបានចុះបញ្ជី',
+      visit: 'ចូលទៅហាង',
+      phone: 'ទូរស័ព្ទ',
+      whatsapp: 'វ៉ាតសាប',
+      telegram: 'តេឡេក្រាម',
+      facebook: 'ហ្វេសប៊ុក',
+      instagram: 'អ៊ីនស្តាក្រាម',
+      share: 'ចែករំលែកហាង',
+      copied: 'បានចម្លងតំណ!',
+      loading: 'កំនឹង...',
+      noContactInfo: 'មិនទាន់មានផលិតផលទេ',
+    }
+  }
+
+  const languageText = lang === 'kh' ? text.kh : text.en
 
   useEffect(() => {
     setWindowWidth(window.innerWidth)
@@ -50,14 +95,14 @@ export default function SellerShopPage() {
   }, [id])
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
-      {t('seller.loading')}
+    <div style={{ minHeight: '100vh', background: isDark ? '#080a0f' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
+      {languageText.loading}
     </div>
   )
 
   if (!seller) return (
-    <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
-      {t('seller.not_found')}
+    <div style={{ minHeight: '100vh', background: isDark ? '#080a0f' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
+      {languageText.noProducts}
     </div>
   )
 
@@ -87,7 +132,7 @@ export default function SellerShopPage() {
         {/* Back button */}
         <Link href="/browse">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginBottom: '32px', cursor: 'pointer' }}>
-            {t('seller.back')}
+            {languageText.back}
           </div>
         </Link>
 
@@ -179,7 +224,7 @@ export default function SellerShopPage() {
               padding: '20px',
               minWidth: '200px'
             }}>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px 0' }}>{t('seller.contact')}</p>
+              {languageText.contact}</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {seller.phone && (
                   <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: 0 }}>📞 {seller.phone}</p>
@@ -205,7 +250,7 @@ export default function SellerShopPage() {
                   </a>
                 )}
                 {!seller.phone && !seller.whatsapp && !seller.telegram && !seller.facebook && !seller.instagram && (
-                  <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', margin: 0 }}>{t('seller.no_contact_info')}</p>
+                  <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', margin: 0 }}>{languageText.noContactInfo}</p>
                 )}
               </div>
             </div>
@@ -217,10 +262,10 @@ export default function SellerShopPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(0,200,100,0.08)', border: '1px solid rgba(0,200,100,0.2)', borderRadius: '10px', padding: '10px 14px', marginTop: '20px' }}>
               <span>🛡️</span>
               <p style={{ color: '#4ade80', fontSize: '13px', fontWeight: '600', margin: 0 }}>
-                {t('seller.trusted')}
+                {languageText.trusted}
               </p>
             </div>
-          )}
+          )}}
 
         </div>
 
@@ -228,13 +273,13 @@ export default function SellerShopPage() {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
             <h2 style={{ color: 'white', fontSize: '22px', fontWeight: '900', margin: 0 }}>
-              {t('seller.products')} ({products.length})
+              {languageText.products} ({products.length})
             </h2>
           </div>
 
           {products.length === 0 ? (
             <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '60px', textAlign: 'center' }}>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px' }}>{t('seller.no_products')}</p>
+              {languageText.noProducts}</p>
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
@@ -292,7 +337,6 @@ export default function SellerShopPage() {
         </div>
 
       </div>
-    </div>
     </div>
   )
 }
