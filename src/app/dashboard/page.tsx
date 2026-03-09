@@ -53,6 +53,8 @@ export default function DashboardPage() {
   // Profile form state
   const [fullName, setFullName] = useState('')
   const [displayName, setDisplayName] = useState('')
+  const [profileName, setProfileName] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('')
   const [bio, setBio] = useState('')
   const [phone, setPhone] = useState('')
   const [whatsapp, setWhatsapp] = useState('')
@@ -94,6 +96,8 @@ async function loadProfile(currentUser: any) {
   setProfile(profile)
   setFullName(profile?.full_name || '')
   setDisplayName(profile?.name || '')
+  setProfileName(profile?.name || '')
+  setAvatarUrl(profile?.avatar_url || '')
   setBio(profile?.bio || '')
   setPhone(profile?.phone || '')
   setWhatsapp(profile?.whatsapp || '')
@@ -341,13 +345,38 @@ async function compressImage(file: File): Promise<File> {
   console.log('Product deleted successfully')
 }
 
-  async function handleSaveProfile() {
+async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  
+  try {
+    setSavingProfile(true)
+    const compressed = await compressImage(file)
+    const url = await uploadImage(compressed)
+    
+    const { error } = await supabase
+      .from('profiles')
+      .update({ avatar_url: url })
+      .eq('id', user?.id)
+    
+    if (!error) {
+      setAvatarUrl(url)
+      alert('Profile photo updated!')
+    }
+  } catch (err) {
+    alert('Failed to upload photo')
+  } finally {
+    setSavingProfile(false)
+  }
+}
+
+async function handleSaveProfile() {
     setSavingProfile(true)
     const { error } = await supabase
       .from('profiles')
       .update({
         full_name: fullName,
-        name: displayName,
+        name: profileName,
         bio,
         phone,
         whatsapp,
@@ -513,7 +542,7 @@ async function compressImage(file: File): Promise<File> {
             <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(16,185,129,0.4)', border: '2px solid rgba(16,185,129,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981', fontWeight: '900', fontSize: '24px', margin: '0 auto 12px auto' }}>
               {(profile?.name || profile?.full_name || 'S').charAt(0).toUpperCase()}
             </div>
-            <p style={{ color: '#0f172a', fontWeight: '700', fontSize: '15px', margin: '0 0 4px 0' }}>{profile?.name || profile?.full_name || 'Seller'}</p>
+            <p style={{ color: '#0f172a', fontWeight: '700', fontSize: '15px', margin: '0 0 4px 0' }}>🏪 {profile?.name || profile?.full_name || 'Seller'}</p>
             <span style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', color: '#10B981', fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '9999px' }}>Seller</span>
           </div>
 
@@ -1022,9 +1051,73 @@ async function compressImage(file: File): Promise<File> {
               <div style={{ ...glassCard, padding: isMobile ? '16px' : '32px', maxWidth: '600px', width: '100%' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
+                  {/* Profile Picture Upload */}
+                  <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                    {/* Avatar preview */}
+                    <div style={{
+                      width: '100px',
+                      height: '100px',
+                      borderRadius: '50%',
+                      background: '#e2e8f0',
+                      margin: '0 auto 12px',
+                      overflow: 'hidden',
+                      border: '3px solid #10B981'
+                    }}>
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ 
+                          width: '100%', height: '100%', 
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: '36px', background: '#10B981', color: 'white', fontWeight: '900'
+                        }}>
+                          {profileName?.[0]?.toUpperCase() || 'S'}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <label style={{
+                      background: '#10B981',
+                      color: 'white',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      fontWeight: '600'
+                    }}>
+                      📷 Change Photo
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={handleAvatarUpload}
+                      />
+                    </label>
+                  </div>
+
+                  {/* Shop Name */}
+                  <div>
+                    <label style={{ fontSize: '13px', fontWeight: '600', color: '#374151' }}>
+                      Shop Name
+                    </label>
+                    <input
+                      type="text"
+                      value={profileName}
+                      onChange={(e) => setProfileName(e.target.value)}
+                      placeholder="Your shop name"
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        marginTop: '4px'
+                      }}
+                    />
+                  </div>
+
                   {[
                     { label: 'Full Name', value: fullName, setter: setFullName, placeholder: 'Your full name' },
-                    { label: 'Display Name', value: displayName, setter: setDisplayName, placeholder: 'Your shop/display name' },
                     { label: 'Bio', value: bio, setter: setBio, placeholder: 'Tell buyers about yourself', textarea: true },
                     { label: 'Phone', value: phone, setter: setPhone, placeholder: '+855 xx xxx xxxx' },
                     { label: 'WhatsApp', value: whatsapp, setter: setWhatsapp, placeholder: '+855 xx xxx xxxx' },
