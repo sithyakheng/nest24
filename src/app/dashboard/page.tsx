@@ -61,6 +61,7 @@ export default function DashboardPage() {
   const [facebook, setFacebook] = useState('')
   const [instagram, setInstagram] = useState('')
   const [telegram, setTelegram] = useState('')
+  const [shopSlug, setShopSlug] = useState('')
   const [savingProfile, setSavingProfile] = useState(false)
   const [profileSuccess, setProfileSuccess] = useState(false)
 
@@ -104,6 +105,7 @@ async function loadProfile(currentUser: any) {
   setFacebook(profile?.facebook || '')
   setInstagram(profile?.instagram || '')
   setTelegram(profile?.telegram || '')
+  setShopSlug(profile?.shop_slug || '')
 
   const { data: productsData } = await supabase
     .from('products')
@@ -383,6 +385,7 @@ async function handleSaveProfile() {
         facebook,
         instagram,
         telegram,
+        shop_slug: shopSlug || null,
         updated_at: new Date().toISOString()
       })
       .eq('id', user.id)
@@ -617,6 +620,14 @@ async function handleSaveProfile() {
               }}>
                 🔗 My Shop Link
               </p>
+              const shopUrl = shopSlug 
+  ? `https://nest24.vercel.app/seller/${shopSlug}` 
+  : `https://nest24.vercel.app/seller/${user?.id}` 
+
+const displayUrl = shopSlug
+  ? `nest24.vercel.app/seller/${shopSlug}` 
+  : `nest24.vercel.app/seller/${user?.id?.slice(0, 8)}...` 
+
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -634,11 +645,11 @@ async function handleSaveProfile() {
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap'
                 }}>
-                  nest24.vercel.app/seller/{user?.id}
+                  {displayUrl}
                 </span>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(`https://nest24.vercel.app/seller/${user?.id}`)
+                    navigator.clipboard.writeText(shopUrl)
                     alert('Link copied!')
                   }}
                   style={{
@@ -1124,6 +1135,7 @@ async function handleSaveProfile() {
                     { label: 'Facebook', value: facebook, setter: setFacebook, placeholder: 'facebook.com/yourpage' },
                     { label: 'Instagram', value: instagram, setter: setInstagram, placeholder: '@yourhandle' },
                     { label: 'Telegram', value: telegram, setter: setTelegram, placeholder: '@yourhandle' },
+                    { label: 'Shop URL', value: shopSlug, setter: setShopSlug, placeholder: 'myshopname' },
                   ].map((field: any) => (
                     <div key={field.label}>
                       <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>{field.label}</label>

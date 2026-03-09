@@ -72,11 +72,11 @@ export default function SellerShopPage() {
 
   useEffect(() => {
     async function load() {
-      // Fetch seller profile
+      // Fetch seller profile - check both slug and id
       const { data: sellerData } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', id)
+        .or(`id.eq.${id}`, `shop_slug.eq.${id}`)
         .single()
 
       setSeller(sellerData)
@@ -85,7 +85,7 @@ export default function SellerShopPage() {
       const { data: productsData } = await supabase
         .from('products')
         .select('*')
-        .eq('seller_id', id)
+        .eq('seller_id', sellerData.id)
         .order('created_at', { ascending: false })
 
       setProducts(productsData || [])
