@@ -656,11 +656,17 @@ const displayUrl = shopSlug
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap'
                 }}>
-                  {displayUrl}
+                  {shopSlug 
+  ? `nest24.vercel.app/seller/${shopSlug}` 
+  : `nest24.vercel.app/seller/${user?.id?.slice(0, 8)}...` 
+}
                 </span>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(shopUrl)
+                    const url = shopSlug 
+                      ? `https://nest24.vercel.app/seller/${shopSlug}` 
+                      : `https://nest24.vercel.app/seller/${user?.id}` 
+                    navigator.clipboard.writeText(url)
                     alert('Link copied!')
                   }}
                   style={{
