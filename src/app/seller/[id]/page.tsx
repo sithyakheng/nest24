@@ -508,7 +508,6 @@ export default function SellerShopPage() {
         </div>
       )}
     </div>
-  </div>
   )
 }</div>
   )
