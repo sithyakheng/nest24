@@ -267,7 +267,7 @@ export default function SellerShopPage() {
                 {languageText.trusted}
               </p>
             </div>
-          )}}
+          )}
 
         </div>
 
@@ -281,7 +281,7 @@ export default function SellerShopPage() {
 
           {products.length === 0 ? (
             <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '60px', textAlign: 'center' }}>
-              {languageText.noProducts}</p>
+              <p>{languageText.noProducts}</p>
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
@@ -339,5 +339,6 @@ export default function SellerShopPage() {
         </div>
       </div>
     </div>
+  </div>
   )
 }
