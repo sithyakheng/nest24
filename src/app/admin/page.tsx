@@ -127,8 +127,10 @@ export default function AdminPage() {
     // Fetch reports
     const { data: reportsData } = await supabase
       .from('reports')
-      .select('*, profiles(name, full_name, email)')
+      .select('*')
       .order('created_at', { ascending: false })
+    
+    console.log('Reports data fetched:', reportsData)
     setReports(reportsData || [])
 
     setLoading(false)
@@ -669,20 +671,20 @@ export default function AdminPage() {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(0,78,100,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4DB8CC', fontWeight: '700', fontSize: '16px' }}>
-                          {(report.profiles?.name || report.profiles?.full_name || 'U').charAt(0).toUpperCase()}
+                          R
                         </div>
                         <div>
                           <p style={{ color: 'white', fontWeight: '700', margin: '0 0 2px 0' }}>
-                            {report.profiles?.name || report.profiles?.full_name || 'Unknown User'}
+                            Report #{report.id}
                           </p>
-                          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: 0 }}>
-                            {report.profiles?.email || 'No email'}
+                          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '2px 0 0 0' }}>
+                            Reporter ID: {report.reporter_id} | Seller ID: {report.seller_id}
+                          </p>
+                          <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px' }}>
+                            {new Date(report.created_at).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
-                      <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px' }}>
-                        {new Date(report.created_at).toLocaleDateString()}
-                      </p>
                     </div>
                     <div style={{ marginBottom: '16px' }}>
                       <span style={{ color: '#FF6B6B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '600', padding: '3px 8px', borderRadius: '4px' }}>
