@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { ThumbsUp, ThumbsDown } from 'lucide-react'
 
 interface ProductCardProps {
   product: any
@@ -323,7 +324,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               }
             }}
           >
-            👍 {likes}
+            <ThumbsUp size={16} /> {likes}
           </button>
           
           <button
@@ -367,7 +368,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               }
             }}
           >
-            👎 {dislikes}
+            <ThumbsDown size={16} /> {dislikes}
           </button>
         </div>
         

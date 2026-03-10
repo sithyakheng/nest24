@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { uploadImage } from '@/lib/uploadImage'
 import Link from 'next/link'
+import { BarChart3, Package, Plus, ShoppingBag, User, AlertTriangle } from 'lucide-react'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -484,11 +485,11 @@ async function handleSaveProfile() {
   }
 
   const navItems = [
-    { id: 'overview', label: '📊 Overview' },
-    { id: 'products', label: '📦 My Products' },
-    { id: 'add', label: '➕ Add Product' },
-    { id: 'orders', label: '🛒 Orders' },
-    { id: 'profile', label: '👤 Profile Settings' },
+    { id: 'overview', label: <><BarChart3 size={16} style={{ marginRight: '8px' }} />Overview</> },
+    { id: 'products', label: <><Package size={16} style={{ marginRight: '8px' }} />My Products</> },
+    { id: 'add', label: <><Plus size={16} style={{ marginRight: '8px' }} />Add Product</> },
+    { id: 'orders', label: <><ShoppingBag size={16} style={{ marginRight: '8px' }} />Orders</> },
+    { id: 'profile', label: <><User size={16} style={{ marginRight: '8px' }} />Profile Settings</> },
   ]
 
   return (
@@ -866,7 +867,7 @@ async function handleSaveProfile() {
                 gap: '16px'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '24px' }}>📦</span>
+                  <Package size={24} />
                   <div>
                     <p style={{ 
                       color: '#4DB8CC', 
@@ -883,7 +884,7 @@ async function handleSaveProfile() {
                       margin: '4px 0 0 0'
                     }}>
                       {products.length >= getProductLimit(profile?.tier || 0) 
-                        ? '⚠️ You\'ve reached your plan limit. Upgrade to list more products.'
+                        ? <><AlertTriangle size={16} style={{ marginRight: '4px' }} />You've reached your plan limit. Upgrade to list more products.</>
                         : `${getProductLimit(profile?.tier || 0) - products.length} slots remaining`
                       }
                     </p>

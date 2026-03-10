@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { Star, Check, Medal, ShoppingBag, Package, DollarSign, Store, Settings, Search, MessageSquare, Phone, Ship, Ban, X, Users } from 'lucide-react'
 import Link from 'next/link'
 
 export default function AdminPage() {
@@ -263,13 +264,13 @@ export default function AdminPage() {
   }
 
   const tabs = [
-    { id: 'requests', label: '📋 Rank Requests', count: rankRequests.filter(r => r.status === 'pending').length },
-    { id: 'users', label: '👤 All Users', count: allUsers.length },
-    { id: 'sellers', label: '👥 Sellers', count: sellers.length },
-    { id: 'reports', label: '🚩 Reports', count: reports.length },
-    { id: 'products', label: '📦 Products', count: products.length },
-    { id: 'orders', label: '🛒 Orders', count: orders.length },
-    { id: 'payments', label: '💰 Payments', count: rankPayments.length },
+    { id: 'requests', label: 'Requests', count: rankRequests.filter(r => r.status === 'pending').length },
+    { id: 'users', label: 'Users', count: allUsers.length },
+    { id: 'sellers', label: 'Sellers', count: sellers.length },
+    { id: 'reports', label: 'Reports', count: reports.length },
+    { id: 'products', label: 'Products', count: products.length },
+    { id: 'orders', label: 'Orders', count: orders.length },
+    { id: 'payments', label: 'Payments', count: rankPayments.length },
   ]
 
   return (
@@ -329,20 +330,26 @@ export default function AdminPage() {
                       <div>
                         <p style={{ color: 'white', fontWeight: '600', margin: 0 }}>{req.profiles?.name || req.profiles?.full_name || 'Seller'}</p>
                         <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '2px 0 0 0' }}>{req.profiles?.email}</p>
-                      </div>
-                    </div>
-                    <span style={{
-                      padding: '4px 12px', borderRadius: '9999px', fontSize: '12px', fontWeight: '700',
+                        <span style={{ 
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '4px 10px',
+                      borderRadius: '9999px',
+                      fontSize: '10px',
+                      fontWeight: '700',
                       background: req.rank === 'premium' ? 'rgba(232,201,126,0.2)' : req.rank === 'verified' ? 'rgba(0,78,100,0.2)' : 'rgba(59,130,246,0.2)',
                       color: req.rank === 'premium' ? '#E8C97E' : req.rank === 'verified' ? '#4DB8CC' : '#93c5fd',
                       border: `1px solid ${req.rank === 'premium' ? 'rgba(232,201,126,0.4)' : req.rank === 'verified' ? 'rgba(0,78,100,0.4)' : 'rgba(59,130,246,0.4)'}` 
                     }}>
-                      {req.rank === 'premium' ? '⭐ Premium' : req.rank === 'verified' ? '✓ Verified' : '🥉 Starter'}
+                      {req.rank === 'premium' ? <Star size={12} /> : req.rank === 'verified' ? <Check size={12} /> : <Medal size={12} />}
+                      {req.rank === 'premium' ? ' Premium' : req.rank === 'verified' ? ' Verified' : ' Starter'}
                     </span>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px' }}>{new Date(req.created_at).toLocaleDateString()}</p>
-                    {req.status === 'pending' ? (
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button onClick={() => approveRank(req.id, req.seller_id, req.rank, req.screenshot_url)} style={{ background: 'rgba(0,78,100,0.4)', border: '1px solid rgba(0,78,100,0.6)', color: '#4DB8CC', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px' }}>{new Date(req.created_at).toLocaleDateString()}</p>
+                        {req.status === 'pending' ? (
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button onClick={() => approveRank(req.id, req.seller_id, req.rank, req.screenshot_url)} style={{ background: 'rgba(0,78,100,0.4)', border: '1px solid rgba(0,78,100,0.6)', color: '#4DB8CC', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+// ...
                           Approve ✓
                         </button>
                         <button onClick={() => rejectRank(req.id, req.screenshot_url)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>

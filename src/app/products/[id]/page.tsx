@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useLang } from '@/contexts/LanguageContext'
+import { ThumbsUp, ThumbsDown } from 'lucide-react'
 
 export default function ProductDetailPage() {
   const { t } = useLang()
@@ -377,7 +378,7 @@ export default function ProductDetailPage() {
                   }
                 }}
               >
-                👍 {likes}
+                <ThumbsUp size={20} /> {likes}
               </button>
               
               <button
@@ -422,7 +423,7 @@ export default function ProductDetailPage() {
                   }
                 }}
               >
-                👎 {dislikes}
+                <ThumbsDown size={20} /> {dislikes}
               </button>
               
               <span style={{

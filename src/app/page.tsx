@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { TrendingUp, Package, User } from 'lucide-react'
+import { TrendingUp, Package, User, Star, Rocket, Smartphone, MessageSquare, Search, Store, Check } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import ProductCard from '@/components/ProductCard'
 import { supabase } from '@/lib/supabase'
@@ -172,7 +172,7 @@ async function fetchProducts() {
       {premiumSellers.length > 0 && (
         <div style={{ marginBottom: '48px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-            <span style={{ fontSize: '20px' }}>⭐</span>
+            <Star size={20} />
             <div>
               <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>{t('home.premium_sellers')}</p>
               <h2 style={{ color: 'white', fontSize: '24px', fontWeight: '900', margin: 0 }}>{t('home.premium_spotlight')}</h2>
@@ -216,7 +216,7 @@ async function fetchProducts() {
                         <p style={{ color: '#E8C97E', fontWeight: '800', fontSize: '16px', margin: 0 }}>
                           {seller.name || seller.full_name}
                         </p>
-                        <span style={{ background: 'rgba(232,201,126,0.2)', border: '1px solid rgba(232,201,126,0.4)', color: '#E8C97E', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '9999px' }}>⭐ Premium</span>
+                        <span style={{ background: 'rgba(232,201,126,0.2)', border: '1px solid rgba(232,201,126,0.4)', color: '#E8C97E', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '9999px' }}><Star size={10} /> Premium</span>
                       </div>
                     </div>
                     <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '2px 0 0 0' }}>
@@ -264,7 +264,7 @@ async function fetchProducts() {
                   </div>
                   <div>
                     <p style={{ color: seller.rank === 'premium' ? '#E8C97E' : '#4DB8CC', fontWeight: '700', fontSize: '13px', margin: 0 }}>
-                      {seller.rank === 'premium' ? '⭐' : '✓'} {seller.name || seller.full_name}
+                      {seller.rank === 'premium' ? <Star size={12} /> : <Check size={12} />} {seller.name || seller.full_name}
                     </p>
                   </div>
                 </div>
@@ -501,14 +501,14 @@ async function fetchProducts() {
           {[...Array(2)].map((_, dupIndex) => (
             <div key={dupIndex} style={{ display: 'flex', alignItems: 'center' }}>
               {[
-                { icon: '🚀', text: 'NEW PRODUCTS ADDED DAILY' },
-                { icon: '📱', text: 'EASY CONTACT VIA WHATSAPP & TELEGRAM' },
-                { icon: '⭐', text: 'RANKED & TRUSTED SHOPS' },
-                { icon: '🔍', text: 'BROWSE 100+ PRODUCTS' },
-                { icon: '💬', text: 'CHAT DIRECTLY — NO MIDDLEMAN' },
+                { icon: <Rocket size={14} />, text: 'NEW PRODUCTS ADDED DAILY' },
+                { icon: <Smartphone size={14} />, text: 'EASY CONTACT VIA WHATSAPP & TELEGRAM' },
+                { icon: <Star size={14} />, text: 'RANKED & TRUSTED SHOPS' },
+                { icon: <Search size={14} />, text: 'BROWSE 100+ PRODUCTS' },
+                { icon: <MessageSquare size={14} />, text: 'CHAT DIRECTLY — NO MIDDLEMAN' },
                 { icon: '🇰🇭', text: '100% LOCAL CAMBODIAN SELLERS' },
-                { icon: '✓', text: 'VERIFIED SELLERS ONLY' },
-                { icon: '🏪', text: 'REAL SHOPS, REAL PEOPLE' },
+                { icon: <Check size={14} />, text: 'VERIFIED SELLERS ONLY' },
+                { icon: <Store size={14} />, text: 'REAL SHOPS, REAL PEOPLE' },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                   <div style={{
@@ -518,7 +518,7 @@ async function fetchProducts() {
                     padding: '0 32px',
                     whiteSpace: 'nowrap',
                   }}>
-                    <span style={{ fontSize: '14px' }}>{item.icon}</span>
+                    <span style={{ fontSize: '14px', display: 'flex', alignItems: 'center' }}>{item.icon}</span>
                     <span style={{
                       color: '#ffffff',
                       fontSize: '12px',
