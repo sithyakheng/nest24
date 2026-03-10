@@ -345,10 +345,11 @@ export default function AdminPage() {
                       {req.rank === 'premium' ? <Star size={12} /> : req.rank === 'verified' ? <Check size={12} /> : <Medal size={12} />}
                       {req.rank === 'premium' ? ' Premium' : req.rank === 'verified' ? ' Verified' : ' Starter'}
                     </span>
-                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '8px 0 0 0' }}>{new Date(req.created_at).toLocaleDateString()}</p>
+                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px' }}>{new Date(req.created_at).toLocaleDateString()}</p>
                         {req.status === 'pending' ? (
                           <div style={{ display: 'flex', gap: '8px' }}>
                             <button onClick={() => approveRank(req.id, req.seller_id, req.rank, req.screenshot_url)} style={{ background: 'rgba(0,78,100,0.4)', border: '1px solid rgba(0,78,100,0.6)', color: '#4DB8CC', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+// ...
                           Approve ✓
                         </button>
                         <button onClick={() => rejectRank(req.id, req.screenshot_url)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
@@ -361,7 +362,6 @@ export default function AdminPage() {
                       </span>
                     )}
                   </div>
-                </div>
                 ))}
               </div>
             )}
