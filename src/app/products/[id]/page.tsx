@@ -14,6 +14,10 @@ export default function ProductDetailPage() {
   const [seller, setSeller] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [windowWidth, setWindowWidth] = useState(1200)
+  const [likes, setLikes] = useState(0)
+  const [dislikes, setDislikes] = useState(0)
+  const [userVote, setUserVote] = useState<'like' | 'dislike' | null>(null)
+  const [isUpdating, setIsUpdating] = useState(false)
 
   const isMobile = windowWidth < 768
 
@@ -27,6 +31,88 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (id) fetchProduct()
   }, [id])
+
+  useEffect(() => {
+    // Load user's vote from localStorage
+    if (id) {
+      const savedVote = localStorage.getItem(`vote_${id}`)
+      if (savedVote) {
+        setUserVote(savedVote as 'like' | 'dislike')
+      }
+    }
+  }, [id])
+
+  const handleVote = async (voteType: 'like' | 'dislike') => {
+    if (isUpdating || !id) return
+
+    setIsUpdating(true)
+    
+    try {
+      // Check if user has already voted
+      const previousVote = userVote
+      
+      // Calculate new counts
+      let newLikes = likes
+      let newDislikes = dislikes
+      
+      if (previousVote === voteType) {
+        // Remove vote
+        if (voteType === 'like') {
+          newLikes--
+        } else {
+          newDislikes--
+        }
+        setUserVote(null)
+        localStorage.removeItem(`vote_${id}`)
+      } else {
+        // Change or add vote
+        if (previousVote === 'like') {
+          newLikes--
+        } else if (previousVote === 'dislike') {
+          newDislikes--
+        }
+        
+        if (voteType === 'like') {
+          newLikes++
+        } else {
+          newDislikes++
+        }
+        
+        setUserVote(voteType)
+        localStorage.setItem(`vote_${id}`, voteType)
+      }
+
+      // Update Supabase
+      const { error } = await supabase
+        .from('products')
+        .update({
+          likes: newLikes,
+          dislikes: newDislikes
+        })
+        .eq('id', id)
+
+      if (error) {
+        console.error('Error updating vote:', error)
+        // Revert state on error
+        setLikes(likes)
+        setDislikes(dislikes)
+        setUserVote(previousVote)
+        if (previousVote) {
+          localStorage.setItem(`vote_${id}`, previousVote)
+        } else {
+          localStorage.removeItem(`vote_${id}`)
+        }
+      } else {
+        // Update local state
+        setLikes(newLikes)
+        setDislikes(newDislikes)
+      }
+    } catch (error) {
+      console.error('Error in handleVote:', error)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
 
   async function fetchProduct() {
     setLoading(true)
@@ -43,6 +129,8 @@ export default function ProductDetailPage() {
     }
 
     setProduct(productData)
+    setLikes(productData.likes || 0)
+    setDislikes(productData.dislikes || 0)
 
     if (productData.seller_id) {
       const { data: sellerData } = await supabase
@@ -235,6 +323,116 @@ export default function ProductDetailPage() {
                   ${(product.price / (1 - product.discount / 100)).toFixed(2)}
                 </span>
               )}
+            </div>
+
+            {/* Like/Dislike Buttons */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              marginBottom: '16px',
+              padding: '12px 0',
+              borderTop: '1px solid rgba(255,255,255,0.08)',
+              borderBottom: '1px solid rgba(255,255,255,0.08)'
+            }}>
+              <button
+                onClick={() => handleVote('like')}
+                disabled={isUpdating}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '12px 20px',
+                  borderRadius: '12px',
+                  border: userVote === 'like' ? '2px solid rgba(0,78,100,0.6)' : '1px solid rgba(255,255,255,0.12)',
+                  background: userVote === 'like' 
+                    ? 'rgba(0,78,100,0.3)' 
+                    : 'rgba(255,255,255,0.06)',
+                  backdropFilter: 'blur(24px)',
+                  WebkitBackdropFilter: 'blur(24px)',
+                  color: userVote === 'like' ? '#4DB8CC' : 'rgba(255,255,255,0.8)',
+                  cursor: isUpdating ? 'not-allowed' : 'pointer',
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  transition: 'all 0.3s ease',
+                  opacity: isUpdating ? 0.6 : 1,
+                  boxShadow: userVote === 'like' 
+                    ? '0 0 20px rgba(0,78,100,0.3)' 
+                    : 'none'
+                }}
+                onMouseEnter={e => {
+                  if (!isUpdating) {
+                    e.currentTarget.style.background = userVote === 'like' 
+                      ? 'rgba(0,78,100,0.4)' 
+                      : 'rgba(0,78,100,0.15)'
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!isUpdating) {
+                    e.currentTarget.style.background = userVote === 'like' 
+                      ? 'rgba(0,78,100,0.3)' 
+                      : 'rgba(255,255,255,0.06)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }
+                }}
+              >
+                👍 {likes}
+              </button>
+              
+              <button
+                onClick={() => handleVote('dislike')}
+                disabled={isUpdating}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '12px 20px',
+                  borderRadius: '12px',
+                  border: userVote === 'dislike' ? '2px solid rgba(255,80,80,0.6)' : '1px solid rgba(255,255,255,0.12)',
+                  background: userVote === 'dislike' 
+                    ? 'rgba(255,80,80,0.3)' 
+                    : 'rgba(255,255,255,0.06)',
+                  backdropFilter: 'blur(24px)',
+                  WebkitBackdropFilter: 'blur(24px)',
+                  color: userVote === 'dislike' ? '#f87171' : 'rgba(255,255,255,0.8)',
+                  cursor: isUpdating ? 'not-allowed' : 'pointer',
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  transition: 'all 0.3s ease',
+                  opacity: isUpdating ? 0.6 : 1,
+                  boxShadow: userVote === 'dislike' 
+                    ? '0 0 20px rgba(255,80,80,0.3)' 
+                    : 'none'
+                }}
+                onMouseEnter={e => {
+                  if (!isUpdating) {
+                    e.currentTarget.style.background = userVote === 'dislike' 
+                      ? 'rgba(255,80,80,0.4)' 
+                      : 'rgba(255,80,80,0.15)'
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!isUpdating) {
+                    e.currentTarget.style.background = userVote === 'dislike' 
+                      ? 'rgba(255,80,80,0.3)' 
+                      : 'rgba(255,255,255,0.06)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }
+                }}
+              >
+                👎 {dislikes}
+              </button>
+              
+              <span style={{
+                color: 'rgba(255,255,255,0.4)',
+                fontSize: '14px',
+                fontStyle: 'italic',
+                marginLeft: '8px'
+              }}>
+                {userVote ? `You ${userVote}d this product` : 'Help others by voting'}
+              </span>
             </div>
 
             {/* Stock */}
