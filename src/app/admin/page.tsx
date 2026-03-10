@@ -142,14 +142,26 @@ export default function AdminPage() {
     return
   }
 
-  // Update seller profile rank
+  // Map rank to tier
+  const rankToTierMap: Record<string, number> = {
+    'starter': 1,
+    'premium': 2, 
+    'enterprise': 3
+  }
+  
+  const tier = rankToTierMap[rank] || 1
+
+  // Update seller profile rank and tier
   const { error: profileError } = await supabase
     .from('profiles')
-    .update({ rank: rank })
+    .update({ 
+      rank: rank,
+      tier: tier
+    })
     .eq('id', sellerId)
 
   if (profileError) {
-    alert('Failed to update rank: ' + profileError.message)
+    alert('Failed to update rank and tier: ' + profileError.message)
     return
   }
 
