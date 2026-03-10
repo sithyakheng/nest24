@@ -125,12 +125,8 @@ export default function AdminPage() {
     setRankPayments(paymentsData || [])
 
     // Fetch reports
-    const { data: reportsData } = await supabase
-      .from('reports')
-      .select('*')
-      .order('created_at', { ascending: false })
-    
-    console.log('Reports data fetched:', reportsData)
+    const { data: reportsData, error } = await supabase.from('reports').select('*')
+    console.log('reports:', reportsData, error)
     setReports(reportsData || [])
 
     setLoading(false)
@@ -660,6 +656,9 @@ export default function AdminPage() {
         {activeTab === 'reports' && (
           <div style={{ ...glassCard, padding: '24px' }}>
             <h2 style={{ color: 'white', fontWeight: '800', fontSize: '20px', marginBottom: '20px' }}>Reports</h2>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', marginBottom: '16px' }}>
+              Total reports: {reports.length}
+            </p>
             {loading ? (
               <p style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '40px' }}>Loading reports...</p>
             ) : reports.length === 0 ? (
