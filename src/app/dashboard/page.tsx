@@ -219,7 +219,7 @@ async function compressImage(file: File): Promise<File> {
     // Check product limit based on seller tier
     const { data: sellerProfile } = await supabase
       .from('profiles')
-      .select('rank')
+      .select('tier')
       .eq('id', user?.id)
       .single()
 
@@ -230,7 +230,7 @@ async function compressImage(file: File): Promise<File> {
       .eq('seller_id', user?.id)
 
     const currentProductCount = currentProducts?.length || 0
-    const sellerTier = sellerProfile?.rank || 0
+    const sellerTier = sellerProfile?.tier || 0
     
     // Define limits based on tier
     const limits: Record<number, number> = {
@@ -875,16 +875,16 @@ async function handleSaveProfile() {
                       margin: 0,
                       lineHeight: 1.2
                     }}>
-                      {products.length}/{getProductLimit(profile?.rank || 0)} products listed
+                      {products.length}/{getProductLimit(profile?.tier || 0)} products listed
                     </p>
                     <p style={{ 
                       color: 'rgba(255,255,255,0.6)', 
                       fontSize: '12px', 
                       margin: '4px 0 0 0'
                     }}>
-                      {products.length >= getProductLimit(profile?.rank || 0) 
+                      {products.length >= getProductLimit(profile?.tier || 0) 
                         ? '⚠️ You\'ve reached your plan limit. Upgrade to list more products.'
-                        : `${getProductLimit(profile?.rank || 0) - products.length} slots remaining`
+                        : `${getProductLimit(profile?.tier || 0) - products.length} slots remaining`
                       }
                     </p>
                   </div>
@@ -914,7 +914,7 @@ async function handleSaveProfile() {
                       strokeWidth="6"
                       fill="none"
                       strokeDasharray={`${2 * Math.PI * 25}`}
-                      strokeDashoffset={`${2 * Math.PI * 25 * (1 - (products.length / getProductLimit(profile?.rank || 0)))}`}
+                      strokeDashoffset={`${2 * Math.PI * 25 * (1 - (products.length / getProductLimit(profile?.tier || 0)))}`}
                       strokeLinecap="round"
                     />
                   </svg>
@@ -924,7 +924,7 @@ async function handleSaveProfile() {
                     fontSize: '12px',
                     fontWeight: '700'
                   }}>
-                    {Math.round((products.length / getProductLimit(profile?.rank || 0)) * 100)}%
+                    {Math.round((products.length / getProductLimit(profile?.tier || 0)) * 100)}%
                   </span>
                 </div>
               </div>
