@@ -124,6 +124,13 @@ export default function AdminPage() {
       .order('created_at', { ascending: false })
     setRankPayments(paymentsData || [])
 
+    // Fetch reports
+    const { data: reportsData } = await supabase
+      .from('reports')
+      .select('*, profiles(name, full_name, email)')
+      .order('created_at', { ascending: false })
+    setReports(reportsData || [])
+
     setLoading(false)
   }
 
@@ -511,26 +518,35 @@ export default function AdminPage() {
         {activeTab === 'products' && (
           <div style={{ ...glassCard, padding: '24px' }}>
             <h2 style={{ color: 'white', fontWeight: '800', fontSize: '20px', marginBottom: '20px' }}>All Products</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {products.map(product => (
-                <div key={product.id} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '48px', height: '48px', borderRadius: '10px', overflow: 'hidden', background: 'rgba(255,255,255,0.06)', flexShrink: 0 }}>
-                      {product.image_url && <img src={product.image_url.startsWith('http') ? product.image_url : `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${product.image_url}`} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+            {loading ? (
+              <p style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '40px' }}>Loading products...</p>
+            ) : products.length === 0 ? (
+              <p style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '40px' }}>No products listed yet.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {products.map(product => (
+                  <div key={product.id} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ width: '48px', height: '48px', borderRadius: '10px', overflow: 'hidden', background: 'rgba(255,255,255,0.06)', flexShrink: 0 }}>
+                        {product.image_url && <img src={product.image_url.startsWith('http') ? product.image_url : `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${product.image_url}`} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                      </div>
+                      <div>
+                        <p style={{ color: 'white', fontWeight: '600', margin: 0 }}>{product.name}</p>
+                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '2px 0 0 0' }}>by {product.profiles?.name || product.profiles?.full_name}</p>
+                        <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px', margin: '2px 0 0 0' }}>
+                          {new Date(product.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p style={{ color: 'white', fontWeight: '600', margin: 0 }}>{product.name}</p>
-                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '2px 0 0 0' }}>by {product.profiles?.name || product.profiles?.full_name}</p>
-                    </div>
+                    <span style={{ color: '#4DB8CC', fontSize: '12px', textTransform: 'uppercase' }}>{product.category}</span>
+                    <span style={{ color: '#E8C97E', fontWeight: '700' }}>${product.price}</span>
+                    <button onClick={() => deleteProduct(product.id)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+                      Delete 🗑
+                    </button>
                   </div>
-                  <span style={{ color: '#4DB8CC', fontSize: '12px', textTransform: 'uppercase' }}>{product.category}</span>
-                  <span style={{ color: '#E8C97E', fontWeight: '700' }}>${product.price}</span>
-                  <button onClick={() => deleteProduct(product.id)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
-                    Delete 🗑
-                  </button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -642,81 +658,66 @@ export default function AdminPage() {
         {activeTab === 'reports' && (
           <div style={{ ...glassCard, padding: '24px' }}>
             <h2 style={{ color: 'white', fontWeight: '800', fontSize: '20px', marginBottom: '20px' }}>Reports</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {reports.length === 0 ? (
-                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '20px' }}>No reports submitted yet.</p>
-              ) : (
-                reports.map(report => (
-                  <div key={report.id} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px', marginBottom: '12px' }}>
+            {loading ? (
+              <p style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '40px' }}>Loading reports...</p>
+            ) : reports.length === 0 ? (
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '20px', textAlign: 'center', padding: '40px' }}>No reports submitted yet.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {reports.map(report => (
+                  <div key={report.id} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(0,78,100,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4DB8CC', fontWeight: '700', fontSize: '16px' }}>
-                          {(report.seller?.name || report.seller_name || report.profiles?.full_name || 'S').charAt(0).toUpperCase()}
+                          {(report.profiles?.name || report.profiles?.full_name || 'U').charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <p style={{ color: 'white', fontWeight: '700', margin: '0 0 2px 0' }}>
-                            {report.seller_name || report.seller_name || report.profiles?.full_name || 'Unknown'}
+                            {report.profiles?.name || report.profiles?.full_name || 'Unknown User'}
                           </p>
                           <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: 0 }}>
-                            {report.seller?.email}
+                            {report.profiles?.email || 'No email'}
                           </p>
                         </div>
                       </div>
-                      <div style={{ padding: '16px' }}>
-                        <span style={{ color: '#FF6B6B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '600', padding: '3px 8px', borderRadius: '4px' }}>
-                          {report.reason}
-                        </span>
-                        {report.details && (
-                          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '8px 0 0 0' }}>
-                            {report.details}
-                          </p>
-                        )}
-                      </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button
-                          onClick={async () => {
-                            await supabase.from('reports').update({ status: 'reviewed' }).eq('id', report.id)
-                          }}
-                          style={{
-                            padding: '8px 16px',
-                            borderRadius: '8px',
-                            border: 'none',
-                            background: '#10B981',
-                            color: 'white',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            fontWeight: '700'
-                          }}
-                        >
-                          Mark Reviewed
-                        </button>
-                        <button
-                          onClick={async () => {
-                            await supabase.from('profiles').update({ banned: true }).eq('id', report.seller_id)
-                            await supabase.from('reports').update({ status: 'reviewed' }).eq('id', report.id)
-                          }}
-                          style={{
-                            padding: '8px 16px',
-                            borderRadius: '8px',
-                            border: 'none',
-                            background: '#EF4444',
-                            color: 'white',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            fontWeight: '700'
-                          }}
-                        >
-                          Ban Seller
-                        </button>
-                      </div>
+                      <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px' }}>
+                        {new Date(report.created_at).toLocaleDateString()}
+                      </p>
                     </div>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', margin: '8px 0 0 0' }}>
-                      {new Date(report.created_at).toLocaleDateString()}
-                    </p>
+                    <div style={{ marginBottom: '16px' }}>
+                      <span style={{ color: '#FF6B6B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '600', padding: '3px 8px', borderRadius: '4px' }}>
+                        {report.reason || 'No reason'}
+                      </span>
+                      {report.details && (
+                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '8px 0 0 0' }}>
+                          {report.details}
+                        </p>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={async () => {
+                          await supabase.from('reports').update({ status: 'reviewed' }).eq('id', report.id)
+                          fetchAll()
+                        }}
+                        style={{
+                          padding: '8px 16px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          background: '#10B981',
+                          color: 'white',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          fontWeight: '700'
+                        }}
+                      >
+                        Mark Reviewed
+                      </button>
+                    </div>
                   </div>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
