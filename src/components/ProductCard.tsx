@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
 
 interface ProductCardProps {
   product: any
@@ -15,6 +16,10 @@ const getImageUrl = (url: string): string => {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [windowWidth, setWindowWidth] = useState(1200)
+  const [likes, setLikes] = useState(product.likes || 0)
+  const [dislikes, setDislikes] = useState(product.dislikes || 0)
+  const [userVote, setUserVote] = useState<'like' | 'dislike' | null>(null)
+  const [isUpdating, setIsUpdating] = useState(false)
   const isMobile = windowWidth < 768
 
   useEffect(() => {
@@ -23,6 +28,87 @@ export default function ProductCard({ product }: ProductCardProps) {
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
+
+  useEffect(() => {
+    // Load user's vote from localStorage
+    const savedVote = localStorage.getItem(`product_vote_${product.id}`)
+    if (savedVote) {
+      setUserVote(savedVote as 'like' | 'dislike')
+    }
+  }, [product.id])
+
+  const handleVote = async (voteType: 'like' | 'dislike') => {
+    if (isUpdating) return
+
+    setIsUpdating(true)
+    
+    try {
+      // Check if user has already voted
+      const previousVote = userVote
+      
+      // Calculate new counts
+      let newLikes = likes
+      let newDislikes = dislikes
+      
+      if (previousVote === voteType) {
+        // Remove vote
+        if (voteType === 'like') {
+          newLikes--
+        } else {
+          newDislikes--
+        }
+        setUserVote(null)
+        localStorage.removeItem(`product_vote_${product.id}`)
+      } else {
+        // Change or add vote
+        if (previousVote === 'like') {
+          newLikes--
+        } else if (previousVote === 'dislike') {
+          newDislikes--
+        }
+        
+        if (voteType === 'like') {
+          newLikes++
+        } else {
+          newDislikes++
+        }
+        
+        setUserVote(voteType)
+        localStorage.setItem(`product_vote_${product.id}`, voteType)
+      }
+
+      // Update Supabase
+      const { error } = await supabase
+        .from('products')
+        .update({
+          likes: newLikes,
+          dislikes: newDislikes
+        })
+        .eq('id', product.id)
+
+      if (error) {
+        console.error('Error updating vote:', error)
+        // Revert state on error
+        setLikes(likes)
+        setDislikes(dislikes)
+        setUserVote(previousVote)
+        if (previousVote) {
+          localStorage.setItem(`product_vote_${product.id}`, previousVote)
+        } else {
+          localStorage.removeItem(`product_vote_${product.id}`)
+        }
+      } else {
+        // Update local state
+        setLikes(newLikes)
+        setDislikes(newDislikes)
+      }
+    } catch (error) {
+      console.error('Error in handleVote:', error)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
   console.log('Product profiles rank:', product.profiles?.rank)
   
   // Determine rank-based styling
@@ -187,21 +273,120 @@ export default function ProductCard({ product }: ProductCardProps) {
             ${product.price}
           </p>
         </div>
-          <Link 
-            href={`/seller/${product.profiles?.id}`}
-            onClick={(e) => e.stopPropagation()}
+        
+        {/* Like/Dislike Buttons */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px', 
+          marginBottom: '12px',
+          padding: '8px 0' 
+        }}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+              handleVote('like')
+            }}
+            disabled={isUpdating}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              textDecoration: 'none',
-              cursor: 'pointer'
+              gap: '4px',
+              padding: '6px 10px',
+              borderRadius: '8px',
+              border: userVote === 'like' ? '1px solid rgba(0,78,100,0.6)' : '1px solid rgba(255,255,255,0.12)',
+              background: userVote === 'like' 
+                ? 'rgba(0,78,100,0.3)' 
+                : 'rgba(255,255,255,0.06)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              color: userVote === 'like' ? '#4DB8CC' : 'rgba(255,255,255,0.7)',
+              cursor: isUpdating ? 'not-allowed' : 'pointer',
+              fontSize: '12px',
+              fontWeight: '600',
+              transition: 'all 0.2s ease',
+              opacity: isUpdating ? 0.6 : 1
+            }}
+            onMouseEnter={e => {
+              if (!isUpdating) {
+                e.currentTarget.style.background = userVote === 'like' 
+                  ? 'rgba(0,78,100,0.4)' 
+                  : 'rgba(0,78,100,0.15)'
+              }
+            }}
+            onMouseLeave={e => {
+              if (!isUpdating) {
+                e.currentTarget.style.background = userVote === 'like' 
+                  ? 'rgba(0,78,100,0.3)' 
+                  : 'rgba(255,255,255,0.06)'
+              }
             }}
           >
-            <span style={{ fontSize: '12px', color: '#46ABB8' }}>
-              {product.profiles?.name || product.profiles?.full_name || 'View Shop'}
-            </span>
-          </Link>
+            👍 {likes}
+          </button>
+          
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+              handleVote('dislike')
+            }}
+            disabled={isUpdating}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '6px 10px',
+              borderRadius: '8px',
+              border: userVote === 'dislike' ? '1px solid rgba(255,80,80,0.6)' : '1px solid rgba(255,255,255,0.12)',
+              background: userVote === 'dislike' 
+                ? 'rgba(255,80,80,0.3)' 
+                : 'rgba(255,255,255,0.06)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              color: userVote === 'dislike' ? '#f87171' : 'rgba(255,255,255,0.7)',
+              cursor: isUpdating ? 'not-allowed' : 'pointer',
+              fontSize: '12px',
+              fontWeight: '600',
+              transition: 'all 0.2s ease',
+              opacity: isUpdating ? 0.6 : 1
+            }}
+            onMouseEnter={e => {
+              if (!isUpdating) {
+                e.currentTarget.style.background = userVote === 'dislike' 
+                  ? 'rgba(255,80,80,0.4)' 
+                  : 'rgba(255,80,80,0.15)'
+              }
+            }}
+            onMouseLeave={e => {
+              if (!isUpdating) {
+                e.currentTarget.style.background = userVote === 'dislike' 
+                  ? 'rgba(255,80,80,0.3)' 
+                  : 'rgba(255,255,255,0.06)'
+              }
+            }}
+          >
+            👎 {dislikes}
+          </button>
+        </div>
+        
+        <Link 
+          href={`/seller/${product.profiles?.id}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span style={{ 
+            fontSize: '12px', 
+            color: '#46ABB8',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            textDecoration: 'none',
+            cursor: 'pointer'
+          }}>
+            {product.profiles?.name || product.profiles?.full_name || 'View Shop'}
+          </span>
+        </Link>
         </div>
       </div>
     </Link>

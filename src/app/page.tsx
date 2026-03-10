@@ -103,14 +103,31 @@ async function fetchProducts() {
 
   const visible = merged.filter((p: any) => !p.profiles?.banned)
 
-  const rankOrder: Record<string, number> = {
-    premium: 3, verified: 2, starter: 1, none: 0
+  // Tier order: Premium (3) → Verified (2) → Starter (1) → No rank (0)
+  const tierOrder: Record<string, number> = {
+    premium: 3, 
+    verified: 2, 
+    starter: 1, 
+    none: 0
   }
 
-  const sorted = [...visible].sort((a: any, b: any) =>
-    (rankOrder[b.profiles?.rank || 'none'] || 0) -
-    (rankOrder[a.profiles?.rank || 'none'] || 0)
-  )
+  // Group products by tier
+  const groupedByTier = visible.reduce((acc: Record<string, any[]>, product: any) => {
+    const tier = product.profiles?.rank || 'none'
+    if (!acc[tier]) acc[tier] = []
+    acc[tier].push(product)
+    return acc
+  }, {})
+
+  // Sort each tier group by likes descending
+  Object.keys(groupedByTier).forEach(tier => {
+    groupedByTier[tier].sort((a: any, b: any) => (b.likes || 0) - (a.likes || 0))
+  })
+
+  // Flatten back to array maintaining tier order
+  const sorted = Object.keys(groupedByTier)
+    .sort((a, b) => (tierOrder[b] || 0) - (tierOrder[a] || 0))
+    .flatMap(tier => groupedByTier[tier])
 
   setProducts(sorted)
   setRecentProducts(sorted.slice(0, 5))
