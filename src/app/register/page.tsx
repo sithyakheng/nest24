@@ -23,9 +23,16 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [agreeToTerms, setAgreeToTerms] = useState(false)
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
+    
+    if (!agreeToTerms) {
+      setError('You must agree to the Terms & Conditions and Privacy Policy to continue.')
+      return
+    }
+    
     setLoading(true)
     setError('')
 
@@ -163,6 +170,52 @@ export default function RegisterPage() {
               border: '1px solid rgba(255,255,255,0.12)',
             }}
           />
+          
+          {/* Terms and Privacy Checkbox */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginTop: '8px' }}>
+            <input
+              type="checkbox"
+              id="terms"
+              checked={agreeToTerms}
+              onChange={(e) => setAgreeToTerms(e.target.checked)}
+              style={{
+                marginTop: '4px',
+                width: '16px',
+                height: '16px',
+                accentColor: '#4DB8CC',
+                cursor: 'pointer'
+              }}
+            />
+            <label htmlFor="terms" style={{ 
+              color: 'rgba(255,255,255,0.7)', 
+              fontSize: '14px', 
+              lineHeight: '1.5',
+              cursor: 'pointer',
+              userSelect: 'none'
+            }}>
+              I agree to the{' '}
+              <Link 
+                href="/terms" 
+                style={{ color: '#4DB8CC', textDecoration: 'none' }}
+                target="_blank"
+                onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
+              >
+                Terms & Conditions
+              </Link>
+              {' '}and{' '}
+              <Link 
+                href="/privacy" 
+                style={{ color: '#4DB8CC', textDecoration: 'none' }}
+                target="_blank"
+                onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
+              >
+                Privacy Policy
+              </Link>
+            </label>
+          </div>
+          
           <button
             type="submit"
             disabled={loading}
