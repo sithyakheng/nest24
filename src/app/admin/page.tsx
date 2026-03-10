@@ -225,6 +225,20 @@ export default function AdminPage() {
     fetchAll()
   }
 
+  async function banUser(userId: string) {
+    if (!confirm('Are you sure you want to ban this user? This action cannot be undone.')) return
+    
+    const { error } = await supabase.from('profiles').update({ role: 'banned' }).eq('id', userId)
+    
+    if (error) {
+      alert('Failed to ban user: ' + error.message)
+      return
+    }
+    
+    alert('User banned successfully!')
+    fetchAll()
+  }
+
   async function deleteProduct(productId: string) {
     if (!confirm('Delete this product?')) return
     await supabase.from('products').delete().eq('id', productId)
@@ -721,6 +735,40 @@ export default function AdminPage() {
                         }}
                       >
                         Mark Reviewed
+                      </button>
+                      <button
+                        onClick={() => router.push(`/seller/${report.seller_id}`)}
+                        style={{
+                          padding: '8px 16px',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(0,78,100,0.3)',
+                          background: 'rgba(0,78,100,0.15)',
+                          color: '#4DB8CC',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          fontWeight: '700',
+                          backdropFilter: 'blur(10px)',
+                          WebkitBackdropFilter: 'blur(10px)'
+                        }}
+                      >
+                        View Seller
+                      </button>
+                      <button
+                        onClick={() => banUser(report.seller_id)}
+                        style={{
+                          padding: '8px 16px',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(255,80,80,0.3)',
+                          background: 'rgba(255,80,80,0.15)',
+                          color: '#f87171',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          fontWeight: '700',
+                          backdropFilter: 'blur(10px)',
+                          WebkitBackdropFilter: 'blur(10px)'
+                        }}
+                      >
+                        Ban User
                       </button>
                     </div>
                   </div>
