@@ -538,6 +538,9 @@ export default function AdminPage() {
         {activeTab === 'products' && (
           <div style={{ ...glassCard, padding: '24px' }}>
             <h2 style={{ color: 'white', fontWeight: '800', fontSize: '20px', marginBottom: '20px' }}>All Products</h2>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '20px' }}>
+              Total products: {products.length}
+            </p>
             {loading ? (
               <p style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '40px' }}>Loading products...</p>
             ) : products.length === 0 ? (
@@ -552,16 +555,17 @@ export default function AdminPage() {
                       </div>
                       <div>
                         <p style={{ color: 'white', fontWeight: '600', margin: 0 }}>{product.name}</p>
-                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '2px 0 0 0' }}>by {product.profiles?.name || product.profiles?.full_name}</p>
+                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '2px 0 0 0' }}>by {product.profiles?.name || product.profiles?.full_name || 'Unknown'}</p>
+                        <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px', margin: '2px 0 0 0' }}>{product.profiles?.email || 'No email'}</p>
                         <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px', margin: '2px 0 0 0' }}>
-                          {new Date(product.created_at).toLocaleDateString()}
+                          Listed {new Date(product.created_at).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
                     <span style={{ color: '#4DB8CC', fontSize: '12px', textTransform: 'uppercase' }}>{product.category}</span>
                     <span style={{ color: '#E8C97E', fontWeight: '700' }}>${product.price}</span>
-                    <button onClick={() => deleteProduct(product.id)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
-                      Delete 🗑
+                    <button onClick={() => deleteProduct(product.id)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
+                      <X size={14} style={{ marginRight: '4px' }} />Delete
                     </button>
                   </div>
                 ))}
