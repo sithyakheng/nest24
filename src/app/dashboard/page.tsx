@@ -70,6 +70,17 @@ export default function DashboardPage() {
 
   const CATEGORIES = ['Electronics', 'Fashion', 'Home Living', 'Beauty', 'Food', 'Gaming', 'Other']
 
+  // Helper function to get product limit based on tier
+  function getProductLimit(tier: number): number {
+    const limits: Record<number, number> = {
+      0: 5,    // no rank
+      1: 30,   // tier 1
+      2: 150,  // tier 2  
+      3: 300   // tier 3
+    }
+    return limits[tier] || 5
+  }
+
   useEffect(() => {
   async function load() {
     const { data: { user } } = await supabase.auth.getUser()
@@ -838,6 +849,84 @@ async function handleSaveProfile() {
                 <button onClick={() => setActiveTab('add')} style={{ background: 'linear-gradient(135deg, #E8C97E, #F0B429)', color: 'black', fontWeight: '700', borderRadius: '9999px', padding: '10px 24px', border: 'none', cursor: 'pointer', fontSize: '14px' }}>
                   + Add Product
                 </button>
+              </div>
+
+              {/* Product Limit Indicator */}
+              <div style={{
+                background: 'rgba(0,78,100,0.15)',
+                backdropFilter: 'blur(24px)',
+                WebkitBackdropFilter: 'blur(24px)',
+                border: '1px solid rgba(0,78,100,0.3)',
+                borderRadius: '16px',
+                padding: '16px 20px',
+                marginBottom: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '16px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '24px' }}>📦</span>
+                  <div>
+                    <p style={{ 
+                      color: '#4DB8CC', 
+                      fontSize: isMobile ? '18px' : '20px', 
+                      fontWeight: '700', 
+                      margin: 0,
+                      lineHeight: 1.2
+                    }}>
+                      {products.length}/{getProductLimit(profile?.rank || 0)} products listed
+                    </p>
+                    <p style={{ 
+                      color: 'rgba(255,255,255,0.6)', 
+                      fontSize: '12px', 
+                      margin: '4px 0 0 0'
+                    }}>
+                      {products.length >= getProductLimit(profile?.rank || 0) 
+                        ? '⚠️ You\'ve reached your plan limit. Upgrade to list more products.'
+                        : `${getProductLimit(profile?.rank || 0) - products.length} slots remaining`
+                      }
+                    </p>
+                  </div>
+                </div>
+                <div style={{
+                  width: '60px',
+                  height: '60px',
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <svg width="60" height="60" style={{ transform: 'rotate(-90deg)' }}>
+                    <circle
+                      cx="30"
+                      cy="30"
+                      r="25"
+                      stroke="rgba(255,255,255,0.1)"
+                      strokeWidth="6"
+                      fill="none"
+                    />
+                    <circle
+                      cx="30"
+                      cy="30"
+                      r="25"
+                      stroke="#4DB8CC"
+                      strokeWidth="6"
+                      fill="none"
+                      strokeDasharray={`${2 * Math.PI * 25}`}
+                      strokeDashoffset={`${2 * Math.PI * 25 * (1 - (products.length / getProductLimit(profile?.rank || 0)))}`}
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <span style={{
+                    position: 'absolute',
+                    color: '#4DB8CC',
+                    fontSize: '12px',
+                    fontWeight: '700'
+                  }}>
+                    {Math.round((products.length / getProductLimit(profile?.rank || 0)) * 100)}%
+                  </span>
+                </div>
               </div>
               {products.length === 0 ? (
                 <div style={{ ...glassCard, padding: '48px', textAlign: 'center' }}>
