@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { Star, Check, Medal, ShoppingBag, Package, DollarSign, Store, Settings, Search, MessageSquare, Phone, Ship, Ban, X, Users } from 'lucide-react'
+import { Settings, Check, X, Star, Medal, Store, ShoppingCart, Package, DollarSign, User, ShoppingBag, Search, MessageSquare, Phone, Ship, Ban, Users } from 'lucide-react'
 import Link from 'next/link'
 
 export default function AdminPage() {
@@ -288,7 +288,7 @@ export default function AdminPage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
           <div>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 4px 0' }}>NESTKH</p>
-            <h1 style={{ color: 'white', fontSize: '32px', fontWeight: '900', margin: 0 }}>Admin Panel ⚙️</h1>
+            <h1 style={{ color: 'white', fontSize: '32px', fontWeight: '900', margin: 0 }}><Settings size={24} style={{ marginRight: '8px' }} />Admin Panel</h1>
           </div>
           <Link href="/">
             <button style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: 'white', borderRadius: '9999px', padding: '10px 20px', cursor: 'pointer', fontSize: '14px' }}>
@@ -349,15 +349,15 @@ export default function AdminPage() {
                         {req.status === 'pending' ? (
                           <div style={{ display: 'flex', gap: '8px' }}>
                             <button onClick={() => approveRank(req.id, req.seller_id, req.rank, req.screenshot_url)} style={{ background: 'rgba(0,78,100,0.4)', border: '1px solid rgba(0,78,100,0.6)', color: '#4DB8CC', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
-                          Approve ✓
+                          <Check size={14} style={{ marginRight: '4px' }} />Approve
                         </button>
                         <button onClick={() => rejectRank(req.id, req.screenshot_url)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
-                          Reject ✗
+                          <X size={14} style={{ marginRight: '4px' }} />Reject
                         </button>
                       </div>
                     ) : (
                       <span style={{ padding: '6px 14px', borderRadius: '9999px', fontSize: '12px', fontWeight: '700', background: req.status === 'approved' ? 'rgba(0,200,100,0.15)' : 'rgba(255,80,80,0.15)', color: req.status === 'approved' ? '#4ade80' : '#f87171' }}>
-                        {req.status === 'approved' ? 'Approved ✓' : 'Rejected ✗'}
+                        {req.status === 'approved' ? <><Check size={12} /> Approved</> : <><X size={12} /> Rejected</>}
                       </span>
                     )}
                   </div>
@@ -443,7 +443,7 @@ export default function AdminPage() {
                         ? 'rgba(0,78,100,0.3)' 
                         : 'rgba(255,255,255,0.1)'}`
                     }}>
-                      {user.role === 'admin' ? '⚙️ Admin' : user.role === 'seller' ? '🏪 Seller' : '👤 Buyer'}
+                      {user.role === 'admin' ? <><Settings size={14} /> Admin</> : user.role === 'seller' ? <><Store size={14} /> Seller</> : <><User size={14} /> Buyer</>}
                     </span>
 
                     {user.rank && user.rank !== 'none' && (
@@ -452,7 +452,7 @@ export default function AdminPage() {
                         background: user.rank === 'premium' ? 'rgba(232,201,126,0.2)' : user.rank === 'verified' ? 'rgba(0,78,100,0.2)' : 'rgba(59,130,246,0.2)',
                         color: user.rank === 'premium' ? '#E8C97E' : user.rank === 'verified' ? '#4DB8CC' : '#93c5fd',
                       }}>
-                        {user.rank === 'premium' ? '⭐ Premium' : user.rank === 'verified' ? '✓ Verified' : '🥉 Starter'}
+                        {user.rank === 'premium' ? <><Star size={12} /> Premium</> : user.rank === 'verified' ? <><Check size={12} /> Verified</> : <><Medal size={12} /> Starter</>}
                       </span>
                     )}
                   </div>
@@ -472,7 +472,7 @@ export default function AdminPage() {
                         cursor: 'pointer', fontSize: '12px', fontWeight: '600'
                       }}
                     >
-                      {user.banned ? 'Unban ✓' : 'Ban 🚫'}
+                      {user.banned ? <><Check size={12} /> Unban</> : <><Ban size={12} /> Ban</>}
                     </button>
                   )}
                 </div>
@@ -502,7 +502,7 @@ export default function AdminPage() {
                   </div>
                   {seller.rank && seller.rank !== 'none' && (
                     <span style={{ padding: '4px 12px', borderRadius: '9999px', fontSize: '12px', fontWeight: '700', background: seller.rank === 'premium' ? 'rgba(232,201,126,0.2)' : seller.rank === 'verified' ? 'rgba(0,78,100,0.2)' : 'rgba(59,130,246,0.2)', color: seller.rank === 'premium' ? '#E8C97E' : seller.rank === 'verified' ? '#4DB8CC' : '#93c5fd' }}>
-                      {seller.rank === 'premium' ? '⭐ Premium' : seller.rank === 'verified' ? '✓ Verified' : '🥉 Starter'}
+                      {seller.rank === 'premium' ? <><Star size={12} /> Premium</> : seller.rank === 'verified' ? <><Check size={12} /> Verified</> : <><Medal size={12} /> Starter</>}
                     </span>
                   )}
                   <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px' }}>{productCounts.filter(p => p.seller_id === seller.id).length} products</p>
@@ -512,7 +512,7 @@ export default function AdminPage() {
                     color: seller.banned ? '#4DB8CC' : '#f87171',
                     borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600'
                   }}>
-                    {seller.banned ? 'Unban ✓' : 'Ban 🚫'}
+                    {seller.banned ? <><Check size={12} /> Unban</> : <><Ban size={12} /> Ban</>}
                   </button>
                 </div>
               ))}
@@ -571,7 +571,7 @@ export default function AdminPage() {
                     <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>{order.profiles?.name || order.profiles?.full_name}</p>
                     <p style={{ color: '#E8C97E', fontWeight: '700' }}>${order.total_price}</p>
                     <span style={{ padding: '4px 12px', borderRadius: '9999px', fontSize: '12px', fontWeight: '600', background: order.status === 'completed' ? 'rgba(0,200,100,0.2)' : order.status === 'shipped' ? 'rgba(59,130,246,0.2)' : 'rgba(255,80,80,0.2)', color: order.status === 'completed' ? '#4ade80' : order.status === 'shipped' ? '#93c5fd' : '#f87171' }}>
-                      {order.status === 'completed' ? 'Completed ✓' : order.status === 'shipped' ? 'Shipped 📦' : 'Pending ⏳'}
+                      {order.status === 'completed' ? <><Check size={12} /> Completed</> : order.status === 'shipped' ? <><Package size={12} /> Shipped</> : <><Package size={12} /> Pending</>}
                     </span>
                   </div>
                 ))}
@@ -612,7 +612,7 @@ export default function AdminPage() {
                     color: req.rank === 'premium' ? '#E8C97E' : req.rank === 'verified' ? '#4DB8CC' : '#93c5fd',
                     border: `1px solid ${req.rank === 'premium' ? 'rgba(232,201,126,0.4)' : req.rank === 'verified' ? 'rgba(0,78,100,0.4)' : 'rgba(59,130,246,0.4)'}` 
                   }}>
-                    {req.rank === 'premium' ? '⭐ Premium' : req.rank === 'verified' ? '✓ Verified' : '🥉 Starter'}
+                    {req.rank === 'premium' ? <><Star size={12} /> Premium</> : req.rank === 'verified' ? <><Check size={12} /> Verified</> : <><Medal size={12} /> Starter</>}
                   </span>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginBottom: '16px' }}>
@@ -643,15 +643,15 @@ export default function AdminPage() {
                   {req.status === 'pending' ? (
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <button onClick={() => approveRank(req.id, req.seller_id, req.rank, req.screenshot_url)} style={{ background: 'rgba(0,78,100,0.4)', border: '1px solid rgba(0,78,100,0.6)', color: '#4DB8CC', borderRadius: '9999px', padding: '10px 24px', cursor: 'pointer', fontSize: '14px', fontWeight: '700' }}>
-                        Approve ✓
+                        <Check size={16} style={{ marginRight: '6px' }} />Approve
                       </button>
                       <button onClick={() => rejectRank(req.id, req.screenshot_url)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '10px 24px', cursor: 'pointer', fontSize: '14px', fontWeight: '700' }}>
-                        Reject ✗
+                        <X size={16} style={{ marginRight: '6px' }} />Reject
                       </button>
                     </div>
                   ) : (
                     <span style={{ padding: '8px 18px', borderRadius: '9999px', fontSize: '13px', fontWeight: '700', background: req.status === 'approved' ? 'rgba(0,200,100,0.15)' : 'rgba(255,80,80,0.15)', color: req.status === 'approved' ? '#4ade80' : '#f87171' }}>
-                      {req.status === 'approved' ? '✓ Approved' : '✗ Rejected'}
+                      {req.status === 'approved' ? <><Check size={14} /> Approved</> : <><X size={14} /> Rejected</>}
                     </span>
                   )}
                 </div>
