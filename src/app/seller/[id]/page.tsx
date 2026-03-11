@@ -412,6 +412,7 @@ export default function SellerShopPage() {
           )}
         </div>
       </div>
+      </div>
 
       {/* Report Modal */}
       {showReportModal && (
