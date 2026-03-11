@@ -941,7 +941,7 @@ export default function DashboardPage() {
           )}
 
           {/* PROFILE SETTINGS */}
-          {activeTab === 'profile' && (
+          {activeTab === 'settings' && (
             <div>
               <h2 style={{ color: '#0f172a', fontSize: isMobile ? '18px' : '28px', fontWeight: '900', margin: '0 0 24px 0', overflowWrap: 'break-word', wordBreak: 'break-word' }}>Profile Settings</h2>
               <div style={{ ...glassCard, padding: isMobile ? '16px' : '32px', maxWidth: '600px', width: '100%' }}>
