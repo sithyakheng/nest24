@@ -771,6 +771,9 @@ export default function DashboardPage() {
                       <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Image</label>
                       <input type="file" onChange={handleProductImage} accept="image/*" style={inputStyle} />
                     </div>
+                      <input
+                      type="number"
+                      value={comparePrice}
                       onChange={e => setComparePrice(e.target.value)}
                       placeholder="0.00"
                       style={inputStyle}
