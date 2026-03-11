@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { uploadImage } from '@/lib/uploadImage'
 import Link from 'next/link'
-import { Star, Check, Medal, Store, ShoppingCart, ShoppingBag, Package, DollarSign, User, Settings, X, Flag, Bell, Search, Heart, ThumbsUp, ThumbsDown, BarChart3, Plus } from 'lucide-react'
+import { Star, Check, Medal, Store, ShoppingCart, ShoppingBag, Package, DollarSign, User, Settings, X, Flag, Bell, Search, Heart, ThumbsUp, ThumbsDown, BarChart3, Plus, AlertTriangle } from 'lucide-react'
 
 export default function DashboardPage() {
   const router = useRouter()
