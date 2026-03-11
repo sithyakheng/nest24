@@ -204,8 +204,25 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleDeleteProduct(productId: string) {
+  async function handleDeleteProduct(productId: string, imageUrl: string) {
     if (!confirm('Delete this product?')) return
+    
+    // Delete image from Cloudinary if it exists
+    if (imageUrl) {
+      try {
+        await fetch('/api/delete-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ imageUrl }),
+        })
+      } catch (error) {
+        console.error('Failed to delete image from Cloudinary:', error)
+      }
+    }
+    
+    // Delete product from Supabase
     await supabase.from('products').delete().eq('id', productId)
     setProducts(products.filter(p => p.id !== productId))
   }
