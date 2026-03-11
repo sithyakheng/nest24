@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { TrendingUp, Package, User, Star, Rocket, Smartphone, MessageSquare, Search, Store, Check } from 'lucide-react'
+import { TrendingUp, Package, User, Star, Rocket, Smartphone, MessageSquare, Search, Store, Check, Headphones, MessageCircle, Zap, ShieldCheck } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import ProductCard from '@/components/ProductCard'
 import { supabase } from '@/lib/supabase'
@@ -539,6 +539,165 @@ async function fetchProducts() {
               ))}
             </div>
           ))}
+        </div>
+
+        {/* Trust Banner */}
+        <div style={{ 
+          padding: isMobile ? '40px 20px' : '60px 20px',
+          backgroundColor: 'rgba(0, 78, 100, 0.05)',
+          borderTop: '1px solid rgba(0, 78, 100, 0.1)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)'
+        }}>
+          <div style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: '24px',
+            justifyContent: 'center'
+          }}>
+            {/* 24/7 Support */}
+            <div style={{
+              flex: 1,
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '16px',
+              padding: '32px',
+              textAlign: 'center',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              minHeight: '200px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{
+                width: '64px',
+                height: '64px',
+                backgroundColor: '#004E64',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '16px'
+              }}>
+                <Headphones size={28} style={{ color: 'white' }} />
+              </div>
+              <h3 style={{
+                color: 'white',
+                fontSize: '20px',
+                fontWeight: '700',
+                margin: '0 0 12px 0'
+              }}>
+                24/7 Support
+              </h3>
+              <p style={{
+                color: 'rgba(255, 255, 255, 0.7)',
+                fontSize: '14px',
+                lineHeight: '1.5',
+                margin: 0,
+                maxWidth: '280px'
+              }}>
+                We're here to help you around the clock. Reach out anytime via our platform.
+              </p>
+            </div>
+
+            {/* Instant Contact */}
+            <div style={{
+              flex: 1,
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '16px',
+              padding: '32px',
+              textAlign: 'center',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              minHeight: '200px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{
+                width: '64px',
+                height: '64px',
+                backgroundColor: '#004E64',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '16px'
+              }}>
+                <Zap size={28} style={{ color: 'white' }} />
+              </div>
+              <h3 style={{
+                color: 'white',
+                fontSize: '20px',
+                fontWeight: '700',
+                margin: '0 0 12px 0'
+              }}>
+                Instant Contact
+              </h3>
+              <p style={{
+                color: 'rgba(255, 255, 255, 0.7)',
+                fontSize: '14px',
+                lineHeight: '1.5',
+                margin: 0,
+                maxWidth: '280px'
+              }}>
+                Connect directly with sellers via WhatsApp, Telegram, or Facebook instantly.
+              </p>
+            </div>
+
+            {/* Trusted Sellers */}
+            <div style={{
+              flex: 1,
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '16px',
+              padding: '32px',
+              textAlign: 'center',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              minHeight: '200px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{
+                width: '64px',
+                height: '64px',
+                backgroundColor: '#004E64',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '16px'
+              }}>
+                <ShieldCheck size={28} style={{ color: 'white' }} />
+              </div>
+              <h3 style={{
+                color: 'white',
+                fontSize: '20px',
+                fontWeight: '700',
+                margin: '0 0 12px 0'
+              }}>
+                Trusted Sellers
+              </h3>
+              <p style={{
+                color: 'rgba(255, 255, 255, 0.7)',
+                fontSize: '14px',
+                lineHeight: '1.5',
+                margin: 0,
+                maxWidth: '280px'
+              }}>
+                Our tier verification system ensures you're buying from legitimate, trusted sellers.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
