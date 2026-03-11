@@ -860,8 +860,7 @@ export default function DashboardPage() {
               </div>
             </div>
           )}
-
-        </div>
+        </main>
       </div>
     </div>
   )
