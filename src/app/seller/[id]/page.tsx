@@ -30,7 +30,7 @@ export default function SellerShopPage() {
     en: {
       products: 'Products',
       noProducts: 'No products yet',
-      notFound: 'Seller not found',
+      notFound: 'Shop not found',
       back: 'Back to Store',
       contact: 'Contact Seller',
       trusted: 'Trusted Seller',
@@ -49,7 +49,7 @@ export default function SellerShopPage() {
     kh: {
       products: 'ផលិតផល',
       noProducts: 'មិនទាន់មានផលិតផលទេ',
-      notFound: 'មិនទាន់មានផលិតផលទេ',
+      notFound: 'រកមិនឃើញហាង',
       back: 'ត្រឡប់ទៅហាង',
       contact: 'ទំនាក់ទំនងអ្នកលក់',
       trusted: 'អ្នកលក់ទុកចិត្ត',
@@ -81,47 +81,56 @@ export default function SellerShopPage() {
       try {
         console.log('Loading seller with id:', id)
         
-        // Fetch seller profile - check both slug and name
-        const { data: sellerData, error: sellerError } = await supabase
+        // First try to find by shop_slug
+        let { data: seller } = await supabase
           .from('profiles')
           .select('*')
-          .or(`shop_slug.eq.${id},name.eq.${id}`)
+          .eq('shop_slug', id)
           .single()
 
-        console.log('Seller data:', sellerData)
-        console.log('Seller error:', sellerError)
+        // If not found, try by name
+        if (!seller) {
+          console.log('Not found by shop_slug, trying by name')
+          const { data } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('name', id)
+            .single()
+          seller = data
+        }
 
-        if (sellerError) {
-          console.error('Error fetching seller:', sellerError)
+        console.log('Final seller data:', seller)
+
+        if (!seller) {
+          console.log('Seller not found')
           setSeller(null)
           setLoading(false)
           return
         }
 
-        if (!sellerData) {
-          console.log('No seller found')
-          setSeller(null)
-          setLoading(false)
-          return
+        setSeller(seller)
+
+        // Fetch seller products - add null check
+        if (seller.id) {
+          const { data: productsData, error: productsError } = await supabase
+            .from('products')
+            .select('*')
+            .eq('seller_id', seller.id)
+            .order('created_at', { ascending: false })
+
+          console.log('Products data:', productsData)
+          console.log('Products error:', productsError)
+
+          if (productsError) {
+            console.error('Error fetching products:', productsError)
+          }
+
+          setProducts(productsData || [])
+        } else {
+          console.error('Seller ID is null')
+          setProducts([])
         }
 
-        setSeller(sellerData)
-
-        // Fetch seller products
-        const { data: productsData, error: productsError } = await supabase
-          .from('products')
-          .select('*')
-          .eq('seller_id', sellerData.id)
-          .order('created_at', { ascending: false })
-
-        console.log('Products data:', productsData)
-        console.log('Products error:', productsError)
-
-        if (productsError) {
-          console.error('Error fetching products:', productsError)
-        }
-
-        setProducts(productsData || [])
         setLoading(false)
       } catch (error) {
         console.error('Unexpected error:', error)
