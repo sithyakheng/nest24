@@ -30,6 +30,9 @@ export default function HomePage() {
 
   const isMobile = windowWidth < 768
   const isSmallMobile = windowWidth < 480
+  
+  // Simple theme detection based on time of day
+  const isDarkMode = new Date().getHours() >= 18 || new Date().getHours() < 6
 
   useEffect(() => {
     setWindowWidth(window.innerWidth)
@@ -488,7 +491,7 @@ async function fetchProducts() {
       {/* Trust Banner */}
       <div style={{
         width: '100%',
-        background: '#004E64',
+        background: isDarkMode ? '#0f172a' : '#0f172a',
         borderTop: '1px solid rgba(255,255,255,0.1)',
         borderBottom: '1px solid rgba(255,255,255,0.1)',
         overflow: 'hidden',
@@ -522,7 +525,7 @@ async function fetchProducts() {
                   }}>
                     <span style={{ fontSize: '14px', display: 'flex', alignItems: 'center' }}>{item.icon}</span>
                     <span style={{
-                      color: '#ffffff',
+                      color: isDarkMode ? '#ffffff' : '#ffffff',
                       fontSize: '12px',
                       fontWeight: '700',
                       letterSpacing: '0.08em',
@@ -558,7 +561,7 @@ async function fetchProducts() {
             {/* 24/7 Support */}
             <div style={{
               flex: 1,
-              background: '#ffffff',
+              background: isDarkMode ? '#1e293b' : '#ffffff',
               border: '1px solid #e2e8f0',
               borderRadius: '16px',
               padding: '32px',
@@ -583,28 +586,24 @@ async function fetchProducts() {
                 <Headphones size={28} style={{ color: 'white' }} />
               </div>
               <h3 style={{
-                color: 'white',
+                color: isDarkMode ? '#ffffff' : '#0f172a',
                 fontSize: '20px',
                 fontWeight: '700',
                 margin: '0 0 12px 0'
-              }}>
-                24/7 Support
-              </h3>
+              }}>24/7 Support</h3>
               <p style={{
-                color: 'rgba(255, 255, 255, 0.7)',
+                color: isDarkMode ? 'rgba(255,255,255,0.7)' : '#0f172a',
                 fontSize: '14px',
                 lineHeight: '1.5',
                 margin: 0,
                 maxWidth: '280px'
-              }}>
-                We're here to help you around the clock. Reach out anytime via our platform.
-              </p>
+              }}>We're here to help you around the clock. Reach out anytime via our platform.</p>
             </div>
 
             {/* Instant Contact */}
             <div style={{
               flex: 1,
-              background: '#ffffff',
+              background: isDarkMode ? '#1e293b' : '#ffffff',
               border: '1px solid #e2e8f0',
               borderRadius: '16px',
               padding: '32px',
@@ -629,28 +628,24 @@ async function fetchProducts() {
                 <Zap size={28} style={{ color: 'white' }} />
               </div>
               <h3 style={{
-                color: 'white',
+                color: isDarkMode ? '#ffffff' : '#0f172a',
                 fontSize: '20px',
                 fontWeight: '700',
                 margin: '0 0 12px 0'
-              }}>
-                Instant Contact
-              </h3>
+              }}>Instant Contact</h3>
               <p style={{
-                color: 'rgba(255, 255, 255, 0.7)',
+                color: isDarkMode ? 'rgba(255,255,255,0.7)' : '#0f172a',
                 fontSize: '14px',
                 lineHeight: '1.5',
                 margin: 0,
                 maxWidth: '280px'
-              }}>
-                Connect directly with sellers via WhatsApp, Telegram, or Facebook instantly.
-              </p>
+              }}>Connect directly with sellers via WhatsApp, Telegram, or Facebook instantly.</p>
             </div>
 
             {/* Trusted Sellers */}
             <div style={{
               flex: 1,
-              background: '#ffffff',
+              background: isDarkMode ? '#1e293b' : '#ffffff',
               border: '1px solid #e2e8f0',
               borderRadius: '16px',
               padding: '32px',
@@ -675,22 +670,18 @@ async function fetchProducts() {
                 <ShieldCheck size={28} style={{ color: 'white' }} />
               </div>
               <h3 style={{
-                color: '#0f172a',
+                color: isDarkMode ? '#ffffff' : '#0f172a',
                 fontSize: '20px',
                 fontWeight: '700',
                 margin: '0 0 12px 0'
-              }}>
-                Trusted Sellers
-              </h3>
+              }}>Trusted Sellers</h3>
               <p style={{
-                color: '#0f172a',
+                color: isDarkMode ? 'rgba(255,255,255,0.7)' : '#0f172a',
                 fontSize: '14px',
                 lineHeight: '1.5',
                 margin: 0,
                 maxWidth: '280px'
-              }}>
-                Our tier verification system ensures you're buying from legitimate, trusted sellers.
-              </p>
+              }}>Our tier verification system ensures you're buying from legitimate, trusted sellers.</p>
             </div>
           </div>
         </div>
