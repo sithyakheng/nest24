@@ -744,55 +744,6 @@ export default function DashboardPage() {
             </div>
           )}
 
-                        </div>
-                      </div>
-                    </div>
-                      if (!f) return
-
-                      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-                      if (!allowedTypes.includes(f.type)) {
-                        setAddError('Only JPG, PNG or WebP images allowed.')
-                        return
-                      }
-
-                      if (f.size > 10 * 1024 * 1024) {
-                        setAddError('Image too large. Max 10MB.')
-                        return
-                      }
-
-                      setProductImage(f)
-                      setProductImagePreview(URL.createObjectURL(f))
-                      setAddError('')
-                    }} style={{ display: 'none' }} />
-                  </div>
-
-                  {productImage && (
-                    <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '11px', marginTop: '6px', textAlign: 'center' }}>
-                      Original: {(productImage.size / 1024 / 1024).toFixed(2)}MB → Will be compressed automatically <Check size={12} />
-                    </p>
-                  )}
-
-                  {addError && (
-                    <div style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.2)', borderRadius: '12px', padding: '12px 16px', color: '#f87171', fontSize: '14px' }}>
-                      {addError}
-                    </div>
-                  )}
-
-                  {addSuccess && (
-                    <div style={{ background: 'rgba(0,200,100,0.1)', border: '1px solid rgba(0,200,100,0.3)', borderRadius: '12px', padding: '12px 16px', color: '#4ade80', fontSize: '14px', fontWeight: '600' }}>
-                      ✅ Product added successfully!
-                    </div>
-                  )}
-
-                  <button onClick={handleAddProduct} disabled={addingProduct} style={{ background: addingProduct ? '#f8fafc' : '#004E64', color: addingProduct ? '#475569' : 'white', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: addingProduct ? 'not-allowed' : 'pointer', width: '100%' }}>
-                    {addingProduct ? 'Adding Product...' : 'Add Product <Check size={12} />'}
-                  </button>
-
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* ORDERS */}
           {console.log('activeTab:', activeTab) || activeTab === 'orders' && (
             <div>
