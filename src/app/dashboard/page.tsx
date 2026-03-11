@@ -317,19 +317,6 @@ export default function DashboardPage() {
     { id: 'settings', label: 'Settings', icon: Settings }
   ]
 
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'Inter, sans-serif' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '40px', height: '40px', border: '3px solid #e2e8f0', borderTop: '3px solid #004E64', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-            <span style={{ color: '#64748b', fontSize: '14px' }}>Loading dashboard...</span>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'Inter, sans-serif' }}>
       {/* Sidebar */}
