@@ -488,7 +488,7 @@ async function fetchProducts() {
       {/* Trust Banner */}
       <div style={{
         width: '100%',
-        background: '#000000',
+        background: '#004E64',
         borderTop: '1px solid rgba(255,255,255,0.1)',
         borderBottom: '1px solid rgba(255,255,255,0.1)',
         overflow: 'hidden',
@@ -498,7 +498,7 @@ async function fetchProducts() {
         <div style={{
           display: 'flex',
           width: 'max-content',
-          animation: 'marquee 45s linear infinite',
+          animation: 'marquee 45s linear infinite'
         }}>
           {[...Array(2)].map((_, dupIndex) => (
             <div key={dupIndex} style={{ display: 'flex', alignItems: 'center' }}>
@@ -544,10 +544,8 @@ async function fetchProducts() {
         {/* Trust Banner */}
         <div style={{ 
           padding: isMobile ? '40px 20px' : '60px 20px',
-          backgroundColor: 'rgba(0, 78, 100, 0.05)',
-          borderTop: '1px solid rgba(0, 78, 100, 0.1)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)'
+          backgroundColor: '#f8fafc',
+          borderTop: '1px solid #e2e8f0'
         }}>
           <div style={{
             maxWidth: '1200px',
@@ -560,13 +558,12 @@ async function fetchProducts() {
             {/* 24/7 Support */}
             <div style={{
               flex: 1,
-              background: 'rgba(255, 255, 255, 0.03)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: '#ffffff',
+              border: '1px solid #e2e8f0',
               borderRadius: '16px',
               padding: '32px',
               textAlign: 'center',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
               minHeight: '200px',
               display: 'flex',
               flexDirection: 'column',
@@ -607,13 +604,12 @@ async function fetchProducts() {
             {/* Instant Contact */}
             <div style={{
               flex: 1,
-              background: 'rgba(255, 255, 255, 0.03)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: '#ffffff',
+              border: '1px solid #e2e8f0',
               borderRadius: '16px',
               padding: '32px',
               textAlign: 'center',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
               minHeight: '200px',
               display: 'flex',
               flexDirection: 'column',
@@ -654,13 +650,12 @@ async function fetchProducts() {
             {/* Trusted Sellers */}
             <div style={{
               flex: 1,
-              background: 'rgba(255, 255, 255, 0.03)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: '#ffffff',
+              border: '1px solid #e2e8f0',
               borderRadius: '16px',
               padding: '32px',
               textAlign: 'center',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
               minHeight: '200px',
               display: 'flex',
               flexDirection: 'column',
@@ -680,7 +675,7 @@ async function fetchProducts() {
                 <ShieldCheck size={28} style={{ color: 'white' }} />
               </div>
               <h3 style={{
-                color: 'white',
+                color: '#0f172a',
                 fontSize: '20px',
                 fontWeight: '700',
                 margin: '0 0 12px 0'
@@ -688,7 +683,7 @@ async function fetchProducts() {
                 Trusted Sellers
               </h3>
               <p style={{
-                color: 'rgba(255, 255, 255, 0.7)',
+                color: '#0f172a',
                 fontSize: '14px',
                 lineHeight: '1.5',
                 margin: 0,
