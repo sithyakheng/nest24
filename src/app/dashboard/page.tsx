@@ -775,8 +775,7 @@ export default function DashboardPage() {
                       placeholder="0.00"
                       style={inputStyle}
                       onFocus={e => e.currentTarget.style.borderColor = 'rgba(16,185,129,0.5)'}
-                      onBlur={e => e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'}
-                    />
+                      onBlur={e => e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'} />
                     <p style={{ color: 'rgba(15,23,42,0.35)', fontSize: '11px', marginTop: '4px' }}>
                       Set higher than actual price to show a discount
                     </p>
