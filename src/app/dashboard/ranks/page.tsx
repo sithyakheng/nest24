@@ -18,12 +18,12 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
   const [shopName, setShopName] = useState('')
   const [phone, setPhone] = useState('')
   const [discountCode, setDiscountCode] = useState('')
+  const [discountApplied, setDiscountApplied] = useState(false)
+  const [discountError, setDiscountError] = useState('')
   const [screenshot, setScreenshot] = useState<File | null>(null)
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
-  const [discountMessage, setDiscountMessage] = useState('')
-  const [isDiscountFocused, setIsDiscountFocused] = useState(false)
 
   async function compressImage(file: File): Promise<File> {
     return new Promise((resolve) => {
@@ -164,13 +164,10 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
     color: '#ffffff',
     WebkitTextFillColor: '#ffffff',
     caretColor: '#ffffff',
-    backgroundColor: 'rgba(255,255,255,0.15)'
-  }
-
-  const focusInputStyle = {
-    ...enhancedInputStyle,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    color: 'white'
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    '::placeholder': {
+      color: 'rgba(255,255,255,0.5)'
+    }
   }
 
   return (
@@ -245,7 +242,7 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
           textAlign: 'center'
         }}>
           <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '20px', margin: 0 }}>
-            {discountCode === 'NESTKH20' ? (
+            {discountApplied ? (
               <>
                 <span style={{ color: '#E8C97E', fontWeight: '900', fontSize: '20px', margin: 0 }}>
                   ${selectedRank === 'starter' ? '4' : selectedRank === 'verified' ? '12' : '24'} USD
@@ -305,23 +302,40 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
           <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
             Discount Code (optional)
           </label>
-          <input
-            type="text"
-            value={discountCode}
-            onFocus={() => setIsDiscountFocused(true)}
-            onBlur={() => setIsDiscountFocused(false)}
-            onChange={e => {
-              setDiscountCode(e.target.value.toUpperCase())
-              // Check for NESTKH20 discount
-              if (e.target.value.toUpperCase() === 'NESTKH20') {
-                setDiscountMessage('✓ 20% discount applied!')
-              } else {
-                setDiscountMessage('')
-              }
-            }}
-            style={isDiscountFocused ? focusInputStyle : enhancedInputStyle}
-          />
-          {discountMessage && (
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <input
+              type="text"
+              placeholder="Enter discount code"
+              value={discountCode}
+              onChange={e => setDiscountCode(e.target.value.toUpperCase())}
+              style={{...enhancedInputStyle, flex: 1}}
+            />
+            <button
+              onClick={() => {
+                if (discountCode === 'NESTKH20') {
+                  setDiscountApplied(true)
+                  setDiscountError('')
+                } else {
+                  setDiscountApplied(false)
+                  setDiscountError('✗ Invalid discount code')
+                }
+              }}
+              style={{
+                background: '#004E64',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '12px 20px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              Apply
+            </button>
+          </div>
+          {discountApplied && (
             <div style={{ 
               background: 'rgba(0,200,100,0.1)', 
               border: '1px solid rgba(0,200,100,0.3)', 
@@ -332,7 +346,21 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
               fontWeight: '600', 
               marginTop: '8px' 
             }}>
-              {discountMessage}
+              ✓ 20% discount applied! You save ${selectedRank === 'starter' ? '1' : selectedRank === 'verified' ? '3' : '6'}
+            </div>
+          )}
+          {discountError && (
+            <div style={{ 
+              background: 'rgba(255,80,80,0.1)', 
+              border: '1px solid rgba(255,80,80,0.3)', 
+              borderRadius: '8px', 
+              padding: '8px 12px', 
+              color: '#f87171', 
+              fontSize: '13px', 
+              fontWeight: '600', 
+              marginTop: '8px' 
+            }}>
+              {discountError}
             </div>
           )}
         </div>
