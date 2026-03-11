@@ -151,11 +151,18 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
     WebkitBackdropFilter: 'blur(12px)',
     border: '1px solid rgba(255,255,255,0.12)',
     borderRadius: '12px',
-    color: 'white',
+    color: '#ffffff',
     padding: '12px 16px',
     fontSize: '14px',
     outline: 'none',
     boxSizing: 'border-box' as const
+  }
+
+  const enhancedInputStyle = {
+    ...inputStyle,
+    color: '#ffffff',
+    WebkitTextFillColor: '#ffffff',
+    caretColor: '#ffffff'
   }
 
   return (
@@ -259,7 +266,7 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
             placeholder="Enter your full name"
             value={sellerName}
             onChange={e => setSellerName(e.target.value)}
-            style={inputStyle}
+            style={enhancedInputStyle}
           />
         </div>
 
@@ -272,7 +279,7 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
             placeholder="Enter your shop name"
             value={shopName}
             onChange={e => setShopName(e.target.value)}
-            style={inputStyle}
+            style={enhancedInputStyle}
           />
         </div>
 
@@ -293,7 +300,7 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
                 setDiscountMessage('')
               }
             }}
-            style={inputStyle}
+            style={enhancedInputStyle}
           />
           {discountMessage && (
             <div style={{ 
