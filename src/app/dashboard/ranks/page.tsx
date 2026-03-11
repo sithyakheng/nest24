@@ -370,7 +370,7 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
             transition: 'all 0.2s'
           }}
         >
-          {uploading ? 'Submitting...' : 'Submit Payment Request <Check size={12} />'}
+          {uploading ? 'Submitting...' : 'Submit Payment Request'}
         </button>
 
       </div>
@@ -699,7 +699,7 @@ export default function RanksPage() {
                   e.currentTarget.style.transform = 'translateY(0)'
                 }}
               >
-                {selectedRank === plan.id ? '<Check size={12} /> Selected — Scroll to Pay' : plan.buttonText}
+                {selectedRank === plan.id ? <><Check size={12} /> Selected — Scroll to Pay</> : plan.buttonText}
               </button>
 
               {/* Description */}
