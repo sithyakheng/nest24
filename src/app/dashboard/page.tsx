@@ -773,6 +773,11 @@ export default function DashboardPage() {
                   </div>
 
                   <div>
+                    <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Discount % (optional)</label>
+                    <input type="number" value={productDiscount} onChange={e => setProductDiscount(e.target.value)} placeholder="0" min="0" max="100" style={inputStyle} {...inputFocusProps} />
+                  </div>
+
+                  <div>
                     <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Category</label>
                     <select value={productCategory} onChange={e => setProductCategory(e.target.value)} style={inputStyle} {...inputFocusProps}>
                       {CATEGORIES.map(cat => (
@@ -783,7 +788,65 @@ export default function DashboardPage() {
 
                   <div>
                     <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Image</label>
-                    <input type="file" onChange={handleProductImage} accept="image/*" style={inputStyle} />
+                    <div
+                      onClick={() => document.getElementById('file-input')?.click()}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.currentTarget.style.borderColor = '#004E64';
+                        e.currentTarget.style.backgroundColor = '#f0f9ff';
+                      }}
+                      onDragLeave={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.currentTarget.style.borderColor = '#e2e8f0';
+                        e.currentTarget.style.backgroundColor = '#f8fafc';
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.currentTarget.style.borderColor = '#e2e8f0';
+                        e.currentTarget.style.backgroundColor = '#f8fafc';
+                        
+                        const files = e.dataTransfer.files;
+                        if (files.length > 0 && files[0].type.startsWith('image/')) {
+                          handleProductImage({ target: { files: [files[0]] } } as any);
+                        }
+                      }}
+                      style={{
+                        border: '2px dashed #e2e8f0',
+                        backgroundColor: '#f8fafc',
+                        height: '120px',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        textAlign: 'center',
+                        padding: '16px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = '#cbd5e1';
+                        e.currentTarget.style.backgroundColor = '#f1f5f9';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = '#e2e8f0';
+                        e.currentTarget.style.backgroundColor = '#f8fafc';
+                      }}
+                    >
+                      <div>
+                        <p style={{ color: '#64748b', fontSize: '14px', margin: 0, marginBottom: '4px' }}>Drag & drop image here or click to browse</p>
+                        <p style={{ color: '#94a3b8', fontSize: '12px', margin: 0 }}>PNG, JPG, GIF up to 10MB</p>
+                      </div>
+                    </div>
+                    <input
+                      id="file-input"
+                      type="file"
+                      onChange={handleProductImage}
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                    />
                   </div>
 
                   {productImagePreview && (
