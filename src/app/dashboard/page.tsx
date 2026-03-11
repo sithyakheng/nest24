@@ -744,119 +744,9 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* ADD PRODUCT */}
-          {activeTab === 'add' && (
-            <div>
-              <h2 style={{ color: '#0f172a', fontSize: isMobile ? '18px' : '28px', fontWeight: '900', margin: '0 0 24px 0', overflowWrap: 'break-word', wordBreak: 'break-word' }}>Add New Product</h2>
-              <div style={{ ...glassCard, padding: isMobile ? '16px' : '32px', maxWidth: '600px', width: '100%' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-
-                  <div>
-                    <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Name</label>
-                    <input type="text" value={productName} onChange={e => setProductName(e.target.value)} placeholder="Enter product name" style={inputStyle} {...inputFocusProps} />
-                  </div>
-
-                  <div>
-                    <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Description</label>
-                    <textarea value={productDesc} onChange={e => setProductDesc(e.target.value)} placeholder="Describe your product" rows={4} style={{ ...inputStyle, resize: 'vertical' }} {...inputFocusProps} />
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '12px' : '12px' }}>
-                    <div>
-                      <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Price ($)</label>
-                      <input type="number" value={productPrice} onChange={e => setProductPrice(e.target.value)} placeholder="0.00" style={inputStyle} {...inputFocusProps} />
-                    </div>
-                    <div>
-                      <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Stock</label>
-                      <input type="number" value={productStock} onChange={e => setProductStock(e.target.value)} placeholder="0" style={inputStyle} {...inputFocusProps} />
-                    </div>
-                    <div>
-                      <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Category</label>
-                      <select value={productCategory} onChange={e => setProductCategory(e.target.value)} style={inputStyle} {...inputFocusProps}>
-                        {CATEGORIES.map(cat => (
-                          <option key={cat} value={cat}>{cat}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Image</label>
-                      <input type="file" onChange={handleProductImage} accept="image/*" style={inputStyle} />
-                    </div>
-                      <input
-                      type="number"
-                      value={comparePrice}
-                      onChange={e => setComparePrice(e.target.value)}
-                      placeholder="0.00"
-                      style={inputStyle}
-                      onFocus={e => e.currentTarget.style.borderColor = 'rgba(16,185,129,0.5)'}
-                      onBlur={e => e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'} />
-                    <p style={{ color: 'rgba(15,23,42,0.35)', fontSize: '11px', marginTop: '4px' }}>
-                      Set higher than actual price to show a discount
-                    </p>
-                  </div>
-
-                  {/* Live preview */}
-                  {productImagePreview && (
-                    <div style={{
-                      background: 'rgba(16,185,129,0.06)',
-                      border: '1px solid rgba(0,0,0,0.06)',
-                      borderRadius: '12px',
-                      padding: '16px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px'
-                    }}>
-                      <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '12px', margin: 0 }}>Preview</p>
-                      <img src={productImagePreview} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
-                    </div>
-                  )}
-
-                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '12px' : '12px' }}>
-                    <div>
-                      <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Category</label>
-                      <select 
-                        value={productCategory} 
-                        onChange={e => setProductCategory(e.target.value)} 
-                        style={{
-                          backgroundColor: 'white',
-                          color: '#1a1a1a',
-                          border: '1px solid #e2e8f0',
-                          borderRadius: '8px',
-                          padding: '10px 12px',
-                          width: '100%',
-                          fontSize: '14px',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                      </select>
-                      <style jsx>{`
-                        select option {
-                          background-color: white !important;
-                          color: #1a1a1a !important;
-                        }
-                      `}</style>
-                    </div>
-                    <div>
-                      <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Discount (%)</label>
-                      <input type="number" value={productDiscount} onChange={e => setProductDiscount(e.target.value)} placeholder="0" style={inputStyle} {...inputFocusProps} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Image</label>
-                    <div onClick={() => document.getElementById('product-image-upload')?.click()} style={{ background: 'rgba(0,0,0,0.02)', border: productImagePreview ? '1px solid rgba(16,185,129,0.5)' : '2px dashed rgba(15,23,42,0.15)', borderRadius: '16px', padding: '24px', textAlign: 'center', cursor: 'pointer', overflow: 'hidden' }}>
-                      {productImagePreview ? (
-                        <img src={productImagePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px', objectFit: 'contain' }} />
-                      ) : (
-                        <div>
-                          <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '14px', margin: '0 0 4px 0' }}>📸 Upload Product Image</p>
-                          <p style={{ color: 'rgba(15,23,42,0.25)', fontSize: '12px', margin: 0 }}>Click to browse</p>
                         </div>
-                      )}
+                      </div>
                     </div>
-                    <input id="product-image-upload" type="file" accept="image/*" onChange={e => {
-                      const f = e.target.files?.[0]
                       if (!f) return
 
                       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
@@ -904,7 +794,7 @@ export default function DashboardPage() {
           )}
 
           {/* ORDERS */}
-          {activeTab === 'orders' && (
+          {console.log('activeTab:', activeTab) || activeTab === 'orders' && (
             <div>
               <h2 style={{ color: '#0f172a', fontSize: isMobile ? '18px' : '28px', fontWeight: '900', margin: '0 0 24px 0', overflowWrap: 'break-word', wordBreak: 'break-word' }}>Orders</h2>
               {orders.length === 0 ? (
