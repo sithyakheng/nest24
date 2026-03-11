@@ -241,6 +241,17 @@ export default function DashboardPage() {
     setProducts(products.filter(p => p.id !== productId))
   }
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('folder', 'nestkh')
+    const res = await fetch('/api/upload-image', { method: 'POST', body: formData })
+    const data = await res.json()
+    if (data.url) setAvatarUrl(data.url)
+  }
+
   async function handleSaveProfile() {
     setSavingProfile(true)
     setProfileSuccess(false)
