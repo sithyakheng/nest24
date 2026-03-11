@@ -34,6 +34,7 @@ export default function DashboardPage() {
 
   // Profile form state
   const [profileName, setProfileName] = useState('')
+  const [displayName, setDisplayName] = useState('')
   const [fullName, setFullName] = useState('')
   const [bio, setBio] = useState('')
   const [phone, setPhone] = useState('')
