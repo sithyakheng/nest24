@@ -586,7 +586,7 @@ export default function DashboardPage() {
                   }}>
                     Views by Product
                   </h2>
-                  <div style={{ height: '320px' }}>
+                  <div style={{ width: '100%', height: '300px' }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={barChartData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -636,7 +636,7 @@ export default function DashboardPage() {
                   }}>
                     Views Over Time
                   </h2>
-                  <div style={{ height: '320px' }}>
+                  <div style={{ width: '100%', height: '300px' }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={lineChartData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />

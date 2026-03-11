@@ -49,8 +49,9 @@ async function fetchSellers() {
     .from('profiles')
     .select('*, products(id)')
     .eq('role', 'seller')
-    .eq('rank', 'premium')
+    .eq('tier', 'premium')
     .limit(3)
+    .order('created_at', { ascending: false })
   setPremiumSellers(premiumSellersData || [])
 
   // Load top sellers (premium + verified)
@@ -58,8 +59,9 @@ async function fetchSellers() {
     .from('profiles')
     .select('*, products(id)')
     .eq('role', 'seller')
-    .in('rank', ['premium', 'verified'])
+    .in('tier', [3, 2])
     .limit(6)
+    .order('created_at', { ascending: false })
   setTopSellers(topSellersData || [])
 
   // Load new sellers (starter)
@@ -67,7 +69,7 @@ async function fetchSellers() {
     .from('profiles')
     .select('*, products(id)')
     .eq('role', 'seller')
-    .eq('rank', 'starter')
+    .eq('tier', 1)
     .limit(4)
   setNewSellers(newSellersData || [])
 }
