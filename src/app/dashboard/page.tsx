@@ -317,6 +317,17 @@ export default function DashboardPage() {
     { id: 'settings', label: 'Settings', icon: Settings }
   ]
 
+  const handleProductImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('folder', 'nestkh')
+    const res = await fetch('/api/upload-image', { method: 'POST', body: formData })
+    const data = await res.json()
+    if (data.url) setProductImage(data.url)
+  }
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'Inter, sans-serif' }}>
       {/* Sidebar */}
