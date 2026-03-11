@@ -1,133 +1,148 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useLang } from '@/contexts/LanguageContext'
+import { motion } from 'framer-motion'
+import Navbar from '@/components/Navbar'
 
 export default function PrivacyPage() {
-  const { t } = useLang()
+  const [windowWidth, setWindowWidth] = useState(1200)
+  const isMobile = windowWidth < 768
   
+  // Simple theme detection based on time of day
+  const isDark = new Date().getHours() >= 18 || new Date().getHours() < 6
+
+  useEffect(() => {
+    setWindowWidth(window.innerWidth)
+    const handleResize = () => setWindowWidth(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: isDark ? '#0a0a0a' : '#ffffff',
+    paddingTop: '100px',
+    paddingBottom: '80px'
+  }
+
+  const contentStyle = {
+    maxWidth: '800px',
+    margin: '0 auto',
+    padding: isMobile ? '40px 24px' : '60px 40px'
+  }
+
+  const sectionStyle = {
+    background: isDark ? '#1a1a2e' : '#f8fafc',
+    borderRadius: '16px',
+    padding: '32px',
+    marginBottom: '24px'
+  }
+
+  const headingStyle = {
+    color: isDark ? '#ffffff' : '#0f172a',
+    fontSize: '24px',
+    fontWeight: '700',
+    marginBottom: '16px'
+  }
+
+  const subheadingStyle = {
+    color: isDark ? '#ffffff' : '#0f172a',
+    fontSize: '18px',
+    fontWeight: '600',
+    marginBottom: '12px'
+  }
+
+  const textStyle = {
+    color: isDark ? 'rgba(255,255,255,0.8)' : '#475569',
+    fontSize: '15px',
+    lineHeight: '1.6',
+    marginBottom: '16px'
+  }
+
+  const lastUpdatedStyle = {
+    color: isDark ? 'rgba(255,255,255,0.5)' : '#64748b',
+    fontSize: '14px',
+    fontStyle: 'italic',
+    marginBottom: '24px'
+  }
+
+  const sections = [
+    {
+      title: 'What We Collect',
+      content: 'Name, email, phone number on signup. Also info about products you list or browse.'
+    },
+    {
+      title: 'How We Use It',
+      content: 'To run your account, display listings, and improve NestKH. We do not sell your data.'
+    },
+    {
+      title: 'Third Party Services',
+      content: 'NestKH uses Supabase, Cloudinary, and Vercel which may process your data.'
+    },
+    {
+      title: 'Cookies',
+      content: 'Used to keep you logged in and improve experience.'
+    },
+    {
+      title: 'Your Rights',
+      content: 'Request account and data deletion anytime by contacting us.'
+    },
+    {
+      title: 'Contact',
+      content: 'Contact us through NestKH platform.'
+    }
+  ]
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#080a0f',
-      paddingTop: '100px',
-      paddingBottom: '60px',
-      position: 'relative'
-    }}>
-      {/* Background orbs */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-150px', left: '-100px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,78,100,0.4) 0%, transparent 70%)', filter: 'blur(80px)' }} />
-        <div style={{ position: 'absolute', bottom: '-150px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,201,126,0.25) 0%, transparent 70%)', filter: 'blur(80px)' }} />
-      </div>
-
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 10 }}>
-
-        {/* Header */}
-        <div style={{
-          background: 'rgba(255,255,255,0.06)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          border: '1px solid rgba(255,255,255,0.12)',
-          borderTop: '1px solid rgba(255,255,255,0.22)',
-          borderRadius: '24px',
-          padding: '48px',
-          marginBottom: '24px',
-          textAlign: 'center'
-        }}>
-          <span style={{
-            display: 'inline-block',
-            background: 'rgba(0,78,100,0.3)',
-            border: '1px solid rgba(0,78,100,0.5)',
-            color: '#4DB8CC',
-            fontSize: '12px',
-            fontWeight: '600',
-            padding: '6px 16px',
-            borderRadius: '9999px',
-            marginBottom: '24px',
-            letterSpacing: '0.05em'
+    <div style={containerStyle}>
+      <Navbar />
+      
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        style={contentStyle}
+      >
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+          <h1 style={{ 
+            color: isDark ? '#ffffff' : '#0f172a', 
+            fontSize: isMobile ? '32px' : '48px', 
+            fontWeight: '900', 
+            margin: 0 
           }}>
             Privacy Policy
-          </span>
-          <h1 style={{ color: 'white', fontSize: '42px', fontWeight: '900', margin: '0 0 16px 0' }}>
-            Privacy Policy
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '17px', lineHeight: '1.7', fontWeight: '300', margin: 0 }}>
+          <p style={{ 
+            color: isDark ? 'rgba(255,255,255,0.6)' : '#64748b', 
+            fontSize: '16px', 
+            marginBottom: 0 
+          }}>
             Last updated: March 2026
           </p>
         </div>
 
-        {/* Content */}
-        <div style={{
-          background: 'rgba(255,255,255,0.04)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '24px',
-          padding: '40px',
-          color: 'rgba(255,255,255,0.9)',
-          fontSize: '15px',
-          lineHeight: '1.8'
-        }}>
-          <div style={{ marginBottom: '32px' }}>
-            <h2 style={{ color: '#4DB8CC', fontSize: '20px', fontWeight: '700', marginBottom: '12px' }}>Section 1: What We Collect</h2>
-            <p style={{ margin: 0, color: 'rgba(255,255,255,0.8)' }}>
-              We collect your name, email address, and phone number when you sign up. We also collect information about the products you list or browse.
+        {sections.map((section, index) => (
+          <motion.div
+            key={section.title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: index * 0.1 }}
+            style={sectionStyle}
+          >
+            <h2 style={subheadingStyle}>
+              Section {index + 1}: {section.title}
+            </h2>
+            <p style={textStyle}>
+              {section.content}
             </p>
-          </div>
+          </motion.div>
+        ))}
 
-          <div style={{ marginBottom: '32px' }}>
-            <h2 style={{ color: '#4DB8CC', fontSize: '20px', fontWeight: '700', marginBottom: '12px' }}>Section 2: How We Use It</h2>
-            <p style={{ margin: 0, color: 'rgba(255,255,255,0.8)' }}>
-              We use your data to run your account, display your listings, and improve NestKH. We do not sell your data to anyone.
-            </p>
-          </div>
-
-          <div style={{ marginBottom: '32px' }}>
-            <h2 style={{ color: '#4DB8CC', fontSize: '20px', fontWeight: '700', marginBottom: '12px' }}>Section 3: Third Party Services</h2>
-            <p style={{ margin: 0, color: 'rgba(255,255,255,0.8)' }}>
-              NestKH uses Supabase for database and authentication, Cloudinary for image storage, and Vercel for hosting. These services may process your data as part of normal operations.
-            </p>
-          </div>
-
-          <div style={{ marginBottom: '32px' }}>
-            <h2 style={{ color: '#4DB8CC', fontSize: '20px', fontWeight: '700', marginBottom: '12px' }}>Section 4: Cookies</h2>
-            <p style={{ margin: 0, color: 'rgba(255,255,255,0.8)' }}>
-              We use cookies to keep you logged in and to improve your experience on NestKH.
-            </p>
-          </div>
-
-          <div style={{ marginBottom: '32px' }}>
-            <h2 style={{ color: '#4DB8CC', fontSize: '20px', fontWeight: '700', marginBottom: '12px' }}>Section 5: Your Rights</h2>
-            <p style={{ margin: 0, color: 'rgba(255,255,255,0.8)' }}>
-              You can request to delete your account and data at any time by contacting us.
-            </p>
-          </div>
-
-          <div style={{ marginBottom: '32px' }}>
-            <h2 style={{ color: '#4DB8CC', fontSize: '20px', fontWeight: '700', marginBottom: '12px' }}>Section 6: Contact</h2>
-            <p style={{ margin: 0, color: 'rgba(255,255,255,0.8)' }}>
-              For any privacy concerns, contact us through the NestKH platform.
-            </p>
-          </div>
+        <div style={lastUpdatedStyle}>
+          Last updated: March 2026
         </div>
-
-        {/* Back button */}
-        <div style={{ textAlign: 'center', marginTop: '32px' }}>
-          <Link href="/">
-            <button style={{
-              background: 'rgba(255,255,255,0.08)',
-              color: 'white',
-              fontWeight: '600',
-              borderRadius: '9999px',
-              padding: '12px 32px',
-              border: '1px solid rgba(255,255,255,0.15)',
-              cursor: 'pointer',
-              fontSize: '15px'
-            }}>
-              Back to Home
-            </button>
-          </Link>
-        </div>
-
-      </div>
+      </motion.div>
     </div>
   )
 }
