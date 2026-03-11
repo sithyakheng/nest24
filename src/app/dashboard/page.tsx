@@ -464,7 +464,6 @@ export default function DashboardPage() {
 
         {/* Content Area */}
         <main style={{ flex: 1, padding: '24px', overflow: 'auto' }}>
-          <p style={{color: '#000', fontSize: '20px'}}>Active tab: {activeTab}</p>
           {/* Overview Tab */}
           {activeTab === 'overview' && (
             <div>
@@ -742,6 +741,84 @@ export default function DashboardPage() {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* ADD PRODUCT */}
+          {activeTab === 'add-product' && (
+            <div>
+              <h2 style={{ color: '#0f172a', fontSize: isMobile ? '18px' : '28px', fontWeight: '900', margin: '0 0 24px 0', overflowWrap: 'break-word', wordBreak: 'break-word' }}>Add New Product</h2>
+              <div style={{ ...glassCard, padding: isMobile ? '16px' : '32px', maxWidth: '600px', width: '100%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+                  <div>
+                    <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Name</label>
+                    <input type="text" value={productName} onChange={e => setProductName(e.target.value)} placeholder="Enter product name" style={inputStyle} {...inputFocusProps} />
+                  </div>
+
+                  <div>
+                    <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Description</label>
+                    <textarea value={productDesc} onChange={e => setProductDesc(e.target.value)} placeholder="Describe your product" rows={4} style={{ ...inputStyle, resize: 'vertical' }} {...inputFocusProps} />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '12px' : '12px' }}>
+                    <div>
+                      <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Price ($)</label>
+                      <input type="number" value={productPrice} onChange={e => setProductPrice(e.target.value)} placeholder="0.00" style={inputStyle} {...inputFocusProps} />
+                    </div>
+                    <div>
+                      <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Stock</label>
+                      <input type="number" value={productStock} onChange={e => setProductStock(e.target.value)} placeholder="0" style={inputStyle} {...inputFocusProps} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Category</label>
+                    <select value={productCategory} onChange={e => setProductCategory(e.target.value)} style={inputStyle} {...inputFocusProps}>
+                      {CATEGORIES.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Image</label>
+                    <input type="file" onChange={handleProductImage} accept="image/*" style={inputStyle} />
+                  </div>
+
+                  {productImagePreview && (
+                    <div style={{
+                      backgroundColor: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px'
+                    }}>
+                      <p style={{ color: '#475569', fontSize: '12px', margin: 0 }}>Preview</p>
+                      <img src={productImagePreview} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
+                    </div>
+                  )}
+
+                  {addError && (
+                    <div style={{ backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '12px', padding: '12px 16px', color: '#dc2626', fontSize: '14px', fontWeight: '600' }}>
+                      {addError}
+                    </div>
+                  )}
+
+                  {addSuccess && (
+                    <div style={{ backgroundColor: 'rgba(0,200,100,0.1)', border: '1px solid rgba(0,200,100,0.3)', borderRadius: '12px', padding: '12px 16px', color: '#4ade80', fontSize: '14px', fontWeight: '600' }}>
+                      ✅ Product added successfully!
+                    </div>
+                  )}
+
+                  <button onClick={handleAddProduct} disabled={addingProduct} style={{ background: addingProduct ? '#f8fafc' : '#004E64', color: addingProduct ? '#475569' : 'white', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: addingProduct ? 'not-allowed' : 'pointer', width: '100%' }}>
+                    {addingProduct ? 'Adding Product...' : 'Add Product'}
+                  </button>
+
+                </div>
+              </div>
             </div>
           )}
 
