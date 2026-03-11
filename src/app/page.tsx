@@ -548,6 +548,23 @@ async function fetchProducts() {
           ))}
         </div>
 
+        {/* Trust Feature Cards */}
+        <section style={{ background: isDark ? '#0f172a' : '#f8fafc', padding: '60px 24px' }}>
+          <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+            {[
+              { icon: <Headphones size={28} color="white" />, title: '24/7 Support', desc: "We're here to help you around the clock. Reach out anytime via our platform." },
+              { icon: <Zap size={28} color="white" />, title: 'Instant Contact', desc: 'Connect directly with sellers via WhatsApp, Telegram, or Facebook instantly.' },
+              { icon: <ShieldCheck size={28} color="white" />, title: 'Trusted Sellers', desc: 'Our tier verification system ensures you\'re buying from legitimate, trusted sellers.' },
+            ].map((item, i) => (
+              <div key={i} style={{ background: isDark ? '#1e293b' : '#ffffff', border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`, borderRadius: '16px', padding: '32px 24px', textAlign: 'center' }}>
+                <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#004E64', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>{item.icon}</div>
+                <h3 style={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: '700', fontSize: '18px', margin: '0 0 8px' }}>{item.title}</h3>
+                <p style={{ color: isDark ? 'rgba(255,255,255,0.6)' : '#475569', fontSize: '14px', margin: 0 }}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Trust Banner */}
         <div style={{ 
           padding: isMobile ? '40px 20px' : '60px 20px',
