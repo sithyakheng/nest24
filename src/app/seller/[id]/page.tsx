@@ -78,26 +78,61 @@ export default function SellerShopPage() {
 
   useEffect(() => {
     async function load() {
-      // Fetch seller profile - check both slug and id
-      const { data: sellerData } = await supabase
-        .from('profiles')
-        .select('*')
-        .or(`id.eq.${id},shop_slug.eq.${id}`)
-        .single()
+      try {
+        console.log('Loading seller with id:', id)
+        
+        // Fetch seller profile - check both slug and name
+        const { data: sellerData, error: sellerError } = await supabase
+          .from('profiles')
+          .select('*')
+          .or(`shop_slug.eq.${id},name.eq.${id}`)
+          .single()
 
-      setSeller(sellerData)
+        console.log('Seller data:', sellerData)
+        console.log('Seller error:', sellerError)
 
-      // Fetch seller products
-      const { data: productsData } = await supabase
-        .from('products')
-        .select('*')
-        .eq('seller_id', sellerData.id)
-        .order('created_at', { ascending: false })
+        if (sellerError) {
+          console.error('Error fetching seller:', sellerError)
+          setSeller(null)
+          setLoading(false)
+          return
+        }
 
-      setProducts(productsData || [])
-      setLoading(false)
+        if (!sellerData) {
+          console.log('No seller found')
+          setSeller(null)
+          setLoading(false)
+          return
+        }
+
+        setSeller(sellerData)
+
+        // Fetch seller products
+        const { data: productsData, error: productsError } = await supabase
+          .from('products')
+          .select('*')
+          .eq('seller_id', sellerData.id)
+          .order('created_at', { ascending: false })
+
+        console.log('Products data:', productsData)
+        console.log('Products error:', productsError)
+
+        if (productsError) {
+          console.error('Error fetching products:', productsError)
+        }
+
+        setProducts(productsData || [])
+        setLoading(false)
+      } catch (error) {
+        console.error('Unexpected error:', error)
+        setSeller(null)
+        setLoading(false)
+      }
     }
-    load()
+    
+    if (id) {
+      load()
+    }
   }, [id])
 
   if (loading) return (
@@ -284,24 +319,22 @@ export default function SellerShopPage() {
 
         </div>
 
-          {/* Report button */}
-          <button
-            onClick={() => setShowReportModal(true)}
-            style={{
-              background: 'transparent',
-              border: '1px solid #ef4444',
-              color: '#ef4444',
-              borderRadius: '8px',
-              padding: '8px 16px',
-              fontSize: '13px',
-              cursor: 'pointer',
-              marginTop: '12px'
-            }}
-          >
-            <Flag size={14} /> Report Shop
-          </button>
-
-        </div>
+        {/* Report button */}
+        <button
+          onClick={() => setShowReportModal(true)}
+          style={{
+            background: 'transparent',
+            border: '1px solid #ef4444',
+            color: '#ef4444',
+            borderRadius: '8px',
+            padding: '8px 16px',
+            fontSize: '13px',
+            cursor: 'pointer',
+            marginTop: '12px'
+          }}
+        >
+          <Flag size={14} /> Report Shop
+        </button>
 
         {/* Products Grid */}
         <div>
