@@ -23,6 +23,7 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [discountMessage, setDiscountMessage] = useState('')
+  const [isDiscountFocused, setIsDiscountFocused] = useState(false)
 
   async function compressImage(file: File): Promise<File> {
     return new Promise((resolve) => {
@@ -162,11 +163,28 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
     ...inputStyle,
     color: '#ffffff',
     WebkitTextFillColor: '#ffffff',
-    caretColor: '#ffffff'
+    caretColor: '#ffffff',
+    backgroundColor: 'rgba(255,255,255,0.15)'
+  }
+
+  const focusInputStyle = {
+    ...enhancedInputStyle,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    color: 'white'
   }
 
   return (
     <div id="payment-section" style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.12)', borderTop: '1px solid rgba(255,255,255,0.22)', borderRadius: '24px', padding: '48px' }}>
+      <style jsx>{`
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus {
+          -webkit-text-fill-color: white !important;
+          -webkit-box-shadow: 0 0 0 1000px rgba(255,255,255,0.08) inset !important;
+          background-color: rgba(255,255,255,0.08) !important;
+          color: white !important;
+        }
+      `}</style>
       
       <h2 style={{ color: 'white', fontSize: '28px', fontWeight: '900', margin: '0 0 8px 0', textAlign: 'center' }}>
         Get Your {selectedRank.charAt(0).toUpperCase() + selectedRank.slice(1)} Rank
@@ -289,8 +307,9 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
           </label>
           <input
             type="text"
-            placeholder="Enter discount code"
             value={discountCode}
+            onFocus={() => setIsDiscountFocused(true)}
+            onBlur={() => setIsDiscountFocused(false)}
             onChange={e => {
               setDiscountCode(e.target.value.toUpperCase())
               // Check for NESTKH20 discount
@@ -300,7 +319,7 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
                 setDiscountMessage('')
               }
             }}
-            style={enhancedInputStyle}
+            style={isDiscountFocused ? focusInputStyle : enhancedInputStyle}
           />
           {discountMessage && (
             <div style={{ 
