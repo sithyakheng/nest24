@@ -741,33 +741,36 @@ export default function DashboardPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
                   <div>
-                    <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Name</label>
+                    <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Name</label>
                     <input type="text" value={productName} onChange={e => setProductName(e.target.value)} placeholder="Enter product name" style={inputStyle} {...inputFocusProps} />
                   </div>
 
                   <div>
-                    <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Description</label>
+                    <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Description</label>
                     <textarea value={productDesc} onChange={e => setProductDesc(e.target.value)} placeholder="Describe your product" rows={4} style={{ ...inputStyle, resize: 'vertical' }} {...inputFocusProps} />
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '12px' : '12px' }}>
                     <div>
-                      <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Price ($)</label>
+                      <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Price ($)</label>
                       <input type="number" value={productPrice} onChange={e => setProductPrice(e.target.value)} placeholder="0.00" style={inputStyle} {...inputFocusProps} />
                     </div>
                     <div>
-                      <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Stock</label>
+                      <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Stock</label>
                       <input type="number" value={productStock} onChange={e => setProductStock(e.target.value)} placeholder="0" style={inputStyle} {...inputFocusProps} />
                     </div>
-                  </div>
-
-                  <div>
-                    <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
-                      Compare Price ($) <span style={{ color: 'rgba(15,23,42,0.35)', fontSize: '11px', fontWeight: '400', textTransform: 'none' }}>— shows as crossed out</span>
-                    </label>
-                    <input
-                      type="number"
-                      value={comparePrice}
+                    <div>
+                      <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Category</label>
+                      <select value={productCategory} onChange={e => setProductCategory(e.target.value)} style={inputStyle} {...inputFocusProps}>
+                        {CATEGORIES.map(cat => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Image</label>
+                      <input type="file" onChange={handleProductImage} accept="image/*" style={inputStyle} />
+                    </div>
                       onChange={e => setComparePrice(e.target.value)}
                       placeholder="0.00"
                       style={inputStyle}
@@ -780,37 +783,22 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Live preview */}
-                  {productPrice && comparePrice && parseFloat(comparePrice) > parseFloat(productPrice) && (
+                  {productImagePreview && (
                     <div style={{
                       background: 'rgba(16,185,129,0.06)',
-                      border: '1px solid rgba(16,185,129,0.2)',
+                      border: '1px solid rgba(0,0,0,0.06)',
                       borderRadius: '12px',
-                      padding: '12px 16px',
+                      padding: '16px',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '12px'
                     }}>
-                      <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '13px', margin: 0, textDecoration: 'line-through' }}>
-                        ${parseFloat(comparePrice).toFixed(2)}
-                      </p>
-                      <p style={{ color: '#10B981', fontWeight: '900', fontSize: '20px', margin: 0 }}>
-                        ${parseFloat(productPrice).toFixed(2)}
-                      </p>
-                      <span style={{
-                        background: 'linear-gradient(135deg, #f87171, #ef4444)',
-                        color: 'white',
-                        fontSize: '11px',
-                        fontWeight: '800',
-                        padding: '3px 10px',
-                        borderRadius: '9999px'
-                      }}>
-                        {Math.round((1 - parseFloat(productPrice) / parseFloat(comparePrice)) * 100)}% OFF
-                      </span>
                       <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '12px', margin: 0 }}>Preview</p>
+                      <img src={productImagePreview} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
                     </div>
                   )}
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '12px' : '12px' }}>
                     <div>
                       <label style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Category</label>
                       <select 
