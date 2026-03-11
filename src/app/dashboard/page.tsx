@@ -51,8 +51,19 @@ export default function DashboardPage() {
   // Shop URL variables
   const [shopSlug, setShopSlug] = useState('')
   const [shopUrl, setShopUrl] = useState('')
+  const [copySuccess, setCopySuccess] = useState(false)
 
   const CATEGORIES = ['Electronics', 'Fashion', 'Home Living', 'Beauty', 'Food', 'Gaming', 'Other']
+
+  const copyShopLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shopUrl)
+      setCopySuccess(true)
+      setTimeout(() => setCopySuccess(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }
 
   const glassCard = {
     background: '#f8fafc',
@@ -339,7 +350,9 @@ export default function DashboardPage() {
         position: isMobile ? 'fixed' : 'relative',
         height: '100vh',
         zIndex: isMobile ? 40 : 1,
-        overflow: 'hidden'
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column'
       }}>
         {/* Logo */}
         <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0' }}>
@@ -363,7 +376,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Navigation */}
-        <nav style={{ padding: '20px 0' }}>
+        <nav style={{ padding: '20px 0', flex: 1 }}>
           {sidebarItems.map(item => (
             <button
               key={item.id}
@@ -389,6 +402,77 @@ export default function DashboardPage() {
             </button>
           ))}
         </nav>
+
+        {/* Shop Actions */}
+        <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', marginTop: 'auto' }}>
+          <Link href={`/seller/${shopSlug}`} style={{ textDecoration: 'none', display: 'block', marginBottom: '12px' }}>
+            <button
+              style={{
+                width: '100%',
+                backgroundColor: '#004E64',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#003a52';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#004E64';
+              }}
+            >
+              My Shop
+            </button>
+          </Link>
+          
+          <button
+            onClick={copyShopLink}
+            style={{
+              width: '100%',
+              backgroundColor: '#ffffff',
+              color: '#004E64',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              padding: '12px 16px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#f8fafc';
+              e.currentTarget.style.borderColor = '#cbd5e1';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#ffffff';
+              e.currentTarget.style.borderColor = '#e2e8f0';
+            }}
+          >
+            {copySuccess ? (
+              <>
+                <span style={{ color: '#10b981' }}>✓</span>
+                <span style={{ color: '#10b981' }}>Copied!</span>
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Copy Shop Link</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile overlay */}
