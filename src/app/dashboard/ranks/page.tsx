@@ -17,10 +17,12 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
   const [sellerName, setSellerName] = useState('')
   const [shopName, setShopName] = useState('')
   const [phone, setPhone] = useState('')
+  const [discountCode, setDiscountCode] = useState('')
   const [screenshot, setScreenshot] = useState<File | null>(null)
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
+  const [discountMessage, setDiscountMessage] = useState('')
 
   async function compressImage(file: File): Promise<File> {
     return new Promise((resolve) => {
@@ -218,7 +220,26 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
           textAlign: 'center'
         }}>
           <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '20px', margin: 0 }}>
-            ${selectedRank === 'starter' ? '5' : selectedRank === 'verified' ? '15' : '30'} USD
+            {discountCode === 'NESTKH20' ? (
+              <>
+                <span style={{ color: '#E8C97E', fontWeight: '900', fontSize: '20px', margin: 0 }}>
+                  ${selectedRank === 'starter' ? '4' : selectedRank === 'verified' ? '12' : '24'} USD
+                </span>
+                <span style={{ 
+                  color: '#10b981', 
+                  fontSize: '14px', 
+                  fontWeight: '600', 
+                  marginLeft: '8px',
+                  textDecoration: 'line-through'
+                }}>
+                  ${selectedRank === 'starter' ? '6' : selectedRank === 'verified' ? '18' : '30'} USD
+                </span>
+              </>
+            ) : (
+              <>
+                ${selectedRank === 'starter' ? '5' : selectedRank === 'verified' ? '15' : '30'} USD
+              </>
+            )}
           </p>
           <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '4px 0 0 0' }}>
             {selectedRank === 'starter' ? 'Starter' : selectedRank === 'verified' ? 'Verified' : 'Premium'} Rank Payment
@@ -257,15 +278,37 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
 
         <div>
           <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
-            Phone Number
+            Discount Code (optional)
           </label>
           <input
             type="text"
-            placeholder="Enter your phone number"
-            value={phone}
-            onChange={e => setPhone(e.target.value)}
+            placeholder="Enter discount code"
+            value={discountCode}
+            onChange={e => {
+              setDiscountCode(e.target.value.toUpperCase())
+              // Check for NESTKH20 discount
+              if (e.target.value.toUpperCase() === 'NESTKH20') {
+                setDiscountMessage('✓ 20% discount applied!')
+              } else {
+                setDiscountMessage('')
+              }
+            }}
             style={inputStyle}
           />
+          {discountMessage && (
+            <div style={{ 
+              background: 'rgba(0,200,100,0.1)', 
+              border: '1px solid rgba(0,200,100,0.3)', 
+              borderRadius: '8px', 
+              padding: '8px 12px', 
+              color: '#10b981', 
+              fontSize: '13px', 
+              fontWeight: '600', 
+              marginTop: '8px' 
+            }}>
+              {discountMessage}
+            </div>
+          )}
         </div>
 
         <div>
