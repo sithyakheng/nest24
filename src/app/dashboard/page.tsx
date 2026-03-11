@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { uploadImage } from '@/lib/uploadImage'
 import Link from 'next/link'
-import { Star, Check, Medal, Store, ShoppingCart, ShoppingBag, Package, DollarSign, User, Settings, X, Flag, Bell, Search, Heart, ThumbsUp, ThumbsDown, BarChart3, Plus, AlertTriangle } from 'lucide-react'
+import { Star, Check, Medal, Store, ShoppingCart, ShoppingBag, Package, DollarSign, User, Settings, X, Flag, Bell, Search, Heart, ThumbsUp, ThumbsDown, BarChart3, Plus, AlertTriangle, Home, Edit, Trash2, TrendingUp, Users, Menu } from 'lucide-react'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -13,29 +13,6 @@ export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
-
-  // Shop URL variables
-  const [shopSlug, setShopSlug] = useState('')
-  const [shopUrl, setShopUrl] = useState('')
-
-  function sanitize(str: string): string {
-    return str
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/javascript:/gi, '')
-      .replace(/on\w+=/gi, '')
-      .trim()
-  }
-
-  useEffect(() => {
-    setWindowWidth(window.innerWidth)
-    const handleResize = () => setWindowWidth(window.innerWidth)
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  const isMobile = windowWidth < 768
-
   const [products, setProducts] = useState<any[]>([])
   const [orders, setOrders] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState('overview')
@@ -56,10 +33,8 @@ export default function DashboardPage() {
   const [addSuccess, setAddSuccess] = useState(false)
 
   // Profile form state
-  const [fullName, setFullName] = useState('')
-  const [displayName, setDisplayName] = useState('')
   const [profileName, setProfileName] = useState('')
-  const [avatarUrl, setAvatarUrl] = useState('')
+  const [fullName, setFullName] = useState('')
   const [bio, setBio] = useState('')
   const [phone, setPhone] = useState('')
   const [whatsapp, setWhatsapp] = useState('')
@@ -68,6 +43,10 @@ export default function DashboardPage() {
   const [telegram, setTelegram] = useState('')
   const [savingProfile, setSavingProfile] = useState(false)
   const [profileSuccess, setProfileSuccess] = useState(false)
+
+  // Shop URL variables
+  const [shopSlug, setShopSlug] = useState('')
+  const [shopUrl, setShopUrl] = useState('')
 
   const CATEGORIES = ['Electronics', 'Fashion', 'Home Living', 'Beauty', 'Food', 'Gaming', 'Other']
 
@@ -83,850 +62,458 @@ export default function DashboardPage() {
   }
 
   useEffect(() => {
-  async function load() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/login'); return }
-    setUser(user)
-    
-    await loadProfile(user)
-    setLoading(false)
-  }
-  load()
-}, [])
-
-async function loadProfile(currentUser: any) {
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', currentUser.id)
-    .single()
-
-  if (profile?.banned) {
-    await supabase.auth.signOut()
-    window.location.href = '/'
-    return
-  }
-
-  if (profile?.role !== 'seller') { router.push('/'); return }
-
-  setProfile(profile)
-  setFullName(profile?.full_name || '')
-  setDisplayName(profile?.name || '')
-  setProfileName(profile?.name || '')
-  setAvatarUrl(profile?.avatar_url || '')
-  setBio(profile?.bio || '')
-  setPhone(profile?.phone || '')
-  setWhatsapp(profile?.whatsapp || '')
-  setFacebook(profile?.facebook || '')
-  setInstagram(profile?.instagram || '')
-  setTelegram(profile?.telegram || '')
-  setShopSlug(profile?.shop_slug || '')
-
-  const { data: productsData } = await supabase
-    .from('products')
-    .select('*')
-    .eq('seller_id', currentUser.id)
-    .order('created_at', { ascending: false })
-  setProducts(productsData || [])
-
-  const { data: ordersData } = await supabase
-    .from('orders')
-    .select('*, products(name)')
-    .eq('seller_id', currentUser.id)
-    .order('created_at', { ascending: false })
-  setOrders(ordersData || [])
-}
-
-useEffect(() => {
-  let sub: any = null
-  
-  async function setup() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    sub = supabase
-      .channel('profile-rank-update')
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'profiles',
-        filter: `id=eq.${user.id}` 
-      }, (payload) => {
-        console.log('Profile updated:', payload.new)
-        setProfile(payload.new)
-      })
-      .subscribe()
-  }
-  
-  setup()
-  return () => { if (sub) supabase.removeChannel(sub) }
-}, [])
-
-async function compressImage(file: File): Promise<File> {
-  return new Promise((resolve) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = (e) => {
-      const img = new Image()
-      img.src = e.target?.result as string
-      img.onload = () => {
-        const canvas = document.createElement('canvas')
-        
-        // Max width 1200px
-        let width = img.width
-        let height = img.height
-        if (width > 1200) {
-          height = Math.round((height * 1200) / width)
-          width = 1200
-        }
-        
-        canvas.width = width
-        canvas.height = height
-        
-        const ctx = canvas.getContext('2d')
-        ctx?.drawImage(img, 0, 0, width, height)
-        
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              const compressedFile = new File(
-                [blob], 
-                file.name.replace(/\.[^/.]+$/, '.webp'),
-                { type: 'image/webp' }
-              )
-              console.log(
-                `Compressed: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB` 
-              )
-              resolve(compressedFile)
-            } else {
-              resolve(file)
-            }
-          },
-          'image/webp',
-          0.82
-        )
-      }
+    async function load() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.push('/login'); return }
+      setUser(user)
+      
+      await loadProfile(user)
+      setLoading(false)
     }
-  })
-}
+    load()
+  }, [])
+
+  async function loadProfile(currentUser: any) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', currentUser.id)
+      .single()
+    
+    setProfile(profile)
+    setProfileName(profile?.name || profile?.full_name || '')
+    setDisplayName(profile?.name || profile?.full_name || '')
+    setFullName(profile?.full_name || '')
+    setBio(profile?.bio || '')
+    setPhone(profile?.phone || '')
+    setWhatsapp(profile?.whatsapp || '')
+    setFacebook(profile?.facebook || '')
+    setInstagram(profile?.instagram || '')
+    setTelegram(profile?.telegram || '')
+    setAvatarUrl(profile?.avatar_url || '')
+
+    // Set shop URL variables
+    const slug = (profile?.name || profile?.full_name || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .trim()
+    setShopSlug(slug)
+    setShopUrl(`https://nestkh.vercel.app/seller/${slug}`)
+  }
+
+  useEffect(() => {
+    if (!profile) return
+
+    async function fetchProducts() {
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .eq('seller_id', profile.id)
+        .order('created_at', { ascending: false })
+      setProducts(data || [])
+    }
+
+    async function fetchOrders() {
+      const { data } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('seller_id', profile.id)
+        .order('created_at', { ascending: false })
+      setOrders(data || [])
+    }
+
+    fetchProducts()
+    fetchOrders()
+  }, [profile])
 
   async function handleAddProduct() {
-    console.log('Starting add product...')
-    console.log('productName:', productName)
-    console.log('productPrice:', productPrice)
-    console.log('productStock:', productStock)
-    console.log('user:', user?.id)
-
-    // Check product limit based on seller tier
-    const { data: sellerProfile } = await supabase
-      .from('profiles')
-      .select('tier')
-      .eq('id', user?.id)
-      .single()
-
-    // Count current products
-    const { data: currentProducts } = await supabase
-      .from('products')
-      .select('id')
-      .eq('seller_id', user?.id)
-
-    const currentProductCount = currentProducts?.length || 0
-    const sellerTier = sellerProfile?.tier || 0
-    
-    // Define limits based on tier
-    const limits: Record<number, number> = {
-      0: 5,    // no rank
-      1: 30,   // tier 1
-      2: 150,  // tier 2  
-      3: 300   // tier 3
-    }
-    
-    const maxProducts = limits[sellerTier] || 5
-    
-    if (currentProductCount >= maxProducts) {
-      setAddError(`You've reached your plan limit. Upgrade your tier to list more products.`)
-      return
-    }
-
     if (!productName || !productPrice || !productStock) {
-      setAddError('Please fill in name, price and stock.')
+      setAddError('Please fill in all required fields')
       return
     }
 
-    const price = parseFloat(productPrice)
-    const stock = parseInt(productStock)
-
-    if (isNaN(price) || price <= 0) {
-      setAddError('Please enter a valid price.')
-      return
-    }
-
-    if (isNaN(stock) || stock < 0) {
-      setAddError('Please enter a valid stock number.')
-      return
-    }
-
-    if (comparePrice && parseFloat(comparePrice) <= price) {
-      setAddError('Compare price must be higher than actual price.')
-      return
-    }
-
-    if (productName.length < 3) {
-      setAddError('Product name must be at least 3 characters.')
-      return
-    }
-
-    if (productName.length > 100) {
-      setAddError('Product name too long. Max 100 characters.')
+    if (products.length >= getProductLimit(profile?.tier || 0)) {
+      setAddError(`Product limit reached (${getProductLimit(profile?.tier || 0)} products)`)
       return
     }
 
     setAddingProduct(true)
     setAddError('')
 
-    let imageUrl = ''
-
-    if (productImage) {
-      try {
-        setAddError('')
-        console.log('Compressing image...')
-        const compressed = await compressImage(productImage)
-        console.log('Uploading to Cloudinary...')
-        imageUrl = await uploadImage(compressed)
-        console.log('Cloudinary URL:', imageUrl)
-      } catch (err: any) {
-        setAddError('Image upload failed: ' + err.message)
-        setAddingProduct(false)
-        return
-      }
-    }
-
-    const insertData = {
-      seller_id: user.id,
-      name: sanitize(productName),
-      description: sanitize(productDesc),
-      price: parseFloat(productPrice),
-      compare_price: comparePrice ? parseFloat(comparePrice) : null,
-      stock: parseInt(productStock),
-      category: productCategory,
-      discount: productDiscount ? parseFloat(productDiscount) : 0,
-      image_url: imageUrl
-    }
-    
-    console.log('Inserting product:', insertData)
-
-    const { data, error } = await supabase
-      .from('products')
-      .insert(insertData)
-      .select()
-
-    console.log('Insert result:', data, error)
-
-    if (error) {
-      setAddError('Failed to add product: ' + error.message)
-      setAddingProduct(false)
-      return
-    }
-
-    setAddSuccess(true)
-    // reset form
-    setProductName('')
-    setProductDesc('')
-    setProductPrice('')
-    setComparePrice('')
-    setProductStock('')
-    setProductDiscount('')
-    setProductImage(null)
-    setProductImagePreview(null)
-    setAddingProduct(false)
-
-    // Refresh products list
-    const { data: productsData } = await supabase
-      .from('products')
-      .select('*')
-      .eq('seller_id', user.id)
-      .order('created_at', { ascending: false })
-    setProducts(productsData || [])
-
-    setTimeout(() => setAddSuccess(false), 3000)
-  }
-
-  async function handleDeleteProduct(productId: string, imageUrl: string) {
-  if (!confirm('Are you sure you want to delete this product?')) return
-
-  console.log('Deleting product:', productId)
-  console.log('Image URL:', imageUrl)
-
-  // Delete image from Cloudinary
-  if (imageUrl && imageUrl.includes('cloudinary.com')) {
     try {
-      const urlParts = imageUrl.split('/upload/')
-      if (urlParts[1]) {
-        let publicId = urlParts[1].replace(/^v\d+\//, '')
-        publicId = publicId.replace(/\.[^/.]+$/, '')
-        console.log('Deleting from Cloudinary, public_id:', publicId)
-        const res = await fetch('/api/delete-image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ public_id: publicId })
-        })
-        const result = await res.json()
-        console.log('Cloudinary delete result:', result)
+      let imageUrl = ''
+      if (productImage) {
+        imageUrl = await uploadImage(productImage)
       }
-    } catch (e) {
-      console.log('Cloudinary delete error:', e)
-    }
-  }
 
-  // Delete product from Supabase database
-  const { error } = await supabase
-    .from('products')
-    .delete()
-    .eq('id', productId)
-
-  if (error) {
-    alert('Failed to delete: ' + error.message)
-    return
-  }
-
-  setProducts(prev => prev.filter((p: any) => p.id !== productId))
-  console.log('Product deleted successfully')
-}
-
-async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
-  const file = e.target.files?.[0]
-  if (!file) return
-  
-  try {
-    setSavingProfile(true)
-    const compressed = await compressImage(file)
-    const url = await uploadImage(compressed)
-    
-    const { error } = await supabase
-      .from('profiles')
-      .update({ avatar_url: url })
-      .eq('id', user?.id)
-    
-    if (!error) {
-      setAvatarUrl(url)
-      alert('Profile photo updated!')
-    }
-  } catch (err) {
-    alert('Failed to upload photo')
-  } finally {
-    setSavingProfile(false)
-  }
-}
-
-async function handleSaveProfile() {
-    setSavingProfile(true)
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        full_name: fullName,
-        name: profileName,
-        bio,
-        phone,
-        whatsapp,
-        facebook,
-        instagram,
-        telegram,
-        shop_slug: shopSlug || null,
-        updated_at: new Date().toISOString()
+      const { error } = await supabase.from('products').insert({
+        name: productName,
+        description: productDesc,
+        price: parseFloat(productPrice),
+        compare_price: comparePrice ? parseFloat(comparePrice) : null,
+        category: productCategory,
+        stock: parseInt(productStock),
+        discount: productDiscount ? parseInt(productDiscount) : null,
+        image_url: imageUrl,
+        seller_id: profile.id
       })
-      .eq('id', user.id)
-    
-    setSavingProfile(false)
-    if (!error) {
+
+      if (error) throw error
+
+      // Reset form
+      setProductName('')
+      setProductDesc('')
+      setProductPrice('')
+      setComparePrice('')
+      setProductCategory('Electronics')
+      setProductStock('')
+      setProductDiscount('')
+      setProductImage(null)
+      setProductImagePreview(null)
+      setAddSuccess(true)
+      setTimeout(() => setAddSuccess(false), 3000)
+
+      // Refresh products list
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .eq('seller_id', profile.id)
+        .order('created_at', { ascending: false })
+      setProducts(data || [])
+    } catch (error) {
+      setAddError('Failed to add product')
+    } finally {
+      setAddingProduct(false)
+    }
+  }
+
+  async function handleDeleteProduct(productId: string) {
+    if (!confirm('Delete this product?')) return
+    await supabase.from('products').delete().eq('id', productId)
+    setProducts(products.filter(p => p.id !== productId))
+  }
+
+  async function handleSaveProfile() {
+    setSavingProfile(true)
+    setProfileSuccess(false)
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name: profileName,
+          full_name: fullName,
+          bio: bio,
+          phone: phone,
+          whatsapp: whatsapp,
+          facebook: facebook,
+          instagram: instagram,
+          telegram: telegram
+        })
+        .eq('id', profile.id)
+
+      if (error) throw error
+
       setProfileSuccess(true)
       setTimeout(() => setProfileSuccess(false), 3000)
+    } catch (error) {
+      console.error('Profile update error:', error)
+    } finally {
+      setSavingProfile(false)
     }
   }
 
-  if (loading) return (
-    <div style={{ minHeight: '100vh', background: '#f8fafb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(15,23,42,0.4)', fontSize: '16px' }}>
-      Loading Dashboard...
-    </div>
-  )
-
-  const glassCard = {
-    background: 'rgba(255,255,255,0.9)',
-    backdropFilter: 'blur(24px)',
-    WebkitBackdropFilter: 'blur(24px)',
-    border: '1px solid rgba(0,0,0,0.08)',
-    borderTop: '1px solid rgba(255,255,255,0.95)',
-    borderRadius: '20px',
-    boxShadow: '0 4px 24px rgba(0,0,0,0.06)'
-  }
-
-  const inputStyle = {
-    width: '100%',
-    background: 'rgba(0,0,0,0.04)',
-    backdropFilter: 'blur(12px)',
-    WebkitBackdropFilter: 'blur(12px)',
-    border: '1px solid rgba(0,0,0,0.1)',
-    borderRadius: '12px',
-    color: '#0f172a',
-    padding: '12px 16px',
-    fontSize: isMobile ? '16px' : '14px',
-    outline: 'none',
-    boxSizing: 'border-box' as const
-  }
-
-  const inputFocusProps = {
-    onFocus: (e: any) => { 
-      e.currentTarget.style.borderColor = 'rgba(16,185,129,0.5)'
-      e.currentTarget.style.boxShadow = '0 0 0 2px rgba(16,185,129,0.1)'
-    },
-    onBlur: (e: any) => { 
-      e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'
-      e.currentTarget.style.boxShadow = 'none'
-    }
-  }
-
-  const navItems = [
-    { id: 'overview', label: <><BarChart3 size={16} style={{ marginRight: '8px' }} />Overview</> },
-    { id: 'products', label: <><Package size={16} style={{ marginRight: '8px' }} />My Products</> },
-    { id: 'add', label: <><Plus size={16} style={{ marginRight: '8px' }} />Add Product</> },
-    { id: 'orders', label: <><ShoppingBag size={16} style={{ marginRight: '8px' }} />Orders</> },
-    { id: 'profile', label: <><User size={16} style={{ marginRight: '8px' }} />Profile Settings</> },
+  const sidebarItems = [
+    { id: 'overview', label: 'Overview', icon: Home },
+    { id: 'products', label: 'My Products', icon: Package },
+    { id: 'add-product', label: 'Add Product', icon: Plus },
+    { id: 'orders', label: 'Orders', icon: ShoppingBag },
+    { id: 'settings', label: 'Settings', icon: Settings }
   ]
 
-  return (
-    <div style={{
-      display: 'flex',
-      minHeight: '100vh',
-      background: '#f8fafb',
-      width: '100%',
-      overflowX: 'hidden',
-      WebkitTextSizeAdjust: '100%',
-      textSizeAdjust: '100%'
-    }}>
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'Inter, sans-serif' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '40px', height: '40px', border: '3px solid #e2e8f0', borderTop: '3px solid #004E64', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+            <span style={{ color: '#64748b', fontSize: '14px' }}>Loading dashboard...</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-150px', left: '-100px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%)', filter: 'blur(80px)' }} />
-        <div style={{ position: 'absolute', bottom: '-150px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,158,11,0.1) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'Inter, sans-serif' }}>
+      {/* Sidebar */}
+      <div style={{
+        width: isMobile ? (sidebarOpen ? '260px' : '0') : '260px',
+        backgroundColor: '#ffffff',
+        borderRight: '1px solid #e2e8f0',
+        transition: 'width 0.3s ease',
+        position: isMobile ? 'fixed' : 'relative',
+        height: '100vh',
+        zIndex: isMobile ? 40 : 1,
+        overflow: 'hidden'
+      }}>
+        {/* Logo */}
+        <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0' }}>
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              width: '32px',
+              height: '32px',
+              backgroundColor: '#004E64',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontWeight: 'bold',
+              fontSize: '14px'
+            }}>
+              N
+            </div>
+            <span style={{ color: '#1e293b', fontSize: '18px', fontWeight: '600' }}>NestKH</span>
+          </Link>
+        </div>
+
+        {/* Navigation */}
+        <nav style={{ padding: '20px 0' }}>
+          {sidebarItems.map(item => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '12px 20px',
+                border: 'none',
+                backgroundColor: activeTab === item.id ? '#f0f9ff' : 'transparent',
+                color: activeTab === item.id ? '#004E64' : '#64748b',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                borderLeft: activeTab === item.id ? '3px solid #004E64' : '3px solid transparent'
+              }}
+            >
+              <item.icon size={18} />
+              {item.label}
+            </button>
+          ))}
+        </nav>
       </div>
 
-      <div style={{ width: '100%', position: 'relative', zIndex: 10, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '260px 1fr', gap: '24px', alignItems: 'start' }}>
-
-      {/* Mobile Top Bar */}
-      {isMobile && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 100,
-          background: 'rgba(255,255,255,0.95)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(0,0,0,0.08)',
-          padding: '14px 20px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <p style={{ color: '#0f172a', fontWeight: '900', fontSize: '18px', margin: 0 }}>
-            NestKH<span style={{ color: '#10B981' }}>.</span>
-          </p>
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            style={{
-              background: 'rgba(0,0,0,0.06)',
-              border: '1px solid rgba(0,0,0,0.08)',
-              borderRadius: '10px',
-              padding: '8px 12px',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '4px'
-            }}
-          >
-            <div style={{ width: '18px', height: '2px', background: '#0f172a', borderRadius: '2px', transition: 'all 0.3s', transform: sidebarOpen ? 'rotate(45deg) translateY(6px)' : 'none' }} />
-            <div style={{ width: '18px', height: '2px', background: '#0f172a', borderRadius: '2px', transition: 'all 0.3s', opacity: sidebarOpen ? 0 : 1 }} />
-            <div style={{ width: '18px', height: '2px', background: '#0f172a', borderRadius: '2px', transition: 'all 0.3s', transform: sidebarOpen ? 'rotate(-45deg) translateY(-6px)' : 'none' }} />
-          </button>
-        </div>
+      {/* Mobile overlay */}
+      {isMobile && sidebarOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 30
+          }}
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
 
-        {/* SIDEBAR */}
-        <div style={{
-          ...glassCard, 
-          padding: '24px', 
-          position: isMobile ? 'fixed' : 'sticky',
-          top: isMobile ? 0 : '24px',
-          left: isMobile ? 0 : 'auto',
-          height: isMobile ? '100vh' : 'auto',
-          zIndex: isMobile ? 200 : 'auto',
-          transform: isMobile ? (sidebarOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none',
-          transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-          overflowY: 'auto'
+      {/* Main Content */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {/* Header */}
+        <header style={{
+          height: '64px',
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid #e2e8f0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px'
         }}>
-          {/* Add close button at top for mobile */}
+          {/* Mobile menu button */}
           {isMobile && (
             <button
-              onClick={() => setSidebarOpen(false)}
+              onClick={() => setSidebarOpen(!sidebarOpen)}
               style={{
-                position: 'absolute',
-                top: '16px',
-                right: '16px',
-                background: 'rgba(0,0,0,0.06)',
-                border: 'none',
-                borderRadius: '50%',
-                width: '32px',
-                height: '32px',
-                cursor: 'pointer',
-                color: '#0f172a',
-                fontSize: '18px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                width: '40px',
+                height: '40px',
+                border: 'none',
+                backgroundColor: 'transparent',
+                cursor: 'pointer'
               }}
             >
-              ×
+              <Menu size={20} color="#64748b" />
             </button>
           )}
-          <div style={{ textAlign: 'center', marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(16,185,129,0.4)', border: '2px solid rgba(16,185,129,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981', fontWeight: '900', fontSize: '24px', margin: '0 auto 12px auto' }}>
+
+          <div style={{ flex: 1 }} />
+
+          {/* Seller Info */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ color: '#374151', fontSize: '14px', fontWeight: '500' }}>
+              {profile?.name || profile?.full_name || 'Seller'}
+            </span>
+            <div style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              backgroundColor: '#e2e8f0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#64748b',
+              fontSize: '12px',
+              fontWeight: '600'
+            }}>
               {(profile?.name || profile?.full_name || 'S').charAt(0).toUpperCase()}
             </div>
-            <p style={{ color: '#0f172a', fontWeight: '700', fontSize: '15px', margin: '0 0 4px 0' }}><Store size={16} style={{ marginRight: '4px' }} />{profile?.name || profile?.full_name || 'Seller'}</p>
-            <span style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', color: '#10B981', fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '9999px' }}>Seller</span>
           </div>
+        </header>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <Link href="/">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: 'rgba(15,23,42,0.5)', fontSize: '14px', cursor: 'pointer', marginBottom: '8px', background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.04)' }}>
-                ← Back to Store
-              </div>
-            </Link>
-
-            {navItems.map(item => (
-              <div
-                key={item.id}
-                onClick={() => { setActiveTab(item.id); if(isMobile) setSidebarOpen(false) }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '10px',
-                  padding: '10px 14px', borderRadius: '12px',
-                  color: activeTab === item.id ? '#10B981' : 'rgba(15,23,42,0.6)',
-                  fontSize: '14px', fontWeight: activeTab === item.id ? '600' : '400',
-                  cursor: 'pointer',
-                  background: activeTab === item.id ? 'rgba(16,185,129,0.1)' : 'transparent',
-                  border: activeTab === item.id ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = activeTab === item.id ? 'rgba(16,185,129,0.1)' : 'rgba(0,0,0,0.04)'}
-                onMouseLeave={e => e.currentTarget.style.background = activeTab === item.id ? 'rgba(16,185,129,0.1)' : 'transparent'}
-              >
-                {item.label}
-              </div>
-            ))}
-
-            <Link href="/dashboard/ranks">
-              <div onClick={() => { if(isMobile) setSidebarOpen(false) }} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: '#F59E0B', fontSize: '14px', fontWeight: '600', cursor: 'pointer', marginTop: '8px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)' }}>
-                🏆 Get Ranked
-              </div>
-            </Link>
-
-            <button
-              onClick={() => router.push(`/seller/${user?.id}`)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                width: '100%',
-                padding: '12px 16px',
-                background: 'linear-gradient(135deg, #46ABB8, #10B981)',
-                border: 'none',
-                borderRadius: '10px',
-                color: 'white',
-                fontWeight: '700',
-                fontSize: '14px',
-                cursor: 'pointer',
-                marginTop: '8px'
-              }}
-            >
-              <Store size={14} style={{ marginRight: '6px' }} />Visit My Store
-            </button>
-
-            <div style={{
-  background: '#f0fdf4',
-  border: '1px solid #10B981',
-  borderRadius: '12px',
-  padding: '14px 16px',
-  marginTop: '12px'
-}}>
-  <p style={{ fontSize: '12px', fontWeight: '700', color: '#10B981', margin: '0 0 8px 0' }}>
-    🔗 My Shop Link
-  </p>
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    background: 'white',
-    border: '1px solid #e2e8f0',
-    borderRadius: '8px',
-    padding: '8px 12px'
-  }}>
-    <span style={{
-      fontSize: '11px',
-      color: '#64748b',
-      flex: 1,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
-    }}>
-      {shopSlug
-        ? `nest24.vercel.app/seller/${shopSlug}` 
-        : `nest24.vercel.app/seller/${user?.id?.slice(0, 8)}...` 
-      }
-    </span>
-    <button
-      onClick={() => {
-        const url = shopSlug
-          ? `https://nest24.vercel.app/seller/${shopSlug}` 
-          : `https://nest24.vercel.app/seller/${user?.id}` 
-        navigator.clipboard.writeText(url)
-        alert('Link copied!')
-      }}
-      style={{
-        background: '#10B981',
-        color: 'white',
-        border: 'none',
-        borderRadius: '6px',
-        padding: '4px 10px',
-        fontSize: '11px',
-        fontWeight: '700',
-        cursor: 'pointer',
-        whiteSpace: 'nowrap'
-      }}
-    >
-      Copy
-    </button>
-  </div>
-  <p style={{ fontSize: '10px', color: '#94a3b8', margin: '6px 0 0 0' }}>
-    Share this link on TikTok, Instagram, Facebook etc.
-  </p>
-</div>
-
-            <div
-              onClick={async () => { await supabase.auth.signOut(); router.push('/') }}
-              style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', color: '#ef4444', fontSize: '14px', cursor: 'pointer', marginTop: '4px', transition: 'all 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-            >
-              🚪 Sign Out
-            </div>
-          </div>
-        </div>
-
-        {/* Dark overlay for mobile */}
-        {isMobile && (
-          <div
-            onClick={() => setSidebarOpen(false)}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 199,
-              background: 'rgba(0,0,0,0.4)',
-              opacity: sidebarOpen ? 1 : 0,
-              pointerEvents: sidebarOpen ? 'all' : 'none',
-              transition: 'opacity 0.4s ease'
-            }}
-          />
-        )}
-
-        {/* MAIN CONTENT */}
-        <div style={{
-          flex: 1,
-          padding: isMobile ? '70px 12px 40px 12px' : '32px',
-          overflowY: 'auto',
-          minWidth: 0
-        }}>
-
-          {/* OVERVIEW */}
+        {/* Content Area */}
+        <main style={{ flex: 1, padding: '24px', overflow: 'auto' }}>
+          {/* Overview Tab */}
           {activeTab === 'overview' && (
             <div>
-              <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>DASHBOARD</p>
-              <h1 style={{ color: '#0f172a', fontSize: isMobile ? '18px' : '32px', fontWeight: '900', margin: '0 0 24px 0', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
-                Welcome, {profile?.name || profile?.full_name || 'Seller'} 👋
-              </h1>
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: isMobile ? '10px' : '20px', marginBottom: '24px' }}>
-                {[
-                  { label: 'Total Products', value: products.length, color: '#10B981' },
-                  { label: 'Total Orders', value: orders.length, color: '#F59E0B' },
-                  { label: 'Pending Orders', value: orders.filter(o => o.status === 'pending').length, color: '#f87171' },
-                  { label: 'Current Rank', value: profile?.rank && profile.rank !== 'none' ? profile.rank.charAt(0).toUpperCase() + profile.rank.slice(1) : 'None', color: '#a78bfa' },
-                ].map((stat, i) => (
-                  <div key={i} style={{ 
-                    background: 'rgba(255,255,255,0.9)', 
-                    border: '1px solid rgba(0,0,0,0.06)', 
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)', 
-                    padding: isMobile ? '16px' : '20px', 
-                    borderRadius: isMobile ? '16px' : '16px'
-                  }}>
-                    <p style={{ color: 'rgba(15,23,42,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px 0' }}>{stat.label}</p>
-                    <p style={{ color: stat.color, fontSize: '32px', fontWeight: '900', margin: 0 }}>{stat.value}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Rank Status */}
-              <div style={{
-                background: profile?.rank && profile.rank !== 'none'
-                  ? profile.rank === 'premium' 
-                    ? 'rgba(245,158,11,0.08)' 
-                    : profile.rank === 'verified'
-                    ? 'rgba(16,185,129,0.08)'
-                    : 'rgba(59,130,246,0.08)'
-                  : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${profile?.rank && profile.rank !== 'none'
-                  ? profile.rank === 'premium'
-                    ? 'rgba(245,158,11,0.25)'
-                    : profile.rank === 'verified'
-                    ? 'rgba(16,185,129,0.3)'
-                    : 'rgba(59,130,246,0.25)'
-                  : 'rgba(255,255,255,0.08)'}`,
-                borderRadius: isMobile ? '16px' : '16px',
-                padding: isMobile ? '16px' : '20px 24px',
-                marginTop: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: isMobile ? '16px' : '12px',
-                flexDirection: isMobile ? 'column' : 'row'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <span style={{ fontSize: '32px' }}>
-                    {profile?.rank === 'premium' ? <Star size={24} /> : profile?.rank === 'verified' ? <Check size={24} /> : profile?.rank === 'starter' ? <Medal size={24} /> : <Store size={24} />}
-                  </span>
-                  <div>
-                    <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 4px 0' }}>
-                      Your Rank
-                    </p>
-                    <p style={{ 
-                      fontWeight: '900', fontSize: '20px', margin: 0,
-                      color: profile?.rank === 'premium' ? '#F59E0B' : profile?.rank === 'verified' ? '#10B981' : profile?.rank === 'starter' ? '#93c5fd' : 'rgba(15,23,42,0.4)'
+              <h1 style={{ color: '#1e293b', fontSize: '24px', fontWeight: '700', marginBottom: '24px' }}>Dashboard Overview</h1>
+              
+              {/* Stats Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '20px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      backgroundColor: '#f0f9ff',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}>
-                      {profile?.rank && profile.rank !== 'none' 
-                        ? profile.rank.charAt(0).toUpperCase() + profile.rank.slice(1) 
-                        : 'No Rank Yet'}
-                    </p>
-                    {profile?.rank && profile.rank !== 'none' && (
-                      <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '12px', margin: '4px 0 0 0' }}>
-                        Your products have a {profile.rank} badge visible to all buyers
-                      </p>
-                    )}
+                      <Package size={20} color="#004E64" />
+                    </div>
+                    <span style={{ color: '#64748b', fontSize: '12px', fontWeight: '500' }}>Total Products</span>
+                  </div>
+                  <div style={{ fontSize: '32px', fontWeight: '700', color: '#1e293b' }}>{products.length}</div>
+                </div>
+
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '20px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      backgroundColor: '#f0fdf4',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <TrendingUp size={20} color="#10b981" />
+                    </div>
+                    <span style={{ color: '#64748b', fontSize: '12px', fontWeight: '500' }}>Total Views</span>
+                  </div>
+                  <div style={{ fontSize: '32px', fontWeight: '700', color: '#1e293b' }}>1,234</div>
+                </div>
+
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '20px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      backgroundColor: '#fef3c7',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <Star size={20} color="#f59e0b" />
+                    </div>
+                    <span style={{ color: '#64748b', fontSize: '12px', fontWeight: '500' }}>Tier/Plan</span>
+                  </div>
+                  <div style={{ fontSize: '32px', fontWeight: '700', color: '#1e293b' }}>
+                    {profile?.rank ? profile.rank.charAt(0).toUpperCase() + profile.rank.slice(1) : 'Free'}
                   </div>
                 </div>
-                <Link href="/dashboard/ranks">
-                  <button style={{
-                    background: profile?.rank && profile.rank !== 'none' 
-                      ? 'rgba(255,255,255,0.06)' 
-                      : 'linear-gradient(135deg, #F59E0B, #D97706)',
-                    color: profile?.rank && profile.rank !== 'none' ? 'rgba(15,23,42,0.6)' : 'black',
-                    fontWeight: '700',
-                    borderRadius: '9999px',
-                    padding: '10px 22px',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    cursor: 'pointer',
-                    fontSize: '13px',
-                    width: isMobile ? '100%' : 'auto'
-                  }}>
-                    {profile?.rank && profile.rank !== 'none' ? 'Upgrade Rank' : '🏆 Get Ranked'}
-                  </button>
-                </Link>
+
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '20px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      backgroundColor: '#f0f9ff',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <Users size={20} color="#00a8cc" />
+                    </div>
+                    <span style={{ color: '#64748b', fontSize: '12px', fontWeight: '500' }}>Slots Remaining</span>
+                  </div>
+                  <div style={{ fontSize: '32px', fontWeight: '700', color: '#1e293b' }}>
+                    {getProductLimit(profile?.tier || 0) - products.length}
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
-          {/* MY PRODUCTS */}
+          {/* Products Tab */}
           {activeTab === 'products' && (
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-                <h2 style={{ color: 'white', fontSize: isMobile ? '18px' : '28px', fontWeight: '900', margin: 0, overflowWrap: 'break-word', wordBreak: 'break-word' }}>My Products</h2>
-                <button onClick={() => setActiveTab('add')} style={{ background: 'linear-gradient(135deg, #E8C97E, #F0B429)', color: 'black', fontWeight: '700', borderRadius: '9999px', padding: '10px 24px', border: 'none', cursor: 'pointer', fontSize: '14px' }}>
-                  + Add Product
-                </button>
-              </div>
-
-              {/* Product Limit Indicator */}
+              <h1 style={{ color: '#1e293b', fontSize: '24px', fontWeight: '700', marginBottom: '24px' }}>My Products</h1>
+              
               <div style={{
-                background: 'rgba(0,78,100,0.15)',
-                backdropFilter: 'blur(24px)',
-                WebkitBackdropFilter: 'blur(24px)',
-                border: '1px solid rgba(0,78,100,0.3)',
-                borderRadius: '16px',
-                padding: '16px 20px',
-                marginBottom: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '16px'
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                overflow: 'hidden'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <Package size={24} />
-                  <div>
-                    <p style={{ 
-                      color: '#4DB8CC', 
-                      fontSize: isMobile ? '18px' : '20px', 
-                      fontWeight: '700', 
-                      margin: 0,
-                      lineHeight: 1.2
-                    }}>
-                      {products.length}/{getProductLimit(profile?.tier || 0)} products listed
-                    </p>
-                    <p style={{ 
-                      color: 'rgba(255,255,255,0.6)', 
-                      fontSize: '12px', 
-                      margin: '4px 0 0 0'
-                    }}>
-                      {products.length >= getProductLimit(profile?.tier || 0) 
-                        ? <><AlertTriangle size={16} style={{ marginRight: '4px' }} />You've reached your plan limit. Upgrade to list more products.</>
-                        : `${getProductLimit(profile?.tier || 0) - products.length} slots remaining`
-                      }
-                    </p>
-                  </div>
-                </div>
+                {/* Table Header */}
                 <div style={{
-                  width: '60px',
-                  height: '60px',
-                  position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
+                  display: 'grid',
+                  gridTemplateColumns: '80px 1fr 100px 100px 120px',
+                  backgroundColor: '#f8fafc',
+                  borderBottom: '1px solid #e2e8f0',
+                  padding: '12px 16px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#374151'
                 }}>
-                  <svg width="60" height="60" style={{ transform: 'rotate(-90deg)' }}>
-                    <circle
-                      cx="30"
-                      cy="30"
-                      r="25"
-                      stroke="rgba(255,255,255,0.1)"
-                      strokeWidth="6"
-                      fill="none"
-                    />
-                    <circle
-                      cx="30"
-                      cy="30"
-                      r="25"
-                      stroke="#4DB8CC"
-                      strokeWidth="6"
-                      fill="none"
-                      strokeDasharray={`${2 * Math.PI * 25}`}
-                      strokeDashoffset={`${2 * Math.PI * 25 * (1 - (products.length / getProductLimit(profile?.tier || 0)))}`}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <span style={{
-                    position: 'absolute',
-                    color: '#4DB8CC',
-                    fontSize: '12px',
-                    fontWeight: '700'
-                  }}>
-                    {Math.round((products.length / getProductLimit(profile?.tier || 0)) * 100)}%
-                  </span>
+                  <div>Image</div>
+                  <div>Name</div>
+                  <div>Price</div>
+                  <div>Status</div>
+                  <div>Actions</div>
                 </div>
               </div>
               {products.length === 0 ? (
