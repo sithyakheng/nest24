@@ -405,7 +405,7 @@ export default function DashboardPage() {
 
         {/* Shop Actions */}
         {profile && (
-          <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', marginTop: '24px' }}>
+          <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', marginTop: 'auto' }}>
             <Link href={`/seller/${profile?.shop_slug || profile?.name || ''}`} style={{ textDecoration: 'none', display: 'block', marginBottom: '12px' }}>
               <button
                 style={{
@@ -1096,7 +1096,6 @@ export default function DashboardPage() {
 
                   <button onClick={handleSaveProfile} disabled={savingProfile} style={{ background: savingProfile ? '#f8fafc' : '#004E64', color: savingProfile ? '#475569' : 'white', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: savingProfile ? 'not-allowed' : 'pointer', width: '100%' }}>
                     {savingProfile ? 'Saving...' : 'Save Changes'}
-                    <Check size={12} />
                   </button>
 
                 </div>
