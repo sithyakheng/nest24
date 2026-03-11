@@ -53,6 +53,12 @@ export default function DashboardPage() {
 
   const CATEGORIES = ['Electronics', 'Fashion', 'Home Living', 'Beauty', 'Food', 'Gaming', 'Other']
 
+  const glassCard = {
+    background: 'rgba(255,255,255,0.04)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '16px',
+  }
+
   // Helper function to get product limit based on tier
   function getProductLimit(tier: number): number {
     const limits: Record<number, number> = {
