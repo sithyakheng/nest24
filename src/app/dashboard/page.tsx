@@ -350,7 +350,7 @@ export default function DashboardPage() {
         position: isMobile ? 'fixed' : 'relative',
         height: '100vh',
         zIndex: isMobile ? 40 : 1,
-        overflow: 'hidden',
+        overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column'
       }}>
@@ -376,7 +376,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Navigation */}
-        <nav style={{ padding: '20px 0', flex: 1 }}>
+        <nav style={{ padding: '20px 0', flex: '1 0 auto', minHeight: '0' }}>
           {sidebarItems.map(item => (
             <button
               key={item.id}
