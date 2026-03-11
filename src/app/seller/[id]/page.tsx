@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useLang } from '@/contexts/LanguageContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import Navbar from '@/components/Navbar'
+import { Star, Check, Medal, Send, Facebook, Shield, Flag, ThumbsUp } from 'lucide-react'
 
 export default function SellerShopPage() {
   const { lang } = useLang()
@@ -164,7 +165,7 @@ export default function SellerShopPage() {
           {/* Premium banner */}
           {seller.rank === 'premium' && (
             <div style={{ background: 'rgba(232,201,126,0.1)', border: '1px solid rgba(232,201,126,0.3)', borderRadius: '12px', padding: '10px 16px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>⭐</span>
+              <Star size={16} />
               <p style={{ color: '#E8C97E', fontSize: '13px', fontWeight: '700', margin: 0 }}>Premium Seller — Top rated on NestKH</p>
             </div>
           )}
@@ -195,7 +196,7 @@ export default function SellerShopPage() {
                 </h1>
                 {rankColor && (
                   <span style={{ background: rankBg, border: `1px solid ${rankBorder}`, color: rankColor, fontSize: '12px', fontWeight: '700', padding: '4px 12px', borderRadius: '9999px' }}>
-                    {seller.rank === 'premium' ? '⭐ Premium' : seller.rank === 'verified' ? '✓ Verified' : '🥉 Starter'}
+                    {seller.rank === 'premium' ? <><Star size={12} /> Premium</> : seller.rank === 'verified' ? <><Check size={12} /> Verified</> : <><Medal size={12} /> Starter</>}
                   </span>
                 )}
               </div>
@@ -250,12 +251,12 @@ export default function SellerShopPage() {
                 )}
                 {seller.telegram && (
                   <a href={`https://t.me/${seller.telegram.replace('@', '')}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none' }}>
-                    ✈️ Telegram
+                    <Send size={14} style={{ marginRight: '4px' }} />Telegram
                   </a>
                 )}
                 {seller.facebook && (
                   <a href={seller.facebook.startsWith('http') ? seller.facebook : `https://${seller.facebook}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none' }}>
-                    👍 Facebook
+                    <ThumbsUp size={14} style={{ marginRight: '4px' }} />Facebook
                   </a>
                 )}
                 {seller.instagram && (
@@ -274,7 +275,7 @@ export default function SellerShopPage() {
           {/* Trusted seller message */}
           {(seller.rank === 'verified' || seller.rank === 'premium') && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(0,200,100,0.08)', border: '1px solid rgba(0,200,100,0.2)', borderRadius: '10px', padding: '10px 14px', marginTop: '20px' }}>
-              <span>🛡️</span>
+              <Shield size={16} />
               <p style={{ color: '#4ade80', fontSize: '13px', fontWeight: '600', margin: 0 }}>
                 {languageText.trusted}
               </p>
@@ -297,7 +298,7 @@ export default function SellerShopPage() {
               marginTop: '12px'
             }}
           >
-            🚩 Report Shop
+            <Flag size={14} /> Report Shop
           </button>
 
         </div>
@@ -347,7 +348,7 @@ export default function SellerShopPage() {
                       )}
                       {rankColor && (
                         <span style={{ position: 'absolute', top: '8px', right: '8px', background: rankBg, border: `1px solid ${rankBorder}`, color: rankColor, fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '9999px', backdropFilter: 'blur(8px)' }}>
-                          {seller.rank === 'premium' ? '⭐ Premium' : seller.rank === 'verified' ? '✓ Verified' : '🥉 Starter'}
+                          {seller.rank === 'premium' ? <><Star size={10} /> Premium</> : seller.rank === 'verified' ? <><Check size={10} /> Verified</> : <><Medal size={10} /> Starter</>}
                         </span>
                       )}
                     </div>
@@ -390,7 +391,7 @@ export default function SellerShopPage() {
             maxWidth: '420px'
           }}>
             <h3 style={{ color: isDark ? 'white' : '#0f172a', margin: '0 0 16px 0' }}>
-              🚩 Report Shop
+              <Flag size={14} /> Report Shop
             </h3>
 
             {reportSuccess ? (

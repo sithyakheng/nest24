@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { uploadImage } from '@/lib/uploadImage'
 import Link from 'next/link'
-import { BarChart3, Package, Plus, ShoppingBag, User, AlertTriangle } from 'lucide-react'
+import { BarChart3, Package, Plus, ShoppingBag, User, AlertTriangle, Store, Check, Medal } from 'lucide-react'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -591,7 +591,7 @@ async function handleSaveProfile() {
             <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(16,185,129,0.4)', border: '2px solid rgba(16,185,129,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981', fontWeight: '900', fontSize: '24px', margin: '0 auto 12px auto' }}>
               {(profile?.name || profile?.full_name || 'S').charAt(0).toUpperCase()}
             </div>
-            <p style={{ color: '#0f172a', fontWeight: '700', fontSize: '15px', margin: '0 0 4px 0' }}>🏪 {profile?.name || profile?.full_name || 'Seller'}</p>
+            <p style={{ color: '#0f172a', fontWeight: '700', fontSize: '15px', margin: '0 0 4px 0' }}><Store size={16} style={{ marginRight: '4px' }} />{profile?.name || profile?.full_name || 'Seller'}</p>
             <span style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', color: '#10B981', fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '9999px' }}>Seller</span>
           </div>
 
@@ -647,7 +647,7 @@ async function handleSaveProfile() {
                 marginTop: '8px'
               }}
             >
-              🏪 Visit My Store
+              <Store size={14} style={{ marginRight: '6px' }} />Visit My Store
             </button>
 
             <div style={{
@@ -800,7 +800,7 @@ async function handleSaveProfile() {
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <span style={{ fontSize: '32px' }}>
-                    {profile?.rank === 'premium' ? '⭐' : profile?.rank === 'verified' ? '✓' : profile?.rank === 'starter' ? '🥉' : '🏅'}
+                    {profile?.rank === 'premium' ? <Star size={24} /> : profile?.rank === 'verified' ? <Check size={24} /> : profile?.rank === 'starter' ? <Medal size={24} /> : <Store size={24} />}
                   </span>
                   <div>
                     <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 4px 0' }}>
@@ -1117,7 +1117,7 @@ async function handleSaveProfile() {
 
                   {productImage && (
                     <p style={{ color: 'rgba(15,23,42,0.4)', fontSize: '11px', marginTop: '6px', textAlign: 'center' }}>
-                      Original: {(productImage.size / 1024 / 1024).toFixed(2)}MB → Will be compressed automatically ✓
+                      Original: {(productImage.size / 1024 / 1024).toFixed(2)}MB → Will be compressed automatically <Check size={12} />
                     </p>
                   )}
 
@@ -1134,7 +1134,7 @@ async function handleSaveProfile() {
                   )}
 
                   <button onClick={handleAddProduct} disabled={addingProduct} style={{ background: addingProduct ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #10B981, #059669)', color: addingProduct ? 'rgba(255,255,255,0.4)' : 'white', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: addingProduct ? 'not-allowed' : 'pointer', width: '100%' }}>
-                    {addingProduct ? 'Adding Product...' : 'Add Product ✓'}
+                    {addingProduct ? 'Adding Product...' : 'Add Product <Check size={12} />'}
                   </button>
 
                 </div>
@@ -1266,7 +1266,7 @@ async function handleSaveProfile() {
                   )}
 
                   <button onClick={handleSaveProfile} disabled={savingProfile} style={{ background: savingProfile ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #F59E0B, #D97706)', color: savingProfile ? 'rgba(255,255,255,0.4)' : 'black', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: savingProfile ? 'not-allowed' : 'pointer', width: '100%' }}>
-                    {savingProfile ? 'Saving...' : 'Save Changes ✓'}
+                    {savingProfile ? 'Saving...' : 'Save Changes <Check size={12} />'}
                   </button>
 
                 </div>

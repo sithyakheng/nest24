@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Check, Star } from 'lucide-react'
+import { Check, Star, Medal } from 'lucide-react'
 import { useMediaQuery } from '@/hooks/use-media-query'
 
 function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
@@ -327,7 +327,7 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
             transition: 'all 0.2s'
           }}
         >
-          {uploading ? 'Submitting...' : 'Submit Payment Request ✓'}
+          {uploading ? 'Submitting...' : 'Submit Payment Request <Check size={12} />'}
         </button>
 
       </div>
@@ -391,7 +391,7 @@ export default function RanksPage() {
       price: 5,
       originalPrice: 6,
       period: 'per month',
-      emoji: '🥉',
+      emoji: <Medal size={16} />,
       color: '#93c5fd',
       border: 'rgba(59,130,246,0.4)',
       bg: 'rgba(59,130,246,0.08)',
@@ -411,7 +411,7 @@ export default function RanksPage() {
       price: 15,
       originalPrice: 19,
       period: 'per month',
-      emoji: '✓',
+      emoji: <Check size={16} />,
       color: '#4DB8CC',
       border: 'rgba(0,78,100,0.6)',
       bg: 'rgba(0,78,100,0.12)',
@@ -433,7 +433,7 @@ export default function RanksPage() {
       price: 30,
       originalPrice: 38,
       period: 'per month',
-      emoji: '⭐',
+      emoji: <Star size={16} />,
       color: '#E8C97E',
       border: 'rgba(232,201,126,0.5)',
       bg: 'rgba(232,201,126,0.08)',
@@ -494,7 +494,7 @@ export default function RanksPage() {
         {/* Current rank display */}
         {profile?.rank && profile.rank !== 'none' && (
           <div style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.12)', borderTop: '1px solid rgba(255,255,255,0.22)', borderRadius: '20px', padding: '20px 28px', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <span style={{ fontSize: '36px' }}>{profile.rank === 'premium' ? '⭐' : profile.rank === 'verified' ? '✓' : '🥉'}</span>
+            <span style={{ fontSize: '36px' }}>{profile.rank === 'premium' ? <Star size={32} /> : profile.rank === 'verified' ? <Check size={32} /> : <Medal size={32} />}</span>
             <div>
               <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 4px 0' }}>Your Current Rank</p>
               <p style={{ color: 'white', fontWeight: '900', fontSize: '22px', margin: 0 }}>
@@ -656,7 +656,7 @@ export default function RanksPage() {
                   e.currentTarget.style.transform = 'translateY(0)'
                 }}
               >
-                {selectedRank === plan.id ? '✓ Selected — Scroll to Pay' : plan.buttonText}
+                {selectedRank === plan.id ? '<Check size={12} /> Selected — Scroll to Pay' : plan.buttonText}
               </button>
 
               {/* Description */}
