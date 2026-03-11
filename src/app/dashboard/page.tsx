@@ -569,13 +569,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* Analytics Section */}
-          {activeTab === 'overview' && (
-            <div style={{ marginTop: '32px' }}>
-              {/* Bar Chart - Views by Product */}
+              {/* Analytics Section */}
               {barChartData.length > 0 && (
                 <div style={{
                   backgroundColor: '#ffffff',
