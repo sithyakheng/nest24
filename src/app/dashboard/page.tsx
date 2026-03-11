@@ -59,6 +59,20 @@ export default function DashboardPage() {
     borderRadius: '16px',
   }
 
+  const inputStyle = {
+    width: '100%',
+    padding: '10px 14px',
+    borderRadius: '8px',
+    border: '1px solid #e2e8f0',
+    fontSize: '14px',
+    color: '#0f172a',
+    background: '#f8fafc',
+    outline: 'none',
+    boxSizing: 'border-box' as const,
+  }
+
+  const inputFocusProps = {}
+
   // Helper function to get product limit based on tier
   function getProductLimit(tier: number): number {
     const limits: Record<number, number> = {
