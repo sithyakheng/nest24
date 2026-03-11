@@ -312,7 +312,7 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
             />
             <button
               onClick={() => {
-                if (discountCode === 'NESTKH20') {
+                if (discountCode === 'SIMPLESHOP') {
                   setDiscountApplied(true)
                   setDiscountError('')
                 } else {
