@@ -55,8 +55,8 @@ export default function DashboardPage() {
   const CATEGORIES = ['Electronics', 'Fashion', 'Home Living', 'Beauty', 'Food', 'Gaming', 'Other']
 
   const glassCard = {
-    background: 'rgba(255,255,255,0.04)',
-    border: '1px solid rgba(255,255,255,0.08)',
+    background: '#f8fafc',
+    border: '1px solid #e2e8f0',
     borderRadius: '16px',
   }
 
@@ -704,8 +704,8 @@ export default function DashboardPage() {
               </div>
               {products.length === 0 ? (
                 <div style={{ ...glassCard, padding: '48px', textAlign: 'center' }}>
-                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px', marginBottom: '16px' }}>No products yet</p>
-                  <button onClick={() => setActiveTab('add')} style={{ background: 'linear-gradient(135deg, #E8C97E, #F0B429)', color: 'black', fontWeight: '700', borderRadius: '9999px', padding: '12px 28px', border: 'none', cursor: 'pointer' }}>
+                  <p style={{ color: '#475569', fontSize: '16px', marginBottom: '16px' }}>No products yet</p>
+                  <button onClick={() => setActiveTab('add')} style={{ background: '#004E64', color: 'white', fontWeight: '700', borderRadius: '9999px', padding: '12px 28px', border: 'none', cursor: 'pointer' }}>
                     Add Your First Product
                   </button>
                 </div>
@@ -713,8 +713,8 @@ export default function DashboardPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {products.map(product => (
                     <div key={product.id} style={{ 
-                    background: 'rgba(255,255,255,0.8)', 
-                    border: '1px solid rgba(0,0,0,0.06)', 
+                    background: '#ffffff', 
+                    border: '1px solid #e2e8f0', 
                     padding: '16px', 
                     display: 'flex', 
                     alignItems: 'center', 
@@ -906,7 +906,7 @@ export default function DashboardPage() {
                     </div>
                   )}
 
-                  <button onClick={handleAddProduct} disabled={addingProduct} style={{ background: addingProduct ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #10B981, #059669)', color: addingProduct ? 'rgba(255,255,255,0.4)' : 'white', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: addingProduct ? 'not-allowed' : 'pointer', width: '100%' }}>
+                  <button onClick={handleAddProduct} disabled={addingProduct} style={{ background: addingProduct ? '#f8fafc' : '#004E64', color: addingProduct ? '#475569' : 'white', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: addingProduct ? 'not-allowed' : 'pointer', width: '100%' }}>
                     {addingProduct ? 'Adding Product...' : 'Add Product <Check size={12} />'}
                   </button>
 
@@ -918,17 +918,17 @@ export default function DashboardPage() {
           {/* ORDERS */}
           {activeTab === 'orders' && (
             <div>
-              <h2 style={{ color: 'white', fontSize: isMobile ? '18px' : '28px', fontWeight: '900', margin: '0 0 24px 0', overflowWrap: 'break-word', wordBreak: 'break-word' }}>Orders</h2>
+              <h2 style={{ color: '#0f172a', fontSize: isMobile ? '18px' : '28px', fontWeight: '900', margin: '0 0 24px 0', overflowWrap: 'break-word', wordBreak: 'break-word' }}>Orders</h2>
               {orders.length === 0 ? (
                 <div style={{ ...glassCard, padding: '48px', textAlign: 'center' }}>
-                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px' }}>No orders yet</p>
+                  <p style={{ color: '#475569', fontSize: '16px' }}>No orders yet</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {orders.map(order => (
                     <div key={order.id} style={{ ...glassCard, padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', flexDirection: isMobile ? 'column' : 'row' }}>
-                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: 'monospace', margin: 0 }}>#{order.id.slice(0,8)}</p>
-                      <p style={{ color: 'white', fontWeight: '600', margin: 0, overflowWrap: 'break-word', wordBreak: 'break-word' }}>{order.products?.name}</p>
+                      <p style={{ color: '#475569', fontSize: '12px', fontFamily: 'monospace', margin: 0 }}>#{order.id.slice(0,8)}</p>
+                      <p style={{ color: '#0f172a', fontWeight: '600', margin: 0, overflowWrap: 'break-word', wordBreak: 'break-word' }}>{order.products?.name}</p>
                       <p style={{ color: '#E8C97E', fontWeight: '700', margin: 0 }}>${order.total_price}</p>
                       <span style={{ padding: '4px 12px', borderRadius: '9999px', fontSize: '12px', fontWeight: '600', background: order.status === 'completed' ? 'rgba(0,200,100,0.15)' : order.status === 'cancelled' ? 'rgba(255,80,80,0.15)' : 'rgba(232,201,126,0.15)', color: order.status === 'completed' ? '#4ade80' : order.status === 'cancelled' ? '#f87171' : '#E8C97E' }}>
                         {order.status}
@@ -1038,7 +1038,7 @@ export default function DashboardPage() {
                     </div>
                   )}
 
-                  <button onClick={handleSaveProfile} disabled={savingProfile} style={{ background: savingProfile ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #F59E0B, #D97706)', color: savingProfile ? 'rgba(255,255,255,0.4)' : 'black', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: savingProfile ? 'not-allowed' : 'pointer', width: '100%' }}>
+                  <button onClick={handleSaveProfile} disabled={savingProfile} style={{ background: savingProfile ? '#f8fafc' : '#004E64', color: savingProfile ? '#475569' : 'white', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: savingProfile ? 'not-allowed' : 'pointer', width: '100%' }}>
                     {savingProfile ? 'Saving...' : 'Save Changes <Check size={12} />'}
                   </button>
 
