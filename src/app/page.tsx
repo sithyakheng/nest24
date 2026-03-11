@@ -32,7 +32,7 @@ export default function HomePage() {
   const isSmallMobile = windowWidth < 480
   
   // Simple theme detection based on time of day
-  const isDarkMode = new Date().getHours() >= 18 || new Date().getHours() < 6
+  const isDark = new Date().getHours() >= 18 || new Date().getHours() < 6
 
   useEffect(() => {
     setWindowWidth(window.innerWidth)
@@ -170,17 +170,17 @@ async function fetchProducts() {
   }
 
   return (
-    <div key={lang} className="relative z-10" style={{ backgroundColor: isDarkMode ? '#0a0a0a' : '#ffffff' }}>
+    <div key={lang} className="relative z-10">
       <Navbar />
 
       {/* PREMIUM SELLERS SPOTLIGHT */}
       {premiumSellers.length > 0 && (
-        <div style={{ marginBottom: '48px', padding: '0 20px' }}>
+        <div style={{ marginBottom: '48px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-            <Star size={20} style={{ color: isDarkMode ? '#E8C97E' : '#E8C97E' }} />
+            <Star size={20} />
             <div>
-              <p style={{ color: isDarkMode ? 'rgba(255,255,255,0.6)' : 'rgba(15,23,42,0.6)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>{t('home.premium_sellers')}</p>
-              <h2 style={{ color: isDarkMode ? '#ffffff' : '#0f172a', fontSize: '24px', fontWeight: '900', margin: 0 }}>{t('home.premium_spotlight')}</h2>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>{t('home.premium_sellers')}</p>
+              <h2 style={{ color: 'white', fontSize: '24px', fontWeight: '900', margin: 0 }}>{t('home.premium_spotlight')}</h2>
             </div>
           </div>
           
@@ -188,16 +188,16 @@ async function fetchProducts() {
             {premiumSellers.map(seller => (
               <Link href={`/seller/${seller.id}`} key={seller.id}>
                 <div style={{
-                  background: isDarkMode ? 'rgba(232,201,126,0.08)' : 'rgba(232,201,126,0.05)',
+                  background: 'rgba(232,201,126,0.08)',
                   backdropFilter: 'blur(24px)',
                   WebkitBackdropFilter: 'blur(24px)',
-                  border: '2px solid ' + (isDarkMode ? 'rgba(232,201,126,0.3)' : 'rgba(232,201,126,0.2)'),
-                  borderTop: '2px solid ' + (isDarkMode ? 'rgba(232,201,126,0.5)' : 'rgba(232,201,126,0.3)'),
+                  border: '2px solid rgba(232,201,126,0.3)',
+                  borderTop: '2px solid rgba(232,201,126,0.5)',
                   borderRadius: '20px',
                   padding: '24px',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
-                  boxShadow: isDarkMode ? '0 0 30px rgba(232,201,126,0.1)' : '0 0 20px rgba(232,201,126,0.08)'
+                  boxShadow: '0 0 30px rgba(232,201,126,0.1)'
                 }}
                 onMouseEnter={e => {
                   e.currentTarget.style.transform = 'translateY(-4px)'
@@ -224,16 +224,16 @@ async function fetchProducts() {
                         <span style={{ background: 'rgba(232,201,126,0.2)', border: '1px solid rgba(232,201,126,0.4)', color: '#E8C97E', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '9999px' }}><Star size={10} /> Premium</span>
                       </div>
                     </div>
-                    <p style={{ color: isDarkMode ? 'rgba(255,255,255,0.6)' : 'rgba(15,23,42,0.6)', fontSize: '12px', margin: '2px 0 0 0' }}>
+                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '2px 0 0 0' }}>
                       {seller.products?.length || 0} {t('home.products_listed')}
                     </p>
                   </div>
                   {seller.bio && (
-                    <p style={{ color: isDarkMode ? 'rgba(255,255,255,0.7)' : 'rgba(15,23,42,0.7)', fontSize: '13px', margin: '0 0 12px 0', lineHeight: '1.5', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', margin: '0 0 12px 0', lineHeight: '1.5', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {seller.bio}
                     </p>
                   )}
-                  <p style={{ color: isDarkMode ? '#E8C97E' : '#E8C97E', fontSize: '13px', fontWeight: '600', margin: 0 }}>{t('home.view_shop')}</p>
+                  <p style={{ color: '#E8C97E', fontSize: '13px', fontWeight: '600', margin: 0 }}>{t('home.view_shop')}</p>
                 </div>
               </Link>
             ))}
@@ -243,9 +243,9 @@ async function fetchProducts() {
 
       {/* TOP SELLERS SECTION */}
       {topSellers.length > 0 && (
-        <div style={{ marginBottom: '40px', padding: '0 20px' }}>
+        <div style={{ marginBottom: '40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <p style={{ color: isDarkMode ? 'rgba(255,255,255,0.6)' : 'rgba(15,23,42,0.6)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>{t('home.top_sellers')}</p>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>{t('home.top_sellers')}</p>
           </div>
           <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px' }}>
             {topSellers.map(seller => (
@@ -491,7 +491,7 @@ async function fetchProducts() {
       {/* Trust Banner */}
       <div style={{
         width: '100%',
-        background: '#004E64',
+        background: isDark ? '#0f172a' : '#0f172a',
         borderTop: '1px solid rgba(255,255,255,0.1)',
         borderBottom: '1px solid rgba(255,255,255,0.1)',
         overflow: 'hidden',
@@ -504,8 +504,7 @@ async function fetchProducts() {
         <div style={{
           display: 'flex',
           width: 'max-content',
-          animation: 'marquee 45s linear infinite',
-          alignItems: 'center'
+          animation: 'marquee 45s linear infinite'
         }}>
           {[...Array(2)].map((_, dupIndex) => (
             <div key={dupIndex} style={{ display: 'flex', alignItems: 'center' }}>
@@ -552,8 +551,8 @@ async function fetchProducts() {
         {/* Trust Banner */}
         <div style={{ 
           padding: isMobile ? '40px 20px' : '60px 20px',
-          backgroundColor: isDarkMode ? '#0f172a' : '#f8fafc',
-          borderTop: '1px solid ' + (isDarkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0')
+          backgroundColor: '#f8fafc',
+          borderTop: '1px solid #e2e8f0'
         }}>
           <div style={{
             maxWidth: '1200px',
@@ -566,8 +565,8 @@ async function fetchProducts() {
             {/* 24/7 Support */}
             <div style={{
               flex: 1,
-              background: isDarkMode ? '#1a1a2e' : '#ffffff',
-              border: '1px solid ' + (isDarkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'),
+              background: isDark ? '#1e293b' : '#ffffff',
+              border: '1px solid #e2e8f0',
               borderRadius: '16px',
               padding: '32px',
               textAlign: 'center',
@@ -591,25 +590,29 @@ async function fetchProducts() {
                 <Headphones size={28} style={{ color: 'white' }} />
               </div>
               <h3 style={{
-                color: isDarkMode ? '#ffffff' : '#0f172a',
+                color: isDark ? '#ffffff' : '#0f172a',
                 fontSize: '20px',
                 fontWeight: '700',
                 margin: '0 0 12px 0'
-              }}>24/7 Support</h3>
+              }}>
+                24/7 Support
+              </h3>
               <p style={{
-                color: isDarkMode ? 'rgba(255,255,255,0.8)' : '#0f172a',
+                color: isDark ? 'rgba(255,255,255,0.6)' : '#475569',
                 fontSize: '14px',
                 lineHeight: '1.5',
                 margin: 0,
                 maxWidth: '280px'
-              }}>We're here to help you around the clock. Reach out anytime via our platform.</p>
+              }}>
+                We're here to help you around the clock. Reach out anytime via our platform.
+              </p>
             </div>
 
             {/* Instant Contact */}
             <div style={{
               flex: 1,
-              background: isDarkMode ? '#1a1a2e' : '#ffffff',
-              border: '1px solid ' + (isDarkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'),
+              background: isDark ? '#1e293b' : '#ffffff',
+              border: '1px solid #e2e8f0',
               borderRadius: '16px',
               padding: '32px',
               textAlign: 'center',
@@ -633,25 +636,29 @@ async function fetchProducts() {
                 <Zap size={28} style={{ color: 'white' }} />
               </div>
               <h3 style={{
-                color: isDarkMode ? '#ffffff' : '#0f172a',
+                color: isDark ? '#ffffff' : '#0f172a',
                 fontSize: '20px',
                 fontWeight: '700',
                 margin: '0 0 12px 0'
-              }}>Instant Contact</h3>
+              }}>
+                Instant Contact
+              </h3>
               <p style={{
-                color: isDarkMode ? 'rgba(255,255,255,0.8)' : '#0f172a',
+                color: isDark ? 'rgba(255,255,255,0.6)' : '#475569',
                 fontSize: '14px',
                 lineHeight: '1.5',
                 margin: 0,
                 maxWidth: '280px'
-              }}>Connect directly with sellers via WhatsApp, Telegram, or Facebook instantly.</p>
+              }}>
+                Connect directly with sellers via WhatsApp, Telegram, or Facebook instantly.
+              </p>
             </div>
 
             {/* Trusted Sellers */}
             <div style={{
               flex: 1,
-              background: isDarkMode ? '#1a1a2e' : '#ffffff',
-              border: '1px solid ' + (isDarkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'),
+              background: isDark ? '#1e293b' : '#ffffff',
+              border: '1px solid #e2e8f0',
               borderRadius: '16px',
               padding: '32px',
               textAlign: 'center',
@@ -675,18 +682,22 @@ async function fetchProducts() {
                 <ShieldCheck size={28} style={{ color: 'white' }} />
               </div>
               <h3 style={{
-                color: isDarkMode ? '#ffffff' : '#0f172a',
+                color: isDark ? '#ffffff' : '#0f172a',
                 fontSize: '20px',
                 fontWeight: '700',
                 margin: '0 0 12px 0'
-              }}>Trusted Sellers</h3>
+              }}>
+                Trusted Sellers
+              </h3>
               <p style={{
-                color: isDarkMode ? 'rgba(255,255,255,0.8)' : '#0f172a',
+                color: isDark ? 'rgba(255,255,255,0.6)' : '#475569',
                 fontSize: '14px',
                 lineHeight: '1.5',
                 margin: 0,
                 maxWidth: '280px'
-              }}>Our tier verification system ensures you're buying from legitimate, trusted sellers.</p>
+              }}>
+                Our tier verification system ensures you're buying from legitimate, trusted sellers.
+              </p>
             </div>
           </div>
         </div>
