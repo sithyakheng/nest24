@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { uploadImage } from '@/lib/uploadImage'
 import Link from 'next/link'
 import { Star, Check, Medal, Store, ShoppingCart, ShoppingBag, Package, DollarSign, User, Settings, X, Flag, Bell, Search, Heart, ThumbsUp, ThumbsDown, BarChart3, Plus, AlertTriangle, Home, Edit, Trash2, TrendingUp, Users, Menu } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -83,6 +84,13 @@ export default function DashboardPage() {
     }
     return limits[tier] || 5
   }
+
+  // Calculate total views and prepare chart data
+  const totalViews = products.reduce((sum, product) => sum + (product.views || 0), 0)
+  const chartData = products.map(product => ({
+    name: product.name.length > 15 ? product.name.substring(0, 15) + '...' : product.name,
+    views: product.views || 0
+  })).sort((a, b) => b.views - a.views).slice(0, 10) // Top 10 products
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -489,7 +497,7 @@ export default function DashboardPage() {
                     </div>
                     <span style={{ color: '#64748b', fontSize: '12px', fontWeight: '500' }}>Total Views</span>
                   </div>
-                  <div style={{ fontSize: '32px', fontWeight: '700', color: '#1e293b' }}>1,234</div>
+                  <div style={{ fontSize: '32px', fontWeight: '700', color: '#1e293b' }}>{totalViews.toLocaleString()}</div>
                 </div>
 
                 <div style={{
@@ -541,6 +549,56 @@ export default function DashboardPage() {
                     {getProductLimit(profile?.tier || 0) - products.length}
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Analytics Chart */}
+          {activeTab === 'overview' && chartData.length > 0 && (
+            <div style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              padding: '24px',
+              marginTop: '24px'
+            }}>
+              <h2 style={{ 
+                color: '#1e293b', 
+                fontSize: '18px', 
+                fontWeight: '600', 
+                marginBottom: '20px' 
+              }}>
+                Product Views Analytics
+              </h2>
+              <div style={{ height: '300px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis 
+                      dataKey="name" 
+                      tick={{ fill: '#64748b', fontSize: '12px' }}
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis 
+                      tick={{ fill: '#64748b', fontSize: '12px' }}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        fontSize: '12px'
+                      }}
+                    />
+                    <Bar 
+                      dataKey="views" 
+                      fill="#004E64"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
           )}

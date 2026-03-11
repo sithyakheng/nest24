@@ -118,6 +118,17 @@ export default function ProductDetailPage() {
   async function fetchProduct() {
     setLoading(true)
 
+    // SQL function to create for view tracking:
+    // CREATE OR REPLACE FUNCTION increment_views(product_id uuid)
+    // RETURNS void AS $$
+    // UPDATE products SET views = views + 1 WHERE id = product_id;
+    // $$ LANGUAGE sql;
+
+    // Increment views when product page loads
+    if (id) {
+      await supabase.rpc('increment_views', { product_id: id })
+    }
+
     const { data: productData, error } = await supabase
       .from('products')
       .select('*')
