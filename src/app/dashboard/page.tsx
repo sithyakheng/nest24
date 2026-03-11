@@ -10,6 +10,7 @@ import { Star, Check, Medal, Store, ShoppingCart, ShoppingBag, Package, DollarSi
 export default function DashboardPage() {
   const router = useRouter()
   const [windowWidth, setWindowWidth] = useState(1200)
+  const [isMobile, setIsMobile] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
@@ -62,6 +63,13 @@ export default function DashboardPage() {
     }
     return limits[tier] || 5
   }
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     async function load() {
