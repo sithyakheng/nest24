@@ -745,7 +745,7 @@ export default function DashboardPage() {
           )}
 
           {/* ORDERS */}
-          {console.log('activeTab:', activeTab) || activeTab === 'orders' && (
+          {activeTab === 'orders' && (
             <div>
               <h2 style={{ color: '#0f172a', fontSize: isMobile ? '18px' : '28px', fontWeight: '900', margin: '0 0 24px 0', overflowWrap: 'break-word', wordBreak: 'break-word' }}>Orders</h2>
               {orders.length === 0 ? (
