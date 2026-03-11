@@ -464,6 +464,7 @@ export default function DashboardPage() {
 
         {/* Content Area */}
         <main style={{ flex: 1, padding: '24px', overflow: 'auto' }}>
+          <p style={{color: '#000', fontSize: '20px'}}>Active tab: {activeTab}</p>
           {/* Overview Tab */}
           {activeTab === 'overview' && (
             <div>
