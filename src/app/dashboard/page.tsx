@@ -296,7 +296,25 @@ export default function DashboardPage() {
     if (!file) return
     
     try {
-      // Use the same uploadImage function as products
+      // Delete old avatar from Cloudinary if it exists
+      if (avatarUrl && avatarUrl.includes('cloudinary')) {
+        const urlParts = avatarUrl.split('/')
+        const uploadIndex = urlParts.indexOf('upload')
+        if (uploadIndex !== -1 && uploadIndex + 2 < urlParts.length) {
+          const publicIdWithExtension = urlParts.slice(uploadIndex + 2).join('/')
+          const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '')
+          
+          await fetch('/api/delete-image', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ public_id: publicId }),
+          })
+        }
+      }
+      
+      // Upload new avatar
       const cloudinaryUrl = await uploadImage(file)
       
       if (cloudinaryUrl) {
