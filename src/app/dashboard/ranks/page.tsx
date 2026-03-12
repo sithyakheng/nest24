@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Check, Star, Medal } from 'lucide-react'
+import { Check, Star, Medal, Package } from 'lucide-react'
 import { useMediaQuery } from '@/hooks/use-media-query'
 
 function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
@@ -497,7 +497,8 @@ export default function RanksPage() {
         'Blue badge on all your products',
         'Products appear above unranked sellers',
         'Appear in New Sellers section on homepage',
-        'Basic seller profile highlight'
+        'Basic seller profile highlight',
+        'List up to 30 products'
       ],
       description: 'Perfect for new sellers getting started',
       buttonText: 'Get Starter'
@@ -519,7 +520,8 @@ export default function RanksPage() {
         'Featured in Trending Sellers on homepage',
         'Verified Seller tag on product detail page',
         'Buyers see trust checkmark when contacting you',
-        'Profile shows verified since date'
+        'Profile shows verified since date',
+        'List up to 150 products'
       ],
       description: 'Ideal for growing sellers who want trust',
       buttonText: 'Get Verified'
@@ -543,7 +545,8 @@ export default function RanksPage() {
         'Premium Seller banner on your profile page',
         'Products show first in all category pages',
         'Gold username color in seller info',
-        'Top Seller featured section on homepage'
+        'Top Seller featured section on homepage',
+        'List up to 300 products'
       ],
       description: 'For serious sellers who want maximum visibility',
       buttonText: 'Get Premium'
@@ -711,7 +714,11 @@ export default function RanksPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
                 {plan.features.map((feature, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                    <Check size={14} color={plan.color} style={{ marginTop: '2px', flexShrink: 0 }} />
+                    {feature.includes('List up to') ? (
+                      <Package size={14} color={plan.color} style={{ marginTop: '2px', flexShrink: 0 }} />
+                    ) : (
+                      <Check size={14} color={plan.color} style={{ marginTop: '2px', flexShrink: 0 }} />
+                    )}
                     <span style={{ color: 'rgba(255,255,255,0.65)', fontSize: '13px', lineHeight: '1.4', textAlign: 'left' }}>{feature}</span>
                   </div>
                 ))}
