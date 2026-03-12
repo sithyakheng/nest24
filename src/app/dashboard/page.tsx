@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { uploadImage } from '@/lib/uploadImage'
 import Link from 'next/link'
-import { Star, Check, Medal, Store, ShoppingCart, ShoppingBag, Package, DollarSign, User, Settings, X, Flag, Bell, Search, Heart, ThumbsUp, ThumbsDown, BarChart3, Plus, AlertTriangle, Home, Edit, Trash2, TrendingUp, Users, Menu, Paintbrush } from 'lucide-react'
+import { Star, Check, Medal, Store, ShoppingCart, ShoppingBag, Package, DollarSign, User, Settings, X, Flag, Bell, Search, Heart, ThumbsUp, ThumbsDown, BarChart3, Plus, AlertTriangle, Home, Edit, Trash2, TrendingUp, Users, Menu } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
 
 export default function DashboardPage() {
@@ -48,11 +48,6 @@ export default function DashboardPage() {
   const [savingProfile, setSavingProfile] = useState(false)
   const [profileSuccess, setProfileSuccess] = useState(false)
   const [avatarSuccess, setAvatarSuccess] = useState(false)
-
-  // Customize Store state
-  const [selectedTheme, setSelectedTheme] = useState<'classic' | 'ocean' | 'dark'>('classic')
-  const [savingTheme, setSavingTheme] = useState(false)
-  const [themeSuccess, setThemeSuccess] = useState(false)
 
   // Shop URL variables
   const [shopSlug, setShopSlug] = useState('')
@@ -165,7 +160,6 @@ export default function DashboardPage() {
     setInstagram(profile?.instagram || '')
     setTelegram(profile?.telegram || '')
     setAvatarUrl(profile?.avatar_url || '')
-    setSelectedTheme(profile?.shop_theme || 'classic')
 
     // Set shop URL variables
     const slug = profile?.shop_slug || (profile?.name || profile?.full_name || '')
@@ -376,34 +370,12 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleSaveTheme() {
-    setSavingTheme(true)
-    setThemeSuccess(false)
-
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ shop_theme: selectedTheme })
-        .eq('id', user.id)
-
-      if (error) throw error
-
-      setThemeSuccess(true)
-      setTimeout(() => setThemeSuccess(false), 3000)
-    } catch (error) {
-      console.error('Theme update error:', error)
-    } finally {
-      setSavingTheme(false)
-    }
-  }
-
   const sidebarItems = [
     { id: 'overview', label: 'Overview', icon: Home },
     { id: 'products', label: 'My Products', icon: Package },
     { id: 'add-product', label: 'Add Product', icon: Plus },
     { id: 'orders', label: 'Orders', icon: ShoppingBag },
-    { id: 'settings', label: 'Settings', icon: Settings },
-    { id: 'customize', label: 'Customize Store', icon: Paintbrush }
+    { id: 'settings', label: 'Settings', icon: Settings }
   ]
 
   const handleProductImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1183,225 +1155,6 @@ export default function DashboardPage() {
                   </button>
 
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* CUSTOMIZE STORE */}
-          {activeTab === 'customize' && (
-            <div>
-              <h2 style={{ color: '#0f172a', fontSize: isMobile ? '18px' : '28px', fontWeight: '900', margin: '0 0 8px 0', overflowWrap: 'break-word', wordBreak: 'break-word' }}>Customize Store</h2>
-              <p style={{ color: '#64748b', fontSize: '16px', margin: '0 0 32px 0' }}>Choose a theme for your public shop page</p>
-              
-              <div style={{ ...glassCard, padding: isMobile ? '24px' : '48px', maxWidth: '900px', width: '100%' }}>
-                {/* Theme Cards */}
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', 
-                  gap: '24px', 
-                  marginBottom: '32px' 
-                }}>
-                  {/* Classic Theme */}
-                  <div
-                    onClick={() => setSelectedTheme('classic')}
-                    style={{
-                      cursor: 'pointer',
-                      borderRadius: '16px',
-                      padding: '20px',
-                      background: 'rgba(255,255,255,0.05)',
-                      backdropFilter: 'blur(12px)',
-                      WebkitBackdropFilter: 'blur(12px)',
-                      border: selectedTheme === 'classic' ? '2px solid #004E64' : '1px solid rgba(255,255,255,0.1)',
-                      transition: 'all 0.3s ease',
-                      transform: selectedTheme === 'classic' ? 'scale(1.02)' : 'scale(1)',
-                      position: 'relative'
-                    }}
-                    onMouseOver={(e) => {
-                      if (selectedTheme !== 'classic') {
-                        e.currentTarget.style.transform = 'scale(1.02)'
-                        e.currentTarget.style.borderColor = 'rgba(0,78,100,0.3)'
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      if (selectedTheme !== 'classic') {
-                        e.currentTarget.style.transform = 'scale(1)'
-                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
-                      }
-                    }}
-                  >
-                    {selectedTheme === 'classic' && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '12px',
-                        right: '12px',
-                        width: '24px',
-                        height: '24px',
-                        borderRadius: '50%',
-                        background: '#004E64',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        <Check size={14} color="white" />
-                      </div>
-                    )}
-                    <div style={{
-                      height: '80px',
-                      background: 'linear-gradient(to right, #f3f4f6, #e5e7eb)',
-                      borderRadius: '8px',
-                      marginBottom: '16px'
-                    }} />
-                    <h3 style={{ color: '#1e293b', fontSize: '18px', fontWeight: '700', margin: '0 0 4px 0', textAlign: 'center' }}>Classic</h3>
-                    <p style={{ color: '#64748b', fontSize: '14px', margin: 0, textAlign: 'center' }}>Clean & minimal</p>
-                  </div>
-
-                  {/* Ocean Theme */}
-                  <div
-                    onClick={() => setSelectedTheme('ocean')}
-                    style={{
-                      cursor: 'pointer',
-                      border: selectedTheme === 'ocean' ? '2px solid #004E64' : '2px solid transparent',
-                      borderRadius: '16px',
-                      padding: '20px',
-                      background: 'rgba(255,255,255,0.05)',
-                      backdropFilter: 'blur(12px)',
-                      WebkitBackdropFilter: 'blur(12px)',
-                      border: selectedTheme === 'ocean' ? '2px solid #004E64' : '1px solid rgba(255,255,255,0.1)',
-                      transition: 'all 0.3s ease',
-                      transform: selectedTheme === 'ocean' ? 'scale(1.02)' : 'scale(1)',
-                      position: 'relative'
-                    }}
-                    onMouseOver={(e) => {
-                      if (selectedTheme !== 'ocean') {
-                        e.currentTarget.style.transform = 'scale(1.02)'
-                        e.currentTarget.style.borderColor = 'rgba(0,78,100,0.3)'
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      if (selectedTheme !== 'ocean') {
-                        e.currentTarget.style.transform = 'scale(1)'
-                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
-                      }
-                    }}
-                  >
-                    {selectedTheme === 'ocean' && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '12px',
-                        right: '12px',
-                        width: '24px',
-                        height: '24px',
-                        borderRadius: '50%',
-                        background: '#004E64',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        <Check size={14} color="white" />
-                      </div>
-                    )}
-                    <div style={{
-                      height: '80px',
-                      background: 'linear-gradient(to right, #004E64, #00708c)',
-                      borderRadius: '8px',
-                      marginBottom: '16px'
-                    }} />
-                    <h3 style={{ color: '#1e293b', fontSize: '18px', fontWeight: '700', margin: '0 0 4px 0', textAlign: 'center' }}>Ocean</h3>
-                    <p style={{ color: '#64748b', fontSize: '14px', margin: 0, textAlign: 'center' }}>NestKH signature</p>
-                  </div>
-
-                  {/* Dark Theme */}
-                  <div
-                    onClick={() => setSelectedTheme('dark')}
-                    style={{
-                      cursor: 'pointer',
-                      border: selectedTheme === 'dark' ? '2px solid #004E64' : '2px solid transparent',
-                      borderRadius: '16px',
-                      padding: '20px',
-                      background: 'rgba(255,255,255,0.05)',
-                      backdropFilter: 'blur(12px)',
-                      WebkitBackdropFilter: 'blur(12px)',
-                      border: selectedTheme === 'dark' ? '2px solid #004E64' : '1px solid rgba(255,255,255,0.1)',
-                      transition: 'all 0.3s ease',
-                      transform: selectedTheme === 'dark' ? 'scale(1.02)' : 'scale(1)',
-                      position: 'relative'
-                    }}
-                    onMouseOver={(e) => {
-                      if (selectedTheme !== 'dark') {
-                        e.currentTarget.style.transform = 'scale(1.02)'
-                        e.currentTarget.style.borderColor = 'rgba(0,78,100,0.3)'
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      if (selectedTheme !== 'dark') {
-                        e.currentTarget.style.transform = 'scale(1)'
-                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
-                      }
-                    }}
-                  >
-                    {selectedTheme === 'dark' && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '12px',
-                        right: '12px',
-                        width: '24px',
-                        height: '24px',
-                        borderRadius: '50%',
-                        background: '#004E64',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        <Check size={14} color="white" />
-                      </div>
-                    )}
-                    <div style={{
-                      height: '80px',
-                      background: 'linear-gradient(to right, #111827, #1f2937)',
-                      borderRadius: '8px',
-                      marginBottom: '16px'
-                    }} />
-                    <h3 style={{ color: '#1e293b', fontSize: '18px', fontWeight: '700', margin: '0 0 4px 0', textAlign: 'center' }}>Dark</h3>
-                    <p style={{ color: '#64748b', fontSize: '14px', margin: 0, textAlign: 'center' }}>Sleek & bold</p>
-                  </div>
-                </div>
-
-                {/* Success Message */}
-                {themeSuccess && (
-                  <div style={{ 
-                    background: 'rgba(0,200,100,0.1)', 
-                    border: '1px solid rgba(0,200,100,0.3)', 
-                    borderRadius: '12px', 
-                    padding: '12px 16px', 
-                    color: '#4ade80', 
-                    fontSize: '14px', 
-                    fontWeight: '600',
-                    marginBottom: '24px',
-                    textAlign: 'center'
-                  }}>
-                    ✅ Theme saved successfully!
-                  </div>
-                )}
-
-                {/* Save Button */}
-                <button
-                  onClick={handleSaveTheme}
-                  disabled={savingTheme}
-                  style={{
-                    background: savingTheme ? '#f8fafc' : '#004E64',
-                    color: savingTheme ? '#475569' : 'white',
-                    fontWeight: '900',
-                    fontSize: '15px',
-                    borderRadius: '9999px',
-                    padding: '14px 28px',
-                    border: 'none',
-                    cursor: savingTheme ? 'not-allowed' : 'pointer',
-                    width: isMobile ? '100%' : 'auto',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  {savingTheme ? 'Saving...' : 'Save Theme'}
-                </button>
               </div>
             </div>
           )}
