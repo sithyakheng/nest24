@@ -47,6 +47,7 @@ export default function DashboardPage() {
   const [avatarUrl, setAvatarUrl] = useState('')
   const [savingProfile, setSavingProfile] = useState(false)
   const [profileSuccess, setProfileSuccess] = useState(false)
+  const [avatarSuccess, setAvatarSuccess] = useState(false)
 
   // Shop URL variables
   const [shopSlug, setShopSlug] = useState('')
@@ -284,23 +285,24 @@ export default function DashboardPage() {
     if (!file) return
     
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('folder', 'nestkh')
-      const res = await fetch('/api/upload-image', { method: 'POST', body: formData })
-      const data = await res.json()
+      // Use the same uploadImage function as products
+      const cloudinaryUrl = await uploadImage(file)
       
-      if (data.url) {
-        setAvatarUrl(data.url)
+      if (cloudinaryUrl) {
+        setAvatarUrl(cloudinaryUrl)
         
-        // Also update the database immediately
+        // Update the database immediately
         const { error } = await supabase
           .from('profiles')
-          .update({ avatar_url: data.url })
+          .update({ avatar_url: cloudinaryUrl })
           .eq('id', user.id)
           
         if (error) {
           console.error('Avatar update error:', error)
+        } else {
+          // Show success message
+          setAvatarSuccess(true)
+          setTimeout(() => setAvatarSuccess(false), 3000)
         }
       }
     } catch (error) {
@@ -1065,6 +1067,12 @@ export default function DashboardPage() {
                       />
                     </label>
                   </div>
+
+                  {avatarSuccess && (
+                    <div style={{ background: 'rgba(0,200,100,0.1)', border: '1px solid rgba(0,200,100,0.3)', borderRadius: '12px', padding: '12px 16px', color: '#4ade80', fontSize: '14px', fontWeight: '600', marginTop: '12px' }}>
+                      ✅ Photo updated!
+                    </div>
+                  )}
 
                   {/* Shop Name */}
                   <div>
