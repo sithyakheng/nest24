@@ -263,13 +263,24 @@ export default function DashboardPage() {
     // Delete image from Cloudinary if it exists
     if (imageUrl) {
       try {
-        await fetch('/api/delete-image', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ imageUrl }),
-        })
+        // Extract public_id from Cloudinary URL
+        // Example: https://res.cloudinary.com/demo/image/upload/v123456/nestkh/product123.jpg
+        // public_id would be: nestkh/product123
+        const urlParts = imageUrl.split('/')
+        const uploadIndex = urlParts.indexOf('upload')
+        if (uploadIndex !== -1 && uploadIndex + 2 < urlParts.length) {
+          // Skip version number and get the rest
+          const publicIdWithExtension = urlParts.slice(uploadIndex + 2).join('/')
+          const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '') // Remove file extension
+          
+          await fetch('/api/delete-image', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ public_id: publicId }),
+          })
+        }
       } catch (error) {
         console.error('Failed to delete image from Cloudinary:', error)
       }
