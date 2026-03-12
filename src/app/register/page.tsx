@@ -99,11 +99,12 @@ export default function RegisterPage() {
             className="flex-1 py-2 rounded-full text-sm font-medium transition-all"
             style={{
               background: role === 'buyer' 
-                ? 'rgba(0,78,100,0.4)' : 'transparent',
+                ? '#004E64' : 'rgba(0,0,0,0.08)',
               color: role === 'buyer' 
-                ? '#4DB8CC' : 'rgba(255,255,255,0.5)',
+                ? 'white' : '#0f172a',
               border: role === 'buyer' 
-                ? '1px solid rgba(0,78,100,0.5)' : '1px solid transparent'
+                ? '1px solid #004E64' : '1px solid #cbd5e1',
+              fontWeight: role === 'buyer' ? 'bold' : 'normal'
             }}
           >
             {t('auth.i_am')} {t('auth.buyer')}
@@ -114,11 +115,12 @@ export default function RegisterPage() {
             className="flex-1 py-2 rounded-full text-sm font-medium transition-all"
             style={{
               background: role === 'seller' 
-                ? 'rgba(0,78,100,0.4)' : 'transparent',
+                ? '#004E64' : 'rgba(0,0,0,0.08)',
               color: role === 'seller' 
-                ? '#4DB8CC' : 'rgba(255,255,255,0.5)',
+                ? 'white' : '#0f172a',
               border: role === 'seller' 
-                ? '1px solid rgba(0,78,100,0.5)' : '1px solid transparent'
+                ? '1px solid #004E64' : '1px solid #cbd5e1',
+              fontWeight: role === 'seller' ? 'bold' : 'normal'
             }}
           >
             {t('auth.i_am')} {t('auth.seller')}
