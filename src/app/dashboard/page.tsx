@@ -282,12 +282,30 @@ export default function DashboardPage() {
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('folder', 'nestkh')
-    const res = await fetch('/api/upload-image', { method: 'POST', body: formData })
-    const data = await res.json()
-    if (data.url) setAvatarUrl(data.url)
+    
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', 'nestkh')
+      const res = await fetch('/api/upload-image', { method: 'POST', body: formData })
+      const data = await res.json()
+      
+      if (data.url) {
+        setAvatarUrl(data.url)
+        
+        // Also update the database immediately
+        const { error } = await supabase
+          .from('profiles')
+          .update({ avatar_url: data.url })
+          .eq('id', user.id)
+          
+        if (error) {
+          console.error('Avatar update error:', error)
+        }
+      }
+    } catch (error) {
+      console.error('Avatar upload error:', error)
+    }
   }
 
   async function handleSaveProfile() {
@@ -305,9 +323,10 @@ export default function DashboardPage() {
           whatsapp: whatsapp,
           facebook: facebook,
           instagram: instagram,
-          telegram: telegram
+          telegram: telegram,
+          avatar_url: avatarUrl
         })
-        .eq('id', profile.id)
+        .eq('id', user.id)
 
       if (error) throw error
 
@@ -1090,7 +1109,7 @@ export default function DashboardPage() {
 
                   {profileSuccess && (
                     <div style={{ background: 'rgba(0,200,100,0.1)', border: '1px solid rgba(0,200,100,0.3)', borderRadius: '12px', padding: '12px 16px', color: '#4ade80', fontSize: '14px', fontWeight: '600' }}>
-                      ✅ Profile saved successfully!
+                      ✅ Profile updated successfully!
                     </div>
                   )}
 
