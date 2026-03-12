@@ -568,7 +568,7 @@ async function fetchProducts() {
 
       {/* Footer */}
       <div style={{
-        background: isDark ? '#0f172a' : '#f8fafc',
+        background: isDark ? '#0f172a' : '#f1f5f9',
         borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
         padding: '40px 24px',
         marginTop: '60px'
@@ -583,7 +583,7 @@ async function fetchProducts() {
           gap: '32px'
         }}>
           <div style={{
-            color: isDark ? 'rgba(255,255,255,0.6)' : '#64748b',
+            color: isDark ? 'rgba(255,255,255,0.5)' : '#64748b',
             fontSize: '14px'
           }}>
             © 2026 NestKH. All rights reserved.
@@ -594,7 +594,7 @@ async function fetchProducts() {
             gap: '24px'
           }}>
             <Link href="/terms" style={{
-              color: isDark ? '#ffffff' : '#0f172a',
+              color: isDark ? 'rgba(255,255,255,0.7)' : '#0f172a',
               fontSize: '14px',
               textDecoration: 'none',
               transition: 'color 0.2s'
@@ -602,7 +602,7 @@ async function fetchProducts() {
               Terms & Conditions
             </Link>
             <Link href="/privacy" style={{
-              color: isDark ? '#ffffff' : '#0f172a',
+              color: isDark ? 'rgba(255,255,255,0.7)' : '#0f172a',
               fontSize: '14px',
               textDecoration: 'none',
               transition: 'color 0.2s'
