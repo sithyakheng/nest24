@@ -1206,7 +1206,6 @@ export default function DashboardPage() {
                     onClick={() => setSelectedTheme('classic')}
                     style={{
                       cursor: 'pointer',
-                      border: selectedTheme === 'classic' ? '2px solid #004E64' : '2px solid transparent',
                       borderRadius: '16px',
                       padding: '20px',
                       background: 'rgba(255,255,255,0.05)',
