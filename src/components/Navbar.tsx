@@ -161,6 +161,12 @@ export default function Navbar() {
                   />
                 )}
               </Link>
+              
+              <Link href="/ranks">
+                <span className="bg-[#004E64] text-white rounded-full px-4 py-1.5 text-sm font-medium">
+                  🏆 Ranks
+                </span>
+              </Link>
           
               {/* Ranks - Only show for sellers */}
               {userRole === 'seller' && (
@@ -451,6 +457,7 @@ export default function Navbar() {
             {[
               { label: `🏠 Home`, href: '/' },
               { label: `🔍 ${t('nav.browse')}`, href: '/browse' },
+              { label: `🏆 Ranks`, href: '/ranks' },
               { label: `📂 ${t('nav.categories')}`, href: '/categories' },
               { label: `📖 ${t('nav.about')}`, href: '/about' },
             ].map((item, index) => (
