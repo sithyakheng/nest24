@@ -170,8 +170,9 @@ async function fetchProducts() {
   }
 
   return (
-    <div key={lang} className="relative z-10">
-      <Navbar />
+    <div key={lang} className={`relative z-10 ${isDark ? 'dark' : ''}`}>
+      <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+        <Navbar />
 
       {/* PREMIUM SELLERS SPOTLIGHT */}
       {premiumSellers.length > 0 && (
@@ -611,6 +612,7 @@ async function fetchProducts() {
             </Link>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )
