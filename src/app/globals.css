@@ -1,7 +1,4 @@
 @import "tailwindcss";
-@theme {
-  --color-mode-dark: dark;
-}
 
 /* ================================
    THEME VARIABLES

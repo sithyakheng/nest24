@@ -6,14 +6,11 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { User, LayoutDashboard, ShoppingBag, LogOut } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { useLang } from '@/contexts/LanguageContext'
-import { useTheme } from '@/contexts/ThemeContext'
 import { supabase } from '@/lib/supabase'
 
 export default function Navbar() {
   const { user } = useAuth()
-  const { isDark } = useTheme()
   const router = useRouter()
   const isSeller = user?.user_metadata?.role === 'seller'
   const [activeLink, setActiveLink] = useState('')
@@ -23,9 +20,10 @@ export default function Navbar() {
   const [windowWidth, setWindowWidth] = useState(1200)
   const { lang, toggleLang, t } = useLang()
 
-  const navTextColor = isDark ? 'white' : '#0f172a'
-  const navBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.9)'
-  const navBorder = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'
+  // Fixed light theme colors
+  const navTextColor = '#0f172a'
+  const navBg = 'rgba(255,255,255,0.9)'
+  const navBorder = 'rgba(0,0,0,0.1)'
   const isMobile = windowWidth < 768
 
   useEffect(() => {
@@ -233,9 +231,6 @@ export default function Navbar() {
               >
                 {lang === 'en' ? '🇰🇭' : '🇬🇧'}
               </button>
-
-              {/* Theme toggle */}
-              <ThemeToggle />
             </div>
 
             {/* RIGHT - Auth */}
@@ -270,7 +265,7 @@ export default function Navbar() {
                       position: 'absolute',
                       top: 'calc(100% + 8px)',
                       right: 0,
-                      background: isDark ? 'rgba(8,10,15,0.95)' : 'rgba(255,255,255,0.95)',
+                      background: 'rgba(255,255,255,0.95)',
                       backdropFilter: 'blur(24px)',
                       WebkitBackdropFilter: 'blur(24px)',
                       border: `1px solid ${navBorder}`,
@@ -341,9 +336,6 @@ export default function Navbar() {
                     >
                       {lang === 'en' ? '🇰🇭' : '🇬🇧'}
                     </button>
-
-                    {/* Theme Toggle */}
-                    <ThemeToggle />
                   </div>
 
                   <Link
@@ -394,7 +386,7 @@ export default function Navbar() {
               top: '50%',
               transform: 'translateY(-50%)',
               zIndex: 1000,
-              background: isDark ? 'rgba(0,78,100,0.9)' : 'rgba(0,78,100,0.85)',
+              background: 'rgba(0,78,100,0.85)',
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
               border: '1px solid rgba(0,78,100,0.6)',
@@ -427,10 +419,10 @@ export default function Navbar() {
             left: 0,
             height: '100vh',
             width: '280px',
-            background: isDark ? 'rgba(8,10,15,0.98)' : 'rgba(240,244,248,0.98)',
+            background: 'rgba(240,244,248,0.98)',
             backdropFilter: 'blur(24px)',
             WebkitBackdropFilter: 'blur(24px)',
-            borderRight: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
+            borderRight: '1px solid rgba(0,0,0,0.1)',
             zIndex: 999,
             transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(-100%)',
             transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -441,21 +433,18 @@ export default function Navbar() {
             overflowY: 'auto'
           }}>
             {/* Logo at top */}
-            <div style={{ marginBottom: '32px', paddingBottom: '20px', borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}` }}>
+            <div style={{ marginBottom: '32px', paddingBottom: '20px', borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
               <p style={{ color: navTextColor, fontWeight: '900', fontSize: '22px', margin: '0 0 4px 0' }}>
                 NestKH<span style={{ color: '#4DB8CC' }}>.</span>
               </p>
-              <p style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)', fontSize: '12px', margin: 0 }}>{t('home.badge')}</p>
+              <p style={{ color: 'rgba(0,0,0,0.4)', fontSize: '12px', margin: 0 }}>{t('home.badge')}</p>
             </div>
 
-            {/* Theme + Language toggles */}
+            {/* Language toggle */}
             <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
-              <button onClick={handleLangToggle} style={{ flex: 1, padding: '10px', borderRadius: '12px', background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)', border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`, cursor: 'pointer', fontSize: '20px' }}>
+              <button onClick={handleLangToggle} style={{ flex: 1, padding: '10px', borderRadius: '12px', background: 'rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.1)', cursor: 'pointer', fontSize: '20px' }}>
                 {lang === 'en' ? '🇰🇭' : '🇬🇧'}
               </button>
-              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px', borderRadius: '12px', background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)', border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}` }}>
-                <ThemeToggle />
-              </div>
             </div>
 
             {/* Nav links */}
@@ -479,7 +468,7 @@ export default function Navbar() {
                   transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(-20px)',
                   transition: `opacity 0.3s ease ${index * 0.05 + 0.1}s, transform 0.3s ease ${index * 0.05 + 0.1}s` 
                 }}
-                onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.06)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
                   {item.label}
@@ -497,7 +486,7 @@ export default function Navbar() {
             )}
 
             {/* Divider */}
-            <div style={{ height: '1px', background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)', margin: '12px 0' }} />
+            <div style={{ height: '1px', background: 'rgba(0,0,0,0.08)', margin: '12px 0' }} />
 
             {/* Auth section */}
             {user ? (
@@ -508,7 +497,7 @@ export default function Navbar() {
                   </div>
                   <div>
                     <p style={{ color: navTextColor, fontWeight: '700', fontSize: '14px', margin: 0 }}>{t('nav.my_account')}</p>
-                    <p style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)', fontSize: '12px', margin: 0 }}>{user?.email}</p>
+                    <p style={{ color: 'rgba(0,0,0,0.4)', fontSize: '12px', margin: 0 }}>{user?.email}</p>
                   </div>
                 </div>
                 {userRole === 'admin' && (
@@ -543,7 +532,7 @@ export default function Navbar() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                  <div style={{ padding: '14px 16px', borderRadius: '12px', color: navTextColor, fontSize: '15px', fontWeight: '600', cursor: 'pointer', border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)'}`, textAlign: 'center' }}>
+                  <div style={{ padding: '14px 16px', borderRadius: '12px', color: navTextColor, fontSize: '15px', fontWeight: '600', cursor: 'pointer', border: '1px solid rgba(0,0,0,0.12)', textAlign: 'center' }}>
                     {t('nav.signin')}
                   </div>
                 </Link>

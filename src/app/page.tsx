@@ -172,7 +172,7 @@ async function fetchProducts() {
   return (
     <div key={lang} className="relative z-10">
       <Navbar />
-      <div className="min-h-full sm:min-h-screen bg-white dark:bg-gray-900">
+      <div className="min-h-full sm:min-h-screen bg-white">
 
       {/* PREMIUM SELLERS SPOTLIGHT */}
       {premiumSellers.length > 0 && (
@@ -180,8 +180,8 @@ async function fetchProducts() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
             <Star size={20} />
             <div>
-              <p className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider mb-0">{t('home.premium_sellers')}</p>
-              <h2 className="text-gray-900 dark:text-white text-2xl font-black mb-0">{t('home.premium_spotlight')}</h2>
+              <p className="text-gray-500 text-xs uppercase tracking-wider mb-0">{t('home.premium_sellers')}</p>
+              <h2 className="text-gray-900 text-2xl font-black mb-0">{t('home.premium_spotlight')}</h2>
             </div>
           </div>
           
@@ -246,7 +246,7 @@ async function fetchProducts() {
       {topSellers.length > 0 && (
         <div style={{ marginBottom: '40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <p className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider mb-0">{t('home.top_sellers')}</p>
+            <p className="text-gray-500 text-xs uppercase tracking-wider mb-0">{t('home.top_sellers')}</p>
           </div>
           <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px' }}>
             {topSellers.map(seller => (
@@ -283,8 +283,8 @@ async function fetchProducts() {
       {/* NEW SELLERS SECTION */}
       {newSellers.length > 0 && (
         <div style={{ marginTop: '48px' }}>
-          <p className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider mb-2">{t('home.new_sellers')}</p>
-          <h2 className="text-gray-900 dark:text-white text-xl sm:text-2xl font-black mb-4 sm:mb-5">{t('home.just_started')}</h2>
+          <p className="text-gray-500 text-xs uppercase tracking-wider mb-2">{t('home.new_sellers')}</p>
+          <h2 className="text-gray-900 text-xl sm:text-2xl font-black mb-4 sm:mb-5">{t('home.just_started')}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
             {newSellers.map(seller => (
               <Link href={`/seller/${seller.id}`} key={seller.id}>
@@ -334,8 +334,8 @@ async function fetchProducts() {
           {/* LEFT - Product Feed (70%) */}
           <div className="lg:col-span-2">
             <div className="mb-8">
-              <h1 className="text-2xl md:text-4xl font-black text-gray-900 dark:text-white mb-2">{t('home.featured')}</h1>
-              <p className="text-gray-600 dark:text-gray-300 text-base md:text-lg">{t('home.badge')}</p>
+              <h1 className="text-2xl md:text-4xl font-black text-gray-900 mb-2">{t('home.featured')}</h1>
+              <p className="text-gray-600 text-base md:text-lg">{t('home.badge')}</p>
             </div>
 
             {productsLoading ? (
@@ -552,34 +552,34 @@ async function fetchProducts() {
       </div>
 
       {/* Trust Feature Cards */}
-      <section className="bg-gray-50 dark:bg-slate-900 px-4 sm:px-6 py-10 sm:py-15">
+      <section className="bg-gray-50 px-4 sm:px-6 py-10 sm:py-15">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             { icon: <Headphones size={28} className="text-white" />, title: '24/7 Support', desc: "We're here to help you around the clock. Reach out anytime via our platform." },
             { icon: <Zap size={28} className="text-white" />, title: 'Instant Contact', desc: 'Connect directly with sellers via WhatsApp, Telegram, or Facebook instantly.' },
             { icon: <ShieldCheck size={28} className="text-white" />, title: 'Trusted Sellers', desc: 'Our tier verification system ensures you\'re buying from legitimate, trusted sellers.' },
           ].map((item, i) => (
-            <div key={i} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 sm:p-8 text-center">
-              <div className="w-14 h-14 rounded-full bg-slate-800 dark:bg-slate-700 flex items-center justify-center mx-auto mb-4">{item.icon}</div>
-              <h3 className="text-slate-900 dark:text-white font-bold text-lg mb-2">{item.title}</h3>
-              <p className="text-slate-600 dark:text-slate-400 text-sm">{item.desc}</p>
+            <div key={i} className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 text-center">
+              <div className="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4">{item.icon}</div>
+              <h3 className="text-slate-900 font-bold text-lg mb-2">{item.title}</h3>
+              <p className="text-slate-600 text-sm">{item.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Footer */}
-      <div className="bg-slate-100 dark:bg-slate-900 border-t border-gray-200 dark:border-gray-800 px-4 sm:px-6 py-6 sm:py-10 mt-10 sm:mt-15">
+      <div className="bg-gray-50 border-t border-gray-200 px-4 sm:px-6 py-6 sm:py-10 mt-10 sm:mt-15">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-8">
-          <div className="text-slate-500 dark:text-slate-400 text-sm">
+          <div className="text-gray-500 text-sm">
             © 2026 NestKH. All rights reserved.
           </div>
           
           <div className="flex gap-6">
-            <Link href="/terms" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-sm transition-colors">
+            <Link href="/terms" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
               Terms & Conditions
             </Link>
-            <Link href="/privacy" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-sm transition-colors">
+            <Link href="/privacy" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
               Privacy Policy
             </Link>
           </div>
