@@ -46,10 +46,10 @@ export default function RanksPage() {
             backgroundColor: 'white', 
             border: '3px solid #004E64', 
             borderRadius: '20px', 
-            padding: '40px 32px',
+            padding: '36px 28px',
             boxShadow: '0 20px 25px -5px rgba(0,78,100,0.15), 0 10px 10px -5px rgba(0,78,100,0.04)',
             position: 'relative',
-            transform: 'scale(1.05)',
+            transform: 'scale(1.08)',
             transition: 'transform 0.3s ease'
           }}>
             {/* Most Popular Badge */}
@@ -68,30 +68,30 @@ export default function RanksPage() {
               MOST POPULAR
             </div>
             
-            <div style={{ fontSize: '14px', fontWeight: '600', color: '#004E64', marginBottom: '12px' }}>TIER 3</div>
-            <div style={{ fontSize: '32px', fontWeight: '900', color: '#111827', marginBottom: '8px' }}>Premium</div>
-            <div style={{ color: '#6b7280', marginBottom: '24px', fontSize: '16px' }}>Maximum visibility & features</div>
+            <div style={{ fontSize: '16px', fontWeight: '700', color: '#004E64', marginBottom: '12px' }}>TIER 3</div>
+            <div style={{ fontSize: '36px', fontWeight: '900', color: '#111827', marginBottom: '8px' }}>Premium</div>
+            <div style={{ color: '#6b7280', marginBottom: '24px', fontSize: '18px' }}>Maximum visibility & features</div>
             
             <div style={{ marginBottom: '32px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-                <span style={{ color: '#10b981', fontSize: '18px', marginRight: '12px' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '15px' }}>Up to 300 products</span>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
+                <span style={{ color: '#10b981', fontSize: '20px', marginRight: '14px' }}>✓</span>
+                <span style={{ color: '#374151', fontSize: '17px' }}>Up to 300 products</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-                <span style={{ color: '#10b981', fontSize: '18px', marginRight: '12px' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '15px' }}>Premium badge on profile</span>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
+                <span style={{ color: '#10b981', fontSize: '20px', marginRight: '14px' }}>✓</span>
+                <span style={{ color: '#374151', fontSize: '17px' }}>Premium badge on profile</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-                <span style={{ color: '#10b981', fontSize: '18px', marginRight: '12px' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '15px' }}>Top search placement</span>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
+                <span style={{ color: '#10b981', fontSize: '20px', marginRight: '14px' }}>✓</span>
+                <span style={{ color: '#374151', fontSize: '17px' }}>Top search placement</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span style={{ color: '#10b981', fontSize: '18px', marginRight: '12px' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '15px' }}>Priority support</span>
+                <span style={{ color: '#10b981', fontSize: '20px', marginRight: '14px' }}>✓</span>
+                <span style={{ color: '#374151', fontSize: '17px' }}>Priority support</span>
               </div>
             </div>
             
-            <div style={{ fontSize: '36px', fontWeight: '800', color: '#004E64', marginBottom: '24px' }}>$20/month</div>
+            <div style={{ fontSize: '40px', fontWeight: '900', color: '#004E64', marginBottom: '24px' }}>$20/month</div>
             
             <button
               onClick={() => router.push('/seller/rank-request')}
@@ -101,10 +101,10 @@ export default function RanksPage() {
                 color: 'white', 
                 border: 'none', 
                 borderRadius: '12px', 
-                padding: '16px 24px', 
+                padding: '18px 24px', 
                 fontWeight: '700', 
                 cursor: 'pointer', 
-                fontSize: '16px',
+                fontSize: '18px',
                 transition: 'all 0.3s ease',
                 boxShadow: '0 4px 6px -1px rgba(0,78,100,0.3)'
               }}
@@ -113,7 +113,7 @@ export default function RanksPage() {
                 e.currentTarget.style.boxShadow = '0 6px 8px -1px rgba(0,78,100,0.4)'
               }}
               onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'scale(1)'
+                e.currentTarget.style.transform = 'scale(1.08)'
                 e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0,78,100,0.3)'
               }}
             >
@@ -127,14 +127,14 @@ export default function RanksPage() {
             borderLeft: '4px solid #004E64', 
             border: '1px solid #e5e7eb',
             borderRadius: '16px', 
-            padding: '32px 28px',
+            padding: '28px 24px',
             boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)'
           }}>
-            <div style={{ fontSize: '14px', fontWeight: '600', color: '#004E64', marginBottom: '12px' }}>TIER 2</div>
-            <div style={{ fontSize: '28px', fontWeight: '800', color: '#111827', marginBottom: '8px' }}>Verified</div>
-            <div style={{ color: '#6b7280', marginBottom: '24px', fontSize: '16px' }}>Build trust & credibility</div>
+            <div style={{ fontSize: '14px', fontWeight: '600', color: '#004E64', marginBottom: '10px' }}>TIER 2</div>
+            <div style={{ fontSize: '30px', fontWeight: '800', color: '#111827', marginBottom: '6px' }}>Verified</div>
+            <div style={{ color: '#6b7280', marginBottom: '20px', fontSize: '16px' }}>Build trust & credibility</div>
             
-            <div style={{ marginBottom: '32px' }}>
+            <div style={{ marginBottom: '28px' }}>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
                 <span style={{ color: '#10b981', fontSize: '18px', marginRight: '12px' }}>✓</span>
                 <span style={{ color: '#374151', fontSize: '15px' }}>Up to 150 products</span>
@@ -149,7 +149,7 @@ export default function RanksPage() {
               </div>
             </div>
             
-            <div style={{ fontSize: '32px', fontWeight: '800', color: '#004E64', marginBottom: '24px' }}>$10/month</div>
+            <div style={{ fontSize: '34px', fontWeight: '800', color: '#004E64', marginBottom: '24px' }}>$10/month</div>
             
             <button
               onClick={() => router.push('/seller/rank-request')}
@@ -179,34 +179,34 @@ export default function RanksPage() {
             </button>
           </div>
 
-          {/* Starter Tier - Standard */}
+          {/* Starter Tier - Smallest */}
           <div style={{ 
             backgroundColor: 'white', 
             border: '1px solid #d1d5db', 
             borderRadius: '16px', 
-            padding: '32px 28px',
+            padding: '20px 20px',
             boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)'
           }}>
-            <div style={{ fontSize: '14px', fontWeight: '600', color: '#6b7280', marginBottom: '12px' }}>TIER 1</div>
-            <div style={{ fontSize: '28px', fontWeight: '800', color: '#111827', marginBottom: '8px' }}>Starter</div>
-            <div style={{ color: '#6b7280', marginBottom: '24px', fontSize: '16px' }}>Perfect for getting started</div>
+            <div style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '8px' }}>TIER 1</div>
+            <div style={{ fontSize: '24px', fontWeight: '700', color: '#111827', marginBottom: '4px' }}>Starter</div>
+            <div style={{ color: '#6b7280', marginBottom: '20px', fontSize: '14px' }}>Perfect for getting started</div>
             
-            <div style={{ marginBottom: '32px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-                <span style={{ color: '#10b981', fontSize: '18px', marginRight: '12px' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '15px' }}>Up to 30 products</span>
+            <div style={{ marginBottom: '28px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                <span style={{ color: '#10b981', fontSize: '16px', marginRight: '10px' }}>✓</span>
+                <span style={{ color: '#374151', fontSize: '13px' }}>Up to 30 products</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-                <span style={{ color: '#10b981', fontSize: '18px', marginRight: '12px' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '15px' }}>Starter badge on profile</span>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                <span style={{ color: '#10b981', fontSize: '16px', marginRight: '10px' }}>✓</span>
+                <span style={{ color: '#374151', fontSize: '13px' }}>Starter badge on profile</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span style={{ color: '#10b981', fontSize: '18px', marginRight: '12px' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '15px' }}>Basic listing</span>
+                <span style={{ color: '#10b981', fontSize: '16px', marginRight: '10px' }}>✓</span>
+                <span style={{ color: '#374151', fontSize: '13px' }}>Basic listing</span>
               </div>
             </div>
             
-            <div style={{ fontSize: '32px', fontWeight: '800', color: '#6b7280', marginBottom: '24px' }}>$5/month</div>
+            <div style={{ fontSize: '28px', fontWeight: '700', color: '#6b7280', marginBottom: '24px' }}>$5/month</div>
             
             <button
               onClick={() => router.push('/seller/rank-request')}
@@ -216,10 +216,10 @@ export default function RanksPage() {
                 color: 'white', 
                 border: 'none', 
                 borderRadius: '12px', 
-                padding: '16px 24px', 
+                padding: '14px 24px', 
                 fontWeight: '700', 
                 cursor: 'pointer', 
-                fontSize: '16px',
+                fontSize: '14px',
                 transition: 'all 0.3s ease',
                 boxShadow: '0 4px 6px -1px rgba(0,0,0,0.3)'
               }}
