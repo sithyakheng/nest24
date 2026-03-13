@@ -498,37 +498,14 @@ async function fetchProducts() {
         </div>
       </motion.div>
 
-      {/* Trust Banner */}
-      <div style={{
-        width: '100%',
-        background: '#004E64',
-        borderTop: '1px solid rgba(255,255,255,0.1)',
-        borderBottom: '1px solid rgba(255,255,255,0.1)',
-        overflow: 'hidden',
-        padding: '0',
-        marginTop: '60px',
-        height: '48px',
-        display: 'flex',
-        alignItems: 'center'
-      }}>
-        <div style={{
-          display: 'flex',
-          width: 'max-content',
-          animation: 'marquee 45s linear infinite'
-        }}>
-          {marqueeItems.map((item, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', marginRight: '32px' }}>
-              <span style={{
-                color: '#ffffff',
-                fontSize: '12px',
-                fontWeight: '600',
-                letterSpacing: '0.08em',
-              }}>
-                {item.text}
-              </span>
-            </div>
+      {/* Marquee Ticker */}
+      <div style={{ backgroundColor: '#004E64', overflow: 'hidden', whiteSpace: 'nowrap', padding: '10px 0' }}>
+        <div style={{ display: 'inline-block', animation: 'marquee 30s linear infinite' }}>
+          {['NEW PRODUCTS ADDED DAILY', 'EASY CONTACT VIA WHATSAPP & TELEGRAM', 'RANKED & TRUSTED SHOPS', 'BROWSE 100+ PRODUCTS', 'CHAT DIRECTLY — NO MIDDLEMAN', '100% LOCAL CAMBODIAN SELLERS', 'VERIFIED SELLERS ONLY', 'REAL SHOPS, REAL PEOPLE'].map((text, i) => (
+            <span key={i} style={{ color: 'white', fontWeight: 600, fontSize: '13px', marginRight: '48px', letterSpacing: '0.05em' }}>
+              • {text}
+            </span>
           ))}
-        </div>
         </div>
       </div>
 
