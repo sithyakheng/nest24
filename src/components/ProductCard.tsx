@@ -244,7 +244,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <span style={{ color: '#4DB8CC', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '600' }}>
             {product.category}
           </span>
-          <p style={{ color: 'white', fontWeight: '600', fontSize: '13px', margin: '6px 0', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          <p style={{ color: '#1f2937', fontWeight: '600', fontSize: '13px', margin: '6px 0', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             {product.name}
           </p>
           <div style={{ marginBottom: '8px' }}>
@@ -270,7 +270,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               </span>
             </div>
           )}
-          <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '16px', margin: 0 }}>
+          <p style={{ color: '#004E64', fontWeight: '900', fontSize: '16px', margin: 0 }}>
             ${product.price}
           </p>
         </div>
