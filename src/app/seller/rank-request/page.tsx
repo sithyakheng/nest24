@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
 export default function RankRequestPage() {
-  const supabase = createClient();
   const router = useRouter();
   const [fullName, setFullName] = useState('');
   const [shopName, setShopName] = useState('');
