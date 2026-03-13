@@ -170,7 +170,7 @@ async function fetchProducts() {
   }
 
   return (
-    <div key={lang} className="relative z-10">
+    <div key={lang} className="relative z-10 bg-white">
       <Navbar />
       <div className="min-h-full sm:min-h-screen bg-white">
 

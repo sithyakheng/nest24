@@ -50,8 +50,8 @@ html, body {
 
 body {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
   overflow-x: hidden;
 }
 
