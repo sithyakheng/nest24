@@ -15,6 +15,17 @@ const getImageUrl = (image_url: string): string | null => {
   return `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${image_url}` 
 }
 
+const marqueeItems = [
+  { text: 'NEW PRODUCTS ADDED DAILY' },
+  { text: 'EASY CONTACT VIA WHATSAPP & TELEGRAM' },
+  { text: 'RANKED & TRUSTED SHOPS' },
+  { text: 'BROWSE 100+ PRODUCTS' },
+  { text: 'CHAT DIRECTLY — NO MIDDLEMAN' },
+  { text: '100% LOCAL CAMBODIAN SELLERS' },
+  { text: 'VERIFIED SELLERS ONLY' },
+  { text: 'REAL SHOPS, REAL PEOPLE' },
+];
+
 export default function HomePage() {
   const { t, lang } = useLang()
   const [products, setProducts] = useState<any[]>([])
@@ -505,46 +516,19 @@ async function fetchProducts() {
           width: 'max-content',
           animation: 'marquee 45s linear infinite'
         }}>
-          {[...Array(2)].map((_, dupIndex) => (
-            <div key={dupIndex} style={{ display: 'flex', alignItems: 'center' }}>
-              [
-                { icon: <Rocket size={14} className="text-white" />, text: 'NEW PRODUCTS ADDED DAILY' },
-                { icon: <Smartphone size={14} className="text-white" />, text: 'EASY CONTACT VIA WHATSAPP & TELEGRAM' },
-                { icon: <Star size={14} className="text-white" />, text: 'RANKED & TRUSTED SHOPS' },
-                { icon: <Search size={14} className="text-white" />, text: 'BROWSE 100+ PRODUCTS' },
-                { icon: <MessageSquare size={14} className="text-white" />, text: 'CHAT DIRECTLY — NO MIDDLEMAN' },
-                { icon: '🇰🇭', text: '100% LOCAL CAMBODIAN SELLERS' },
-                { icon: <Check size={14} className="text-white" />, text: 'VERIFIED SELLERS ONLY' },
-                { icon: <Store size={14} className="text-white" />, text: 'REAL SHOPS, REAL PEOPLE' },
-              ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '0 32px',
-                    whiteSpace: 'nowrap',
-                    height: '48px'
-                  }}>
-                    <span style={{ fontSize: '14px', display: 'flex', alignItems: 'center' }}>{item.icon}</span>
-                    <span style={{
-                      color: '#ffffff',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      letterSpacing: '0.08em',
-                    }}>
-                      {item.text}
-                    </span>
-                  </div>
-                  <span style={{
-                    color: 'rgba(255,255,255,0.3)',
-                    fontSize: '16px',
-                    flexShrink: 0
-                  }}>•</span>
-                </div>
-              ))}
+          {marqueeItems.map((item, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', marginRight: '32px' }}>
+              <span style={{
+                color: '#ffffff',
+                fontSize: '12px',
+                fontWeight: '600',
+                letterSpacing: '0.08em',
+              }}>
+                {item.text}
+              </span>
             </div>
           ))}
+        </div>
         </div>
       </div>
 
