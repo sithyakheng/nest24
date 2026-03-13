@@ -180,8 +180,8 @@ async function fetchProducts() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
             <Star size={20} />
             <div>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>{t('home.premium_sellers')}</p>
-              <h2 style={{ color: 'white', fontSize: '24px', fontWeight: '900', margin: 0 }}>{t('home.premium_spotlight')}</h2>
+              <p className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider mb-0">{t('home.premium_sellers')}</p>
+              <h2 className="text-gray-900 dark:text-white text-2xl font-black mb-0">{t('home.premium_spotlight')}</h2>
             </div>
           </div>
           
@@ -246,7 +246,7 @@ async function fetchProducts() {
       {topSellers.length > 0 && (
         <div style={{ marginBottom: '40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>{t('home.top_sellers')}</p>
+            <p className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider mb-0">{t('home.top_sellers')}</p>
           </div>
           <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px' }}>
             {topSellers.map(seller => (
@@ -283,8 +283,8 @@ async function fetchProducts() {
       {/* NEW SELLERS SECTION */}
       {newSellers.length > 0 && (
         <div style={{ marginTop: '48px' }}>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>{t('home.new_sellers')}</p>
-          <h2 style={{ color: 'white', fontSize: isMobile ? '20px' : '24px', fontWeight: '900', marginBottom: isMobile ? '16px' : '20px' }}>{t('home.just_started')}</h2>
+          <p className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider mb-2">{t('home.new_sellers')}</p>
+          <h2 className="text-gray-900 dark:text-white text-xl sm:text-2xl font-black mb-4 sm:mb-5">{t('home.just_started')}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
             {newSellers.map(seller => (
               <Link href={`/seller/${seller.id}`} key={seller.id}>
@@ -334,8 +334,8 @@ async function fetchProducts() {
           {/* LEFT - Product Feed (70%) */}
           <div className="lg:col-span-2">
             <div className="mb-8">
-              <h1 className="text-2xl md:text-4xl font-black text-white mb-2">{t('home.featured')}</h1>
-              <p className="text-white/60 text-base md:text-lg">{t('home.badge')}</p>
+              <h1 className="text-2xl md:text-4xl font-black text-gray-900 dark:text-white mb-2">{t('home.featured')}</h1>
+              <p className="text-gray-600 dark:text-gray-300 text-base md:text-lg">{t('home.badge')}</p>
             </div>
 
             {productsLoading ? (
@@ -555,9 +555,9 @@ async function fetchProducts() {
       <section className="bg-gray-50 dark:bg-slate-900 px-4 sm:px-6 py-10 sm:py-15">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            { icon: <Headphones size={28} color="white" />, title: '24/7 Support', desc: "We're here to help you around the clock. Reach out anytime via our platform." },
-            { icon: <Zap size={28} color="white" />, title: 'Instant Contact', desc: 'Connect directly with sellers via WhatsApp, Telegram, or Facebook instantly.' },
-            { icon: <ShieldCheck size={28} color="white" />, title: 'Trusted Sellers', desc: 'Our tier verification system ensures you\'re buying from legitimate, trusted sellers.' },
+            { icon: <Headphones size={28} className="text-white" />, title: '24/7 Support', desc: "We're here to help you around the clock. Reach out anytime via our platform." },
+            { icon: <Zap size={28} className="text-white" />, title: 'Instant Contact', desc: 'Connect directly with sellers via WhatsApp, Telegram, or Facebook instantly.' },
+            { icon: <ShieldCheck size={28} className="text-white" />, title: 'Trusted Sellers', desc: 'Our tier verification system ensures you\'re buying from legitimate, trusted sellers.' },
           ].map((item, i) => (
             <div key={i} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 sm:p-8 text-center">
               <div className="w-14 h-14 rounded-full bg-slate-800 dark:bg-slate-700 flex items-center justify-center mx-auto mb-4">{item.icon}</div>
