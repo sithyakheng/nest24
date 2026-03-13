@@ -170,8 +170,8 @@ async function fetchProducts() {
   }
 
   return (
-    <div key={lang} className={`relative z-10 ${isDark ? 'dark' : ''}`}>
-      <div className={`min-h-full sm:min-h-screen ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+    <div key={lang}>
+      <div className="min-h-full sm:min-h-screen bg-white dark:bg-gray-900">
         <Navbar />
 
       {/* PREMIUM SELLERS SPOTLIGHT */}
@@ -493,7 +493,7 @@ async function fetchProducts() {
       {/* Trust Banner */}
       <div style={{
         width: '100%',
-        background: isDark ? '#0f172a' : '#0f172a',
+        background: isDark ? '#0f172a' : '#f8fafc',
         borderTop: '1px solid rgba(255,255,255,0.1)',
         borderBottom: '1px solid rgba(255,255,255,0.1)',
         overflow: 'hidden',
@@ -552,63 +552,34 @@ async function fetchProducts() {
       </div>
 
       {/* Trust Feature Cards */}
-      <section style={{ background: isDark ? '#0f172a' : '#f8fafc', padding: isMobile ? '40px 16px' : '60px 24px' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+      <section className="bg-gray-50 dark:bg-slate-900 px-4 sm:px-6 py-10 sm:py-15">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             { icon: <Headphones size={28} color="white" />, title: '24/7 Support', desc: "We're here to help you around the clock. Reach out anytime via our platform." },
             { icon: <Zap size={28} color="white" />, title: 'Instant Contact', desc: 'Connect directly with sellers via WhatsApp, Telegram, or Facebook instantly.' },
             { icon: <ShieldCheck size={28} color="white" />, title: 'Trusted Sellers', desc: 'Our tier verification system ensures you\'re buying from legitimate, trusted sellers.' },
           ].map((item, i) => (
-            <div key={i} style={{ background: isDark ? '#1e293b' : '#ffffff', border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`, borderRadius: '16px', padding: isMobile ? '24px 16px' : '32px 24px', textAlign: 'center' }}>
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#004E64', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>{item.icon}</div>
-              <h3 style={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: '700', fontSize: '18px', margin: '0 0 8px' }}>{item.title}</h3>
-              <p style={{ color: isDark ? 'rgba(255,255,255,0.6)' : '#475569', fontSize: '14px', margin: 0 }}>{item.desc}</p>
+            <div key={i} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 sm:p-8 text-center">
+              <div className="w-14 h-14 rounded-full bg-slate-800 dark:bg-slate-700 flex items-center justify-center mx-auto mb-4">{item.icon}</div>
+              <h3 className="text-slate-900 dark:text-white font-bold text-lg mb-2">{item.title}</h3>
+              <p className="text-slate-600 dark:text-slate-400 text-sm">{item.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Footer */}
-      <div style={{
-        background: isDark ? '#0f172a' : '#f1f5f9',
-        borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
-        padding: isMobile ? '24px 16px' : '40px 24px',
-        marginTop: isMobile ? '40px' : '60px'
-      }}>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '32px'
-        }}>
-          <div style={{
-            color: isDark ? 'rgba(255,255,255,0.5)' : '#64748b',
-            fontSize: '14px'
-          }}>
+      <div className="bg-slate-100 dark:bg-slate-900 border-t border-gray-200 dark:border-gray-800 px-4 sm:px-6 py-6 sm:py-10 mt-10 sm:mt-15">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-8">
+          <div className="text-slate-500 dark:text-slate-400 text-sm">
             © 2026 NestKH. All rights reserved.
           </div>
           
-          <div style={{
-            display: 'flex',
-            gap: '24px'
-          }}>
-            <Link href="/terms" style={{
-              color: isDark ? 'rgba(255,255,255,0.7)' : '#0f172a',
-              fontSize: '14px',
-              textDecoration: 'none',
-              transition: 'color 0.2s'
-            }}>
+          <div className="flex gap-6">
+            <Link href="/terms" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-sm transition-colors">
               Terms & Conditions
             </Link>
-            <Link href="/privacy" style={{
-              color: isDark ? 'rgba(255,255,255,0.7)' : '#0f172a',
-              fontSize: '14px',
-              textDecoration: 'none',
-              transition: 'color 0.2s'
-            }}>
+            <Link href="/privacy" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-sm transition-colors">
               Privacy Policy
             </Link>
           </div>

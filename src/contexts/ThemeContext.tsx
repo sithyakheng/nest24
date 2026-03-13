@@ -33,8 +33,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setIsDark(newTheme)
     localStorage.setItem('nestkh-theme', newTheme ? 'dark' : 'light')
     document.documentElement.setAttribute('data-theme', newTheme ? 'dark' : 'light')
-    document.documentElement.classList.toggle('light-mode', !newTheme)
-    document.documentElement.classList.toggle('dark-mode', newTheme)
+    document.documentElement.classList.toggle('light', !newTheme)
+    document.documentElement.classList.toggle('dark', newTheme)
   }
 
   useEffect(() => {
@@ -42,8 +42,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const dark = saved === 'dark'
     setIsDark(dark)
     document.documentElement.setAttribute('data-theme', saved)
-    document.documentElement.classList.toggle('light-mode', !dark)
-    document.documentElement.classList.toggle('dark-mode', dark)
+    document.documentElement.classList.toggle('light', !dark)
+    document.documentElement.classList.toggle('dark', dark)
   }, [])
 
   const colors = {
