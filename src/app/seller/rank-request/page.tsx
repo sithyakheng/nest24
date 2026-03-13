@@ -202,6 +202,48 @@ export default function RankRequestPage() {
             <li style={{ marginBottom: '8px' }}>Once approved, you'll be upgraded to the new tier</li>
           </ol>
         </div>
+
+        {/* ABA Payment QR Code */}
+        <div style={{
+          marginTop: '32px',
+          padding: '24px',
+          backgroundColor: 'white',
+          border: '1px solid #e5e7eb',
+          borderRadius: '12px',
+          textAlign: 'center'
+        }}>
+          <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', marginBottom: '16px' }}>
+            ABA Payment
+          </h3>
+          <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '20px', lineHeight: '1.5' }}>
+            Scan the QR code below to make payment for your tier upgrade. After payment, your request will be processed automatically.
+          </p>
+          <div style={{ 
+            display: 'inline-block', 
+            padding: '16px', 
+            backgroundColor: '#f9fafb', 
+            border: '2px dashed #d1d5db',
+            borderRadius: '12px'
+          }}>
+            <img 
+              src="/aba-qr.png" 
+              alt="ABA QR Code" 
+              style={{ 
+                width: '200px', 
+                height: '200px', 
+                display: 'block'
+              }} 
+            />
+          </div>
+          <p style={{ 
+            color: '#9ca3af', 
+            fontSize: '12px', 
+            marginTop: '16px', 
+            fontStyle: 'italic'
+          }}>
+            Please save the QR code screenshot after payment for your records
+          </p>
+        </div>
       </div>
     </div>
   )
