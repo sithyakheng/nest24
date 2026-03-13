@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import cloudinary from '@/lib/cloudinary'
 
 export default function RankRequestPage() {
   const router = useRouter()
@@ -13,21 +12,22 @@ export default function RankRequestPage() {
   const [message, setMessage] = useState('')
 
   const uploadToCloudinary = async (file: File): Promise<string> => {
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    const base64 = buffer.toString('base64')
-    const dataURI = `data:${file.type};base64,${base64}`
-
-    const result = await cloudinary.uploader.upload(dataURI, {
-      folder: 'nestkh/rank-requests',
-      transformation: [
-        { width: 1200, crop: 'limit' },
-        { quality: 'auto:good' },
-        { fetch_format: 'auto' }
-      ]
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    // Use the same upload API that dashboard uses
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData
     })
-
-    return result.secure_url
+    
+    if (!res.ok) {
+      const error = await res.json()
+      throw new Error(error.error || 'Upload failed')
+    }
+    
+    const data = await res.json()
+    return data.url
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
