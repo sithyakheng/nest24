@@ -31,9 +31,6 @@ export default function HomePage() {
   const isMobile = windowWidth < 768
   const isSmallMobile = windowWidth < 480
   
-  // Simple theme detection based on time of day
-  const isDark = new Date().getHours() >= 18 || new Date().getHours() < 6
-
   useEffect(() => {
     setWindowWidth(window.innerWidth)
     const handleResize = () => setWindowWidth(window.innerWidth)
@@ -493,7 +490,7 @@ async function fetchProducts() {
       {/* Trust Banner */}
       <div style={{
         width: '100%',
-        background: isDark ? '#0f172a' : '#f8fafc',
+        background: '#f8fafc',
         borderTop: '1px solid rgba(255,255,255,0.1)',
         borderBottom: '1px solid rgba(255,255,255,0.1)',
         overflow: 'hidden',
