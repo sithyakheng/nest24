@@ -76,10 +76,10 @@ export default function AdminPage() {
   async function fetchAll() {
     setLoading(true)
 
-    // Fetch ALL rank requests with seller info
+    // Fetch ALL rank requests with all required fields
     const { data: requests } = await supabase
       .from('rank_requests')
-      .select('*, profiles(id, name, full_name, email, avatar_url, rank)')
+      .select('id, seller_id, rank, status, screenshot_url, full_name, shop_name, created_at')
       .order('created_at', { ascending: false })
     setRankRequests(requests || [])
 
@@ -329,55 +329,187 @@ export default function AdminPage() {
 
         {/* RANK REQUESTS TAB */}
         {activeTab === 'requests' && (
-          <div style={{ ...glassCard, padding: '24px' }}>
-            <h2 style={{ color: 'white', fontWeight: '800', fontSize: '20px', marginBottom: '20px' }}>Rank Requests</h2>
+          <div style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '24px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ color: '#111827', fontWeight: '800', fontSize: '20px', marginBottom: '20px' }}>Rank Requests</h2>
             {rankRequests.length === 0 ? (
-              <p style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '40px' }}>No rank requests yet</p>
+              <p style={{ color: '#6b7280', textAlign: 'center', padding: '40px' }}>No rank requests yet</p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {rankRequests.map(req => (
-                  <div key={req.id} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(0,78,100,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4DB8CC', fontWeight: '700' }}>
-                        {(req.profiles?.name || req.profiles?.full_name || 'S').charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <p style={{ color: 'white', fontWeight: '600', margin: 0 }}>{req.profiles?.name || req.profiles?.full_name || 'Seller'}</p>
-                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '2px 0 0 0' }}>{req.profiles?.email}</p>
-                        <span style={{ 
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      padding: '4px 10px',
-                      borderRadius: '9999px',
-                      fontSize: '10px',
-                      fontWeight: '700',
-                      background: req.rank === 'premium' ? 'rgba(232,201,126,0.2)' : req.rank === 'verified' ? 'rgba(0,78,100,0.2)' : 'rgba(59,130,246,0.2)',
-                      color: req.rank === 'premium' ? '#E8C97E' : req.rank === 'verified' ? '#4DB8CC' : '#93c5fd',
-                      border: `1px solid ${req.rank === 'premium' ? 'rgba(232,201,126,0.4)' : req.rank === 'verified' ? 'rgba(0,78,100,0.4)' : 'rgba(59,130,246,0.4)'}` 
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {rankRequests.map(req => {
+                  const tierNames: Record<number, string> = { 1: 'Starter', 2: 'Verified', 3: 'Premium' };
+                  const tierName = tierNames[req.rank] || 'Unknown';
+                  
+                  return (
+                    <div key={req.id} style={{ 
+                      backgroundColor: 'white', 
+                      border: '1px solid #e5e7eb', 
+                      borderRadius: '20px', 
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)', 
+                      padding: '20px' 
                     }}>
-                      {req.rank === 'premium' ? <Star size={12} /> : req.rank === 'verified' ? <Check size={12} /> : <Medal size={12} />}
-                      {req.rank === 'premium' ? ' Premium' : req.rank === 'verified' ? ' Verified' : ' Starter'}
-                    </span>
-                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '8px 0 0 0' }}>{new Date(req.created_at).toLocaleDateString()}</p>
-                        {req.status === 'pending' ? (
-                          <div style={{ display: 'flex', gap: '8px' }}>
-                            <button onClick={() => approveRank(req.id, req.seller_id, req.rank, req.screenshot_url)} style={{ background: 'rgba(0,78,100,0.4)', border: '1px solid rgba(0,78,100,0.6)', color: '#4DB8CC', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
-                          <Check size={14} style={{ marginRight: '4px' }} />Approve
-                        </button>
-                        <button onClick={() => rejectRank(req.id, req.screenshot_url)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
-                          <X size={14} style={{ marginRight: '4px' }} />Reject
-                        </button>
+                      {/* Header with Full Name */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                        <div>
+                          <p style={{ color: '#111827', fontWeight: '700', fontSize: '18px', margin: '0' }}>{req.full_name || 'Unknown'}</p>
+                          <p style={{ color: '#6b7280', fontSize: '14px', margin: '4px 0 0 0' }}>{req.shop_name || 'No shop name'}</p>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ 
+                            padding: '6px 12px', 
+                            borderRadius: '12px', 
+                            fontSize: '12px', 
+                            fontWeight: '600',
+                            backgroundColor: req.status === 'pending' ? '#fef3c7' : req.status === 'approved' ? '#d1fae5' : '#fee2e2',
+                            color: req.status === 'pending' ? '#92400e' : req.status === 'approved' ? '#065f46' : '#991b1b',
+                            border: `1px solid ${req.status === 'pending' ? '#fbbf24' : req.status === 'approved' ? '#34d399' : '#ef4444'}`
+                          }}>
+                            {req.status === 'pending' ? '⏳ Pending' : req.status === 'approved' ? '✅ Approved' : '❌ Rejected'}
+                          </span>
+                        </div>
                       </div>
-                    ) : (
-                      <span style={{ padding: '6px 14px', borderRadius: '9999px', fontSize: '12px', fontWeight: '700', background: req.status === 'approved' ? 'rgba(0,200,100,0.15)' : 'rgba(255,80,80,0.15)', color: req.status === 'approved' ? '#4ade80' : '#f87171' }}>
-                        {req.status === 'approved' ? <><Check size={12} /> Approved</> : <><X size={12} /> Rejected</>}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                  </div>
-                ))}
+
+                      {/* Request Details */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                        <div>
+                          <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 4px 0' }}>Requested Tier</p>
+                          <p style={{ color: '#111827', fontWeight: '600', fontSize: '16px', margin: '0' }}>{tierName}</p>
+                        </div>
+                        <div>
+                          <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 4px 0' }}>Submitted Date</p>
+                          <p style={{ color: '#111827', fontWeight: '600', fontSize: '14px', margin: '0' }}>
+                            {new Date(req.created_at).toLocaleDateString('en-US', { 
+                              year: 'numeric', 
+                              month: 'short', 
+                              day: 'numeric' 
+                            })}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Payment Screenshot */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
+                        <p style={{ color: '#6b7280', fontSize: '14px', margin: '0' }}>Payment Proof:</p>
+                        {req.screenshot_url ? (
+                          <img 
+                            src={req.screenshot_url} 
+                            alt="Payment Screenshot" 
+                            onClick={() => window.open(req.screenshot_url, '_blank')}
+                            style={{ 
+                              width: '120px', 
+                              height: '120px', 
+                              borderRadius: '12px', 
+                              objectFit: 'cover',
+                              cursor: 'pointer',
+                              border: '2px solid #f3f4f6',
+                              transition: 'transform 0.2s'
+                            }}
+                            onMouseOver={(e) => {
+                              e.currentTarget.style.transform = 'scale(1.05)';
+                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,78,100,0.15)';
+                            }}
+                            onMouseOut={(e) => {
+                              e.currentTarget.style.transform = 'scale(1)';
+                              e.currentTarget.style.boxShadow = 'none';
+                            }}
+                          />
+                        ) : (
+                          <div style={{ 
+                            width: '120px', 
+                            height: '120px', 
+                            borderRadius: '12px', 
+                            backgroundColor: '#f9fafb', 
+                            border: '2px dashed #d1d5db',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#9ca3af',
+                            fontSize: '12px'
+                          }}>
+                            No screenshot
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Action Buttons */}
+                      {req.status === 'pending' && (
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                          <button
+                            onClick={async () => {
+                              // Update rank request status
+                              await supabase
+                                .from('rank_requests')
+                                .update({ status: 'approved' })
+                                .eq('id', req.id);
+
+                              // Update seller profile tier
+                              await supabase
+                                .from('profiles')
+                                .update({ rank: req.rank })
+                                .eq('id', req.seller_id);
+
+                              alert('Rank request approved!');
+                              fetchAll();
+                            }}
+                            style={{
+                              backgroundColor: '#004E64',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '12px',
+                              padding: '12px 24px',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              fontSize: '14px',
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseOver={(e) => {
+                              e.currentTarget.style.backgroundColor = '#003a52';
+                              e.currentTarget.style.transform = 'translateY(-1px)';
+                            }}
+                            onMouseOut={(e) => {
+                              e.currentTarget.style.backgroundColor = '#004E64';
+                              e.currentTarget.style.transform = 'translateY(0)';
+                            }}
+                          >
+                            ✅ Approve
+                          </button>
+                          <button
+                            onClick={async () => {
+                              // Update rank request status
+                              await supabase
+                                .from('rank_requests')
+                                .update({ status: 'rejected' })
+                                .eq('id', req.id);
+
+                              alert('Rank request rejected!');
+                              fetchAll();
+                            }}
+                            style={{
+                              backgroundColor: '#dc2626',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '12px',
+                              padding: '12px 24px',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              fontSize: '14px',
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseOver={(e) => {
+                              e.currentTarget.style.backgroundColor = '#b91c1c';
+                              e.currentTarget.style.transform = 'translateY(-1px)';
+                            }}
+                            onMouseOut={(e) => {
+                              e.currentTarget.style.backgroundColor = '#dc2626';
+                              e.currentTarget.style.transform = 'translateY(0)';
+                            }}
+                          >
+                            ❌ Reject
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
