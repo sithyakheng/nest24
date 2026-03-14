@@ -70,40 +70,37 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#080a0f] flex items-center justify-center" style={{ paddingTop: '100px', paddingBottom: '40px', paddingLeft: '16px', paddingRight: '16px' }}>
+    <div className="min-h-screen bg-[#f9fafb] flex items-center justify-center" style={{ paddingTop: '100px', paddingBottom: '40px', paddingLeft: '16px', paddingRight: '16px' }}>
       <div style={{
-        background: 'rgba(255,255,255,0.06)',
-        backdropFilter: 'blur(24px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-        border: '1px solid rgba(255,255,255,0.12)',
-        borderTop: '1px solid rgba(255,255,255,0.22)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15)',
+        background: 'white',
+        border: '1px solid #e5e7eb',
         borderRadius: '24px',
         padding: isMobile ? '24px 20px' : '48px',
         width: '100%',
         maxWidth: isMobile ? '100%' : '440px',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
       }}>
-        <p style={{ color: 'white', fontWeight: '900', fontSize: '28px', margin: '0 0 4px 0', textAlign: 'center' }}>
-          NestKH<span style={{ color: '#4DB8CC' }}>.</span>
+        <p style={{ color: '#111827', fontWeight: '900', fontSize: '28px', margin: '0 0 4px 0', textAlign: 'center' }}>
+          NestKH<span style={{ color: '#004E64' }}>.</span>
         </p>
-        <h1 className="text-3xl font-black text-white mb-2">{t('auth.register_title')}</h1>
-        <p className="text-white/50 font-light mb-8">{t('auth.register_sub')}</p>
+        <h1 className="text-3xl font-black text-gray-900 mb-2">{t('auth.register_title')}</h1>
+        <p className="text-gray-500 font-light mb-8">{t('auth.register_sub')}</p>
 
         {/* Role Toggle */}
         <div className="flex gap-2 mb-6 p-1 rounded-full"
-          style={{ background: 'rgba(255,255,255,0.06)',
-          border: '1px solid rgba(255,255,255,0.10)' }}>
+          style={{ background: '#f9fafb',
+          border: '1px solid #e5e7eb' }}>
           <button
             type="button"
             onClick={() => setRole('buyer')}
             className="flex-1 py-2 rounded-full text-sm font-medium transition-all"
             style={{
               background: role === 'buyer' 
-                ? '#004E64' : 'rgba(0,0,0,0.08)',
+                ? '#004E64' : 'white',
               color: role === 'buyer' 
-                ? 'white' : '#0f172a',
+                ? 'white' : '#374151',
               border: role === 'buyer' 
-                ? '1px solid #004E64' : '1px solid #cbd5e1',
+                ? '1px solid #004E64' : '1px solid #d1d5db',
               fontWeight: role === 'buyer' ? 'bold' : 'normal'
             }}
           >
@@ -142,10 +139,10 @@ export default function RegisterPage() {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
-            className="w-full text-white placeholder:text-white/30 rounded-xl px-4 py-3 outline-none"
+            className="w-full text-gray-900 placeholder:text-gray-400 rounded-xl px-4 py-3 outline-none"
             style={{
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.12)',
+              background: 'white',
+              border: '1px solid #d1d5db',
             }}
           />
           <input
@@ -154,10 +151,10 @@ export default function RegisterPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full text-white placeholder:text-white/30 rounded-xl px-4 py-3 outline-none"
+            className="w-full text-gray-900 placeholder:text-gray-400 rounded-xl px-4 py-3 outline-none"
             style={{
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.12)',
+              background: 'white',
+              border: '1px solid #d1d5db',
             }}
           />
           <input
@@ -166,10 +163,10 @@ export default function RegisterPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full text-white placeholder:text-white/30 rounded-xl px-4 py-3 outline-none"
+            className="w-full text-gray-900 placeholder:text-gray-400 rounded-xl px-4 py-3 outline-none"
             style={{
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.12)',
+              background: 'white',
+              border: '1px solid #d1d5db',
             }}
           />
           
@@ -189,7 +186,7 @@ export default function RegisterPage() {
               }}
             />
             <label htmlFor="terms" style={{ 
-              color: 'rgba(255,255,255,0.7)', 
+              color: '#6b7280', 
               fontSize: '14px', 
               lineHeight: '1.5',
               cursor: 'pointer',
@@ -198,7 +195,7 @@ export default function RegisterPage() {
               I agree to the{' '}
               <Link 
                 href="/terms" 
-                style={{ color: '#4DB8CC', textDecoration: 'none' }}
+                style={{ color: '#004E64', textDecoration: 'none' }}
                 target="_blank"
                 onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
                 onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
@@ -208,7 +205,7 @@ export default function RegisterPage() {
               {' '}and{' '}
               <Link 
                 href="/privacy" 
-                style={{ color: '#4DB8CC', textDecoration: 'none' }}
+                style={{ color: '#004E64', textDecoration: 'none' }}
                 target="_blank"
                 onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
                 onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
@@ -221,19 +218,19 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full font-bold rounded-full py-3 text-black"
+            className="w-full font-bold rounded-full py-3 text-white"
             style={{
-              background: 'linear-gradient(135deg, #E8C97E, #F0B429)'
+              background: '#004E64'
             }}
           >
             {loading ? t('auth.creating') : t('auth.register_btn')}
           </button>
         </form>
 
-        <p className="text-white/40 text-sm text-center mt-6">
+        <p className="text-gray-500 text-sm text-center mt-6">
           {t('auth.have_account')}{' '}
           <Link href="/login" 
-            className="text-teal-400 hover:text-teal-300">
+            className="text-[#004E64] hover:text-[#003a52]">
             {t('auth.login_btn')}
           </Link>
         </p>

@@ -59,24 +59,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#080a0f] flex items-center justify-center" style={{ paddingTop: '100px', paddingBottom: '40px', paddingLeft: '16px', paddingRight: '16px' }}>
+    <div className="min-h-screen bg-[#f9fafb] flex items-center justify-center" style={{ paddingTop: '100px', paddingBottom: '40px', paddingLeft: '16px', paddingRight: '16px' }}>
       <div style={{
-        background: 'rgba(255,255,255,0.06)',
-        backdropFilter: 'blur(24px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-        border: '1px solid rgba(255,255,255,0.12)',
-        borderTop: '1px solid rgba(255,255,255,0.22)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15)',
+        background: 'white',
+        border: '1px solid #e5e7eb',
         borderRadius: '24px',
         padding: isMobile ? '24px 20px' : '48px',
         width: '100%',
         maxWidth: isMobile ? '100%' : '440px',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
       }}>
-        <p style={{ color: 'white', fontWeight: '900', fontSize: '28px', margin: '0 0 4px 0', textAlign: 'center' }}>
-          NestKH<span style={{ color: '#4DB8CC' }}>.</span>
+        <p style={{ color: '#111827', fontWeight: '900', fontSize: '28px', margin: '0 0 4px 0', textAlign: 'center' }}>
+          NestKH<span style={{ color: '#004E64' }}>.</span>
         </p>
-        <h1 className="text-3xl font-black text-white mb-2">{t('auth.login_title')}</h1>
-        <p className="text-white/50 font-light mb-8">{t('auth.login_sub')}</p>
+        <h1 className="text-3xl font-black text-gray-900 mb-2">{t('auth.login_title')}</h1>
+        <p className="text-gray-500 font-light mb-8">{t('auth.login_sub')}</p>
         
         {error && (
           <div className="mb-4 p-3 rounded-xl text-red-400 text-sm"
@@ -93,10 +90,10 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full text-white placeholder:text-white/30 rounded-xl px-4 py-3 outline-none"
+            className="w-full text-gray-900 placeholder:text-gray-400 rounded-xl px-4 py-3 outline-none"
             style={{
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.12)',
+              background: 'white',
+              border: '1px solid #d1d5db',
             }}
           />
           <input
@@ -105,28 +102,28 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full text-white placeholder:text-white/30 rounded-xl px-4 py-3 outline-none"
+            className="w-full text-gray-900 placeholder:text-gray-400 rounded-xl px-4 py-3 outline-none"
             style={{
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.12)',
+              background: 'white',
+              border: '1px solid #d1d5db',
             }}
           />
           <button
             type="submit"
             disabled={loading}
-            className="w-full font-bold rounded-full py-3 text-black"
+            className="w-full font-bold rounded-full py-3 text-white"
             style={{
-              background: 'linear-gradient(135deg, #E8C97E, #F0B429)'
+              background: '#004E64'
             }}
           >
             {loading ? t('auth.signing_in') : t('auth.login_btn')}
           </button>
         </form>
 
-        <p className="text-white/40 text-sm text-center mt-6">
+        <p className="text-gray-500 text-sm text-center mt-6">
           {t('auth.no_account')}{' '}
           <Link href="/register" 
-            className="text-teal-400 hover:text-teal-300">
+            className="text-[#004E64] hover:text-[#003a52]">
             {t('auth.register_btn')}
           </Link>
         </p>
