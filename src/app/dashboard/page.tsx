@@ -89,12 +89,12 @@ export default function DashboardPage() {
   // Helper function to get product limit based on tier
   function getProductLimit(tier: number): number {
     const limits: Record<number, number> = {
-      0: 5,    // no rank
-      1: 30,   // tier 1
-      2: 150,  // tier 2  
-      3: 300   // tier 3
+      0: 2,    // tier 0 - free account
+      1: 30,   // tier 1 - Starter
+      2: 150,  // tier 2 - Verified
+      3: 300   // tier 3 - Premium
     }
-    return limits[tier] || 5
+    return limits[tier] || 2
   }
 
   // Calculate total views and prepare chart data
@@ -203,7 +203,14 @@ export default function DashboardPage() {
     }
 
     if (products.length >= getProductLimit(profile?.tier || 0)) {
-      setAddError(`Product limit reached (${getProductLimit(profile?.tier || 0)} products)`)
+      const tier = profile?.tier || 0
+      if (tier === 0) {
+        setAddError(
+          "You've reached your free limit of 2 products. Upgrade your tier to list more."
+        )
+      } else {
+        setAddError(`Product limit reached (${getProductLimit(tier)} products)`)
+      }
       return
     }
 
@@ -1002,7 +1009,28 @@ export default function DashboardPage() {
 
                   {addError && (
                     <div style={{ backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '12px', padding: '12px 16px', color: '#dc2626', fontSize: '14px', fontWeight: '600' }}>
-                      {addError}
+                      <div>
+                        {addError}
+                        {(profile?.tier || 0) === 0 && addError.includes('free limit of 2 products') && (
+                          <div style={{ marginTop: '12px' }}>
+                            <Link href="/ranks">
+                              <button style={{
+                                backgroundColor: '#004E64',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '8px 16px',
+                                fontSize: '13px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                textDecoration: 'none'
+                              }}>
+                                🚀 Upgrade Your Tier
+                              </button>
+                            </Link>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 

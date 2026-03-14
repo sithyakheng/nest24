@@ -78,7 +78,7 @@ export default function TermsPage() {
     },
     {
       title: 'Sellers',
-      content: 'Sellers are responsible for their listings. Product limits apply based on tier (Free: 5, Starter: 30, Verified: 150, Premium: 300). We can remove any listing that violates our rules.'
+      content: 'Sellers are responsible for their listings. Product limits apply based on tier (Free: 2, Starter: 30, Verified: 150, Premium: 300). We can remove any listing that violates our rules.'
     },
     {
       title: 'Buyers',
