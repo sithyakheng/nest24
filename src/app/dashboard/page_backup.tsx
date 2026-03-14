@@ -48,6 +48,7 @@ export default function DashboardPage() {
   const [savingProfile, setSavingProfile] = useState(false)
   const [profileSuccess, setProfileSuccess] = useState(false)
   const [avatarSuccess, setAvatarSuccess] = useState(false)
+  const [tierWarning, setTierWarning] = useState<string | null>(null)
 
   // Shop URL variables
   const [shopSlug, setShopSlug] = useState('')
@@ -149,6 +150,30 @@ export default function DashboardPage() {
       .eq('id', currentUser.id)
       .single()
     
+    // Check tier expiry and downgrade if expired
+    if (profile && profile.rank > 0 && profile.tier_expires_at && new Date(profile.tier_expires_at) < new Date()) {
+      // Downgrade tier to 0
+      await supabase.from('profiles').update({ rank: 0, tier_expires_at: null }).eq('id', currentUser.id);
+      profile.rank = 0;
+      profile.tier_expires_at = null;
+    }
+    
+    // Check for expiry warning (within 7 days)
+    if (profile && profile.rank > 0 && profile.tier_expires_at) {
+      const expiryDate = new Date(profile.tier_expires_at);
+      const daysUntilExpiry = Math.ceil((expiryDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysUntilExpiry <= 7 && daysUntilExpiry > 0) {
+        const tierNames = { 1: 'Starter', 2: 'Verified', 3: 'Premium' };
+        const tierName = tierNames[profile.rank as keyof typeof tierNames] || 'Unknown';
+        setTierWarning(`⚠️ Your ${tierName} subscription expires on ${expiryDate.toLocaleDateString()}. Renew now to keep your listings.`);
+      } else {
+        setTierWarning(null);
+      }
+    } else {
+      setTierWarning(null);
+    }
+    
     setProfile(profile)
     setProfileName(profile?.name || profile?.full_name || '')
     setDisplayName(profile?.name || profile?.full_name || '')
@@ -164,8 +189,8 @@ export default function DashboardPage() {
     // Set shop URL variables
     const slug = profile?.shop_slug || (profile?.name || profile?.full_name || '')
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
+      .replace(new RegExp('[^a-z0-9\\s-]', 'g'), '')
+      .replace(new RegExp('\\s+', 'g'), '-')
       .trim()
     setShopSlug(slug)
     setShopUrl(`https://nest24.vercel.app/seller/${slug}`)
@@ -202,14 +227,23 @@ export default function DashboardPage() {
       return
     }
 
-    if (products.length >= getProductLimit(profile?.tier || 0)) {
-      const tier = profile?.tier || 0
-      if (tier === 0) {
+    // Check tier expiry before enforcing limits
+    let currentTier = profile?.rank || 0
+    if (currentTier > 0 && profile?.tier_expires_at && new Date(profile.tier_expires_at) < new Date()) {
+      // Downgrade tier to 0 if expired
+      await supabase.from('profiles').update({ rank: 0, tier_expires_at: null }).eq('id', user.id);
+      currentTier = 0
+      // Update local profile state
+      setProfile(prev => ({ ...prev!, rank: 0, tier_expires_at: null }));
+    }
+
+    if (products.length >= getProductLimit(currentTier)) {
+      if (currentTier === 0) {
         setAddError(
           "You've reached your free limit of 2 products. Upgrade your tier to list more."
         )
       } else {
-        setAddError(`Product limit reached (${getProductLimit(tier)} products)`)
+        setAddError(`Product limit reached (${getProductLimit(currentTier)} products)`)
       }
       return
     }
@@ -278,7 +312,7 @@ export default function DashboardPage() {
         if (uploadIndex !== -1 && uploadIndex + 2 < urlParts.length) {
           // Skip version number and get the rest
           const publicIdWithExtension = urlParts.slice(uploadIndex + 2).join('/')
-          const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '') // Remove file extension
+          const publicId = publicIdWithExtension.replace(new RegExp('\\.[^/.]+$', ''), '') // Remove file extension
           
           await fetch('/api/delete-image', {
             method: 'POST',
@@ -309,7 +343,7 @@ export default function DashboardPage() {
         const uploadIndex = urlParts.indexOf('upload')
         if (uploadIndex !== -1 && uploadIndex + 2 < urlParts.length) {
           const publicIdWithExtension = urlParts.slice(uploadIndex + 2).join('/')
-          const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '')
+          const publicId = publicIdWithExtension.replace(new RegExp('\\.[^/.]+$', ''), '')
           
           await fetch('/api/delete-image', {
             method: 'POST',
@@ -614,16 +648,156 @@ export default function DashboardPage() {
               
               {/* Subscription Countdown Widget */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
-                {profile?.tier > 0 && profile?.tier_expires_at && (
-                  <div style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '16px', textAlign: 'center', width: '180px' }}>
-                    <div style={{ fontSize: '36px', fontWeight: '800', color: '#004E64' }}>
-                      {Math.max(0, Math.ceil((new Date(profile.tier_expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))}
+                {(() => {
+                  const tier = profile?.rank || 0;
+                  const tierNames = { 0: 'Free', 1: 'Starter', 2: 'Verified', 3: 'Premium' };
+                  
+                  if (tier === 0) {
+                    return (
+                      <div style={{
+                        backgroundColor: 'white',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '16px',
+                        padding: '20px',
+                        width: '180px',
+                        textAlign: 'center',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                      }}>
+                        <div style={{ color: '#6b7280', fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>Free Plan</div>
+                        <div style={{ color: '#374151', fontSize: '14px', marginBottom: '12px' }}>2 products max</div>
+                        <Link href="/ranks">
+                          <button style={{
+                            backgroundColor: '#004E64',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            padding: '6px 12px',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            textDecoration: 'none'
+                          }}>
+                            Upgrade
+                          </button>
+                        </Link>
+                      </div>
+                    );
+                  }
+                  
+                  if (!profile?.tier_expires_at || new Date(profile.tier_expires_at) < new Date()) {
+                    return (
+                      <div style={{
+                        backgroundColor: 'white',
+                        border: '1px solid #dc2626',
+                        borderRadius: '16px',
+                        padding: '20px',
+                        width: '180px',
+                        textAlign: 'center',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                      }}>
+                        <div style={{ color: '#dc2626', fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>Subscription Expired</div>
+                        <Link href="/ranks">
+                          <button style={{
+                            backgroundColor: '#dc2626',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            padding: '6px 12px',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            textDecoration: 'none'
+                          }}>
+                            Renew Now
+                          </button>
+                        </Link>
+                      </div>
+                    );
+                  }
+                  
+                  const daysLeft = Math.ceil((new Date(profile.tier_expires_at).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                  const tierName = tierNames[tier as keyof typeof tierNames] || 'Unknown';
+                  
+                  let color = '#16a34a';
+                  if (daysLeft <= 7) color = '#dc2626';
+                  else if (daysLeft <= 14) color = '#f59e0b';
+                  
+                  return (
+                    <div style={{
+                      backgroundColor: 'white',
+                      border: daysLeft <= 7 ? '1px solid #dc2626' : '1px solid #e5e7eb',
+                      borderRadius: '16px',
+                      padding: '20px',
+                      width: '180px',
+                      textAlign: 'center',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                      animation: daysLeft <= 7 ? 'pulse 2s ease-in-out infinite' : 'none'
+                    }}>
+                      <div style={{ 
+                        fontSize: '36px', 
+                        fontWeight: '900', 
+                        color: color, 
+                        marginBottom: '4px',
+                        lineHeight: '1'
+                      }}>
+                        {daysLeft}
+                      </div>
+                      <div style={{ color: '#6b7280', fontSize: '12px', marginBottom: '8px' }}>days left</div>
+                      <div style={{ color: '#374151', fontSize: '11px', marginBottom: '12px' }}>
+                        Tier {tier} {tierName} subscription
+                      </div>
+                      <Link href="/ranks">
+                        <button style={{
+                          backgroundColor: '#004E64',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          padding: '6px 12px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          textDecoration: 'none'
+                        }}>
+                          Renew
+                        </button>
+                      </Link>
                     </div>
-                    <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>days left</div>
-                    <a href="/ranks" style={{ fontSize: '12px', color: 'white', backgroundColor: '#004E64', padding: '6px 12px', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' }}>Renew</a>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
+              
+              {/* Tier Expiry Warning */}
+              {tierWarning && (
+                <div style={{
+                  backgroundColor: '#fef3c7',
+                  border: '1px solid #f59e0b',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  marginBottom: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}>
+                  <div style={{ color: '#92400e', fontSize: '14px', fontWeight: '600' }}>
+                    {tierWarning}
+                  </div>
+                  <Link href="/ranks">
+                    <button style={{
+                      backgroundColor: '#f59e0b',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '8px 16px',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      textDecoration: 'none'
+                    }}>
+                      Renew
+                    </button>
+                  </Link>
+                </div>
+              )}
               
               {/* Stats Cards */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '32px' }}>
@@ -1109,17 +1283,44 @@ export default function DashboardPage() {
                       {avatarUrl ? (
                         <img src={avatarUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
-                        <div style={{ 
-                          width: '100%', height: '100%', 
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '36px', background: '#10B981', color: 'white', fontWeight: '900'
-                        }}>
-                          {profileName?.[0]?.toUpperCase() || 'S'}
+                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                          <User size={40} />
                         </div>
                       )}
                     </div>
+                  </div>
+
+                  {/* Tier Information */}
+                  <div style={{
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    marginBottom: '16px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                      <Medal size={16} color="#004E64" />
+                      <span style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>Your Plan</span>
+                    </div>
+                    <div style={{ color: '#64748b', fontSize: '13px', lineHeight: '1.5' }}>
+                      {(() => {
+                        const tier = profile?.rank || 0;
+                        const tierNames = { 0: 'Free', 1: 'Starter', 2: 'Verified', 3: 'Premium' };
+                        const tierName = tierNames[tier as keyof typeof tierNames] || 'Unknown';
+                        
+                        if (tier === 0) {
+                          return `Tier 0 ${tierName} — 2 products limit`;
+                        } else if (profile?.tier_expires_at) {
+                          const expiryDate = new Date(profile.tier_expires_at);
+                          return `Tier ${tier} ${tierName} — expires ${expiryDate.toLocaleDateString()}`;
+                        } else {
+                          return `Tier ${tier} ${tierName}`;
+                        }
+                      })()}
+                    </div>
+                  </div>
                     
-                    <label style={{
+                  <label style={{
                       background: '#10B981',
                       color: 'white',
                       padding: '8px 16px',
@@ -1204,3 +1405,5 @@ export default function DashboardPage() {
     </div>
   )
 }
+
+export default DashboardPage
