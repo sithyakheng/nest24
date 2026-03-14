@@ -17,6 +17,7 @@ export default function AdminPage() {
   const [productCounts, setProductCounts] = useState<any[]>([])
   const [rankPayments, setRankPayments] = useState<any[]>([])
   const [reports, setReports] = useState<any[]>([])
+  const [subscriptionSearch, setSubscriptionSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
@@ -305,11 +306,12 @@ export default function AdminPage() {
 
   const tabs = [
     { id: 'requests', label: 'Requests', count: rankRequests.filter(r => r.status === 'pending').length },
+    { id: 'subscriptions', label: 'Subscriptions', count: sellers.filter(s => s.role === 'seller').length },
     { id: 'users', label: 'Users', count: allUsers.length },
     { id: 'sellers', label: 'Sellers', count: sellers.length },
-    { id: 'reports', label: 'Reports', count: reports.length },
     { id: 'products', label: 'Products', count: products.length },
     { id: 'orders', label: 'Orders', count: orders.length },
+    { id: 'reports', label: 'Reports', count: reports.length },
     { id: 'payments', label: 'Payments', count: rankPayments.length },
   ]
 
@@ -679,6 +681,220 @@ export default function AdminPage() {
                     </div>
                   );
                 })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* SUBSCRIPTIONS TAB */}
+        {activeTab === 'subscriptions' && (
+          <div style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '24px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ color: '#111827', fontWeight: '800', fontSize: '20px', marginBottom: '20px' }}>Seller Subscriptions</h2>
+            
+            {/* Search Bar */}
+            <div style={{ marginBottom: '20px' }}>
+              <input
+                type="text"
+                value={subscriptionSearch}
+                onChange={(e) => setSubscriptionSearch(e.target.value)}
+                placeholder="Search by name or shop name..."
+                style={{
+                  width: '100%',
+                  maxWidth: '400px',
+                  padding: '12px 16px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  color: '#111827',
+                  backgroundColor: '#ffffff',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {sellers.filter(s => s.role === 'seller').length === 0 ? (
+              <p style={{ color: '#6b7280', textAlign: 'center', padding: '40px' }}>No sellers found</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {(() => {
+                  // Filter and sort sellers
+                  const filteredSellers = sellers
+                    .filter(seller => seller.role === 'seller')
+                    .filter(seller => {
+                      if (!subscriptionSearch) return true;
+                      const searchLower = subscriptionSearch.toLowerCase();
+                      return (
+                        (seller.name && seller.name.toLowerCase().includes(searchLower)) ||
+                        (seller.full_name && seller.full_name.toLowerCase().includes(searchLower)) ||
+                        (seller.shop_slug && seller.shop_slug.toLowerCase().includes(searchLower))
+                      );
+                    });
+
+                  // Sort: expired first, then by days remaining ascending
+                  const sortedSellers = [...filteredSellers].sort((a, b) => {
+                    const getDaysRemaining = (seller) => {
+                      if (!seller.tier_expires_at || seller.tier === 0) return Infinity;
+                      const daysLeft = Math.ceil((new Date(seller.tier_expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                      return daysLeft;
+                    };
+
+                    const aExpired = seller.tier > 0 && seller.tier_expires_at && new Date(seller.tier_expires_at) < new Date();
+                    const bExpired = seller.tier > 0 && seller.tier_expires_at && new Date(seller.tier_expires_at) < new Date();
+
+                    // Expired sellers first
+                    if (aExpired && !bExpired) return -1;
+                    if (!aExpired && bExpired) return 1;
+
+                    // Then by days remaining (closest to expiry first)
+                    const aDays = getDaysRemaining(a);
+                    const bDays = getDaysRemaining(b);
+                    return aDays - bDays;
+                  });
+
+                  return sortedSellers.map(seller => {
+                    // Calculate days remaining and status
+                    const getSubscriptionStatus = (seller) => {
+                      if (seller.tier === 0) {
+                        return { days: null, status: 'free', color: '#6b7280', text: 'Free' };
+                      }
+                      
+                      if (!seller.tier_expires_at) {
+                        return { days: null, status: 'expired', color: '#dc2626', text: 'EXPIRED' };
+                      }
+
+                      const daysLeft = Math.ceil((new Date(seller.tier_expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                      
+                      if (daysLeft < 0) {
+                        return { days: daysLeft, status: 'expired', color: '#dc2626', text: 'EXPIRED' };
+                      }
+                      
+                      if (daysLeft <= 7) {
+                        return { days: daysLeft, status: 'urgent', color: '#dc2626', text: `${daysLeft} days` };
+                      }
+                      
+                      if (daysLeft <= 14) {
+                        return { days: daysLeft, status: 'warning', color: '#f59e0b', text: `${daysLeft} days` };
+                      }
+                      
+                      return { days: daysLeft, status: 'active', color: '#16a34a', text: `${daysLeft} days` };
+                    };
+
+                    const subscriptionStatus = getSubscriptionStatus(seller);
+                    const tierNames = { 0: 'Free', 1: 'Starter', 2: 'Verified', 3: 'Premium' };
+                    const tierName = tierNames[seller.tier] || 'Unknown';
+
+                    return (
+                      <div key={seller.id} style={{
+                        backgroundColor: 'white',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '16px',
+                        padding: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px',
+                        transition: 'all 0.2s'
+                      }}>
+                        {/* Avatar */}
+                        <div style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          backgroundColor: '#f3f4f6',
+                          border: '2px solid #e5e7eb',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          overflow: 'hidden',
+                          flexShrink: 0
+                        }}>
+                          {seller.avatar_url ? (
+                            <img 
+                              src={seller.avatar_url} 
+                              alt="Seller Avatar"
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          ) : (
+                            <span style={{ color: '#6b7280', fontWeight: '600', fontSize: '14px' }}>
+                              {(seller.name || seller.full_name || 'S').charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Seller Info */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
+                            <h3 style={{ color: '#111827', fontWeight: '600', fontSize: '16px', margin: 0 }}>
+                              {seller.name || seller.full_name || 'Unknown Seller'}
+                            </h3>
+                            <span style={{
+                              padding: '4px 8px',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                              backgroundColor: seller.tier === 3 ? '#fef3c7' : 
+                                             seller.tier === 2 ? '#dbeafe' : 
+                                             seller.tier === 1 ? '#f3f4f6' : '#f9fafb',
+                              color: seller.tier === 3 ? '#92400e' : 
+                                     seller.tier === 2 ? '#1e40af' : 
+                                     seller.tier === 1 ? '#374151' : '#6b7280',
+                              border: `1px solid ${
+                                seller.tier === 3 ? '#f59e0b' : 
+                                seller.tier === 2 ? '#3b82f6' : 
+                                seller.tier === 1 ? '#d1d5db' : '#e5e7eb'
+                              }`
+                            }}>
+                              {tierName}
+                            </span>
+                          </div>
+                          
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '4px' }}>
+                            <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>
+                              {seller.email || 'No email'}
+                            </p>
+                            {seller.shop_slug && (
+                              <p style={{ color: '#004E64', fontSize: '13px', margin: 0 }}>
+                                🏪 {seller.shop_slug}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Expiry Info */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                          {seller.tier_expires_at && seller.tier > 0 && (
+                            <p style={{ color: '#6b7280', fontSize: '12px', margin: 0 }}>
+                              {new Date(seller.tier_expires_at).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric', 
+                                year: 'numeric' 
+                              })}
+                            </p>
+                          )}
+                          <span style={{
+                            padding: '6px 12px',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            backgroundColor: subscriptionStatus.status === 'expired' ? '#fee2e2' : 
+                                           subscriptionStatus.status === 'urgent' ? '#fee2e2' :
+                                           subscriptionStatus.status === 'warning' ? '#fef3c7' :
+                                           subscriptionStatus.status === 'active' ? '#d1fae5' : '#f3f4f6',
+                            color: subscriptionStatus.color,
+                            border: `1px solid ${
+                              subscriptionStatus.status === 'expired' ? '#ef4444' : 
+                              subscriptionStatus.status === 'urgent' ? '#ef4444' :
+                              subscriptionStatus.status === 'warning' ? '#f59e0b' :
+                              subscriptionStatus.status === 'active' ? '#34d399' : '#d1d5db'
+                            }`
+                          }}>
+                            {subscriptionStatus.text}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             )}
           </div>
