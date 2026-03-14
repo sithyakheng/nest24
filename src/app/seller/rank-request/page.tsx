@@ -46,11 +46,22 @@ export default function RankRequestPage() {
       const formData = new FormData();
       formData.append('file', screenshot);
       formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || '');
+
+      console.log('Cloudinary cloud name:', process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
+      console.log('Upload preset:', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+
       const res = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
         method: 'POST',
         body: formData,
       });
       const data = await res.json();
+      console.log('Cloudinary response:', data);
+
+      if (!data.secure_url) {
+        alert('Image upload failed: ' + JSON.stringify(data));
+        setLoading(false);
+        return;
+      }
       const screenshotUrl = data.secure_url;
       const { data: { user } } = await supabase.auth.getUser();
       await supabase.from('rank_requests').insert({
