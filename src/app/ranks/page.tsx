@@ -91,7 +91,7 @@ export default function RanksPage() {
               </div>
             </div>
             
-            <div style={{ fontSize: '40px', fontWeight: '900', color: '#004E64', marginBottom: '24px' }}>$20/month</div>
+            <div style={{ fontSize: '40px', fontWeight: '900', color: '#004E64', marginBottom: '24px' }}>$30/month</div>
             
             <button
               onClick={() => router.push('/seller/rank-request')}
@@ -149,7 +149,7 @@ export default function RanksPage() {
               </div>
             </div>
             
-            <div style={{ fontSize: '34px', fontWeight: '800', color: '#004E64', marginBottom: '24px' }}>$10/month</div>
+            <div style={{ fontSize: '34px', fontWeight: '800', color: '#004E64', marginBottom: '24px' }}>$15/month</div>
             
             <button
               onClick={() => router.push('/seller/rank-request')}

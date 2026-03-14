@@ -16,7 +16,7 @@ export default function RankRequestPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const prices: Record<number, number> = { 1: 5, 2: 10, 3: 20 };
+  const prices: Record<number, number> = { 1: 5, 2: 15, 3: 30 };
   const tierNames: Record<number, string> = { 1: 'Starter', 2: 'Verified', 3: 'Premium' };
   const basePrice = prices[selectedTier];
   const finalPrice = discountApplied ? (basePrice * 0.8).toFixed(2) : basePrice;
