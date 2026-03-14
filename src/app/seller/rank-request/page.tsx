@@ -91,7 +91,11 @@ export default function RankRequestPage() {
         {/* ABA QR */}
         <div style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '24px', padding: '32px', textAlign: 'center', marginBottom: '36px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
           <p style={{ fontWeight: '700', fontSize: '17px', color: '#004E64', marginBottom: '20px' }}>📱 Scan to Pay via ABA</p>
-          <img src="/aba-qr.png" alt="ABA QR Code" style={{ width: '280px', height: '280px', borderRadius: '16px', margin: '0 auto', display: 'block', border: '4px solid #f3f4f6' }} />
+          <img 
+  src="https://res.cloudinary.com/dis7tyccn/image/upload/v1773413615/aba-qr.png_myovjz.jpg" 
+  alt="ABA QR Code" 
+  style={{ width: '260px', height: '260px', borderRadius: '16px', margin: '0 auto', display: 'block', border: '4px solid #f3f4f6' }} 
+/>
           <p style={{ color: '#9ca3af', fontSize: '13px', marginTop: '16px' }}>After payment, upload your screenshot below as proof</p>
         </div>
 
