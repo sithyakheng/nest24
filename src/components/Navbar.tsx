@@ -281,12 +281,15 @@ export default function Navbar() {
                       zIndex: 1000,
                       color: navTextColor
                     }}>
-                      <Link href="/dashboard" style={{ display: 'block', padding: '12px 16px', color: navTextColor, textDecoration: 'none', borderRadius: '8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <LayoutDashboard size={16} />
-                          <span>{t('nav.dashboard')}</span>
-                        </div>
-                      </Link>
+                      {/* Dashboard - Only show for sellers */}
+                      {userRole === 'seller' && (
+                        <Link href="/dashboard" style={{ display: 'block', padding: '12px 16px', color: navTextColor, textDecoration: 'none', borderRadius: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <LayoutDashboard size={16} />
+                            <span>{t('nav.dashboard')}</span>
+                          </div>
+                        </Link>
+                      )}
                       <Link href="/profile" style={{ display: 'block', padding: '12px 16px', color: navTextColor, textDecoration: 'none', borderRadius: '8px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <User size={16} />
@@ -524,7 +527,7 @@ export default function Navbar() {
                     </div>
                   </Link>
                 )}
-                {(userRole === 'seller' || userRole === 'admin') && (
+                {userRole === 'seller' && (
                   <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
                     <div style={{ padding: '12px 16px', borderRadius: '12px', color: navTextColor, fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>📊 Dashboard</div>
                   </Link>

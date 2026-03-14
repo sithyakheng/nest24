@@ -149,6 +149,12 @@ export default function DashboardPage() {
       .eq('id', currentUser.id)
       .single()
     
+    // Role-based access control - only sellers can access dashboard
+    if (profile?.role !== 'seller') {
+      router.push('/')
+      return
+    }
+    
     setProfile(profile)
     setProfileName(profile?.name || profile?.full_name || '')
     setDisplayName(profile?.name || profile?.full_name || '')
@@ -394,6 +400,11 @@ export default function DashboardPage() {
     const res = await fetch('/api/upload-image', { method: 'POST', body: formData })
     const data = await res.json()
     if (data.url) setProductImage(data.url)
+  }
+
+  // Show nothing while loading or checking role
+  if (loading) {
+    return null
   }
 
   return (
