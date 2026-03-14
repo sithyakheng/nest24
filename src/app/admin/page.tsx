@@ -448,10 +448,13 @@ export default function AdminPage() {
                                 .update({ status: 'approved' })
                                 .eq('id', req.id);
 
-                              // Update seller profile tier
+                              // Update seller profile tier with expiry
                               await supabase
                                 .from('profiles')
-                                .update({ rank: req.rank })
+                                .update({ 
+                                  rank: req.rank,
+                                  tier_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+                                })
                                 .eq('id', req.seller_id);
 
                               // Delete screenshot from Cloudinary
