@@ -155,6 +155,18 @@ export default function DashboardPage() {
       return
     }
     
+    // Automatic tier downgrade for expired subscriptions
+    if (profile.tier > 0 && profile.tier_expires_at && new Date(profile.tier_expires_at) < new Date()) {
+      await supabase.from('profiles').update({ 
+        tier: 0, 
+        tier_expires_at: null 
+      }).eq('id', currentUser.id);
+      
+      // Update local profile data
+      profile.tier = 0;
+      profile.tier_expires_at = null;
+    }
+    
     setProfile(profile)
     setProfileName(profile?.name || profile?.full_name || '')
     setDisplayName(profile?.name || profile?.full_name || '')
