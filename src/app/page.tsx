@@ -164,17 +164,10 @@ async function fetchProducts() {
   }
 
   const sidebarGlassStyle = {
-    background: 'rgba(255, 255, 255, 0.04)',
-    backdropFilter: 'blur(24px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-    border: '1px solid rgba(255, 255, 255, 0.12)',
-    borderTop: '1px solid rgba(255, 255, 255, 0.22)',
-    boxShadow: `
-      0 8px 32px rgba(0, 0, 0, 0.5),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.2)
-    `,
-    borderRadius: '20px'
+    background: 'white',
+    border: '1px solid #e5e7eb',
+    borderRadius: '16px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
   }
 
   return (
@@ -383,17 +376,17 @@ async function fetchProducts() {
               className="p-6"
             >
               <div className="flex items-center space-x-2 mb-6">
-                <TrendingUp className="w-5 h-5 text-amber-300" />
-                <h3 className="font-bold text-white text-lg">Trending Sellers</h3>
+                <TrendingUp className="w-5 h-5 text-amber-500" />
+                <h3 className="font-bold text-gray-900 text-lg">Trending Sellers</h3>
               </div>
               <div className="space-y-4">
                 {trendingSellers.slice(0, 3).map((seller) => (
                   <Link
                     key={seller.id}
                     href={`/seller/${seller.id}`}
-                    className="flex items-center space-x-4 p-3 rounded-xl transition-all duration-200 hover:bg-white/[0.05]"
+                    className="flex items-center space-x-4 p-3 rounded-xl transition-all duration-200 hover:bg-gray-50"
                   >
-                    <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-white/[0.06]">
+                    <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
                       {seller.avatar_url && getImageUrl(seller.avatar_url) ? (
                         <img
                           src={getImageUrl(seller.avatar_url)!}
@@ -405,15 +398,15 @@ async function fetchProducts() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <User className="w-6 h-6 text-white/60" />
+                          <User className="w-6 h-6 text-gray-400" />
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-white font-medium truncate">
+                      <p className="text-gray-900 font-medium truncate">
                         {seller.full_name || 'Seller'}
                       </p>
-                      <p className="text-white/35 text-sm">Verified Seller</p>
+                      <p className="text-gray-500 text-sm">Verified Seller</p>
                     </div>
                   </Link>
                 ))}
@@ -429,18 +422,18 @@ async function fetchProducts() {
               className="p-6"
             >
               <div className="flex items-center space-x-2 mb-6">
-                <Package className="w-5 h-5 text-teal-400" />
-                <h3 className="font-bold text-white text-lg">Categories</h3>
+                <Package className="w-5 h-5 text-teal-500" />
+                <h3 className="font-bold text-gray-900 text-lg">Categories</h3>
               </div>
               <div className="space-y-3">
                 {categories.slice(0, 6).map((category) => (
                   <Link
                     key={category.name}
                     href={`/browse?category=${category.name}`}
-                    className="flex items-center justify-between p-3 rounded-xl transition-all duration-200 hover:bg-white/[0.05]"
+                    className="flex items-center justify-between p-3 rounded-xl transition-all duration-200 hover:bg-gray-50"
                   >
-                    <span className="text-white/80 font-medium">{category.name}</span>
-                    <span className="text-white/35 text-sm">{category.count}</span>
+                    <span className="text-gray-700 font-medium">{category.name}</span>
+                    <span className="text-gray-500 text-sm">{category.count}</span>
                   </Link>
                 ))}
               </div>
@@ -455,17 +448,17 @@ async function fetchProducts() {
               className="p-6"
             >
               <div className="flex items-center space-x-2 mb-6">
-                <Package className="w-5 h-5 text-amber-300" />
-                <h3 className="font-bold text-white text-lg">Recently Added</h3>
+                <Package className="w-5 h-5 text-amber-500" />
+                <h3 className="font-bold text-gray-900 text-lg">Recently Added</h3>
               </div>
               <div className="space-y-4">
                 {recentProducts.map((product) => (
                   <Link
                     key={product.id}
                     href={`/products/${product.id}`}
-                    className="flex items-center space-x-4 p-3 rounded-xl transition-all duration-200 hover:bg-white/[0.05]"
+                    className="flex items-center space-x-4 p-3 rounded-xl transition-all duration-200 hover:bg-gray-50"
                   >
-                    <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-white/[0.06]">
+                    <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
                       {product.image_url && getImageUrl(product.image_url) ? (
                         <img
                           src={getImageUrl(product.image_url)!}
@@ -477,15 +470,15 @@ async function fetchProducts() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-white/20 text-xs">No Image</span>
+                          <span className="text-gray-400 text-xs">No Image</span>
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-white font-medium truncate">
+                      <p className="text-gray-900 font-medium truncate">
                         {product.name}
                       </p>
-                      <p className="text-amber-300 font-bold text-lg">
+                      <p className="text-amber-600 font-bold text-lg">
                         ${product.price.toFixed(2)}
                       </p>
                     </div>
