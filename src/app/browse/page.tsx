@@ -52,7 +52,7 @@ function BrowseContent() {
 
   const { data: profilesData } = await supabase
     .from('profiles')
-    .select('id, name, full_name, avatar_url, rank, banned')
+    .select('id, name, full_name, avatar_url, rank, banned, tier_expires_at')
     .in('id', sellerIds)
 
   const merged = productsData.map((product: any) => ({
@@ -62,14 +62,42 @@ function BrowseContent() {
 
   const visible = merged.filter((p: any) => !p.profiles?.banned)
 
-  const rankOrder: Record<string, number> = {
-    premium: 3, verified: 2, starter: 1, none: 0
+  // Helper function to determine seller status
+  const getSellerStatus = (profile: any) => {
+    if (!profile || profile.rank === 0) return 'free'
+    if (profile.tier_expires_at && new Date(profile.tier_expires_at) > new Date()) return 'active'
+    return 'expired'
   }
 
-  const sorted = [...visible].sort((a: any, b: any) =>
-    (rankOrder[b.profiles?.rank || 'none'] || 0) -
-    (rankOrder[a.profiles?.rank || 'none'] || 0)
-  )
+  // Sort by seller status, then tier, then likes
+  let sorted = [...visible].sort((a: any, b: any) => {
+    const aProfile = a.profiles
+    const bProfile = b.profiles
+    
+    const aStatus = getSellerStatus(aProfile)
+    const bStatus = getSellerStatus(bProfile)
+    
+    // Status priority: active > free > expired
+    const statusOrder = { active: 0, free: 1, expired: 2 }
+    const statusDiff = statusOrder[aStatus] - statusOrder[bStatus]
+    if (statusDiff !== 0) return statusDiff
+    
+    // For active sellers, sort by tier (higher first)
+    if (aStatus === 'active' && bStatus === 'active') {
+      return (bProfile?.rank || 0) - (aProfile?.rank || 0)
+    }
+    
+    // For same status, sort by likes
+    return (b.likes || 0) - (a.likes || 0)
+  })
+
+  // Apply additional sorting based on user selection
+  if (sort === 'price_asc') {
+    sorted = sorted.sort((a: any, b: any) => (a.price || 0) - (b.price || 0))
+  } else if (sort === 'price_desc') {
+    sorted = sorted.sort((a: any, b: any) => (b.price || 0) - (a.price || 0))
+  }
+  // 'newest' is already applied by default ordering
 
   setProducts(sorted)
   setProductsLoading(false)

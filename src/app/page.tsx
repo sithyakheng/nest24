@@ -102,10 +102,10 @@ async function fetchProducts() {
   // Get unique seller ids
   const sellerIds = [...new Set(productsData.map((p: any) => p.seller_id))]
 
-  // Fetch seller profiles
+  // Fetch seller profiles with tier expiry
   const { data: profilesData } = await supabase
     .from('profiles')
-    .select('id, name, full_name, avatar_url, rank, banned')
+    .select('id, name, full_name, avatar_url, rank, banned, tier_expires_at')
     .in('id', sellerIds)
 
   // Merge profiles into products
@@ -116,31 +116,34 @@ async function fetchProducts() {
 
   const visible = merged.filter((p: any) => !p.profiles?.banned)
 
-  // Tier order: Premium (3) → Verified (2) → Starter (1) → No rank (0)
-  const tierOrder: Record<string, number> = {
-    premium: 3, 
-    verified: 2, 
-    starter: 1, 
-    none: 0
+  // Helper function to determine seller status
+  const getSellerStatus = (profile: any) => {
+    if (!profile || profile.rank === 0) return 'free'
+    if (profile.tier_expires_at && new Date(profile.tier_expires_at) > new Date()) return 'active'
+    return 'expired'
   }
 
-  // Group products by tier
-  const groupedByTier = visible.reduce((acc: Record<string, any[]>, product: any) => {
-    const tier = product.profiles?.rank || 'none'
-    if (!acc[tier]) acc[tier] = []
-    acc[tier].push(product)
-    return acc
-  }, {})
-
-  // Sort each tier group by likes descending
-  Object.keys(groupedByTier).forEach(tier => {
-    groupedByTier[tier].sort((a: any, b: any) => (b.likes || 0) - (a.likes || 0))
+  // Sort by seller status, then tier, then likes
+  const sorted = visible.sort((a: any, b: any) => {
+    const aProfile = a.profiles
+    const bProfile = b.profiles
+    
+    const aStatus = getSellerStatus(aProfile)
+    const bStatus = getSellerStatus(bProfile)
+    
+    // Status priority: active > free > expired
+    const statusOrder = { active: 0, free: 1, expired: 2 }
+    const statusDiff = statusOrder[aStatus] - statusOrder[bStatus]
+    if (statusDiff !== 0) return statusDiff
+    
+    // For active sellers, sort by tier (higher first)
+    if (aStatus === 'active' && bStatus === 'active') {
+      return (bProfile?.rank || 0) - (aProfile?.rank || 0)
+    }
+    
+    // For same status, sort by likes
+    return (b.likes || 0) - (a.likes || 0)
   })
-
-  // Flatten back to array maintaining tier order
-  const sorted = Object.keys(groupedByTier)
-    .sort((a, b) => (tierOrder[b] || 0) - (tierOrder[a] || 0))
-    .flatMap(tier => groupedByTier[tier])
 
   setProducts(sorted)
   setRecentProducts(sorted.slice(0, 5))
