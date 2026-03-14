@@ -497,6 +497,16 @@ export default function AdminPage() {
                                 .update({ status: 'rejected' })
                                 .eq('id', req.id);
 
+                              // Delete screenshot from Cloudinary
+                              if (req.screenshot_url) {
+                                const publicId = extractPublicId(req.screenshot_url);
+                                await fetch('/api/delete-image', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ publicId }),
+                                });
+                              }
+
                               alert('Rank request rejected!');
                               fetchAll();
                             }}
