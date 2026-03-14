@@ -73,6 +73,13 @@ export default function AdminPage() {
     checkAdmin()
   }, [])
 
+  const extractPublicId = (url: string) => {
+    const parts = url.split('/');
+    const uploadIndex = parts.indexOf('upload');
+    const pathAfterUpload = parts.slice(uploadIndex + 2).join('/');
+    return pathAfterUpload.replace(/\.[^/.]+$/, '');
+  };
+
   async function fetchAll() {
     setLoading(true)
 
@@ -446,6 +453,16 @@ export default function AdminPage() {
                                 .from('profiles')
                                 .update({ rank: req.rank })
                                 .eq('id', req.seller_id);
+
+                              // Delete screenshot from Cloudinary
+                              if (req.screenshot_url) {
+                                const publicId = extractPublicId(req.screenshot_url);
+                                await fetch('/api/delete-image', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ publicId }),
+                                });
+                              }
 
                               alert('Rank request approved!');
                               fetchAll();
