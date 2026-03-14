@@ -45,12 +45,12 @@ export default function RankRequestPage() {
     try {
       const formData = new FormData();
       formData.append('file', screenshot);
-      formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || '');
+      formData.append('upload_preset', 'nestkh_uploads');
 
-      console.log('Cloudinary cloud name:', process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
-      console.log('Upload preset:', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+      console.log('Cloudinary cloud name: dis7tyccn');
+      console.log('Upload preset: nestkh_uploads');
 
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/dis7tyccn/image/upload`, {
         method: 'POST',
         body: formData,
       });
