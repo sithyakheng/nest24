@@ -14,9 +14,8 @@ export const metadata = {
   title: 'NestKH - Premium Cambodian Marketplace',
   description: "Cambodia's premier digital marketplace",
   icons: {
-    icon: '/nestkh-logo.svg',
-    apple: '/nestkh-logo.svg',
-    shortcut: '/nestkh-logo.svg',
+    icon: 'https://res.cloudinary.com/dis7tyccn/image/upload/v1773312754/nestkh/rutdnjul41sbyldamczk.png',
+    apple: 'https://res.cloudinary.com/dis7tyccn/image/upload/v1773312754/nestkh/rutdnjul41sbyldamczk.png',
   },
 }
 
@@ -27,6 +26,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className="bg-white">
+      <head>
+        <link rel="icon" href="https://res.cloudinary.com/dis7tyccn/image/upload/v1773312754/nestkh/rutdnjul41sbyldamczk.png" />
+      </head>
       <body className={`${inter.variable} font-sans antialiased bg-white`}>
         <LanguageProvider>
           <AuthProvider>
