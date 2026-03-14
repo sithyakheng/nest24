@@ -83,10 +83,29 @@ export default function AdminPage() {
   async function fetchAll() {
     setLoading(true)
 
-    // Fetch ALL rank requests with all required fields
+    // Fetch ALL rank requests with seller profile info
     const { data: requests } = await supabase
       .from('rank_requests')
-      .select('id, seller_id, rank, status, screenshot_url, full_name, shop_name, created_at')
+      .select(`
+        id, 
+        seller_id, 
+        rank, 
+        status, 
+        screenshot_url, 
+        full_name, 
+        shop_name, 
+        created_at,
+        profiles!inner (
+          id,
+          name,
+          full_name,
+          email,
+          avatar_url,
+          shop_slug,
+          rank,
+          tier_expires_at
+        )
+      `)
       .order('created_at', { ascending: false })
     setRankRequests(requests || [])
 
@@ -352,38 +371,158 @@ export default function AdminPage() {
                       border: '1px solid #e5e7eb', 
                       borderRadius: '20px', 
                       boxShadow: '0 1px 3px rgba(0,0,0,0.05)', 
-                      padding: '20px' 
+                      padding: '24px' 
                     }}>
-                      {/* Header with Full Name */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                        <div>
-                          <p style={{ color: '#111827', fontWeight: '700', fontSize: '18px', margin: '0' }}>{req.full_name || 'Unknown'}</p>
-                          <p style={{ color: '#6b7280', fontSize: '14px', margin: '4px 0 0 0' }}>{req.shop_name || 'No shop name'}</p>
+                      {/* Seller Profile Header */}
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '20px' }}>
+                        {/* Seller Avatar */}
+                        <div style={{
+                          width: '48px',
+                          height: '48px',
+                          borderRadius: '50%',
+                          backgroundColor: '#f3f4f6',
+                          border: '2px solid #e5e7eb',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          overflow: 'hidden',
+                          flexShrink: 0
+                        }}>
+                          {req.profiles?.avatar_url ? (
+                            <img 
+                              src={req.profiles.avatar_url} 
+                              alt="Seller Avatar"
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          ) : (
+                            <span style={{ color: '#6b7280', fontWeight: '600', fontSize: '16px' }}>
+                              {(req.profiles?.name || req.profiles?.full_name || 'S').charAt(0).toUpperCase()}
+                            </span>
+                          )}
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ 
-                            padding: '6px 12px', 
-                            borderRadius: '12px', 
-                            fontSize: '12px', 
-                            fontWeight: '600',
-                            backgroundColor: req.status === 'pending' ? '#fef3c7' : req.status === 'approved' ? '#d1fae5' : '#fee2e2',
-                            color: req.status === 'pending' ? '#92400e' : req.status === 'approved' ? '#065f46' : '#991b1b',
-                            border: `1px solid ${req.status === 'pending' ? '#fbbf24' : req.status === 'approved' ? '#34d399' : '#ef4444'}`
-                          }}>
-                            {req.status === 'pending' ? '⏳ Pending' : req.status === 'approved' ? '✅ Approved' : '❌ Rejected'}
-                          </span>
+
+                        {/* Seller Info */}
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <h3 style={{ color: '#111827', fontWeight: '700', fontSize: '18px', margin: 0 }}>
+                              {req.profiles?.name || req.profiles?.full_name || 'Unknown Seller'}
+                            </h3>
+                            <span style={{ 
+                              padding: '6px 12px', 
+                              borderRadius: '12px', 
+                              fontSize: '12px', 
+                              fontWeight: '600',
+                              backgroundColor: req.status === 'pending' ? '#fef3c7' : req.status === 'approved' ? '#d1fae5' : '#fee2e2',
+                              color: req.status === 'pending' ? '#92400e' : req.status === 'approved' ? '#065f46' : '#991b1b',
+                              border: `1px solid ${req.status === 'pending' ? '#fbbf24' : req.status === 'approved' ? '#34d399' : '#ef4444'}`
+                            }}>
+                              {req.status === 'pending' ? '⏳ Pending' : req.status === 'approved' ? '✅ Approved' : '❌ Rejected'}
+                            </span>
+                          </div>
+                          
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '8px' }}>
+                            <div>
+                              <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 2px 0' }}>Email</p>
+                              <p style={{ color: '#374151', fontWeight: '500', fontSize: '14px', margin: 0 }}>
+                                {req.profiles?.email || 'No email'}
+                              </p>
+                            </div>
+                            
+                            <div>
+                              <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 2px 0' }}>Shop</p>
+                              <p style={{ color: '#374151', fontWeight: '500', fontSize: '14px', margin: 0 }}>
+                                {req.shop_name || req.profiles?.shop_slug || 'No shop name'}
+                              </p>
+                            </div>
+                            
+                            <div>
+                              <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 2px 0' }}>Current Tier</p>
+                              <span style={{
+                                padding: '4px 8px',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                backgroundColor: req.profiles?.rank === 3 ? '#fef3c7' : req.profiles?.rank === 2 ? '#dbeafe' : req.profiles?.rank === 1 ? '#f3f4f6' : '#f9fafb',
+                                color: req.profiles?.rank === 3 ? '#92400e' : req.profiles?.rank === 2 ? '#1e40af' : req.profiles?.rank === 1 ? '#374151' : '#6b7280',
+                                border: `1px solid ${req.profiles?.rank === 3 ? '#f59e0b' : req.profiles?.rank === 2 ? '#3b82f6' : req.profiles?.rank === 1 ? '#d1d5db' : '#e5e7eb'}`
+                              }}>
+                                {req.profiles?.rank === 3 ? 'Premium' : req.profiles?.rank === 2 ? 'Verified' : req.profiles?.rank === 1 ? 'Starter' : 'Free'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Shop Link */}
+                          {req.profiles?.shop_slug && (
+                            <div>
+                              <Link 
+                                href={`/seller/${req.profiles.shop_slug}`}
+                                style={{
+                                  color: '#004E64',
+                                  fontSize: '13px',
+                                  fontWeight: '500',
+                                  textDecoration: 'none',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}
+                              >
+                                🏪 View Shop Page →
+                              </Link>
+                            </div>
+                          )}
                         </div>
                       </div>
 
-                      {/* Request Details */}
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                      {/* Expiry Info */}
+                      <div style={{ 
+                        backgroundColor: '#f9fafb', 
+                        border: '1px solid #e5e7eb', 
+                        borderRadius: '12px', 
+                        padding: '12px 16px', 
+                        marginBottom: '20px' 
+                      }}>
+                        <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 4px 0' }}>Subscription Status</p>
+                        {(() => {
+                          if (!req.profiles?.tier_expires_at || req.profiles?.rank === 0) {
+                            return <p style={{ color: '#6b7280', fontWeight: '500', fontSize: '14px', margin: 0 }}>Free account</p>
+                          } else {
+                            const expiryDate = new Date(req.profiles.tier_expires_at)
+                            const isExpired = expiryDate < new Date()
+                            const formattedDate = expiryDate.toLocaleDateString('en-US', { 
+                              year: 'numeric', 
+                              month: 'short', 
+                              day: 'numeric' 
+                            })
+                            
+                            return (
+                              <p style={{ 
+                                color: isExpired ? '#dc2626' : '#059669', 
+                                fontWeight: '600', 
+                                fontSize: '14px', 
+                                margin: 0 
+                              }}>
+                                {isExpired ? `❌ Expired ${formattedDate}` : `✅ Current plan expires: ${formattedDate}`}
+                              </p>
+                            )
+                          }
+                        })()}
+                      </div>
+
+                      {/* Request Details Grid */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '20px' }}>
                         <div>
                           <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 4px 0' }}>Requested Tier</p>
-                          <p style={{ color: '#111827', fontWeight: '600', fontSize: '16px', margin: '0' }}>{tierName}</p>
+                          <p style={{ color: '#111827', fontWeight: '600', fontSize: '16px', margin: 0 }}>{tierName}</p>
+                        </div>
+                        <div>
+                          <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 4px 0' }}>Submitted Name</p>
+                          <p style={{ color: '#111827', fontWeight: '500', fontSize: '14px', margin: 0 }}>
+                            {req.full_name || 'Not provided'}
+                          </p>
                         </div>
                         <div>
                           <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 4px 0' }}>Submitted Date</p>
-                          <p style={{ color: '#111827', fontWeight: '600', fontSize: '14px', margin: '0' }}>
+                          <p style={{ color: '#111827', fontWeight: '500', fontSize: '14px', margin: 0 }}>
                             {new Date(req.created_at).toLocaleDateString('en-US', { 
                               year: 'numeric', 
                               month: 'short', 
@@ -394,16 +533,16 @@ export default function AdminPage() {
                       </div>
 
                       {/* Payment Screenshot */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
-                        <p style={{ color: '#6b7280', fontSize: '14px', margin: '0' }}>Payment Proof:</p>
+                      <div style={{ marginBottom: '20px' }}>
+                        <p style={{ color: '#6b7280', fontSize: '14px', margin: '0 0 12px 0' }}>Payment Proof:</p>
                         {req.screenshot_url ? (
                           <img 
                             src={req.screenshot_url} 
                             alt="Payment Screenshot" 
                             onClick={() => window.open(req.screenshot_url, '_blank')}
                             style={{ 
-                              width: '120px', 
-                              height: '120px', 
+                              width: '150px', 
+                              height: '150px', 
                               borderRadius: '12px', 
                               objectFit: 'cover',
                               cursor: 'pointer',
@@ -421,8 +560,8 @@ export default function AdminPage() {
                           />
                         ) : (
                           <div style={{ 
-                            width: '120px', 
-                            height: '120px', 
+                            width: '150px', 
+                            height: '150px', 
                             borderRadius: '12px', 
                             backgroundColor: '#f9fafb', 
                             border: '2px dashed #d1d5db',
