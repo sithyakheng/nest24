@@ -754,7 +754,7 @@ export default function AdminPage() {
 
                   return sortedSellers.map(seller => {
                     // Calculate days remaining and status
-                    const getSubscriptionStatus = (seller) => {
+                    const getSubscriptionStatus = (seller: { tier: number; tier_expires_at: string | null }) => {
                       if (seller.tier === 0) {
                         return { days: null, status: 'free', color: '#6b7280', text: 'Free' };
                       }
