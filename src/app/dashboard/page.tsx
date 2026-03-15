@@ -156,7 +156,7 @@ export default function DashboardPage() {
     }
     
     // Automatic tier downgrade for expired subscriptions
-    if (profile.tier > 0 && profile.tier_expires_at && new Date(profile.tier_expires_at) < new Date()) {
+    if (profile.tier > 0 && profile.tier_forever !== true && profile.tier_expires_at && new Date(profile.tier_expires_at) < new Date()) {
       await supabase.from('profiles').update({ 
         tier: 0, 
         tier_expires_at: null 
@@ -633,36 +633,38 @@ export default function DashboardPage() {
           {/* Overview Tab */}
           {activeTab === 'overview' && (
             <div>
-  <h1 style={{ color: '#1e293b', fontSize: '24px', fontWeight: '700', marginBottom: '24px' }}>Dashboard Overview</h1>
+              <h1 style={{ color: '#1e293b', fontSize: '24px', fontWeight: '700', marginBottom: '24px' }}>Dashboard Overview</h1>
   
-  {/* Subscription Countdown Widget */}
-  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
-    {profile?.rank > 0 && profile?.tier_expires_at && (
-      (() => {
-        const daysLeft = Math.max(0, Math.ceil((new Date(profile.tier_expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
-        const tierNames = { 1: 'Starter', 2: 'Verified', 3: 'Premium' };
-        const tierName = tierNames[profile.rank as keyof typeof tierNames] || 'Unknown';
-        
-        let color = '#16a34a'; // green
-        if (daysLeft <= 7) color = '#dc2626'; // red
-        else if (daysLeft <= 14) color = '#f59e0b'; // orange
-        
-        return (
-          <div style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '16px', textAlign: 'center', width: '200px' }}>
-            <div style={{ fontSize: '36px', fontWeight: '800', color: color }}>
-              {daysLeft}
-            </div>
-            <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
-              days left on {tierName} plan
-            </div>
-            {daysLeft <= 7 && (
-              <a href="/ranks" style={{ fontSize: '12px', color: 'white', backgroundColor: '#dc2626', padding: '6px 12px', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', display: 'inline-block' }}>Renew</a>
-            )}
-          </div>
-        );
-      })()
-    )}
-  </div>
+              {/* Subscription Countdown Widget */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
+                {profile?.tier_forever === true ? (
+                  <div style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '16px', textAlign: 'center', width: '180px' }}>
+                    <div style={{ fontSize: '24px', fontWeight: '800', color: '#f59e0b', marginBottom: '8px' }}>♾️ Forever</div>
+                    <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '0px' }}>
+                      {(() => {
+                        const tierNames = { 1: 'Starter', 2: 'Verified', 3: 'Premium' };
+                        return tierNames[profile.rank as keyof typeof tierNames] || 'Unknown';
+                      })()}
+                    </div>
+                  </div>
+                ) : profile?.rank > 0 && profile?.tier_expires_at && (
+                  (() => {
+                    const daysLeft = Math.max(0, Math.ceil((new Date(profile.tier_expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+                    const tierNames = { 1: 'Starter', 2: 'Verified', 3: 'Premium' };
+                    const tierName = tierNames[profile.rank as keyof typeof tierNames] || 'Unknown';
+                    
+                    return (
+                      <div style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '16px', textAlign: 'center', width: '180px' }}>
+                        <div style={{ fontSize: '36px', fontWeight: '800', color: '#004E64' }}>
+                          {daysLeft}
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>days left</div>
+                        <a href="/ranks" style={{ fontSize: '12px', color: 'white', backgroundColor: '#004E64', padding: '6px 12px', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' }}>Renew</a>
+                      </div>
+                    );
+                  })()
+                )}
+              </div>
   
   {/* Stats Cards */}
   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '32px' }}>

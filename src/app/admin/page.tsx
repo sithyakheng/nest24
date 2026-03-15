@@ -22,6 +22,56 @@ export default function AdminPage() {
   const [userRole, setUserRole] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
 
+  // Approve handler for rank requests
+  const handleApprove = async (request: any) => {
+    const isForever = request.plan_type === 'forever';
+    
+    await supabase.from('profiles').update({
+      tier: request.rank,
+      tier_forever: isForever ? true : false,
+      tier_expires_at: isForever ? null : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+    }).eq('id', request.seller_id);
+
+    await supabase.from('rank_requests').update({ status: 'approved' }).eq('id', request.id);
+
+    // Delete screenshot from Cloudinary
+    if (request.screenshot_url) {
+      const parts = request.screenshot_url.split('/');
+      const uploadIndex = parts.indexOf('upload');
+      const pathAfterUpload = parts.slice(uploadIndex + 2).join('/');
+      const publicId = pathAfterUpload.replace(/\.[^/.]+$/, '');
+      await fetch('/api/delete-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ publicId }),
+      });
+    }
+    
+    alert('Rank request approved!');
+    fetchAll();
+  };
+
+  // Reject handler for rank requests
+  const handleReject = async (request: any) => {
+    await supabase.from('rank_requests').update({ status: 'rejected' }).eq('id', request.id);
+
+    // Delete screenshot from Cloudinary
+    if (request.screenshot_url) {
+      const parts = request.screenshot_url.split('/');
+      const uploadIndex = parts.indexOf('upload');
+      const pathAfterUpload = parts.slice(uploadIndex + 2).join('/');
+      const publicId = pathAfterUpload.replace(/\.[^/.]+$/, '');
+      await fetch('/api/delete-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ publicId }),
+      });
+    }
+    
+    alert('Rank request rejected!');
+    fetchAll();
+  };
+
   useEffect(() => {
     async function checkAdmin() {
       const { data: { user } } = await supabase.auth.getUser()
@@ -305,7 +355,8 @@ export default function AdminPage() {
   }
 
   const tabs = [
-    { id: 'requests', label: 'Requests', count: rankRequests.filter(r => r.status === 'pending').length },
+    { id: 'monthly-ranks', label: 'Monthly Ranks', count: rankRequests.filter(r => r.plan_type === 'monthly' || !r.plan_type).length },
+    { id: 'forever-ranks', label: 'Forever Ranks', count: rankRequests.filter(r => r.plan_type === 'forever').length },
     { id: 'subscriptions', label: 'Subscriptions', count: sellers.filter(s => s.role === 'seller').length },
     { id: 'users', label: 'Users', count: allUsers.length },
     { id: 'sellers', label: 'Sellers', count: sellers.length },
@@ -355,15 +406,15 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* RANK REQUESTS TAB */}
-        {activeTab === 'requests' && (
+        {/* MONTHLY RANKS TAB */}
+        {activeTab === 'monthly-ranks' && (
           <div style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '24px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <h2 style={{ color: '#111827', fontWeight: '800', fontSize: '20px', marginBottom: '20px' }}>Rank Requests</h2>
-            {rankRequests.length === 0 ? (
-              <p style={{ color: '#6b7280', textAlign: 'center', padding: '40px' }}>No rank requests yet</p>
+            <h2 style={{ color: '#111827', fontWeight: '800', fontSize: '20px', marginBottom: '20px' }}>Monthly Rank Requests</h2>
+            {rankRequests.filter(r => r.plan_type === 'monthly' || !r.plan_type).length === 0 ? (
+              <p style={{ color: '#6b7280', textAlign: 'center', padding: '40px' }}>No monthly rank requests yet</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {rankRequests.map(req => {
+                {rankRequests.filter(r => r.plan_type === 'monthly' || !r.plan_type).map(req => {
                   const tierNames: Record<number, string> = { 1: 'Starter', 2: 'Verified', 3: 'Premium' };
                   const tierName = tierNames[req.rank] || 'Unknown';
                   
@@ -397,90 +448,12 @@ export default function AdminPage() {
                               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />
                           ) : (
-                            <span style={{ color: '#6b7280', fontWeight: '600', fontSize: '16px' }}>
-                              {(req.profiles?.name || req.profiles?.full_name || 'S').charAt(0).toUpperCase()}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Seller Info */}
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                            <h3 style={{ color: '#111827', fontWeight: '700', fontSize: '18px', margin: 0 }}>
-                              {req.profiles?.name || req.profiles?.full_name || 'Unknown Seller'}
-                            </h3>
-                            <span style={{ 
-                              padding: '6px 12px', 
-                              borderRadius: '12px', 
-                              fontSize: '12px', 
-                              fontWeight: '600',
-                              backgroundColor: req.status === 'pending' ? '#fef3c7' : req.status === 'approved' ? '#d1fae5' : '#fee2e2',
-                              color: req.status === 'pending' ? '#92400e' : req.status === 'approved' ? '#065f46' : '#991b1b',
-                              border: `1px solid ${req.status === 'pending' ? '#fbbf24' : req.status === 'approved' ? '#34d399' : '#ef4444'}`
-                            }}>
-                              {req.status === 'pending' ? '⏳ Pending' : req.status === 'approved' ? '✅ Approved' : '❌ Rejected'}
-                            </span>
-                          </div>
-                          
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '8px' }}>
-                            <div>
-                              <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 2px 0' }}>Email</p>
-                              <p style={{ color: '#374151', fontWeight: '500', fontSize: '14px', margin: 0 }}>
-                                {req.profiles?.email || 'No email'}
-                              </p>
-                            </div>
-                            
-                            <div>
-                              <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 2px 0' }}>Shop</p>
-                              <p style={{ color: '#374151', fontWeight: '500', fontSize: '14px', margin: 0 }}>
-                                {req.shop_name || req.profiles?.shop_slug || 'No shop name'}
-                              </p>
-                            </div>
-                            
-                            <div>
-                              <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 2px 0' }}>Current Tier</p>
-                              <span style={{
-                                padding: '4px 8px',
-                                borderRadius: '8px',
-                                fontSize: '12px',
-                                fontWeight: '600',
-                                backgroundColor: req.profiles?.rank === 3 ? '#fef3c7' : req.profiles?.rank === 2 ? '#dbeafe' : req.profiles?.rank === 1 ? '#f3f4f6' : '#f9fafb',
-                                color: req.profiles?.rank === 3 ? '#92400e' : req.profiles?.rank === 2 ? '#1e40af' : req.profiles?.rank === 1 ? '#374151' : '#6b7280',
-                                border: `1px solid ${req.profiles?.rank === 3 ? '#f59e0b' : req.profiles?.rank === 2 ? '#3b82f6' : req.profiles?.rank === 1 ? '#d1d5db' : '#e5e7eb'}`
-                              }}>
-                                {req.profiles?.rank === 3 ? 'Premium' : req.profiles?.rank === 2 ? 'Verified' : req.profiles?.rank === 1 ? 'Starter' : 'Free'}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Shop Link */}
-                          {req.profiles?.shop_slug && (
-                            <div>
-                              <Link 
-                                href={`/seller/${req.profiles.shop_slug}`}
-                                style={{
-                                  color: '#004E64',
-                                  fontSize: '13px',
-                                  fontWeight: '500',
-                                  textDecoration: 'none',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '4px'
-                                }}
-                              >
-                                🏪 View Shop Page →
-                              </Link>
+                            <div style={{ fontSize: '24px', fontWeight: '800', color: '#4DB8CC' }}>
+                              {req.profiles?.full_name?.charAt(0).toUpperCase() || 'S'}
                             </div>
                           )}
                         </div>
-                      </div>
 
-                      {/* Expiry Info */}
-                      <div style={{ 
-                        backgroundColor: '#f9fafb', 
-                        border: '1px solid #e5e7eb', 
-                        borderRadius: '12px', 
-                        padding: '12px 16px', 
                         marginBottom: '20px' 
                       }}>
                         <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 4px 0' }}>Subscription Status</p>
@@ -582,35 +555,7 @@ export default function AdminPage() {
                       {req.status === 'pending' && (
                         <div style={{ display: 'flex', gap: '12px' }}>
                           <button
-                            onClick={async () => {
-                              // Update rank request status
-                              await supabase
-                                .from('rank_requests')
-                                .update({ status: 'approved' })
-                                .eq('id', req.id);
-
-                              // Update seller profile tier with expiry
-                              await supabase
-                                .from('profiles')
-                                .update({ 
-                                  rank: req.rank,
-                                  tier_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-                                })
-                                .eq('id', req.seller_id);
-
-                              // Delete screenshot from Cloudinary
-                              if (req.screenshot_url) {
-                                const publicId = extractPublicId(req.screenshot_url);
-                                await fetch('/api/delete-image', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ publicId }),
-                                });
-                              }
-
-                              alert('Rank request approved!');
-                              fetchAll();
-                            }}
+                            onClick={() => handleApprove(req)}
                             style={{
                               backgroundColor: '#004E64',
                               color: 'white',
@@ -634,26 +579,7 @@ export default function AdminPage() {
                             ✅ Approve
                           </button>
                           <button
-                            onClick={async () => {
-                              // Update rank request status
-                              await supabase
-                                .from('rank_requests')
-                                .update({ status: 'rejected' })
-                                .eq('id', req.id);
-
-                              // Delete screenshot from Cloudinary
-                              if (req.screenshot_url) {
-                                const publicId = extractPublicId(req.screenshot_url);
-                                await fetch('/api/delete-image', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ publicId }),
-                                });
-                              }
-
-                              alert('Rank request rejected!');
-                              fetchAll();
-                            }}
+                            onClick={() => handleReject(req)}
                             style={{
                               backgroundColor: '#dc2626',
                               color: 'white',
@@ -888,7 +814,9 @@ export default function AdminPage() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <span style={{ color: '#6b7280', fontSize: '11px', fontWeight: '500' }}>⏰ Expires:</span>
                             <span style={{ color: '#111827', fontSize: '12px', fontWeight: '600' }}>
-                              {seller.tier_expires_at ? 
+                              {seller.tier_forever === true ? (
+                                <span style={{ color: '#f59e0b', fontWeight: '700' }}>♾️ Forever</span>
+                              ) : seller.tier_expires_at ? 
                                 new Date(seller.tier_expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 
                                 'Never'
                               }
