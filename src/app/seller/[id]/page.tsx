@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { useLang } from '@/contexts/LanguageContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import Navbar from '@/components/Navbar'
-import { Star, Check, Medal, Send, Facebook, Shield, Flag, ThumbsUp } from 'lucide-react'
+import { Star, Check, Medal, Send, Facebook, Shield, Flag, ThumbsUp, Package } from 'lucide-react'
 
 export default function SellerShopPage() {
   const { lang } = useLang()
@@ -162,9 +162,9 @@ export default function SellerShopPage() {
     return `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${url}` 
   }
 
-  const rankColor = seller.rank === 'premium' ? '#E8C97E' : seller.rank === 'verified' ? '#4DB8CC' : seller.rank === 'starter' ? '#93c5fd' : null
-  const rankBg = seller.rank === 'premium' ? 'rgba(232,201,126,0.15)' : seller.rank === 'verified' ? 'rgba(0,78,100,0.15)' : 'rgba(59,130,246,0.15)'
-  const rankBorder = seller.rank === 'premium' ? 'rgba(232,201,126,0.4)' : seller.rank === 'verified' ? 'rgba(0,78,100,0.4)' : 'rgba(59,130,246,0.4)'
+  const rankColor = seller.rank === 'premium' ? '#E8C97E' : seller.rank === 'verified' ? '#4DB8CC' : seller.rank === 'starter' ? '#93c5fd' : '#6b7280'
+  const rankBg = seller.rank === 'premium' ? 'rgba(232,201,126,0.15)' : seller.rank === 'verified' ? 'rgba(0,78,100,0.15)' : seller.rank === 'starter' ? 'rgba(59,130,246,0.15)' : 'rgba(107,114,128,0.15)'
+  const rankBorder = seller.rank === 'premium' ? 'rgba(232,201,126,0.4)' : seller.rank === 'verified' ? 'rgba(0,78,100,0.4)' : seller.rank === 'starter' ? 'rgba(59,130,246,0.4)' : 'rgba(107,114,128,0.4)'
 
   return (
     <div>
@@ -240,7 +240,7 @@ export default function SellerShopPage() {
                 </h1>
                 {rankColor && (
                   <span style={{ background: rankBg, border: `1px solid ${rankBorder}`, color: rankColor, fontSize: '12px', fontWeight: '700', padding: '4px 12px', borderRadius: '9999px' }}>
-                    {seller.rank === 'premium' ? <><Star size={12} /> Premium</> : seller.rank === 'verified' ? <><Check size={12} /> Verified</> : <><Medal size={12} /> Starter</>}
+                    {seller.rank === 'premium' ? <><Star size={12} /> Premium</> : seller.rank === 'verified' ? <><Check size={12} /> Verified</> : seller.rank === 'starter' ? <><Medal size={12} /> Starter</> : <><Package size={12} /> Free</>}
                   </span>
                 )}
               </div>
@@ -261,7 +261,7 @@ export default function SellerShopPage() {
                   <div>
                     <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 2px 0' }}>Rank</p>
                     <p style={{ color: rankColor || 'white', fontWeight: '800', fontSize: '20px', margin: 0 }}>
-                      {seller.rank.charAt(0).toUpperCase() + seller.rank.slice(1)}
+                      {seller.rank === 'premium' ? 'Premium' : seller.rank === 'verified' ? 'Verified' : seller.rank === 'starter' ? 'Starter' : 'Free'}
                     </p>
                   </div>
                 )}
@@ -317,11 +317,11 @@ export default function SellerShopPage() {
           </div>
 
           {/* Trusted seller message */}
-          {(seller.rank === 'verified' || seller.rank === 'premium') && (
+          {seller.rank && seller.rank !== 'none' && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(0,200,100,0.08)', border: '1px solid rgba(0,200,100,0.2)', borderRadius: '10px', padding: '10px 14px', marginTop: '20px' }}>
               <Shield size={16} />
               <p style={{ color: '#4ade80', fontSize: '13px', fontWeight: '600', margin: 0 }}>
-                {languageText.trusted}
+                {seller.rank === 'premium' ? 'Premium Seller — Top rated on NestKH' : seller.rank === 'verified' ? 'Verified Seller — Trusted by NestKH' : seller.rank === 'starter' ? 'Starter Seller — Growing on NestKH' : 'Free Seller — Join the NestKH community'}
               </p>
             </div>
           )}
@@ -390,7 +390,7 @@ export default function SellerShopPage() {
                       )}
                       {rankColor && (
                         <span style={{ position: 'absolute', top: '8px', right: '8px', background: rankBg, border: `1px solid ${rankBorder}`, color: rankColor, fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '9999px', backdropFilter: 'blur(8px)' }}>
-                          {seller.rank === 'premium' ? <><Star size={10} /> Premium</> : seller.rank === 'verified' ? <><Check size={10} /> Verified</> : <><Medal size={10} /> Starter</>}
+                          {seller.rank === 'premium' ? <><Star size={10} /> Premium</> : seller.rank === 'verified' ? <><Check size={10} /> Verified</> : seller.rank === 'starter' ? <><Medal size={10} /> Starter</> : <><Package size={10} /> Free</>}
                         </span>
                       )}
                     </div>
