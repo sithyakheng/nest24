@@ -781,8 +781,8 @@ export default function AdminPage() {
                     };
 
                     const subscriptionStatus = getSubscriptionStatus(seller);
-                    const tierNames = { 0: 'Free', 1: 'Starter', 2: 'Verified', 3: 'Premium' };
-                    const tierName = tierNames[seller.tier] || 'Unknown';
+                    const tierNames: Record<number, string> = { 0: 'Free', 1: 'Starter', 2: 'Verified', 3: 'Premium' };
+                    const tierName = tierNames[seller.tier as number] || 'Unknown';
 
                     return (
                       <div key={seller.id} style={{
