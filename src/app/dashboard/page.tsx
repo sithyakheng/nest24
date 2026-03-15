@@ -1229,7 +1229,7 @@ export default function DashboardPage() {
                   {[
                     { label: 'Full Name', value: fullName, setter: setFullName, placeholder: 'Your full name' },
                     { label: 'Bio', value: bio, setter: setBio, placeholder: 'Tell buyers about yourself', textarea: true },
-                    { label: 'Phone', value: phone, setter: setPhone, placeholder: '+855 xx xxx xxxx' },
+                    { label: 'Phone', value: phone, setter: setPhone, placeholder: 'Your phone number' },
                     { label: 'WhatsApp', value: whatsapp, setter: setWhatsapp, placeholder: '+855 xx xxx xxxx' },
                     { label: 'Facebook', value: facebook, setter: setFacebook, placeholder: 'facebook.com/yourpage' },
                     { label: 'Instagram', value: instagram, setter: setInstagram, placeholder: '@yourhandle' },

@@ -201,7 +201,7 @@ export default function UpgradeToSellerModal({ isOpen, onClose }: UpgradeToSelle
                         onChange={handleChange}
                         onFocus={() => setFocusedField('phoneNumber')}
                         onBlur={() => setFocusedField('')}
-                        placeholder="+855 12 345 678"
+                        placeholder="Your phone number"
                         className={`w-full px-4 py-4 bg-white/10 border rounded-2xl text-white placeholder-white/50 focus:outline-none smooth-transition ${
                           focusedField === 'phoneNumber' 
                             ? 'border-[#E0E5E9]/50 shadow-lg shadow-[#E0E5E9]/20' 

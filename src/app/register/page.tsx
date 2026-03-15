@@ -182,7 +182,7 @@ export default function RegisterPage() {
           {role === 'seller' && (
             <input
               type="tel"
-              placeholder="e.g. +855 12 345 678"
+              placeholder="Your phone number"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               required
