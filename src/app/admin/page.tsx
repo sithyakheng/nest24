@@ -727,7 +727,8 @@ export default function AdminPage() {
                       return (
                         (seller.name && seller.name.toLowerCase().includes(searchLower)) ||
                         (seller.full_name && seller.full_name.toLowerCase().includes(searchLower)) ||
-                        (seller.shop_slug && seller.shop_slug.toLowerCase().includes(searchLower))
+                        (seller.shop_slug && seller.shop_slug.toLowerCase().includes(searchLower)) ||
+                        (seller.phone && seller.phone.toLowerCase().includes(searchLower))
                       );
                     });
 
@@ -852,6 +853,11 @@ export default function AdminPage() {
                             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>
                               {seller.email || 'No email'}
                             </p>
+                            {seller.phone && (
+                              <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>
+                                📞 <a href={`tel:${seller.phone}`} style={{ color: '#4DB8CC', textDecoration: 'none' }}>{seller.phone}</a>
+                              </p>
+                            )}
                             {seller.shop_slug && (
                               <p style={{ color: '#004E64', fontSize: '13px', margin: 0 }}>
                                 🏪 {seller.shop_slug}
@@ -1048,6 +1054,11 @@ export default function AdminPage() {
                         {seller.banned && <span style={{ background: 'rgba(255,80,80,0.2)', color: '#f87171', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '9999px', border: '1px solid rgba(255,80,80,0.3)' }}>BANNED</span>}
                       </div>
                       <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '2px 0 0 0' }}>{seller.email}</p>
+                      {seller.phone && (
+                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '2px 0 0 0' }}>
+                          📞 <a href={`tel:${seller.phone}`} style={{ color: '#4DB8CC', textDecoration: 'none' }}>{seller.phone}</a>
+                        </p>
+                      )}
                     </div>
                   </div>
                   {seller.rank && seller.rank !== 'none' && (

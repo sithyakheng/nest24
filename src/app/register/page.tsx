@@ -21,6 +21,7 @@ export default function RegisterPage() {
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [agreeToTerms, setAgreeToTerms] = useState(false)
@@ -30,6 +31,12 @@ export default function RegisterPage() {
     
     if (!agreeToTerms) {
       setError('You must agree to the Terms & Conditions and Privacy Policy to continue.')
+      return
+    }
+    
+    // Validate phone for sellers
+    if (role === 'seller' && !phone.trim()) {
+      setError('Phone number is required for sellers.')
       return
     }
     
@@ -57,6 +64,7 @@ export default function RegisterPage() {
         full_name: fullName,
         name: fullName,
         role,
+        phone: role === 'seller' ? phone.trim() : null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
@@ -169,6 +177,22 @@ export default function RegisterPage() {
               border: '1px solid #d1d5db',
             }}
           />
+          
+          {/* Phone Number - Only for Sellers */}
+          {role === 'seller' && (
+            <input
+              type="tel"
+              placeholder="e.g. +855 12 345 678"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+              className="w-full text-gray-900 placeholder:text-gray-400 rounded-xl px-4 py-3 outline-none"
+              style={{
+                background: 'white',
+                border: '1px solid #d1d5db',
+              }}
+            />
+          )}
           
           {/* Terms and Privacy Checkbox */}
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginTop: '8px' }}>
