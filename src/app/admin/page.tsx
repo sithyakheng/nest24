@@ -454,7 +454,7 @@ export default function AdminPage() {
                           )}
                         </div>
 
-                        marginBottom: '20px' 
+                        marginBottom: '20px',
                       }}>
                         <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 4px 0' }}>Subscription Status</p>
                         {(() => {
