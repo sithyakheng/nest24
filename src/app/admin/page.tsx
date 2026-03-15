@@ -739,8 +739,8 @@ export default function AdminPage() {
                       return daysLeft;
                     };
 
-                    const aExpired = seller.tier > 0 && seller.tier_expires_at && new Date(seller.tier_expires_at) < new Date();
-                    const bExpired = seller.tier > 0 && seller.tier_expires_at && new Date(seller.tier_expires_at) < new Date();
+                    const aExpired = a.tier > 0 && a.tier_expires_at && new Date(a.tier_expires_at) < new Date();
+                    const bExpired = b.tier > 0 && b.tier_expires_at && new Date(b.tier_expires_at) < new Date();
 
                     // Expired sellers first
                     if (aExpired && !bExpired) return -1;
