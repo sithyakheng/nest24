@@ -454,34 +454,21 @@ export default function AdminPage() {
                           )}
                         </div>
 
-                        marginBottom: '20px',
-                      }}>
-                        <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 4px 0' }}>Subscription Status</p>
-                        {(() => {
-                          if (!req.profiles?.tier_expires_at || req.profiles?.rank === 0) {
-                            return <p style={{ color: '#6b7280', fontWeight: '500', fontSize: '14px', margin: 0 }}>Free account</p>
-                          } else {
-                            const expiryDate = new Date(req.profiles.tier_expires_at)
-                            const isExpired = expiryDate < new Date()
-                            const formattedDate = expiryDate.toLocaleDateString('en-US', { 
-                              year: 'numeric', 
-                              month: 'short', 
-                              day: 'numeric' 
-                            })
-                            
+                        <div style={{ marginBottom: '20px' }}>
+                          <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 4px 0' }}>Subscription Status</p>
+                          {(() => {
+                            if (!req.profiles?.tier_expires_at || req.profiles?.rank === 0) {
+                              return <span style={{ color: '#6b7280', fontSize: '13px', fontWeight: '600' }}>Free</span>;
+                            }
+                            const expires = new Date(req.profiles.tier_expires_at);
+                            const isExpired = expires < new Date();
                             return (
-                              <p style={{ 
-                                color: isExpired ? '#dc2626' : '#059669', 
-                                fontWeight: '600', 
-                                fontSize: '14px', 
-                                margin: 0 
-                              }}>
-                                {isExpired ? `❌ Expired ${formattedDate}` : `✅ Current plan expires: ${formattedDate}`}
-                              </p>
-                            )
-                          }
-                        })()}
-                      </div>
+                              <span style={{ color: isExpired ? '#dc2626' : '#16a34a', fontSize: '13px', fontWeight: '600' }}>
+                                {isExpired ? 'EXPIRED' : `Expires ${expires.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
+                              </span>
+                            );
+                          })()}
+                        </div>
 
                       {/* Request Details Grid */}
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '20px' }}>
