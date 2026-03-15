@@ -861,16 +861,35 @@ export default function AdminPage() {
                         </div>
 
                         {/* Expiry Info */}
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-                          {seller.tier_expires_at && seller.tier > 0 && (
-                            <p style={{ color: '#6b7280', fontSize: '12px', margin: 0 }}>
-                              {new Date(seller.tier_expires_at).toLocaleDateString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric', 
-                                year: 'numeric' 
-                              })}
-                            </p>
-                          )}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                          {/* Approved On Date */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ color: '#6b7280', fontSize: '11px', fontWeight: '500' }}>📅 Approved:</span>
+                            <span style={{ color: '#111827', fontSize: '12px', fontWeight: '600' }}>
+                              {(() => {
+                                if (seller.tier_expires_at) {
+                                  const approvedOn = new Date(new Date(seller.tier_expires_at).getTime() - 30 * 24 * 60 * 60 * 1000);
+                                  return approvedOn.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                                } else if (seller.created_at) {
+                                  return new Date(seller.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                                }
+                                return 'N/A';
+                              })()}
+                            </span>
+                          </div>
+
+                          {/* Expires On Date */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ color: '#6b7280', fontSize: '11px', fontWeight: '500' }}>⏰ Expires:</span>
+                            <span style={{ color: '#111827', fontSize: '12px', fontWeight: '600' }}>
+                              {seller.tier_expires_at ? 
+                                new Date(seller.tier_expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 
+                                'Never'
+                              }
+                            </span>
+                          </div>
+
+                          {/* Status Badge */}
                           <span style={{
                             padding: '6px 12px',
                             borderRadius: '12px',
