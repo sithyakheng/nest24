@@ -733,7 +733,7 @@ export default function AdminPage() {
 
                   // Sort: expired first, then by days remaining ascending
                   const sortedSellers = [...filteredSellers].sort((a, b) => {
-                    const getDaysRemaining = (seller) => {
+                    const getDaysRemaining = (seller: { tier: number; tier_expires_at: string | null }) => {
                       if (!seller.tier_expires_at || seller.tier === 0) return Infinity;
                       const daysLeft = Math.ceil((new Date(seller.tier_expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
                       return daysLeft;
