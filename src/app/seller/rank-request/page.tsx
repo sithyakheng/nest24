@@ -1,11 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function RankRequestPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const tierParam = searchParams.get('tier');
+  const typeParam = searchParams.get('type') || 'monthly';
+  
   const [fullName, setFullName] = useState('');
   const [shopName, setShopName] = useState('');
   const [selectedTier, setSelectedTier] = useState(3);
@@ -16,10 +20,22 @@ export default function RankRequestPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const prices: Record<number, number> = { 1: 5, 2: 15, 3: 30 };
+  // Set tier from URL parameter
+  useEffect(() => {
+    if (tierParam) {
+      setSelectedTier(parseInt(tierParam));
+    }
+  }, [tierParam]);
+
+  // Define prices for monthly and forever plans
+  const monthlyPrices: Record<number, number> = { 1: 5, 2: 15, 3: 30 };
+  const foreverPrices: Record<number, number> = { 1: 19, 2: 59, 3: 119 };
   const tierNames: Record<number, string> = { 1: 'Starter', 2: 'Verified', 3: 'Premium' };
+  
+  const isForever = typeParam === 'forever';
+  const prices = isForever ? foreverPrices : monthlyPrices;
   const basePrice = prices[selectedTier];
-  const finalPrice = discountApplied ? (basePrice * 0.8).toFixed(2) : basePrice;
+  const finalPrice = !isForever && discountApplied ? (basePrice * 0.8).toFixed(2) : basePrice;
 
   const applyDiscount = () => {
     if (discountCode.toUpperCase() === 'SIMPLESHOP') {
@@ -71,6 +87,7 @@ export default function RankRequestPage() {
         screenshot_url: screenshotUrl,
         full_name: fullName,
         shop_name: shopName,
+        plan_type: isForever ? 'forever' : 'monthly',
       });
       setSuccess(true);
     } catch {
@@ -125,6 +142,24 @@ export default function RankRequestPage() {
             <input value={shopName} onChange={e => setShopName(e.target.value)} placeholder="Enter your shop name" style={{ width: '100%', border: '1.5px solid #e5e7eb', borderRadius: '12px', padding: '13px 16px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', color: '#111827' }} />
           </div>
 
+          {/* Lifetime Badge */}
+          {isForever && (
+            <div style={{ 
+              backgroundColor: '#dcfce7', 
+              border: '1px solid #bbf7d0', 
+              borderRadius: '12px', 
+              padding: '12px 16px', 
+              textAlign: 'center', 
+              marginBottom: '24px' 
+            }}>
+              <span style={{ 
+                color: '#16a34a', 
+                fontSize: '14px', 
+                fontWeight: '700' 
+              }}>♾️ Lifetime Access — Never Expires</span>
+            </div>
+          )}
+
           {/* Tier Selection */}
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', fontWeight: '700', color: '#111827', marginBottom: '8px', fontSize: '14px' }}>Select Tier</label>
@@ -132,28 +167,30 @@ export default function RankRequestPage() {
               {[3, 2, 1].map(tier => (
                 <div key={tier} onClick={() => setSelectedTier(tier)} style={{ border: selectedTier === tier ? '2px solid #004E64' : '2px solid #e5e7eb', borderRadius: '14px', padding: '14px 10px', textAlign: 'center', cursor: 'pointer', backgroundColor: selectedTier === tier ? '#f0f7fa' : 'white', transition: 'all 0.2s' }}>
                   <div style={{ fontWeight: '800', color: '#004E64', fontSize: '15px' }}>{tierNames[tier]}</div>
-                  <div style={{ color: '#6b7280', fontSize: '12px', marginTop: '2px' }}>${prices[tier]}/mo</div>
+                  <div style={{ color: '#6b7280', fontSize: '12px', marginTop: '2px' }}>${prices[tier]}{isForever ? ' (once)' : '/mo'}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Discount Code */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', fontWeight: '700', color: '#111827', marginBottom: '8px', fontSize: '14px' }}>Discount Code</label>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <input value={discountCode} onChange={e => setDiscountCode(e.target.value)} placeholder="Enter code (e.g. SIMPLESHOP)" disabled={discountApplied} style={{ flex: 1, border: '1.5px solid #e5e7eb', borderRadius: '12px', padding: '13px 16px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', color: '#111827' }} />
-              <button onClick={applyDiscount} disabled={discountApplied} style={{ backgroundColor: discountApplied ? '#6b7280' : '#004E64', color: 'white', border: 'none', borderRadius: '12px', padding: '13px 20px', fontWeight: '700', cursor: discountApplied ? 'default' : 'pointer', fontSize: '14px', whiteSpace: 'nowrap' }}>
-                {discountApplied ? '✓ Applied' : 'Apply'}
-              </button>
+          {/* Discount Code - Only for Monthly Plans */}
+          {!isForever && (
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontWeight: '700', color: '#111827', marginBottom: '8px', fontSize: '14px' }}>Discount Code</label>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <input value={discountCode} onChange={e => setDiscountCode(e.target.value)} placeholder="Enter code (e.g. SIMPLESHOP)" disabled={discountApplied} style={{ flex: 1, border: '1.5px solid #e5e7eb', borderRadius: '12px', padding: '13px 16px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', color: '#111827' }} />
+                <button onClick={applyDiscount} disabled={discountApplied} style={{ backgroundColor: discountApplied ? '#6b7280' : '#004E64', color: 'white', border: 'none', borderRadius: '12px', padding: '13px 20px', fontWeight: '700', cursor: discountApplied ? 'default' : 'pointer', fontSize: '14px', whiteSpace: 'nowrap' }}>
+                  {discountApplied ? '✓ Applied' : 'Apply'}
+                </button>
+              </div>
+              {discountApplied && <p style={{ color: '#16a34a', fontSize: '13px', marginTop: '6px', fontWeight: '600' }}>🎉 20% discount applied!</p>}
             </div>
-            {discountApplied && <p style={{ color: '#16a34a', fontSize: '13px', marginTop: '6px', fontWeight: '600' }}>🎉 20% discount applied!</p>}
-          </div>
+          )}
 
           {/* Price Summary */}
           <div style={{ backgroundColor: '#f0f7fa', borderRadius: '14px', padding: '16px 20px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontWeight: '600', color: '#374151' }}>Total for {tierNames[selectedTier]}</span>
-            <span style={{ fontWeight: '800', fontSize: '20px', color: '#004E64' }}>${finalPrice}/month</span>
+            <span style={{ fontWeight: '800', fontSize: '20px', color: '#004E64' }}>${finalPrice}{isForever ? ' (once)' : '/month'}</span>
           </div>
 
           {/* File Drop Zone */}
