@@ -356,7 +356,7 @@ export default function AdminPage() {
   }
 
   const tabs = [
-    { id: 'monthly-ranks', label: 'Monthly Ranks', count: rankRequests.filter(r => r.plan_type === 'monthly' || !r.plan_type).length },
+    { id: 'monthly-ranks', label: 'Monthly Ranks', count: rankRequests.filter(r => r.plan_type === 'monthly' || r.plan_type === null || r.plan_type === undefined).length },
     { id: 'forever-ranks', label: 'Forever Ranks', count: rankRequests.filter(r => r.plan_type === 'forever').length },
     { id: 'subscriptions', label: 'Subscriptions', count: sellers.filter(s => s.role === 'seller').length },
     { id: 'users', label: 'Users', count: allUsers.length },
@@ -411,10 +411,10 @@ export default function AdminPage() {
         {activeTab === 'monthly-ranks' && (
           <div>
             <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#111827', marginBottom: '20px' }}>Monthly Rank Requests</h2>
-            {rankRequests.filter(r => r.plan_type === 'monthly' || !r.plan_type).length === 0 ? (
+            {rankRequests.filter(r => r.plan_type === 'monthly' || r.plan_type === null || r.plan_type === undefined).length === 0 ? (
               <p style={{ color: '#6b7280' }}>No monthly rank requests yet.</p>
             ) : (
-              rankRequests.filter(r => r.plan_type === 'monthly' || !r.plan_type).map((req: any) => (
+              rankRequests.filter(r => r.plan_type === 'monthly' || r.plan_type === null || r.plan_type === undefined).map((req: any) => (
                 <div key={req.id} style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                     <div>
