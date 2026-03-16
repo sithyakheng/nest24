@@ -663,6 +663,12 @@ export default function DashboardPage() {
                       </div>
                     );
                   })()
+                ) : profile?.tier === 0 && (
+                  <div style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '16px', textAlign: 'center', width: '180px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: '700', color: '#6b7280', marginBottom: '6px' }}>Free Plan</div>
+                    <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '10px' }}>2 products max</div>
+                    <a href="/ranks" style={{ fontSize: '12px', color: 'white', backgroundColor: '#004E64', padding: '6px 12px', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' }}>Upgrade</a>
+                  </div>
                 )}
               </div>
   

@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ReactNode } from "react";
+import Footer from "@/components/Footer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -33,6 +34,7 @@ export default function RootLayout({
         <LanguageProvider>
           <AuthProvider>
             {children}
+            <Footer />
           </AuthProvider>
         </LanguageProvider>
       </body>
