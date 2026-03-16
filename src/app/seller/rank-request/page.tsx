@@ -81,6 +81,8 @@ function RankRequestContent() {
       }
       const screenshotUrl = data.secure_url;
       const { data: { user } } = await supabase.auth.getUser();
+      const planType = isForever ? 'forever' : 'monthly';
+      console.log('Submitting with plan_type:', planType);
       await supabase.from('rank_requests').insert({
         seller_id: user?.id,
         rank: selectedTier,
@@ -89,7 +91,7 @@ function RankRequestContent() {
         full_name: fullName,
         shop_name: shopName,
         phone_number: phoneNumber,
-        plan_type: isForever ? 'forever' : 'monthly',
+        plan_type: planType,
       });
       setSuccess(true);
     } catch {

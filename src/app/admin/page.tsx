@@ -159,6 +159,7 @@ export default function AdminPage() {
         )
       `)
       .order('created_at', { ascending: false })
+    console.log('All rank requests:', requests?.map(r => ({ id: r.id, plan_type: r.plan_type, full_name: r.full_name })));
     setRankRequests(requests || [])
 
     // Fetch ALL users (buyers + sellers)
