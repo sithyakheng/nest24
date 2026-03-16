@@ -15,7 +15,6 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<any[]>([])
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [productCounts, setProductCounts] = useState<any[]>([])
-  const [rankPayments, setRankPayments] = useState<any[]>([])
   const [reports, setReports] = useState<any[]>([])
   const [subscriptionSearch, setSubscriptionSearch] = useState('')
   const [loading, setLoading] = useState(true)
@@ -146,6 +145,7 @@ export default function AdminPage() {
         full_name, 
         shop_name,
         phone_number,
+        plan_type,
         created_at,
         profiles!inner (
           id,
@@ -159,7 +159,7 @@ export default function AdminPage() {
         )
       `)
       .order('created_at', { ascending: false })
-    console.log('All rank requests:', requests?.map(r => ({ id: r.id, plan_type: r.plan_type, full_name: r.full_name })));
+    console.log('Rank requests with plan_type:', requests?.map(r => ({ id: r.id, plan_type: r.plan_type, full_name: r.full_name })));
     setRankRequests(requests || [])
 
     // Fetch ALL users (buyers + sellers)
@@ -196,13 +196,6 @@ export default function AdminPage() {
       .select('*, products(name), profiles(name, full_name, email)')
       .order('created_at', { ascending: false })
     setOrders(ordersData || [])
-
-    // Fetch rank payments
-    const { data: paymentsData } = await supabase
-      .from('rank_payments')
-      .select('*, profiles(name, full_name, email), products(name)')
-      .order('created_at', { ascending: false })
-    setRankPayments(paymentsData || [])
 
     // Fetch reports
     const { data: reportsData, error } = await supabase.from('reports').select('*')
@@ -324,17 +317,6 @@ export default function AdminPage() {
     fetchAll()
   }
 
-  async function approvePayment(paymentId: string, sellerId: string, rank: string) {
-    await supabase.from('rank_payments').update({ status: 'approved' }).eq('id', paymentId)
-    await supabase.from('profiles').update({ rank }).eq('id', sellerId)
-    fetchAll()
-  }
-
-  async function rejectPayment(paymentId: string) {
-    await supabase.from('rank_payments').update({ status: 'rejected' }).eq('id', paymentId)
-    fetchAll()
-  }
-
   if (!isAdmin) return (
     <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <p style={{ color: 'rgba(255,255,255,0.4)' }}>Access denied.</p>
@@ -365,7 +347,6 @@ export default function AdminPage() {
     { id: 'products', label: 'Products', count: products.length },
     { id: 'orders', label: 'Orders', count: orders.length },
     { id: 'reports', label: 'Reports', count: reports.length },
-    { id: 'payments', label: 'Payments', count: rankPayments.length },
   ]
 
   return (
@@ -944,86 +925,6 @@ export default function AdminPage() {
                 ))}
               </div>
             )}
-          </div>
-        )}
-
-        {/* RANK PAYMENTS TAB */}
-        {activeTab === 'payments' && (
-          <div style={{ ...glassCard, padding: '24px' }}>
-            <h2 style={{ color: 'white', fontWeight: '800', fontSize: '20px', marginBottom: '8px' }}>Rank Payments</h2>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '20px' }}>
-              Total: {rankPayments.length} payments ({rankPayments.filter(p => p.status === 'pending').length} pending)
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {rankPayments.map(req => (
-                <div key={req.id} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px', marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(0,78,100,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4DB8CC', fontWeight: '700', fontSize: '16px' }}>
-                        {(req.profiles?.name || req.seller_name || 'S').charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <p style={{ color: 'white', fontWeight: '700', margin: '0 0 2px 0' }}>
-                          {req.seller_name || req.profiles?.name || req.profiles?.full_name || 'Unknown'}
-                        </p>
-                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: 0 }}>
-                          {req.profiles?.email}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <span style={{
-                    padding: '4px 14px', borderRadius: '9999px', fontSize: '12px', fontWeight: '700',
-                    background: req.rank === 'premium' ? 'rgba(232,201,126,0.2)' : req.rank === 'verified' ? 'rgba(0,78,100,0.2)' : 'rgba(59,130,246,0.2)',
-                    color: req.rank === 'premium' ? '#E8C97E' : req.rank === 'verified' ? '#4DB8CC' : '#93c5fd',
-                    border: `1px solid ${req.rank === 'premium' ? 'rgba(232,201,126,0.4)' : req.rank === 'verified' ? 'rgba(0,78,100,0.4)' : 'rgba(59,130,246,0.4)'}` 
-                  }}>
-                    {req.rank === 'premium' ? <><Star size={12} /> Premium</> : req.rank === 'verified' ? <><Check size={12} /> Verified</> : <><Medal size={12} /> Starter</>}
-                  </span>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginBottom: '16px' }}>
-                    <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '10px 14px' }}>
-                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px 0' }}>Shop Name</p>
-                      <p style={{ color: 'white', fontSize: '14px', fontWeight: '600', margin: 0 }}>{req.shop_name || 'N/A'}</p>
-                    </div>
-                    <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '10px 14px' }}>
-                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px 0' }}>Phone</p>
-                      <p style={{ color: 'white', fontSize: '14px', fontWeight: '600', margin: 0 }}>{req.phone || 'N/A'}</p>
-                    </div>
-                    <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '10px 14px' }}>
-                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px 0' }}>Submitted</p>
-                      <p style={{ color: 'white', fontSize: '14px', fontWeight: '600', margin: 0 }}>{new Date(req.created_at).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-
-                  {req.screenshot_url && (
-                    <div style={{ marginBottom: '16px' }}>
-                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>Payment Screenshot</p>
-                      <a href={req.screenshot_url} target="_blank" rel="noopener noreferrer">
-                        <img src={req.screenshot_url} alt="Payment proof" style={{ maxWidth: '300px', maxHeight: '200px', borderRadius: '12px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }} />
-                      </a>
-                      <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', marginTop: '6px' }}>Click to view full size</p>
-                    </div>
-                  )}
-
-                  {req.status === 'pending' ? (
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <button onClick={() => approveRank(req.id, req.seller_id, req.rank, req.screenshot_url)} style={{ background: 'rgba(0,78,100,0.4)', border: '1px solid rgba(0,78,100,0.6)', color: '#4DB8CC', borderRadius: '9999px', padding: '10px 24px', cursor: 'pointer', fontSize: '14px', fontWeight: '700' }}>
-                        <Check size={16} style={{ marginRight: '6px' }} />Approve
-                      </button>
-                      <button onClick={() => rejectRank(req.id, req.screenshot_url)} style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', color: '#f87171', borderRadius: '9999px', padding: '10px 24px', cursor: 'pointer', fontSize: '14px', fontWeight: '700' }}>
-                        <X size={16} style={{ marginRight: '6px' }} />Reject
-                      </button>
-                    </div>
-                  ) : (
-                    <span style={{ padding: '8px 18px', borderRadius: '9999px', fontSize: '13px', fontWeight: '700', background: req.status === 'approved' ? 'rgba(0,200,100,0.15)' : 'rgba(255,80,80,0.15)', color: req.status === 'approved' ? '#4ade80' : '#f87171' }}>
-                      {req.status === 'approved' ? <><Check size={14} /> Approved</> : <><X size={14} /> Rejected</>}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
           </div>
         )}
 
