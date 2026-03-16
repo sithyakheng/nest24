@@ -647,7 +647,7 @@ export default function DashboardPage() {
                       })()}
                     </div>
                   </div>
-                ) : profile?.rank > 0 && profile?.tier_expires_at && (
+                ) : profile?.rank > 0 && profile?.tier_expires_at ? (
                   (() => {
                     const daysLeft = Math.max(0, Math.ceil((new Date(profile.tier_expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
                     const tierNames = { 1: 'Starter', 2: 'Verified', 3: 'Premium' };
@@ -663,7 +663,7 @@ export default function DashboardPage() {
                       </div>
                     );
                   })()
-                ) : profile?.tier === 0 && (
+                ) : (
                   <div style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '16px', textAlign: 'center', width: '180px' }}>
                     <div style={{ fontSize: '14px', fontWeight: '700', color: '#6b7280', marginBottom: '6px' }}>Free Plan</div>
                     <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '10px' }}>2 products max</div>
