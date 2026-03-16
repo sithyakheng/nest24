@@ -144,7 +144,8 @@ export default function AdminPage() {
         status, 
         screenshot_url, 
         full_name, 
-        shop_name, 
+        shop_name,
+        phone_number,
         created_at,
         profiles!inner (
           id,
@@ -419,6 +420,9 @@ export default function AdminPage() {
                     <div>
                       <p style={{ fontWeight: '700', color: '#111827', fontSize: '16px', margin: '0 0 4px 0' }}>{req.full_name || 'Unknown'}</p>
                       <p style={{ color: '#6b7280', fontSize: '13px', margin: '0 0 4px 0' }}>{req.shop_name || 'No shop name'}</p>
+                      {req.phone_number && (
+                        <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 4px 0' }}>📞 {req.phone_number}</p>
+                      )}
                       <p style={{ color: '#6b7280', fontSize: '12px', margin: '0' }}>Tier {req.rank} — {req.rank === 1 ? 'Starter' : req.rank === 2 ? 'Verified' : 'Premium'}</p>
                     </div>
                     <span style={{ backgroundColor: req.status === 'pending' ? '#fef3c7' : req.status === 'approved' ? '#d1fae5' : '#fee2e2', color: req.status === 'pending' ? '#92400e' : req.status === 'approved' ? '#065f46' : '#991b1b', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' }}>
@@ -455,6 +459,9 @@ export default function AdminPage() {
                     <div>
                       <p style={{ fontWeight: '700', color: '#111827', fontSize: '16px', margin: '0 0 4px 0' }}>{req.full_name || 'Unknown'}</p>
                       <p style={{ color: '#6b7280', fontSize: '13px', margin: '0 0 4px 0' }}>{req.shop_name || 'No shop name'}</p>
+                      {req.phone_number && (
+                        <p style={{ color: '#6b7280', fontSize: '12px', margin: '0 0 4px 0' }}>📞 {req.phone_number}</p>
+                      )}
                       <p style={{ color: '#6b7280', fontSize: '12px', margin: '0' }}>Tier {req.rank} — {req.rank === 1 ? 'Starter' : req.rank === 2 ? 'Verified' : 'Premium'} (Forever)</p>
                     </div>
                     <span style={{ backgroundColor: req.status === 'pending' ? '#fef3c7' : req.status === 'approved' ? '#d1fae5' : '#fee2e2', color: req.status === 'pending' ? '#92400e' : req.status === 'approved' ? '#065f46' : '#991b1b', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' }}>

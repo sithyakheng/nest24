@@ -12,6 +12,7 @@ function RankRequestContent() {
   
   const [fullName, setFullName] = useState('');
   const [shopName, setShopName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [selectedTier, setSelectedTier] = useState(3);
   const [discountCode, setDiscountCode] = useState('');
   const [discountApplied, setDiscountApplied] = useState(false);
@@ -53,8 +54,8 @@ function RankRequestContent() {
   };
 
   const handleSubmit = async () => {
-    if (!fullName || !shopName || !screenshot) {
-      alert('Please fill in all fields and upload payment proof');
+    if (!fullName || !shopName || !phoneNumber || !screenshot) {
+      alert('Please fill in all fields including phone number and upload payment proof');
       return;
     }
     setLoading(true);
@@ -87,6 +88,7 @@ function RankRequestContent() {
         screenshot_url: screenshotUrl,
         full_name: fullName,
         shop_name: shopName,
+        phone_number: phoneNumber,
         plan_type: isForever ? 'forever' : 'monthly',
       });
       setSuccess(true);
@@ -140,6 +142,12 @@ function RankRequestContent() {
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', fontWeight: '700', color: '#111827', marginBottom: '8px', fontSize: '14px' }}>Shop Name</label>
             <input value={shopName} onChange={e => setShopName(e.target.value)} placeholder="Enter your shop name" style={{ width: '100%', border: '1.5px solid #e5e7eb', borderRadius: '12px', padding: '13px 16px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', color: '#111827' }} />
+          </div>
+
+          {/* Phone Number */}
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', fontWeight: '700', color: '#111827', marginBottom: '8px', fontSize: '14px' }}>Phone Number</label>
+            <input value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="Your phone number" style={{ width: '100%', border: '1.5px solid #e5e7eb', borderRadius: '12px', padding: '13px 16px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', color: '#111827' }} />
           </div>
 
           {/* Lifetime Badge */}
