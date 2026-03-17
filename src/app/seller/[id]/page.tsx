@@ -145,13 +145,13 @@ export default function SellerShopPage() {
   }, [id])
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', background: isDark ? '#080a0f' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
+    <div style={{ minHeight: '100vh', background: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
       {languageText.loading}
     </div>
   )
 
   if (!seller) return (
-    <div style={{ minHeight: '100vh', background: background, display: 'flex', alignItems: 'center', justifyContent: 'center', color: textSecondary }}>
+    <div style={{ minHeight: '100vh', background: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>
       {languageText.notFound}
     </div>
   )
@@ -171,8 +171,8 @@ export default function SellerShopPage() {
       <Navbar />
       <div style={{ 
         minHeight: '100vh', 
-        background: isDark ? '#080a0f' : '#f8fafc',
-        color: isDark ? '#ffffff' : '#0f172a',
+        background: '#f9fafb',
+        color: '#111827',
         paddingTop: '100px', 
         paddingBottom: '60px', 
         position: 'relative' 
@@ -188,32 +188,25 @@ export default function SellerShopPage() {
 
         {/* Back button */}
         <Link href="/browse">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: isDark ? '#94a3b8' : '#64748b', fontSize: '14px', marginBottom: '32px', cursor: 'pointer' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '14px', marginBottom: '32px', cursor: 'pointer' }}>
             {languageText.back}
           </div>
         </Link>
 
         {/* Shop Profile Header */}
         <div style={{
-          background: isDark ? '#0f1a2e' : '#ffffff',
+          background: '#ffffff',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          border: rankColor ? `1px solid ${rankBorder}` : isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
-          borderTop: rankColor ? `1px solid ${rankBorder}` : isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
+          border: rankColor ? `1px solid ${rankBorder}` : '#e2e8f0',
+          borderTop: rankColor ? `1px solid ${rankBorder}` : '#e2e8f0',
           borderRadius: '24px',
           padding: '40px',
           marginBottom: '32px',
           boxShadow: rankColor ? `0 0 40px ${rankBg}` : 'none'
         }}>
 
-          {/* Premium banner */}
-          {seller.rank === 'premium' && (
-            <div style={{ background: 'rgba(232,201,126,0.1)', border: '1px solid rgba(232,201,126,0.3)', borderRadius: '12px', padding: '10px 16px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Star size={16} />
-              <p style={{ color: '#E8C97E', fontSize: '13px', fontWeight: '700', margin: 0 }}>Premium Seller — Top rated on NestKH</p>
-            </div>
-          )}
-
+          
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '24px', flexWrap: 'wrap', flexDirection: isMobile ? 'column' : 'row' }}>
 
             {/* Avatar */}
@@ -275,18 +268,18 @@ export default function SellerShopPage() {
 
             {/* Contact Info */}
             <div style={{
-              background: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9',
+              background: '#f1f5f9',
               border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: '16px',
               padding: '20px',
               minWidth: '200px'
             }}>
-              <p style={{ color: isDark ? '#ffffff' : '#1a1a1a', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px 0' }}>
+              <p style={{ color: '#111827', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px 0' }}>
                 {languageText.contact}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {seller.phone && (
-                  <p style={{ color: isDark ? '#ffffff' : '#1a1a1a', fontSize: '14px', margin: 0 }}>📞 {seller.phone}</p>
+                  <p style={{ color: '#111827', fontSize: '14px', margin: 0 }}>📞 {seller.phone}</p>
                 )}
                 {seller.whatsapp && (
                   <a href={`https://wa.me/${seller.whatsapp.replace(/\D/g, '')}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none' }}>
@@ -348,7 +341,7 @@ export default function SellerShopPage() {
         {/* Products Grid */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <h2 style={{ color: text, fontSize: '22px', fontWeight: '900', margin: 0 }}>
+            <h2 style={{ color: '#111827', fontSize: '22px', fontWeight: '900', margin: 0 }}>
               {languageText.products} ({products.length})
             </h2>
           </div>
@@ -363,11 +356,11 @@ export default function SellerShopPage() {
                 <Link href={`/products/${product.id}`} key={product.id}>
                   <div
                     style={{
-                      background: isDark ? '#0f1a2e' : 'white',
+                      background: 'white',
                       backdropFilter: 'blur(24px)',
                       WebkitBackdropFilter: 'blur(24px)',
-                      border: rankColor ? `1px solid ${rankBorder}` : '1px solid rgba(255,255,255,0.12)',
-                      borderTop: '1px solid rgba(255,255,255,0.22)',
+                      border: rankColor ? `1px solid ${rankBorder}` : '#e5e7eb',
+                      borderTop: '1px solid #e5e7eb',
                       borderRadius: '20px',
                       overflow: 'hidden',
                       cursor: 'pointer',
@@ -427,13 +420,13 @@ export default function SellerShopPage() {
           padding: '20px'
         }}>
           <div style={{
-            background: isDark ? '#0f1a2e' : 'white',
+            background: 'white',
             borderRadius: '16px',
             padding: '24px',
             width: '100%',
             maxWidth: '420px'
           }}>
-            <h3 style={{ color: isDark ? 'white' : '#0f172a', margin: '0 0 16px 0' }}>
+            <h3 style={{ color: '#111827', margin: '0 0 16px 0' }}>
               <Flag size={14} /> Report Shop
             </h3>
 
@@ -443,7 +436,7 @@ export default function SellerShopPage() {
               </p>
             ) : (
               <>
-                <p style={{ color: isDark ? '#94a3b8' : '#64748b', fontSize: '13px', margin: '0 0 16px 0' }}>
+                <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 16px 0' }}>
                   Select a reason for reporting this shop:
                 </p>
 

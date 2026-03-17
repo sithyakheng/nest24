@@ -167,24 +167,10 @@ export default function Navbar() {
                   🏆 Ranks
                 </span>
               </Link>
-          
+              
               {/* Ranks - Only show for sellers */}
               {userRole === 'seller' && (
-                <Link href="/dashboard/ranks">
-                  <span style={{
-                    color: '#E8C97E',
-                    fontSize: '14px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    padding: '6px 14px',
-                    borderRadius: '9999px',
-                    background: 'rgba(232,201,126,0.1)',
-                    border: '1px solid rgba(232,201,126,0.2)',
-                    transition: 'all 0.2s'
-                  }}>
-                    🏆 {t('nav.ranks')}
-                  </span>
-                </Link>
+                <div style={{ marginTop: '8px' }}></div>
               )}
               
               <Link
@@ -488,11 +474,7 @@ export default function Navbar() {
 
             {/* Ranks if seller */}
             {userRole === 'seller' && (
-              <Link href="/dashboard/ranks" onClick={() => setMobileMenuOpen(false)}>
-                <div style={{ padding: '14px 16px', borderRadius: '12px', color: '#E8C97E', fontSize: '15px', fontWeight: '700', cursor: 'pointer', background: 'rgba(232,201,126,0.08)', border: '1px solid rgba(232,201,126,0.15)', marginTop: '4px' }}>
-                  🏆 {t('nav.ranks')}
-                </div>
-              </Link>
+              <div style={{ marginTop: '4px' }}></div>
             )}
 
             {/* Divider */}
