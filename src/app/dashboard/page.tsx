@@ -48,6 +48,7 @@ export default function DashboardPage() {
   const [savingProfile, setSavingProfile] = useState(false)
   const [profileSuccess, setProfileSuccess] = useState(false)
   const [avatarSuccess, setAvatarSuccess] = useState(false)
+  const [shopTheme, setShopTheme] = useState('original')
 
   // Shop URL variables
   const [shopSlug, setShopSlug] = useState('')
@@ -166,6 +167,7 @@ export default function DashboardPage() {
     setDisplayName(profile?.name || profile?.full_name || '')
     setFullName(profile?.full_name || '')
     setBio(profile?.bio || '')
+    setShopTheme(profile?.shop_theme || 'original')
     setPhone(profile?.phone || '')
     setWhatsapp(profile?.whatsapp || '')
     setFacebook(profile?.facebook || '')
@@ -348,6 +350,23 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('Avatar upload error:', error)
+    }
+  }
+
+  async function handleSaveTheme() {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ shop_theme: shopTheme })
+        .eq('id', user.id)
+      
+      if (error) throw error
+
+      // Show success message
+      alert('Theme saved!')
+    } catch (error) {
+      console.error('Theme save error:', error)
+      alert('Failed to save theme')
     }
   }
 
@@ -1246,6 +1265,223 @@ export default function DashboardPage() {
                       ✅ Profile updated successfully!
                     </div>
                   )}
+
+                  {/* Shop Theme Section */}
+                  <div style={{ marginBottom: '24px' }}>
+                    <h3 style={{ color: '#0f172a', fontSize: '18px', fontWeight: '700', margin: '0 0 16px 0' }}>Shop Theme</h3>
+                    <div style={{ display: 'flex', gap: '16px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                      
+                      {/* Theme 1 - Original */}
+                      <div 
+                        onClick={() => setShopTheme('original')}
+                        style={{
+                          width: '120px',
+                          height: '80px',
+                          border: shopTheme === 'original' ? '2px solid #004E64' : '1px solid #e5e7eb',
+                          borderRadius: '12px',
+                          padding: '12px',
+                          cursor: 'pointer',
+                          background: shopTheme === 'original' 
+                            ? 'linear-gradient(135deg, #004E64 0%, #001a24 100%)'
+                            : '#f8fafc',
+                          transition: 'all 0.2s ease',
+                          transform: shopTheme === 'original' ? 'scale(1.05)' : 'scale(1)',
+                          boxShadow: shopTheme === 'original' ? '0 4px 12px rgba(0,78,100,0.3)' : '0 2px 8px rgba(0,0,0,0.1)'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (shopTheme !== 'original') {
+                            e.currentTarget.style.transform = 'scale(1.02)'
+                            e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.15)'
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (shopTheme !== 'original') {
+                            e.currentTarget.style.transform = 'scale(1)'
+                            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'
+                          }
+                        }}
+                      >
+                        <div style={{ 
+                          width: '100%', 
+                          height: '40px', 
+                          background: shopTheme === 'original' 
+                            ? 'linear-gradient(135deg, #004E64 0%, #001a24 100%)'
+                            : '#f3f4f6',
+                          borderRadius: '6px',
+                          marginBottom: '8px'
+                        }}></div>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ 
+                            fontWeight: '700', 
+                            fontSize: '14px', 
+                            color: shopTheme === 'original' ? '#004E64' : '#374151',
+                            marginBottom: '4px'
+                          }}>Original</div>
+                          <div style={{ 
+                            fontSize: '11px', 
+                            color: '#6b7280',
+                            lineHeight: '1.3'
+                          }}>NestKH signature dark theme</div>
+                          {shopTheme === 'original' && (
+                            <div style={{ 
+                              marginTop: '4px', 
+                              color: '#004E64', 
+                              fontSize: '12px', 
+                              fontWeight: '600'
+                            }}>✓</div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Theme 2 - Clean Minimal */}
+                      <div 
+                        onClick={() => setShopTheme('clean-minimal')}
+                        style={{
+                          width: '120px',
+                          height: '80px',
+                          border: shopTheme === 'clean-minimal' ? '2px solid #004E64' : '1px solid #e5e7eb',
+                          borderRadius: '12px',
+                          padding: '12px',
+                          cursor: 'pointer',
+                          background: '#ffffff',
+                          transition: 'all 0.2s ease',
+                          transform: shopTheme === 'clean-minimal' ? 'scale(1.05)' : 'scale(1)',
+                          boxShadow: shopTheme === 'clean-minimal' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (shopTheme !== 'clean-minimal') {
+                            e.currentTarget.style.transform = 'scale(1.02)'
+                            e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.15)'
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (shopTheme !== 'clean-minimal') {
+                            e.currentTarget.style.transform = 'scale(1)'
+                            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'
+                          }
+                        }}
+                      >
+                        <div style={{ 
+                          width: '100%', 
+                          height: '40px', 
+                          background: '#f3f4f6',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '6px',
+                          marginBottom: '8px'
+                        }}></div>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ 
+                            fontWeight: '700', 
+                            fontSize: '14px', 
+                            color: shopTheme === 'clean-minimal' ? '#004E64' : '#374151',
+                            marginBottom: '4px'
+                          }}>Clean Minimal</div>
+                          <div style={{ 
+                            fontSize: '11px', 
+                            color: '#6b7280',
+                            lineHeight: '1.3'
+                          }}>Clean white modern look</div>
+                          {shopTheme === 'clean-minimal' && (
+                            <div style={{ 
+                              marginTop: '4px', 
+                              color: '#004E64', 
+                              fontSize: '12px', 
+                              fontWeight: '600'
+                            }}>✓</div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Theme 3 - Modern SaaS */}
+                      <div 
+                        onClick={() => setShopTheme('modern-saas')}
+                        style={{
+                          width: '120px',
+                          height: '80px',
+                          border: shopTheme === 'modern-saas' ? '2px solid #004E64' : '1px solid #e5e7eb',
+                          borderRadius: '12px',
+                          padding: '12px',
+                          cursor: 'pointer',
+                          background: shopTheme === 'modern-saas' 
+                            ? 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)'
+                            : '#ffffff',
+                          transition: 'all 0.2s ease',
+                          transform: shopTheme === 'modern-saas' ? 'scale(1.05)' : 'scale(1)',
+                          boxShadow: shopTheme === 'modern-saas' ? '0 4px 12px rgba(0,78,100,0.3)' : '0 2px 8px rgba(0,0,0,0.1)'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (shopTheme !== 'modern-saas') {
+                            e.currentTarget.style.transform = 'scale(1.02)'
+                            e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.15)'
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (shopTheme !== 'modern-saas') {
+                            e.currentTarget.style.transform = 'scale(1)'
+                            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'
+                          }
+                        }}
+                      >
+                        <div style={{ 
+                          width: '100%', 
+                          height: '40px', 
+                          background: shopTheme === 'modern-saas' 
+                            ? 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)'
+                            : '#f3f4f6',
+                          borderRadius: '6px',
+                          marginBottom: '8px'
+                        }}></div>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ 
+                            fontWeight: '700', 
+                            fontSize: '14px', 
+                            color: shopTheme === 'modern-saas' ? '#004E64' : '#374151',
+                            marginBottom: '4px'
+                          }}>Modern SaaS</div>
+                          <div style={{ 
+                            fontSize: '11px', 
+                            color: '#6b7280',
+                            lineHeight: '1.3'
+                          }}>Bold and professional</div>
+                          {shopTheme === 'modern-saas' && (
+                            <div style={{ 
+                              marginTop: '4px', 
+                              color: '#004E64', 
+                              fontSize: '12px', 
+                              fontWeight: '600'
+                            }}>✓</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Save Theme Button */}
+                    <button 
+                      onClick={handleSaveTheme}
+                      style={{
+                        background: '#004E64',
+                        color: 'white',
+                        borderRadius: '12px',
+                        padding: '12px 24px',
+                        fontSize: '15px',
+                        fontWeight: '600',
+                        border: 'none',
+                        cursor: 'pointer',
+                        width: '100%',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px)'
+                        e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,78,100,0.4)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = 'none'
+                      }}
+                    >
+                      Save Theme
+                    </button>
+                  </div>
 
                   <button onClick={handleSaveProfile} disabled={savingProfile} style={{ background: savingProfile ? '#f8fafc' : '#004E64', color: savingProfile ? '#475569' : 'white', fontWeight: '900', fontSize: '15px', borderRadius: '9999px', padding: '14px', border: 'none', cursor: savingProfile ? 'not-allowed' : 'pointer', width: '100%' }}>
                     {savingProfile ? 'Saving...' : 'Save Changes'}

@@ -16,6 +16,7 @@ export default function SellerShopPage() {
   const [seller, setSeller] = useState<any>(null)
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [shopTheme, setShopTheme] = useState('original')
   const [windowWidth, setWindowWidth] = useState(1200)
   const [showReportModal, setShowReportModal] = useState(false)
   const [reportReason, setReportReason] = useState('')
@@ -109,6 +110,7 @@ export default function SellerShopPage() {
         }
 
         setSeller(seller)
+        setShopTheme(seller?.shop_theme || 'original')
 
         // Fetch seller products - add null check
         if (seller.id) {
@@ -145,13 +147,13 @@ export default function SellerShopPage() {
   }, [id])
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
+    <div style={{ minHeight: '100vh', background: shopTheme === 'original' ? 'linear-gradient(135deg, #001a24 0%, #000000 100%)' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#f8fafc' : '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
       {languageText.loading}
     </div>
   )
 
   if (!seller) return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>
+    <div style={{ minHeight: '100vh', background: shopTheme === 'original' ? 'linear-gradient(135deg, #001a24 0%, #000000 100%)' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#f8fafc' : '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#6b7280' : '#111827' }}>
       {languageText.notFound}
     </div>
   )
@@ -171,8 +173,8 @@ export default function SellerShopPage() {
       <Navbar />
       <div style={{ 
         minHeight: '100vh', 
-        background: '#f9fafb',
-        color: '#111827',
+        background: shopTheme === 'original' ? 'linear-gradient(135deg, #001a24 0%, #000000 100%)' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#f8fafc' : '#f9fafb',
+        color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#111827' : '#0f172a',
         paddingTop: '100px', 
         paddingBottom: '60px', 
         position: 'relative' 
@@ -195,11 +197,10 @@ export default function SellerShopPage() {
 
         {/* Shop Profile Header */}
         <div style={{
-          background: '#ffffff',
+          background: shopTheme === 'original' ? '#1a1a1a' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#ffffff' : '#ffffff',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          border: rankColor ? `1px solid ${rankBorder}` : '#e2e8f0',
-          borderTop: rankColor ? `1px solid ${rankBorder}` : '#e2e8f0',
+          border: rankColor ? `1px solid ${rankBorder}` : shopTheme === 'original' ? 'rgba(255,255,255,0.1)' : shopTheme === 'clean-minimal' ? '#e5e7eb' : shopTheme === 'modern-saas' ? '#e5e7eb' : '#e5e7eb',
           borderRadius: '24px',
           padding: '40px',
           marginBottom: '32px',
@@ -228,11 +229,24 @@ export default function SellerShopPage() {
             {/* Shop Info */}
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                <h1 style={{ color: 'white', fontSize: '28px', fontWeight: '900', margin: 0 }}>
+                <h1 style={{ 
+                  color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#111827' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a', 
+                  fontSize: shopTheme === 'clean-minimal' ? '36px' : shopTheme === 'modern-saas' ? '32px' : '28px', 
+                  fontWeight: '900', 
+                  margin: 0 
+                }}>
                   {seller.name || seller.full_name || 'Shop'}
                 </h1>
                 {rankColor && (
-                  <span style={{ background: rankBg, border: `1px solid ${rankBorder}`, color: rankColor, fontSize: '12px', fontWeight: '700', padding: '4px 12px', borderRadius: '9999px' }}>
+                  <span style={{ 
+                  background: shopTheme === 'clean-minimal' ? '#f3f4f6' : rankBg, 
+                  border: `1px solid ${shopTheme === 'clean-minimal' ? '#e5e7eb' : rankBorder}`, 
+                  color: shopTheme === 'clean-minimal' ? '#6b7280' : rankColor, 
+                  fontSize: '12px', 
+                  fontWeight: '700', 
+                  padding: '4px 12px', 
+                  borderRadius: '9999px' 
+                }}>
                     {seller.rank === 'premium' ? <><Star size={12} /> Premium</> : seller.rank === 'verified' ? <><Check size={12} /> Verified</> : seller.rank === 'starter' ? <><Medal size={12} /> Starter</> : <><Package size={12} /> Free</>}
                   </span>
                 )}
@@ -268,8 +282,8 @@ export default function SellerShopPage() {
 
             {/* Contact Info */}
             <div style={{
-              background: '#f1f5f9',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: shopTheme === 'original' ? '#1a1a1a' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#ffffff' : '#ffffff',
+              border: shopTheme === 'original' ? 'rgba(255,255,255,0.1)' : shopTheme === 'clean-minimal' ? '#e5e7eb' : shopTheme === 'modern-saas' ? '#e5e7eb' : '#e5e7eb',
               borderRadius: '16px',
               padding: '20px',
               minWidth: '200px'
@@ -279,7 +293,7 @@ export default function SellerShopPage() {
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {seller.phone && (
-                  <p style={{ color: '#111827', fontSize: '14px', margin: 0 }}>📞 {seller.phone}</p>
+                  <p style={{ color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#111827' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a', fontSize: '14px', margin: 0 }}>📞 {seller.phone}</p>
                 )}
                 {seller.whatsapp && (
                   <a href={`https://wa.me/${seller.whatsapp.replace(/\D/g, '')}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none' }}>
@@ -341,7 +355,7 @@ export default function SellerShopPage() {
         {/* Products Grid */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <h2 style={{ color: '#111827', fontSize: '22px', fontWeight: '900', margin: 0 }}>
+            <h2 style={{ color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#111827' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a', fontSize: '22px', fontWeight: '900', margin: 0 }}>
               {languageText.products} ({products.length})
             </h2>
           </div>
@@ -356,11 +370,11 @@ export default function SellerShopPage() {
                 <Link href={`/products/${product.id}`} key={product.id}>
                   <div
                     style={{
-                      background: 'white',
+                      background: shopTheme === 'original' ? '#1a1a1a' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#ffffff' : '#ffffff',
                       backdropFilter: 'blur(24px)',
                       WebkitBackdropFilter: 'blur(24px)',
-                      border: rankColor ? `1px solid ${rankBorder}` : '#e5e7eb',
-                      borderTop: '1px solid #e5e7eb',
+                      border: rankColor ? `1px solid ${rankBorder}` : shopTheme === 'original' ? 'rgba(255,255,255,0.12)' : shopTheme === 'clean-minimal' ? '#e5e7eb' : shopTheme === 'modern-saas' ? '#e5e7eb' : '#e5e7eb',
+                      borderTop: shopTheme === 'original' ? 'rgba(255,255,255,0.22)' : shopTheme === 'clean-minimal' ? '#e5e7eb' : shopTheme === 'modern-saas' ? '#e5e7eb' : '#e5e7eb',
                       borderRadius: '20px',
                       overflow: 'hidden',
                       cursor: 'pointer',
@@ -388,9 +402,9 @@ export default function SellerShopPage() {
                       )}
                     </div>
                     <div style={{ padding: '16px' }}>
-                      <span style={{ color: isDark ? '#94a3b8' : '#64748b', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '600' }}>{product.category}</span>
-                      <p style={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: '600', fontSize: '15px', margin: '6px 0', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</p>
-                      <p style={{ color: isDark ? '#E8C97E' : '#059669', fontWeight: '900', fontSize: '18px', margin: '0 0 4px 0' }}>${product.price}</p>
+                      <span style={{ color: shopTheme === 'original' ? '#94a3b8' : shopTheme === 'clean-minimal' ? '#64748b' : shopTheme === 'modern-saas' ? '#64748b' : '#64748b', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '600' }}>{product.category}</span>
+                      <p style={{ color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#0f172a' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a', fontWeight: '600', fontSize: '15px', margin: '6px 0', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</p>
+                      <p style={{ color: shopTheme === 'original' ? '#E8C97E' : shopTheme === 'clean-minimal' ? '#059669' : shopTheme === 'modern-saas' ? '#059669' : '#059669', fontWeight: '900', fontSize: '18px', margin: '0 0 4px 0' }}>${product.price}</p>
                       {product.stock <= 5 && product.stock > 0 && (
                         <p style={{ color: '#f87171', fontSize: '12px', margin: 0 }}>Only {product.stock} left!</p>
                       )}
@@ -420,13 +434,13 @@ export default function SellerShopPage() {
           padding: '20px'
         }}>
           <div style={{
-            background: 'white',
+            background: shopTheme === 'original' ? '#1a1a1a' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#ffffff' : '#ffffff',
             borderRadius: '16px',
             padding: '24px',
             width: '100%',
             maxWidth: '420px'
           }}>
-            <h3 style={{ color: '#111827', margin: '0 0 16px 0' }}>
+            <h3 style={{ color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#111827' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a', margin: '0 0 16px 0' }}>
               <Flag size={14} /> Report Shop
             </h3>
 
@@ -450,8 +464,8 @@ export default function SellerShopPage() {
                     border: '1px solid #e2e8f0',
                     fontSize: '14px',
                     marginBottom: '12px',
-                    background: isDark ? '#1e293b' : 'white',
-                    color: isDark ? 'white' : '#0f172a'
+                    background: shopTheme === 'original' ? '#1a1a1a' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#ffffff' : '#ffffff',
+                    color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#0f172a' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a'
                   }}
                 >
                   <option value="">Select reason...</option>
@@ -474,8 +488,8 @@ export default function SellerShopPage() {
                     border: '1px solid #e2e8f0',
                     fontSize: '14px',
                     marginBottom: '16px',
-                    background: isDark ? '#1e293b' : 'white',
-                    color: isDark ? 'white' : '#0f172a',
+                    background: shopTheme === 'original' ? '#1a1a1a' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#ffffff' : '#ffffff',
+                    color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#0f172a' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a',
                     resize: 'none'
                   }}
                 />
@@ -489,7 +503,7 @@ export default function SellerShopPage() {
                       borderRadius: '8px',
                       border: '1px solid #e2e8f0',
                       background: 'transparent',
-                      color: isDark ? 'white' : '#0f172a',
+                      color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#0f172a' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a',
                       cursor: 'pointer',
                       fontSize: '14px'
                     }}
