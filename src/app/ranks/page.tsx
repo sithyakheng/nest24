@@ -75,7 +75,7 @@ export default function RanksPage() {
             <div style={{ marginBottom: '32px' }}>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
                 <span style={{ color: '#10b981', fontSize: '20px', marginRight: '14px' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '17px' }}>Up to 300 products</span>
+                <span style={{ color: '#374151', fontSize: '17px' }}>Products shown at very top</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
                 <span style={{ color: '#10b981', fontSize: '20px', marginRight: '14px' }}>✓</span>
@@ -83,11 +83,11 @@ export default function RanksPage() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
                 <span style={{ color: '#10b981', fontSize: '20px', marginRight: '14px' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '17px' }}>Top search placement</span>
+                <span style={{ color: '#374151', fontSize: '17px' }}>Priority placement in search</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <span style={{ color: '#10b981', fontSize: '20px', marginRight: '14px' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '17px' }}>Priority support</span>
+                <span style={{ color: '#374151', fontSize: '17px' }}>Featured in homepage</span>
               </div>
             </div>
             
@@ -171,7 +171,7 @@ export default function RanksPage() {
             <div style={{ marginBottom: '28px' }}>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
                 <span style={{ color: '#10b981', fontSize: '18px', marginRight: '12px' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '15px' }}>Up to 150 products</span>
+                <span style={{ color: '#374151', fontSize: '15px' }}>Products shown above free sellers</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
                 <span style={{ color: '#10b981', fontSize: '18px', marginRight: '12px' }}>✓</span>
@@ -262,7 +262,7 @@ export default function RanksPage() {
             <div style={{ marginBottom: '28px' }}>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                 <span style={{ color: '#10b981', fontSize: '16px', marginRight: '10px' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '13px' }}>Up to 30 products</span>
+                <span style={{ color: '#374151', fontSize: '13px' }}>Products shown above free sellers</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                 <span style={{ color: '#10b981', fontSize: '16px', marginRight: '10px' }}>✓</span>
@@ -270,7 +270,7 @@ export default function RanksPage() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <span style={{ color: '#10b981', fontSize: '16px', marginRight: '10px' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '13px' }}>Basic listing</span>
+                <span style={{ color: '#374151', fontSize: '13px' }}>Better placement than free</span>
               </div>
             </div>
             

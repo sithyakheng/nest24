@@ -86,15 +86,9 @@ export default function DashboardPage() {
 
   const inputFocusProps = {}
 
-  // Helper function to get product limit based on tier
+  // Helper function to get product limit - flat limit for all sellers
   function getProductLimit(tier: number): number {
-    const limits: Record<number, number> = {
-      0: 2,    // tier 0 - free account
-      1: 30,   // tier 1 - Starter
-      2: 150,  // tier 2 - Verified
-      3: 300   // tier 3 - Premium
-    }
-    return limits[tier] || 2
+    return 150;
   }
 
   // Calculate total views and prepare chart data
@@ -221,14 +215,7 @@ export default function DashboardPage() {
     }
 
     if (products.length >= getProductLimit(profile?.tier || 0)) {
-      const tier = profile?.tier || 0
-      if (tier === 0) {
-        setAddError(
-          "You've reached your free limit of 2 products. Upgrade your tier to list more."
-        )
-      } else {
-        setAddError(`Product limit reached (${getProductLimit(tier)} products)`)
-      }
+      setAddError("You've reached the maximum of 150 product listings.")
       return
     }
 
@@ -666,7 +653,7 @@ export default function DashboardPage() {
                 ) : (
                   <div style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '16px', textAlign: 'center', width: '180px' }}>
                     <div style={{ fontSize: '14px', fontWeight: '700', color: '#6b7280', marginBottom: '6px' }}>Free Plan</div>
-                    <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '10px' }}>2 products max</div>
+                    <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '10px' }}>150 products • Standard placement</div>
                     <a href="/ranks" style={{ fontSize: '12px', color: 'white', backgroundColor: '#004E64', padding: '6px 12px', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' }}>Upgrade</a>
                   </div>
                 )}
