@@ -89,7 +89,11 @@ export default function DashboardPage() {
 
   // Helper function to get product limit - flat limit for all sellers
   function getProductLimit(tier: number): number {
-    return 150;
+    if (tier === 0) return 50;
+    if (tier === 1) return 100;
+    if (tier === 2) return 150;
+    if (tier === 3) return 300;
+    return 50;
   }
 
   // Calculate total views and prepare chart data
@@ -217,7 +221,16 @@ export default function DashboardPage() {
     }
 
     if (products.length >= getProductLimit(profile?.tier || 0)) {
-      setAddError("You've reached the maximum of 150 product listings.")
+      const tier = profile?.tier || 0
+      if (tier === 0) {
+        setAddError("You've reached your 50 product limit. Upgrade to Starter to list 100 products.")
+      } else if (tier === 1) {
+        setAddError("You've reached your 100 product limit. Upgrade to Verified to list 150 products.")
+      } else if (tier === 2) {
+        setAddError("You've reached your 150 product limit. Upgrade to Premium to list 300 products.")
+      } else if (tier === 3) {
+        setAddError("You've reached your 300 product limit.")
+      }
       return
     }
 
@@ -672,7 +685,7 @@ export default function DashboardPage() {
                 ) : (
                   <div style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '16px', textAlign: 'center', width: '180px' }}>
                     <div style={{ fontSize: '14px', fontWeight: '700', color: '#6b7280', marginBottom: '6px' }}>Free Plan</div>
-                    <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '10px' }}>150 products • Standard placement</div>
+                    <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '10px' }}>50 products • Standard placement</div>
                     <a href="/ranks" style={{ fontSize: '12px', color: 'white', backgroundColor: '#004E64', padding: '6px 12px', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' }}>Upgrade</a>
                   </div>
                 )}
