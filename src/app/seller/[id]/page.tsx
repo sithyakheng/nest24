@@ -80,44 +80,89 @@ export default function SellerShopPage() {
   useEffect(() => {
     async function load() {
       try {
-        console.log('Loading seller with id:', id)
+        const decodedId = decodeURIComponent(id as string)
+        console.log('Loading seller with id/name:', decodedId)
         
-        // First try to find by shop_slug
-        let { data: seller } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('shop_slug', id)
-          .single()
+        let sellerData = null
 
-        // If not found, try by name
-        if (!seller) {
-          console.log('Not found by shop_slug, trying by name')
+        // 1. Try to find by ID (UUID) if it's a valid UUID
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(decodedId)
+        if (isUUID) {
+          console.log('Searching by UUID:', decodedId)
           const { data } = await supabase
             .from('profiles')
             .select('*')
-            .eq('name', id)
+            .eq('id', decodedId)
             .single()
-          seller = data
+          sellerData = data
         }
 
-        console.log('Final seller data:', seller)
+        // 2. Try by shop_slug (case-insensitive)
+        if (!sellerData) {
+          console.log('Searching by shop_slug (ilike):', decodedId)
+          const { data } = await supabase
+            .from('profiles')
+            .select('*')
+            .ilike('shop_slug', decodedId)
+            .single()
+          sellerData = data
+        }
 
-        if (!seller) {
+        // 3. Try by name (case-insensitive)
+        if (!sellerData) {
+          console.log('Searching by name (ilike):', decodedId)
+          const { data } = await supabase
+            .from('profiles')
+            .select('*')
+            .ilike('name', decodedId)
+            .single()
+          sellerData = data
+        }
+
+        // 4. Try by full_name (case-insensitive)
+        if (!sellerData) {
+          console.log('Searching by full_name (ilike):', decodedId)
+          const { data } = await supabase
+            .from('profiles')
+            .select('*')
+            .ilike('full_name', decodedId)
+            .single()
+          sellerData = data
+        }
+
+        // 5. Try by shop_name (case-insensitive) - Requested by user
+        if (!sellerData) {
+          try {
+            console.log('Searching by shop_name (ilike):', decodedId)
+            const { data } = await supabase
+              .from('profiles')
+              .select('*')
+              .ilike('shop_name', decodedId)
+              .single()
+            if (data) sellerData = data
+          } catch (e) {
+            console.log('shop_name column might not exist')
+          }
+        }
+
+        console.log('Final seller data:', sellerData)
+
+        if (!sellerData) {
           console.log('Seller not found')
           setSeller(null)
           setLoading(false)
           return
         }
 
-        setSeller(seller)
-        setShopTheme(seller?.shop_theme || 'original')
+        setSeller(sellerData)
+        setShopTheme(sellerData?.shop_theme || 'original')
 
         // Fetch seller products - add null check
-        if (seller.id) {
+        if (sellerData.id) {
           const { data: productsData, error: productsError } = await supabase
             .from('products')
             .select('*')
-            .eq('seller_id', seller.id)
+            .eq('seller_id', sellerData.id)
             .order('created_at', { ascending: false })
 
           console.log('Products data:', productsData)
@@ -153,8 +198,36 @@ export default function SellerShopPage() {
   )
 
   if (!seller) return (
-    <div style={{ minHeight: '100vh', background: shopTheme === 'original' ? 'linear-gradient(135deg, #001a24 0%, #000000 100%)' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#f8fafc' : '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#6b7280' : '#111827' }}>
-      {languageText.notFound}
+    <div style={{ 
+      minHeight: '100vh', 
+      background: shopTheme === 'original' ? 'linear-gradient(135deg, #001a24 0%, #000000 100%)' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#f8fafc' : '#f9fafb', 
+      display: 'flex', 
+      flexDirection: 'column',
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      color: shopTheme === 'original' ? '#ffffff' : '#111827',
+      padding: '20px',
+      textAlign: 'center'
+    }}>
+      <h2 style={{ fontSize: '24px', fontWeight: '900', marginBottom: '12px' }}>{languageText.notFound}</h2>
+      <p style={{ opacity: 0.6, marginBottom: '24px' }}>
+        {lang === 'kh' ? 'យើងមិនអាចស្វែងរកហាងដែលមានឈ្មោះ៖' : 'We couldn\'t find a shop with the name:'} 
+        <br />
+        <span style={{ fontWeight: 'bold', color: '#4DB8CC' }}>"{decodeURIComponent(id as string)}"</span>
+      </p>
+      <Link href="/browse">
+        <button style={{ 
+          background: '#4DB8CC', 
+          color: 'white', 
+          border: 'none', 
+          padding: '12px 24px', 
+          borderRadius: '12px', 
+          fontWeight: '700', 
+          cursor: 'pointer' 
+        }}>
+          {languageText.back}
+        </button>
+      </Link>
     </div>
   )
 
