@@ -192,7 +192,7 @@ export default function SellerShopPage() {
   }, [id])
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', background: shopTheme === 'original' ? 'linear-gradient(135deg, #001a24 0%, #000000 100%)' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#f8fafc' : '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
+    <div style={{ minHeight: '100vh', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
       {languageText.loading}
     </div>
   )
@@ -200,17 +200,17 @@ export default function SellerShopPage() {
   if (!seller) return (
     <div style={{ 
       minHeight: '100vh', 
-      background: shopTheme === 'original' ? 'linear-gradient(135deg, #001a24 0%, #000000 100%)' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#f8fafc' : '#f9fafb', 
+      background: '#ffffff', 
       display: 'flex', 
       flexDirection: 'column',
       alignItems: 'center', 
       justifyContent: 'center', 
-      color: shopTheme === 'original' ? '#ffffff' : '#111827',
+      color: '#111827',
       padding: '20px',
       textAlign: 'center'
     }}>
       <h2 style={{ fontSize: '24px', fontWeight: '900', marginBottom: '12px' }}>{languageText.notFound}</h2>
-      <p style={{ opacity: 0.6, marginBottom: '24px' }}>
+      <p style={{ color: '#64748b', marginBottom: '24px' }}>
         {lang === 'kh' ? 'យើងមិនអាចស្វែងរកហាងដែលមានឈ្មោះ៖' : 'We couldn\'t find a shop with the name:'} 
         <br />
         <span style={{ fontWeight: 'bold', color: '#4DB8CC' }}>"{decodeURIComponent(id as string)}"</span>
@@ -246,18 +246,12 @@ export default function SellerShopPage() {
       <Navbar />
       <div style={{ 
         minHeight: '100vh', 
-        background: shopTheme === 'original' ? 'linear-gradient(135deg, #001a24 0%, #000000 100%)' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#f8fafc' : '#f9fafb',
-        color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#111827' : '#0f172a',
+        background: '#ffffff',
+        color: '#111827',
         paddingTop: '100px', 
         paddingBottom: '60px', 
         position: 'relative' 
       }}>
-
-      {/* Orbs */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-150px', left: '-100px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,78,100,0.4) 0%, transparent 70%)', filter: 'blur(80px)' }} />
-        <div style={{ position: 'absolute', bottom: '-150px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,201,126,0.25) 0%, transparent 70%)', filter: 'blur(80px)' }} />
-      </div>
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 10 }}>
 
@@ -270,14 +264,12 @@ export default function SellerShopPage() {
 
         {/* Shop Profile Header */}
         <div style={{
-          background: shopTheme === 'original' ? '#1a1a1a' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#ffffff' : '#ffffff',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          border: rankColor ? `1px solid ${rankBorder}` : shopTheme === 'original' ? 'rgba(255,255,255,0.1)' : shopTheme === 'clean-minimal' ? '#e5e7eb' : shopTheme === 'modern-saas' ? '#e5e7eb' : '#e5e7eb',
+          background: '#ffffff',
+          border: '1px solid #e5e7eb',
           borderRadius: '24px',
           padding: '40px',
           marginBottom: '32px',
-          boxShadow: rankColor ? `0 0 40px ${rankBg}` : 'none'
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
         }}>
 
           
@@ -286,8 +278,8 @@ export default function SellerShopPage() {
             {/* Avatar */}
             <div style={{
               width: '90px', height: '90px', borderRadius: '50%', flexShrink: 0,
-              background: rankColor ? rankBg : 'rgba(0,78,100,0.3)',
-              border: rankColor ? `3px solid ${rankBorder}` : '3px solid rgba(0,78,100,0.5)',
+              background: rankColor ? rankBg : '#f3f4f6',
+              border: rankColor ? `3px solid ${rankBorder}` : '3px solid #e5e7eb',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: rankColor || '#4DB8CC', fontWeight: '900', fontSize: '32px',
               overflow: 'hidden'
@@ -303,8 +295,8 @@ export default function SellerShopPage() {
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '8px' }}>
                 <h1 style={{ 
-                  color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#111827' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a', 
-                  fontSize: shopTheme === 'clean-minimal' ? '36px' : shopTheme === 'modern-saas' ? '32px' : '28px', 
+                  color: '#111827', 
+                  fontSize: '28px', 
                   fontWeight: '900', 
                   margin: 0 
                 }}>
@@ -312,9 +304,9 @@ export default function SellerShopPage() {
                 </h1>
                 {rankColor && (
                   <span style={{ 
-                  background: shopTheme === 'clean-minimal' ? '#f3f4f6' : rankBg, 
-                  border: `1px solid ${shopTheme === 'clean-minimal' ? '#e5e7eb' : rankBorder}`, 
-                  color: shopTheme === 'clean-minimal' ? '#6b7280' : rankColor, 
+                  background: rankBg, 
+                  border: `1px solid ${rankBorder}`, 
+                  color: rankColor, 
                   fontSize: '12px', 
                   fontWeight: '700', 
                   padding: '4px 12px', 
@@ -326,7 +318,7 @@ export default function SellerShopPage() {
               </div>
 
               {seller.bio && (
-                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '15px', lineHeight: '1.6', margin: '0 0 16px 0', maxWidth: '600px' }}>
+                <p style={{ color: '#4b5563', fontSize: '15px', lineHeight: '1.6', margin: '0 0 16px 0', maxWidth: '600px' }}>
                   {seller.bio}
                 </p>
               )}
@@ -334,62 +326,57 @@ export default function SellerShopPage() {
               {/* Stats row */}
               <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
                 <div>
-                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 2px 0' }}>Products</p>
-                  <p style={{ color: 'white', fontWeight: '800', fontSize: '20px', margin: 0 }}>{products.length}</p>
+                  <p style={{ color: '#6b7280', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 2px 0' }}>Products</p>
+                  <p style={{ color: '#111827', fontWeight: '800', fontSize: '20px', margin: 0 }}>{products.length}</p>
                 </div>
                 {seller.rank && seller.rank !== 'none' && (
                   <div>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 2px 0' }}>Rank</p>
-                    <p style={{ color: rankColor || 'white', fontWeight: '800', fontSize: '20px', margin: 0 }}>
+                    <p style={{ color: '#6b7280', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 2px 0' }}>Rank</p>
+                    <p style={{ color: rankColor || '#111827', fontWeight: '800', fontSize: '20px', margin: 0 }}>
                       {seller.rank === 'premium' ? 'Premium' : seller.rank === 'verified' ? 'Verified' : seller.rank === 'starter' ? 'Starter' : 'Free'}
                     </p>
                   </div>
                 )}
-                {seller.rank === 'verified' || seller.rank === 'premium' ? (
-                  <div>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 2px 0' }}>Status</p>
-                  </div>
-                ) : null}
               </div>
             </div>
 
             {/* Contact Info */}
             <div style={{
-              background: shopTheme === 'original' ? '#1a1a1a' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#ffffff' : '#ffffff',
-              border: shopTheme === 'original' ? 'rgba(255,255,255,0.1)' : shopTheme === 'clean-minimal' ? '#e5e7eb' : shopTheme === 'modern-saas' ? '#e5e7eb' : '#e5e7eb',
+              background: '#ffffff',
+              border: '1px solid #e5e7eb',
               borderRadius: '16px',
               padding: '20px',
               minWidth: '200px'
             }}>
-              <p style={{ color: '#111827', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px 0' }}>
+              <p style={{ color: '#6b7280', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px 0' }}>
                 {languageText.contact}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {seller.phone && (
-                  <p style={{ color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#111827' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a', fontSize: '14px', margin: 0 }}>📞 {seller.phone}</p>
+                  <p style={{ color: '#111827', fontSize: '14px', margin: 0 }}>📞 {seller.phone}</p>
                 )}
                 {seller.whatsapp && (
-                  <a href={`https://wa.me/${seller.whatsapp.replace(/\D/g, '')}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none' }}>
+                  <a href={`https://wa.me/${seller.whatsapp.replace(/\D/g, '')}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     💬 WhatsApp
                   </a>
                 )}
                 {seller.telegram && (
-                  <a href={`https://t.me/${seller.telegram.replace('@', '')}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none' }}>
-                    <Send size={14} style={{ marginRight: '4px' }} />Telegram
+                  <a href={`https://t.me/${seller.telegram.replace('@', '')}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Send size={14} /> Telegram
                   </a>
                 )}
                 {seller.facebook && (
-                  <a href={seller.facebook.startsWith('http') ? seller.facebook : `https://${seller.facebook}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none' }}>
-                    <ThumbsUp size={14} style={{ marginRight: '4px' }} />Facebook
+                  <a href={seller.facebook.startsWith('http') ? seller.facebook : `https://${seller.facebook}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <ThumbsUp size={14} /> Facebook
                   </a>
                 )}
                 {seller.instagram && (
-                  <a href={`https://instagram.com/${seller.instagram.replace('@', '')}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none' }}>
+                  <a href={`https://instagram.com/${seller.instagram.replace('@', '')}`} target="_blank" style={{ color: '#4DB8CC', fontSize: '14px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     📸 Instagram
                   </a>
                 )}
                 {!seller.phone && !seller.whatsapp && !seller.telegram && !seller.facebook && !seller.instagram && (
-                  <p style={{ color: isDark ? '#ffffff' : '#1a1a1a', fontSize: '13px', margin: 0 }}>{languageText.noContactInfo}</p>
+                  <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>{languageText.noContactInfo}</p>
                 )}
               </div>
             </div>
@@ -398,9 +385,9 @@ export default function SellerShopPage() {
 
           {/* Trusted seller message */}
           {seller.rank && seller.rank !== 'none' && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(0,200,100,0.08)', border: '1px solid rgba(0,200,100,0.2)', borderRadius: '10px', padding: '10px 14px', marginTop: '20px' }}>
-              <Shield size={16} />
-              <p style={{ color: '#4ade80', fontSize: '13px', fontWeight: '600', margin: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)', borderRadius: '10px', padding: '10px 14px', marginTop: '20px' }}>
+              <Shield size={16} color="#10B981" />
+              <p style={{ color: '#059669', fontSize: '13px', fontWeight: '600', margin: 0 }}>
                 {seller.rank === 'premium' ? 'Premium Seller — Top rated on NestKH' : seller.rank === 'verified' ? 'Verified Seller — Trusted by NestKH' : seller.rank === 'starter' ? 'Starter Seller — Growing on NestKH' : 'Free Seller — Join the NestKH community'}
               </p>
             </div>
@@ -419,23 +406,26 @@ export default function SellerShopPage() {
             padding: '8px 16px',
             fontSize: '13px',
             cursor: 'pointer',
-            marginTop: '12px'
+            marginTop: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
           }}
         >
           <Flag size={14} /> Report Shop
         </button>
 
         {/* Products Grid */}
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <h2 style={{ color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#111827' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a', fontSize: '22px', fontWeight: '900', margin: 0 }}>
+        <div style={{ marginTop: '48px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+            <h2 style={{ color: '#111827', fontSize: '22px', fontWeight: '900', margin: 0 }}>
               {languageText.products} ({products.length})
             </h2>
           </div>
 
           {products.length === 0 ? (
-            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '60px', textAlign: 'center' }}>
-              <p>{languageText.noProducts}</p>
+            <div style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '20px', padding: '60px', textAlign: 'center' }}>
+              <p style={{ color: '#6b7280' }}>{languageText.noProducts}</p>
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
@@ -443,46 +433,44 @@ export default function SellerShopPage() {
                 <Link href={`/products/${product.id}`} key={product.id}>
                   <div
                     style={{
-                      background: shopTheme === 'original' ? '#1a1a1a' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#ffffff' : '#ffffff',
-                      backdropFilter: 'blur(24px)',
-                      WebkitBackdropFilter: 'blur(24px)',
-                      border: rankColor ? `1px solid ${rankBorder}` : shopTheme === 'original' ? 'rgba(255,255,255,0.12)' : shopTheme === 'clean-minimal' ? '#e5e7eb' : shopTheme === 'modern-saas' ? '#e5e7eb' : '#e5e7eb',
-                      borderTop: shopTheme === 'original' ? 'rgba(255,255,255,0.22)' : shopTheme === 'clean-minimal' ? '#e5e7eb' : shopTheme === 'modern-saas' ? '#e5e7eb' : '#e5e7eb',
+                      background: '#ffffff',
+                      border: '1px solid #e5e7eb',
                       borderRadius: '20px',
                       overflow: 'hidden',
                       cursor: 'pointer',
-                      transition: 'all 0.3s ease'
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
                     }}
                     onMouseEnter={e => {
                       e.currentTarget.style.transform = 'translateY(-4px)'
-                      e.currentTarget.style.boxShadow = '0 16px 48px rgba(0,0,0,0.4)'
+                      e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
                     }}
                     onMouseLeave={e => {
                       e.currentTarget.style.transform = 'translateY(0)'
-                      e.currentTarget.style.boxShadow = 'none'
+                      e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
                     }}
                   >
-                    <div style={{ height: '200px', overflow: 'hidden', background: 'rgba(255,255,255,0.04)', position: 'relative' }}>
+                    <div style={{ height: '200px', overflow: 'hidden', background: '#f3f4f6', position: 'relative' }}>
                       {product.image_url ? (
                         <img src={getImageUrl(product.image_url)} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
-                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)' }}>No Image</div>
+                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>No Image</div>
                       )}
                       {rankColor && (
-                        <span style={{ position: 'absolute', top: '8px', right: '8px', background: rankBg, border: `1px solid ${rankBorder}`, color: rankColor, fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '9999px', backdropFilter: 'blur(8px)' }}>
+                        <span style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(255, 255, 255, 0.9)', border: `1px solid ${rankBorder}`, color: rankColor, fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '9999px', backdropFilter: 'blur(8px)' }}>
                           {seller.rank === 'premium' ? <><Star size={10} /> Premium</> : seller.rank === 'verified' ? <><Check size={10} /> Verified</> : seller.rank === 'starter' ? <><Medal size={10} /> Starter</> : <><Package size={10} /> Free</>}
                         </span>
                       )}
                     </div>
                     <div style={{ padding: '16px' }}>
-                      <span style={{ color: shopTheme === 'original' ? '#94a3b8' : shopTheme === 'clean-minimal' ? '#64748b' : shopTheme === 'modern-saas' ? '#64748b' : '#64748b', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '600' }}>{product.category}</span>
-                      <p style={{ color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#0f172a' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a', fontWeight: '600', fontSize: '15px', margin: '6px 0', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</p>
-                      <p style={{ color: shopTheme === 'original' ? '#E8C97E' : shopTheme === 'clean-minimal' ? '#059669' : shopTheme === 'modern-saas' ? '#059669' : '#059669', fontWeight: '900', fontSize: '18px', margin: '0 0 4px 0' }}>${product.price}</p>
+                      <span style={{ color: '#64748b', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '600' }}>{product.category}</span>
+                      <p style={{ color: '#111827', fontWeight: '600', fontSize: '15px', margin: '6px 0', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</p>
+                      <p style={{ color: '#059669', fontWeight: '900', fontSize: '18px', margin: '0 0 4px 0' }}>${product.price}</p>
                       {product.stock <= 5 && product.stock > 0 && (
-                        <p style={{ color: '#f87171', fontSize: '12px', margin: 0 }}>Only {product.stock} left!</p>
+                        <p style={{ color: '#ef4444', fontSize: '12px', margin: 0 }}>Only {product.stock} left!</p>
                       )}
                       {product.stock === 0 && (
-                        <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', margin: 0 }}>Out of stock</p>
+                        <p style={{ color: '#9ca3af', fontSize: '12px', margin: 0 }}>Out of stock</p>
                       )}
                     </div>
                   </div>
@@ -499,7 +487,8 @@ export default function SellerShopPage() {
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(0,0,0,0.7)',
+          background: 'rgba(0,0,0,0.4)',
+          backdropFilter: 'blur(4px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -507,18 +496,19 @@ export default function SellerShopPage() {
           padding: '20px'
         }}>
           <div style={{
-            background: shopTheme === 'original' ? '#1a1a1a' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#ffffff' : '#ffffff',
+            background: '#ffffff',
             borderRadius: '16px',
             padding: '24px',
             width: '100%',
-            maxWidth: '420px'
+            maxWidth: '420px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
           }}>
-            <h3 style={{ color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#111827' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a', margin: '0 0 16px 0' }}>
-              <Flag size={14} /> Report Shop
+            <h3 style={{ color: '#111827', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Flag size={18} /> Report Shop
             </h3>
 
             {reportSuccess ? (
-              <p style={{ color: '#10B981', textAlign: 'center', padding: '20px 0' }}>
+              <p style={{ color: '#10B981', textAlign: 'center', padding: '20px 0', fontWeight: '600' }}>
                 ✅ Report submitted. We will review it shortly.
               </p>
             ) : (
@@ -537,8 +527,8 @@ export default function SellerShopPage() {
                     border: '1px solid #e2e8f0',
                     fontSize: '14px',
                     marginBottom: '12px',
-                    background: shopTheme === 'original' ? '#1a1a1a' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#ffffff' : '#ffffff',
-                    color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#0f172a' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a'
+                    background: '#ffffff',
+                    color: '#111827'
                   }}
                 >
                   <option value="">Select reason...</option>
@@ -561,8 +551,8 @@ export default function SellerShopPage() {
                     border: '1px solid #e2e8f0',
                     fontSize: '14px',
                     marginBottom: '16px',
-                    background: shopTheme === 'original' ? '#1a1a1a' : shopTheme === 'clean-minimal' ? '#ffffff' : shopTheme === 'modern-saas' ? '#ffffff' : '#ffffff',
-                    color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#0f172a' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a',
+                    background: '#ffffff',
+                    color: '#111827',
                     resize: 'none'
                   }}
                 />
@@ -576,9 +566,10 @@ export default function SellerShopPage() {
                       borderRadius: '8px',
                       border: '1px solid #e2e8f0',
                       background: 'transparent',
-                      color: shopTheme === 'original' ? '#ffffff' : shopTheme === 'clean-minimal' ? '#0f172a' : shopTheme === 'modern-saas' ? '#0f172a' : '#0f172a',
+                      color: '#111827',
                       cursor: 'pointer',
-                      fontSize: '14px'
+                      fontSize: '14px',
+                      fontWeight: '600'
                     }}
                   >
                     Cancel
