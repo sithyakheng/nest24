@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ProductCard from '@/components/ProductCard'
 import { useLang } from '@/contexts/LanguageContext'
+import { sanitizeInput } from '@/lib/security'
 
 const CATEGORIES = ['All', 'Electronics', 'Fashion', 'Home', 'Beauty', 'Food', 'Gaming', 'Other']
 
@@ -18,6 +19,8 @@ function BrowseContent() {
   const [category, setCategory] = useState(searchParams.get('category') || 'All')
   const [search, setSearch] = useState(searchParams.get('search') || '')
   const [sort, setSort] = useState('newest')
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(false)
   const [windowWidth, setWindowWidth] = useState(1200)
 
   const isMobile = windowWidth < 768
@@ -32,76 +35,84 @@ function BrowseContent() {
 
   useEffect(() => {
     fetchProducts()
-  }, [category, sort, search])
+  }, [category, sort, search, page])
 
   async function fetchProducts() {
-  setProductsLoading(true)
+    setProductsLoading(true)
 
-  const { data: productsData } = await supabase
-    .from('products')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(50)
+    const searchTerm = sanitizeInput(search)
+    const pageSize = 20
+    const from = (page - 1) * pageSize
+    const to = page * pageSize - 1
 
-  if (!productsData) {
-    setProductsLoading(false)
-    return
-  }
+    let query = supabase
+      .from('products')
+      .select('id, seller_id, name, price, compare_price, image_url, category, created_at, likes, dislikes')
+      .order('created_at', { ascending: false })
+      .range(from, to)
+      .limit(pageSize)
 
-  const sellerIds = [...new Set(productsData.map((p: any) => p.seller_id))]
-
-  const { data: profilesData } = await supabase
-    .from('profiles')
-    .select('id, name, full_name, avatar_url, rank, banned, tier_expires_at')
-    .in('id', sellerIds)
-
-  const merged = productsData.map((product: any) => ({
-    ...product,
-    profiles: profilesData?.find((p: any) => p.id === product.seller_id) || null
-  }))
-
-  const visible = merged.filter((p: any) => !p.profiles?.banned)
-
-  // Helper function to determine seller status
-  const getSellerStatus = (profile: any) => {
-    if (!profile || profile.rank === 0) return 'free'
-    if (profile.tier_expires_at && new Date(profile.tier_expires_at) > new Date()) return 'active'
-    return 'expired'
-  }
-
-  // Sort by seller status, then tier, then likes
-  let sorted = [...visible].sort((a: any, b: any) => {
-    const aProfile = a.profiles
-    const bProfile = b.profiles
-    
-    const aStatus = getSellerStatus(aProfile)
-    const bStatus = getSellerStatus(bProfile)
-    
-    // Status priority: active > free > expired
-    const statusOrder = { active: 0, free: 1, expired: 2 }
-    const statusDiff = statusOrder[aStatus] - statusOrder[bStatus]
-    if (statusDiff !== 0) return statusDiff
-    
-    // For active sellers, sort by tier (higher first)
-    if (aStatus === 'active' && bStatus === 'active') {
-      return (bProfile?.rank || 0) - (aProfile?.rank || 0)
+    if (category && category !== 'All') {
+      query = query.eq('category', category)
     }
-    
-    // For same status, sort by likes
-    return (b.likes || 0) - (a.likes || 0)
-  })
 
-  // Apply additional sorting based on user selection
-  if (sort === 'price_asc') {
-    sorted = sorted.sort((a: any, b: any) => (a.price || 0) - (b.price || 0))
-  } else if (sort === 'price_desc') {
-    sorted = sorted.sort((a: any, b: any) => (b.price || 0) - (a.price || 0))
+    if (searchTerm) {
+      query = query.ilike('name', `%${searchTerm}%`)
+    }
+
+    const { data: productsData } = await query
+
+    if (!productsData) {
+      setProductsLoading(false)
+      setProducts([])
+      setHasMore(false)
+      return
+    }
+
+    const sellerIds = [...new Set(productsData.map((p: any) => p.seller_id))]
+
+    const { data: profilesData } = await supabase
+      .from('profiles')
+      .select('id, name, full_name, avatar_url, rank, banned, tier_expires_at')
+      .in('id', sellerIds)
+
+    const merged = productsData.map((product: any) => ({
+      ...product,
+      profiles: profilesData?.find((p: any) => p.id === product.seller_id) || null
+    }))
+
+    const visible = merged.filter((p: any) => !p.profiles?.banned)
+
+    const getSellerStatus = (profile: any) => {
+      if (!profile || profile.rank === 0) return 'free'
+      if (profile.tier_expires_at && new Date(profile.tier_expires_at) > new Date()) return 'active'
+      return 'expired'
+    }
+
+    let sorted = [...visible].sort((a: any, b: any) => {
+      const aProfile = a.profiles
+      const bProfile = b.profiles
+      const aStatus = getSellerStatus(aProfile)
+      const bStatus = getSellerStatus(bProfile)
+      const statusOrder = { active: 0, free: 1, expired: 2 }
+      const statusDiff = statusOrder[aStatus] - statusOrder[bStatus]
+      if (statusDiff !== 0) return statusDiff
+      if (aStatus === 'active' && bStatus === 'active') {
+        return (bProfile?.rank || 0) - (aProfile?.rank || 0)
+      }
+      return (b.likes || 0) - (a.likes || 0)
+    })
+
+    if (sort === 'price_asc') {
+      sorted = sorted.sort((a: any, b: any) => (a.price || 0) - (b.price || 0))
+    } else if (sort === 'price_desc') {
+      sorted = sorted.sort((a: any, b: any) => (b.price || 0) - (a.price || 0))
+    }
+
+    setProducts(sorted)
+    setHasMore(productsData.length === pageSize)
+    setProductsLoading(false)
   }
-  // 'newest' is already applied by default ordering
-
-  setProducts(sorted)
-  setProductsLoading(false)
-}
 
   return (
     <div key={lang} className="min-h-screen bg-[#f9fafb]" style={{ paddingTop: isMobile ? '90px' : '120px', paddingBottom: isMobile ? '40px' : '60px', paddingLeft: isMobile ? '16px' : '24px', paddingRight: isMobile ? '16px' : '24px' }}>
@@ -116,7 +127,10 @@ function BrowseContent() {
           <input
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setPage(1)
+            }}
             onKeyDown={(e) => e.key === 'Enter' && fetchProducts()}
             placeholder={t('home.search')}
             className="flex-1 min-w-64 bg-white border border-gray-200 
@@ -139,7 +153,10 @@ function BrowseContent() {
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
-              onClick={() => setCategory(cat)}
+              onClick={() => {
+                setCategory(cat)
+                setPage(1)
+              }}
               className={`px-4 py-2 rounded-full text-sm font-medium border transition-all
                 ${category === cat
                   ? 'bg-[#004E64] border-[#004E64] text-white'
@@ -268,6 +285,38 @@ function BrowseContent() {
                 </div>
               </a>
             ))}
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '28px' }}>
+            <button
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              disabled={page === 1}
+              style={{
+                padding: '12px 20px',
+                borderRadius: '9999px',
+                border: '1px solid #d1d5db',
+                background: page === 1 ? '#f3f4f6' : 'white',
+                color: page === 1 ? '#9ca3af' : '#111827',
+                cursor: page === 1 ? 'not-allowed' : 'pointer',
+              }}
+            >
+              Previous
+            </button>
+            <span style={{ alignSelf: 'center', color: '#4b5563' }}>Page {page}</span>
+            <button
+              onClick={() => setPage((prev) => prev + 1)}
+              disabled={!hasMore}
+              style={{
+                padding: '12px 20px',
+                borderRadius: '9999px',
+                border: '1px solid #d1d5db',
+                background: hasMore ? 'white' : '#f3f4f6',
+                color: hasMore ? '#111827' : '#9ca3af',
+                cursor: hasMore ? 'pointer' : 'not-allowed',
+              }}
+            >
+              Next
+            </button>
           </div>
         )}
 

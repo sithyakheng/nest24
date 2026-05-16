@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { uploadImage } from '@/lib/uploadImage'
+import { sanitizeInput } from '@/lib/security'
 import Link from 'next/link'
 import { Star, Check, Medal, Store, ShoppingCart, ShoppingBag, Package, DollarSign, User, Settings, X, Flag, Bell, Search, Heart, ThumbsUp, ThumbsDown, BarChart3, Plus, AlertTriangle, Home, Edit, Trash2, TrendingUp, Users, Menu } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
@@ -144,7 +145,7 @@ export default function DashboardPage() {
   async function loadProfile(currentUser: any) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, rank')
       .eq('id', currentUser.id)
       .single()
     
@@ -195,7 +196,7 @@ export default function DashboardPage() {
     async function fetchProducts() {
       const { data } = await supabase
         .from('products')
-        .select('*')
+        .select('id, name, price, compare_price, image_url, category, stock, discount, likes, dislikes, views, created_at')
         .eq('seller_id', profile.id)
         .order('created_at', { ascending: false })
       setProducts(data || [])
@@ -204,7 +205,7 @@ export default function DashboardPage() {
     async function fetchOrders() {
       const { data } = await supabase
         .from('orders')
-        .select('*')
+        .select('id, total_price, status, created_at, products(name)')
         .eq('seller_id', profile.id)
         .order('created_at', { ascending: false })
       setOrders(data || [])
@@ -237,18 +238,48 @@ export default function DashboardPage() {
     setAddingProduct(true)
     setAddError('')
 
+    const sanitizedName = sanitizeInput(productName)
+    const sanitizedDesc = sanitizeInput(productDesc)
+    const sanitizedCategory = sanitizeInput(productCategory)
+    
+    // Max length validation
+    if (sanitizedName.length > 100) {
+      setAddError('Product name is too long (max 100 characters)')
+      setAddingProduct(false)
+      return
+    }
+
+    if (sanitizedDesc.length > 2000) {
+      setAddError('Description is too long (max 2000 characters)')
+      setAddingProduct(false)
+      return
+    }
+
+    const priceNum = parseFloat(productPrice)
+    if (isNaN(priceNum) || priceNum < 0) {
+      setAddError('Please enter a valid price')
+      setAddingProduct(false)
+      return
+    }
+
     try {
       let imageUrl = ''
       if (productImage) {
+        // File size validation (max 5MB)
+        if (productImage.size > 5 * 1024 * 1024) {
+          setAddError('Image size too large (max 5MB)')
+          setAddingProduct(false)
+          return
+        }
         imageUrl = await uploadImage(productImage)
       }
 
       const { error } = await supabase.from('products').insert({
-        name: productName,
-        description: productDesc,
-        price: parseFloat(productPrice),
+        name: sanitizedName,
+        description: sanitizedDesc,
+        price: priceNum,
         compare_price: comparePrice ? parseFloat(comparePrice) : null,
-        category: productCategory,
+        category: sanitizedCategory,
         stock: parseInt(productStock),
         discount: productDiscount ? parseInt(productDiscount) : null,
         image_url: imageUrl,
@@ -273,7 +304,7 @@ export default function DashboardPage() {
       // Refresh products list
       const { data } = await supabase
         .from('products')
-        .select('*')
+        .select('id, seller_id, name, price, compare_price, category, image_url, created_at, likes, dislikes')
         .eq('seller_id', profile.id)
         .order('created_at', { ascending: false })
       setProducts(data || [])
@@ -387,18 +418,27 @@ export default function DashboardPage() {
     setSavingProfile(true)
     setProfileSuccess(false)
 
+    const sanitizedName = sanitizeInput(profileName)
+    const sanitizedFullName = sanitizeInput(fullName)
+    const sanitizedBio = sanitizeInput(bio)
+    const sanitizedPhone = sanitizeInput(phone)
+    const sanitizedWhatsapp = sanitizeInput(whatsapp)
+    const sanitizedFacebook = sanitizeInput(facebook)
+    const sanitizedInstagram = sanitizeInput(instagram)
+    const sanitizedTelegram = sanitizeInput(telegram)
+
     try {
       const { error } = await supabase
         .from('profiles')
         .update({
-          name: profileName,
-          full_name: fullName,
-          bio: bio,
-          phone: phone,
-          whatsapp: whatsapp,
-          facebook: facebook,
-          instagram: instagram,
-          telegram: telegram,
+          name: sanitizedName,
+          full_name: sanitizedFullName,
+          bio: sanitizedBio,
+          phone: sanitizedPhone,
+          whatsapp: sanitizedWhatsapp,
+          facebook: sanitizedFacebook,
+          instagram: sanitizedInstagram,
+          telegram: sanitizedTelegram,
           avatar_url: avatarUrl
         })
         .eq('id', user.id)

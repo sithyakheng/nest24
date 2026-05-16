@@ -5,6 +5,11 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useLang } from '@/contexts/LanguageContext'
 
+const LOGIN_ATTEMPT_KEY = 'nestkh_login_attempts'
+const LOGIN_LOCKOUT_KEY = 'nestkh_login_lockout'
+const MAX_LOGIN_ATTEMPTS = 5
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000
+
 export default function LoginPage() {
   const { t } = useLang()
   const router = useRouter()
@@ -25,16 +30,38 @@ export default function LoginPage() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
+
+    const lockoutUntil = window.localStorage.getItem(LOGIN_LOCKOUT_KEY)
+    if (lockoutUntil && new Date(lockoutUntil) > new Date()) {
+      setError('Too many login attempts. Please try again later.')
+      return
+    }
+
     setLoading(true)
     setError('')
     const { data, error } = await supabase.auth.signInWithPassword({ 
       email, password 
     })
+
     if (error) {
-      setError(error.message)
+      const attempts = Number(window.localStorage.getItem(LOGIN_ATTEMPT_KEY) || 0) + 1
+      window.localStorage.setItem(LOGIN_ATTEMPT_KEY, String(attempts))
+
+      if (attempts >= MAX_LOGIN_ATTEMPTS) {
+        const lockoutExpiry = new Date(Date.now() + LOCKOUT_DURATION_MS)
+        window.localStorage.setItem(LOGIN_LOCKOUT_KEY, lockoutExpiry.toISOString())
+        window.localStorage.removeItem(LOGIN_ATTEMPT_KEY)
+        setError('Too many login attempts. Locked for 15 minutes.')
+      } else {
+        setError(error.message)
+      }
+
       setLoading(false)
       return
     }
+
+    window.localStorage.removeItem(LOGIN_ATTEMPT_KEY)
+    window.localStorage.removeItem(LOGIN_LOCKOUT_KEY)
 
     // Check if user is banned
     const { data: profile } = await supabase

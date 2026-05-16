@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useLang } from '@/contexts/LanguageContext'
+import { sanitizeInput, isValidEmail } from '@/lib/security'
 
 export default function RegisterPage() {
   const { t } = useLang()
@@ -24,18 +25,44 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
   const [agreeToTerms, setAgreeToTerms] = useState(false)
+  const [honeypot, setHoneypot] = useState('') // Honeypot field for bot protection
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
+    
+    // Bot check: If honeypot is filled, it's likely a bot
+    if (honeypot) {
+      console.log('Bot detected via honeypot')
+      // Reject silently or redirect to success page to fool bots
+      setSuccess(true)
+      return
+    }
     
     if (!agreeToTerms) {
       setError('You must agree to the Terms & Conditions and Privacy Policy to continue.')
       return
     }
+
+    const sanitizedFullName = sanitizeInput(fullName)
+    const sanitizedEmail = email.trim().toLowerCase()
+    const sanitizedPhone = sanitizeInput(phone)
+
+    if (!isValidEmail(sanitizedEmail)) {
+      setError('Please enter a valid email address.')
+      return
+    }
+
+    // Password strength validation: 8 chars, 1 number, 1 uppercase
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/
+    if (!passwordRegex.test(password)) {
+      setError('Password must be at least 8 characters long and include at least one uppercase letter and one number.')
+      return
+    }
     
     // Validate phone for sellers
-    if (role === 'seller' && !phone.trim()) {
+    if (role === 'seller' && !sanitizedPhone) {
       setError('Phone number is required for sellers.')
       return
     }
@@ -43,38 +70,57 @@ export default function RegisterPage() {
     setLoading(true)
     setError('')
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email: sanitizedEmail,
       password,
       options: {
-        data: { role, full_name: fullName }
+        data: { role, full_name: sanitizedFullName }
       }
     })
 
-    if (error) {
-      setError(error.message)
+    if (signUpError) {
+      setError(signUpError.message)
       setLoading(false)
       return
     }
 
     if (data.user) {
-      await supabase.from('profiles').upsert({
+      const { error: profileError } = await supabase.from('profiles').upsert({
         id: data.user.id,
-        email,
-        full_name: fullName,
-        name: fullName,
+        email: sanitizedEmail,
+        full_name: sanitizedFullName,
+        name: sanitizedFullName,
         role,
-        phone: role === 'seller' ? phone.trim() : null,
+        phone: role === 'seller' ? sanitizedPhone : null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError)
+      }
     }
 
     if (role === 'seller') {
       window.location.href = '/dashboard'
     } else {
-      window.location.href = '/'
+      setSuccess(true)
     }
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-[#f9fafb] flex items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm max-w-md w-full text-center">
+          <div className="text-4xl mb-4">📧</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h2>
+          <p className="text-gray-600 mb-6">We've sent a verification link to your email address. Please click the link to activate your account.</p>
+          <button onClick={() => router.push('/login')} className="w-full bg-[#004E64] text-white font-bold py-3 rounded-xl">
+            Back to Login
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -141,6 +187,18 @@ export default function RegisterPage() {
         )}
 
         <form onSubmit={handleRegister} className="space-y-4">
+          {/* Honeypot field (hidden from users) */}
+          <div style={{ display: 'none' }} aria-hidden="true">
+            <input
+              type="text"
+              name="website"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+              tabIndex={-1}
+              autoComplete="off"
+            />
+          </div>
+          
           <input
             type="text"
             placeholder={t('auth.full_name')}

@@ -58,7 +58,7 @@ async function fetchSellers() {
   // Load premium sellers for spotlight
   const { data: premiumSellersData } = await supabase
     .from('profiles')
-    .select('*, products(id)')
+    .select('id, name, full_name, avatar_url, shop_slug, rank, tier, products(id)')
     .eq('role', 'seller')
     .eq('tier', 'premium')
     .limit(3)
@@ -68,7 +68,7 @@ async function fetchSellers() {
   // Load top sellers (premium + verified)
   const { data: topSellersData } = await supabase
     .from('profiles')
-    .select('*, products(id)')
+    .select('id, name, full_name, avatar_url, shop_slug, rank, tier, products(id)')
     .eq('role', 'seller')
     .in('tier', [3, 2])
     .limit(6)
@@ -78,7 +78,7 @@ async function fetchSellers() {
   // Load new sellers (starter)
   const { data: newSellersData } = await supabase
     .from('profiles')
-    .select('*, products(id)')
+    .select('id, name, full_name, avatar_url, shop_slug, rank, tier, products(id)')
     .eq('role', 'seller')
     .eq('tier', 1)
     .limit(4)
@@ -90,7 +90,7 @@ async function fetchProducts() {
   
   const { data: productsData, error: productsError } = await supabase
     .from('products')
-    .select('*')
+    .select('id, name, price, compare_price, image_url, category, seller_id, likes, dislikes, views, created_at, profiles(id, name, full_name, avatar_url, rank, tier, tier_expires_at)')
     .order('created_at', { ascending: false })
 
   if (productsError || !productsData) {

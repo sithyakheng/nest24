@@ -165,14 +165,14 @@ export default function AdminPage() {
     // Fetch ALL users (buyers + sellers)
     const { data: allUsers } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, name, full_name, email, role, rank, avatar_url, created_at, banned, is_admin')
       .order('created_at', { ascending: false })
     setAllUsers(allUsers || [])
 
     // Fetch ONLY sellers
     const { data: sellersData } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, name, full_name, email, role, rank, avatar_url, created_at, banned, phone, shop_slug, tier, tier_expires_at, tier_forever')
       .eq('role', 'seller')
       .order('created_at', { ascending: false })
     setSellers(sellersData || [])
@@ -186,19 +186,19 @@ export default function AdminPage() {
     // Fetch ALL products
     const { data: productsData } = await supabase
       .from('products')
-      .select('*, profiles(name, full_name, email)')
+      .select('id, name, price, category, created_at, seller_id, profiles(name, full_name, email)')
       .order('created_at', { ascending: false })
     setProducts(productsData || [])
 
     // Fetch ALL orders
     const { data: ordersData } = await supabase
       .from('orders')
-      .select('*, products(name), profiles(name, full_name, email)')
+      .select('id, total_price, status, created_at, products(name), profiles(name, full_name, email)')
       .order('created_at', { ascending: false })
     setOrders(ordersData || [])
 
     // Fetch reports
-    const { data: reportsData, error } = await supabase.from('reports').select('*')
+    const { data: reportsData, error } = await supabase.from('reports').select('id, product_id, reason, details, created_at')
     console.log('reports:', reportsData, error)
     setReports(reportsData || [])
 

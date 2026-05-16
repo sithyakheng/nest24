@@ -8,6 +8,8 @@ import { useLang } from '@/contexts/LanguageContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import Navbar from '@/components/Navbar'
 import { Star, Check, Medal, Send, Facebook, Shield, Flag, ThumbsUp, Package } from 'lucide-react'
+import DOMPurify from 'dompurify'
+import { sanitizeInput } from '@/lib/security'
 
 export default function SellerShopPage() {
   const { lang } = useLang()
@@ -91,7 +93,7 @@ export default function SellerShopPage() {
           console.log('Searching by UUID:', decodedId)
           const { data } = await supabase
             .from('profiles')
-            .select('*')
+            .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
             .eq('id', decodedId)
             .single()
           sellerData = data
@@ -102,7 +104,7 @@ export default function SellerShopPage() {
           console.log('Searching by shop_slug (ilike):', decodedId)
           const { data } = await supabase
             .from('profiles')
-            .select('*')
+            .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
             .ilike('shop_slug', decodedId)
             .single()
           sellerData = data
@@ -113,7 +115,7 @@ export default function SellerShopPage() {
           console.log('Searching by name (ilike):', decodedId)
           const { data } = await supabase
             .from('profiles')
-            .select('*')
+            .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
             .ilike('name', decodedId)
             .single()
           sellerData = data
@@ -124,7 +126,7 @@ export default function SellerShopPage() {
           console.log('Searching by full_name (ilike):', decodedId)
           const { data } = await supabase
             .from('profiles')
-            .select('*')
+            .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
             .ilike('full_name', decodedId)
             .single()
           sellerData = data
@@ -136,7 +138,7 @@ export default function SellerShopPage() {
             console.log('Searching by shop_name (ilike):', decodedId)
             const { data } = await supabase
               .from('profiles')
-              .select('*')
+              .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
               .ilike('shop_name', decodedId)
               .single()
             if (data) sellerData = data
@@ -161,7 +163,7 @@ export default function SellerShopPage() {
         if (sellerData.id) {
           const { data: productsData, error: productsError } = await supabase
             .from('products')
-            .select('*')
+            .select('id, seller_id, name, price, compare_price, image_url, category, created_at, likes, dislikes')
             .eq('seller_id', sellerData.id)
             .order('created_at', { ascending: false })
 
@@ -318,9 +320,14 @@ export default function SellerShopPage() {
               </div>
 
               {seller.bio && (
-                <p style={{ color: '#4b5563', fontSize: '15px', lineHeight: '1.6', margin: '0 0 16px 0', maxWidth: '600px' }}>
-                  {seller.bio}
-                </p>
+                <p 
+                  style={{ color: '#4b5563', fontSize: '15px', lineHeight: '1.6', margin: '0 0 16px 0', maxWidth: '600px' }}
+                  dangerouslySetInnerHTML={{ 
+                    __html: typeof window !== 'undefined' 
+                      ? DOMPurify.sanitize(seller.bio) 
+                      : seller.bio 
+                  }}
+                />
               )}
 
               {/* Stats row */}
@@ -581,12 +588,16 @@ export default function SellerShopPage() {
                         return
                       }
                       setReportSubmitting(true)
+                      
+                      const sanitizedReason = sanitizeInput(reportReason)
+                      const sanitizedDetails = sanitizeInput(reportDetails)
+
                       const { error } = await supabase
                         .from('reports')
                         .insert({
                           seller_id: seller?.id,
-                          reason: reportReason,
-                          details: reportDetails,
+                          reason: sanitizedReason,
+                          details: sanitizedDetails,
                         })
                       setReportSubmitting(false)
                       if (!error) {

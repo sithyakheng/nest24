@@ -40,8 +40,9 @@ export default function Home() {
 
       const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select('id, seller_id, name, price, image_url, category, created_at')
         .order('created_at', { ascending: false })
+        .limit(20)
 
       console.log('📦 Products query result:', { data, error })
       console.log('📊 Products count:', data?.length || 0)

@@ -62,7 +62,7 @@ export default function ProductPage() {
     try {
       const { data: productData, error: productError } = await supabase
         .from('products')
-        .select('*')
+        .select('id, seller_id, name, description, price, stock, category, image_url, created_at')
         .eq('id', params.id)
         .single()
 
@@ -73,7 +73,7 @@ export default function ProductPage() {
       // Fetch seller profile
       const { data: sellerData } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, phone_number, facebook_url, instagram_url, whatsapp_url, full_name')
         .eq('id', productData.seller_id)
         .single()
 

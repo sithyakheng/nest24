@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useLang } from '@/contexts/LanguageContext'
 import { ThumbsUp, ThumbsDown } from 'lucide-react'
+import DOMPurify from 'dompurify'
 
 export default function ProductDetailPage() {
   const { t } = useLang()
@@ -131,7 +132,7 @@ export default function ProductDetailPage() {
 
     const { data: productData, error } = await supabase
       .from('products')
-      .select('*')
+      .select('id, seller_id, name, description, image_url, price, compare_price, likes, dislikes, views, category, created_at')
       .eq('id', id)
       .single()
 
@@ -147,10 +148,7 @@ export default function ProductDetailPage() {
     if (productData.seller_id) {
       const { data: sellerData } = await supabase
         .from('profiles')
-        .select('*')
-        .eq('id', productData.seller_id)
-        .single()
-      setSeller(sellerData)
+        .select('id, name, full_name, avatar_url, rank, banned, shop_slug, shop_name')
     }
 
     setLoading(false)
@@ -477,15 +475,20 @@ export default function ProductDetailPage() {
 
             {/* Description */}
             {product.description && (
-              <p style={{
-                color: 'rgba(255,255,255,0.6)',
-                fontSize: '15px',
-                lineHeight: '1.7',
-                fontWeight: '300',
-                margin: 0
-              }}>
-                {product.description}
-              </p>
+              <p 
+                style={{
+                  color: 'rgba(255,255,255,0.6)',
+                  fontSize: '15px',
+                  lineHeight: '1.7',
+                  fontWeight: '300',
+                  margin: 0
+                }}
+                dangerouslySetInnerHTML={{ 
+                  __html: typeof window !== 'undefined' 
+                    ? DOMPurify.sanitize(product.description) 
+                    : product.description 
+                }}
+              />
             )}
 
             {/* Seller box */}

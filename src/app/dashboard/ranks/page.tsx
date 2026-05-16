@@ -450,7 +450,7 @@ export default function RanksPage() {
       if (!user) { router.push('/login'); return }
       const { data: profile } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, role, rank, tier, tier_forever, tier_expires_at, banned')
         .eq('id', user.id)
         .single()
       if (profile?.role !== 'seller') { router.push('/'); return }
@@ -458,7 +458,7 @@ export default function RanksPage() {
       setProfile(profile)
       const { data: request } = await supabase
         .from('rank_requests')
-        .select('*')
+        .select('id, seller_id, status, tier, type, created_at')
         .eq('seller_id', user.id)
         .eq('status', 'pending')
         .maybeSingle()

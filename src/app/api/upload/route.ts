@@ -1,25 +1,66 @@
 import { NextRequest, NextResponse } from 'next/server'
 import cloudinary from '@/lib/cloudinary'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import { isValidImageType, validateFileSignature } from '@/lib/security'
+import rateLimit from '@/lib/rate-limit'
+
+const limiter = rateLimit({
+  interval: 60 * 1000, // 1 minute
+  uniqueTokenPerInterval: 500,
+})
 
 export async function POST(req: NextRequest) {
   try {
-    console.log('Upload API called')
-    console.log('Cloud name:', process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME)
-    console.log('API key:', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY)
-    console.log('API secret exists:', !!process.env.CLOUDINARY_API_SECRET)
+    // Rate limiting: 10 uploads per minute per IP
+    const ip = req.ip || req.headers.get('x-forwarded-for') || 'anonymous'
+    try {
+      await limiter.check(10, `upload_${ip}`)
+    } catch {
+      return NextResponse.json({ error: 'Too many upload requests. Please try again in a minute.' }, { status: 429 })
+    }
+
+    const supabase = createRouteHandlerClient({ cookies })
+    const { data: { session } } = await supabase.auth.getSession()
+
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
     const formData = await req.formData()
     const file = formData.get('file') as File
     
     if (!file) {
-      console.log('No file provided')
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    console.log('File received:', file.name, file.size)
+    // Strict file extension check
+    const forbiddenExtensions = ['.exe', '.php', '.js', '.html', '.svg', '.sh', '.bat'];
+    const fileName = file.name.toLowerCase();
+    if (forbiddenExtensions.some(ext => fileName.endsWith(ext))) {
+      return NextResponse.json({ error: 'File type not allowed.' }, { status: 400 })
+    }
+
+    // File type validation (MIME type)
+    if (!isValidImageType(file.type)) {
+      return NextResponse.json({ error: 'Invalid file type. Only JPG, PNG, GIF and WebP are allowed.' }, { status: 400 })
+    }
+
+    // File size validation (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File size too large. Max 5MB allowed.' }, { status: 400 })
+    }
 
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
+
+    // Magic bytes validation
+    if (!validateFileSignature(buffer)) {
+      return NextResponse.json({ error: 'Invalid file signature. This file is not a valid image.' }, { status: 400 })
+    }
+
+    console.log('File received and validated:', file.name, file.size)
+
     const base64 = buffer.toString('base64')
     const dataURI = `data:${file.type};base64,${base64}` 
 
