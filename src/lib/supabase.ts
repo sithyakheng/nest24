@@ -1,5 +1,5 @@
-import { createClient as createBrowserClient, SupabaseClient } from '@supabase/supabase-js'
-import { createServerClient } from '@supabase/ssr'
+import { createBrowserClient } from '@supabase/ssr'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 let _supabase: SupabaseClient | null = null
 
@@ -7,16 +7,7 @@ function getSupabase(): SupabaseClient {
   if (!_supabase) {
     _supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key',
-      {
-        auth: {
-          persistSession: true,
-          autoRefreshToken: true,
-          detectSessionInUrl: true,
-          storageKey: 'nestkh-auth',
-          storage: typeof window !== 'undefined' ? window.localStorage : undefined
-        }
-      }
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key'
     )
   }
   return _supabase
@@ -32,6 +23,7 @@ export async function createClient() {
   if (typeof window === 'undefined') {
     const { cookies } = await import('next/headers')
     const cookieStore = await cookies()
+    const { createServerClient } = await import('@supabase/ssr')
     return createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import cloudinary from '@/lib/cloudinary'
-import { createClient } from '@/lib/supabase'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 import { isValidImageType, validateFileSignature } from '@/lib/security'
 import rateLimit from '@/lib/rate-limit'
 
@@ -19,10 +20,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many upload requests. Please try again in a minute.' }, { status: 429 })
     }
 
-    const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const supabase = createRouteHandlerClient({ cookies })
+    const { data: { session } } = await supabase.auth.getSession()
 
-    if (authError || !user) {
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
