@@ -9,9 +9,6 @@ export default function TermsPage() {
   const [windowWidth, setWindowWidth] = useState(1200)
   const isMobile = windowWidth < 768
   
-  // Simple theme detection based on time of day
-  const isDark = new Date().getHours() >= 18 || new Date().getHours() < 6
-
   useEffect(() => {
     setWindowWidth(window.innerWidth)
     const handleResize = () => setWindowWidth(window.innerWidth)
@@ -21,7 +18,7 @@ export default function TermsPage() {
 
   const containerStyle = {
     minHeight: '100vh',
-    background: isDark ? '#0a0a0a' : '#ffffff',
+    background: '#ffffff',
     paddingTop: '100px',
     paddingBottom: '80px'
   }
@@ -33,35 +30,36 @@ export default function TermsPage() {
   }
 
   const sectionStyle = {
-    background: isDark ? '#1a1a2e' : '#f8fafc',
+    background: '#ffffff',
+    border: '1px solid #f3f4f6',
     borderRadius: '16px',
     padding: '32px',
     marginBottom: '24px'
   }
 
   const headingStyle = {
-    color: isDark ? '#ffffff' : '#0f172a',
+    color: '#111827',
     fontSize: '24px',
     fontWeight: '700',
     marginBottom: '16px'
   }
 
   const subheadingStyle = {
-    color: isDark ? '#ffffff' : '#0f172a',
+    color: '#111827',
     fontSize: '18px',
     fontWeight: '600',
     marginBottom: '12px'
   }
 
   const textStyle = {
-    color: isDark ? 'rgba(255,255,255,0.8)' : '#475569',
+    color: '#1f2937',
     fontSize: '15px',
     lineHeight: '1.6',
     marginBottom: '16px'
   }
 
   const lastUpdatedStyle = {
-    color: isDark ? 'rgba(255,255,255,0.5)' : '#64748b',
+    color: '#6b7280',
     fontSize: '14px',
     fontStyle: 'italic',
     marginBottom: '24px'
@@ -134,7 +132,7 @@ export default function TermsPage() {
       >
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <h1 style={{ 
-            color: isDark ? '#ffffff' : '#0f172a', 
+            color: '#111827', 
             fontSize: isMobile ? '32px' : '48px', 
             fontWeight: '900', 
             margin: 0 
@@ -142,7 +140,7 @@ export default function TermsPage() {
             Terms & Conditions
           </h1>
           <p style={{ 
-            color: isDark ? 'rgba(255,255,255,0.6)' : '#64748b', 
+            color: '#6b7280', 
             fontSize: '16px', 
             marginBottom: 0 
           }}>
