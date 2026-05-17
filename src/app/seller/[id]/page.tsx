@@ -140,7 +140,8 @@ export default function SellerShopPage() {
           }
         }
 
-
+        if (!sellerData) {
+          setSeller(null)
           setLoading(false)
           return
         }

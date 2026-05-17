@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import cloudinary from '@/lib/cloudinary'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import rateLimit from '@/lib/rate-limit'
 
@@ -11,14 +11,28 @@ const limiter = rateLimit({
 export async function POST(req: NextRequest) {
   try {
     // Rate limiting: 20 deletes per minute per IP
-    const ip = req.ip || req.headers.get('x-forwarded-for') || 'anonymous'
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
     try {
       await limiter.check(20, `delete_${ip}`)
     } catch {
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 })
     }
 
-    const supabase = createRouteHandlerClient({ cookies })
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return cookieStore.getAll() },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          },
+        },
+      }
+    )
     const { data: { session } } = await supabase.auth.getSession()
 
     if (!session) {

@@ -4,7 +4,6 @@ import { Suspense } from 'react'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import ProductCard from '@/components/ProductCard'
 import { useLang } from '@/contexts/LanguageContext'
 import { sanitizeInput } from '@/lib/security'
 
@@ -14,7 +13,6 @@ function BrowseContent() {
   const { t, lang } = useLang()
   const searchParams = useSearchParams()
   const [products, setProducts] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
   const [productsLoading, setProductsLoading] = useState(true)
   const [category, setCategory] = useState(searchParams.get('category') || 'All')
   const [search, setSearch] = useState(searchParams.get('search') || '')
@@ -200,6 +198,7 @@ function BrowseContent() {
             </div>
           </div>
         ) : (
+          <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" style={{ gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : undefined }}>
             {products.map((product) => (
               <a href={`/products/${product.id}`} key={product.id}>
@@ -318,6 +317,7 @@ function BrowseContent() {
               Next
             </button>
           </div>
+          </>
         )}
 
       </div>

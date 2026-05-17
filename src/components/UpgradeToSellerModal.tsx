@@ -80,7 +80,7 @@ export default function UpgradeToSellerModal({ isOpen, onClose }: UpgradeToSelle
       
       // Redirect to seller dashboard after success
       setTimeout(() => {
-        router.push('/seller-dashboard')
+        router.push('/dashboard')
       }, 2000)
 
     } catch (error: any) {
