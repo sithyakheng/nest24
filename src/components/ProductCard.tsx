@@ -12,7 +12,7 @@ interface ProductCardProps {
 const getImageUrl = (url: string): string => {
   if (!url) return ''
   if (url.startsWith('http')) return url
-  return `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${url}` 
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/Product/${url}` 
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
@@ -110,7 +110,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   }
 
-  console.log('Product profiles rank:', product.profiles?.rank)
+
   
   // Determine rank-based styling
   const getRankStyle = () => {

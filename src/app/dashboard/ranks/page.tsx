@@ -17,6 +17,7 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
   const [sellerName, setSellerName] = useState('')
   const [shopName, setShopName] = useState('')
   const [phone, setPhone] = useState('')
+  const [planType, setPlanType] = useState<'monthly' | 'forever'>('monthly')
   const [discountCode, setDiscountCode] = useState('')
   const [discountApplied, setDiscountApplied] = useState(false)
   const [discountError, setDiscountError] = useState('')
@@ -24,6 +25,23 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
+
+  const isForever = planType === 'forever'
+  const monthlyPrices: Record<string, number> = { starter: 5, verified: 15, premium: 30 }
+  const foreverPrices: Record<string, number> = { starter: 19, verified: 59, premium: 119 }
+  const currentPrice = isForever ? foreverPrices[selectedRank] : monthlyPrices[selectedRank]
+  const discountedPrice = !isForever && discountApplied ? (currentPrice * 0.8).toFixed(2) : currentPrice
+  const monthlyQR: Record<string, string> = {
+    starter: 'https://res.cloudinary.com/dis7tyccn/image/upload/v1779000341/37f4432c-6938-41b8-b87b-5eba9b362f5d_rwiilm.jpg',
+    verified: 'https://res.cloudinary.com/dis7tyccn/image/upload/v1779000335/8182a258-f74c-4b6a-b4c1-e3b97014c28c_ttqpdb.jpg',
+    premium:  'https://res.cloudinary.com/dis7tyccn/image/upload/v1779000310/57f452da-c0ec-42ce-82a0-94971fb12d98_dljqjk.jpg',
+  }
+  const foreverQR: Record<string, string> = {
+    starter: 'https://res.cloudinary.com/dis7tyccn/image/upload/v1779000643/16780093-5d3b-4ac8-80b7-ca60b2f16265_v0vyr4.jpg',
+    verified: 'https://res.cloudinary.com/dis7tyccn/image/upload/v1779000692/6b10b7d3-0556-4b79-8e78-4bf145bc6314_yz4fbq.jpg',
+    premium:  'https://res.cloudinary.com/dis7tyccn/image/upload/v1779000627/c4394336-d291-4abf-a15d-3bc679f6ce70_c1oi24.jpg',
+  }
+  const currentQR = isForever ? foreverQR[selectedRank] : monthlyQR[selectedRank]
 
   async function compressImage(file: File): Promise<File> {
     return new Promise((resolve) => {
@@ -56,9 +74,6 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
                   [blob], 
                   file.name.replace(/\.[^/.]+$/, '.webp'),
                   { type: 'image/webp' }
-                )
-                console.log(
-                  `Compressed: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB` 
                 )
                 resolve(compressedFile)
               } else {
@@ -102,7 +117,7 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
     setError('')
 
     // Upload screenshot to Supabase storage with compression
-    console.log('Compressing screenshot...')
+
     const compressed = await compressImage(screenshot)
     
     const fileName = `rank-payment-${user.id}-${Date.now()}.webp` 
@@ -130,9 +145,10 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
         rank: selectedRank,
         status: 'pending',
         screenshot_url: screenshotUrl,
-        seller_name: sellerName,
+        full_name: sellerName,
         shop_name: shopName,
-        phone: phone
+        phone_number: phone,
+        plan_type: planType,
       })
 
     if (insertError) {
@@ -202,69 +218,58 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
         ))}
       </div>
 
-      {/* ABA QR Code */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '12px',
-        marginBottom: '40px'
-      }}>
+      {/* Plan Type Toggle */}
+      <div style={{ display: 'flex', background: 'rgba(255,255,255,0.08)', borderRadius: '14px', padding: '4px', marginBottom: '32px', maxWidth: '360px', margin: '0 auto 32px auto' }}>
+        <button
+          onClick={() => { setPlanType('monthly'); setDiscountApplied(false); setDiscountCode('') }}
+          style={{ flex: 1, padding: '10px 20px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '14px', transition: 'all 0.2s',
+            background: planType === 'monthly' ? 'rgba(0,78,100,0.6)' : 'transparent',
+            color: planType === 'monthly' ? '#4DB8CC' : 'rgba(255,255,255,0.4)',
+            boxShadow: planType === 'monthly' ? '0 2px 8px rgba(0,78,100,0.4)' : 'none' }}
+        >📅 Monthly</button>
+        <button
+          onClick={() => { setPlanType('forever'); setDiscountApplied(false); setDiscountCode('') }}
+          style={{ flex: 1, padding: '10px 20px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '14px', transition: 'all 0.2s',
+            background: planType === 'forever' ? 'rgba(232,201,126,0.25)' : 'transparent',
+            color: planType === 'forever' ? '#E8C97E' : 'rgba(255,255,255,0.4)',
+            boxShadow: planType === 'forever' ? '0 2px 8px rgba(232,201,126,0.2)' : 'none' }}
+        >♾️ Lifetime</button>
+      </div>
+
+      {/* Aceleda QR Code — responds to both selectedRank and planType */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginBottom: '40px' }}>
+        {isForever && (
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'linear-gradient(135deg, rgba(232,201,126,0.3), rgba(232,201,126,0.15))', border: '1px solid rgba(232,201,126,0.5)', color: '#E8C97E', borderRadius: '9999px', padding: '5px 14px', fontSize: '12px', fontWeight: '700', letterSpacing: '0.03em' }}>
+            ♾️ LIFETIME — Never Expires
+          </div>
+        )}
         <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
-          Scan to Pay
+          Scan to Pay via Aceleda
         </p>
-        <div style={{
-          background: 'white',
-          borderRadius: '16px',
-          padding: '12px',
-          boxShadow: '0 0 40px rgba(232,201,126,0.2)'
-        }}>
+        <div style={{ background: 'white', borderRadius: '16px', padding: '12px', boxShadow: isForever ? '0 0 40px rgba(232,201,126,0.35)' : '0 0 40px rgba(232,201,126,0.2)' }}>
           <img
-            src="https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/aba-qr.jpeg"
-            alt="ABA Bank QR Code"
-            style={{
-              width: '200px',
-              height: '200px',
-              objectFit: 'contain',
-              display: 'block',
-              borderRadius: '8px'
-            }}
+            key={currentQR}
+            src={currentQR}
+            alt={`Aceleda QR — ${selectedRank} ${isForever ? `$${foreverPrices[selectedRank]} lifetime` : `$${monthlyPrices[selectedRank]}/month`}`}
+            style={{ width: '200px', height: '200px', objectFit: 'contain', display: 'block', borderRadius: '8px' }}
           />
         </div>
         <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: 0, textAlign: 'center' }}>
-          Open ABA Mobile → Scan QR → Pay exact amount
+          Open Aceleda App → Scan QR → Pay exact amount
         </p>
-        <div style={{
-          background: 'rgba(232,201,126,0.1)',
-          border: '1px solid rgba(232,201,126,0.3)',
-          borderRadius: '12px',
-          padding: '10px 20px',
-          textAlign: 'center'
-        }}>
+        <div style={{ background: 'rgba(232,201,126,0.1)', border: '1px solid rgba(232,201,126,0.3)', borderRadius: '12px', padding: '10px 20px', textAlign: 'center' }}>
           <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '20px', margin: 0 }}>
-            {discountApplied ? (
+            {discountApplied && !isForever ? (
               <>
-                <span style={{ color: '#E8C97E', fontWeight: '900', fontSize: '20px', margin: 0 }}>
-                  ${selectedRank === 'starter' ? '4' : selectedRank === 'verified' ? '12' : '24'} USD
-                </span>
-                <span style={{ 
-                  color: '#10b981', 
-                  fontSize: '14px', 
-                  fontWeight: '600', 
-                  marginLeft: '8px',
-                  textDecoration: 'line-through'
-                }}>
-                  ${selectedRank === 'starter' ? '6' : selectedRank === 'verified' ? '18' : '30'} USD
-                </span>
+                <span style={{ color: '#E8C97E', fontWeight: '900', fontSize: '20px' }}>${discountedPrice} USD</span>
+                <span style={{ color: '#10b981', fontSize: '14px', fontWeight: '600', marginLeft: '8px', textDecoration: 'line-through' }}>${currentPrice} USD</span>
               </>
             ) : (
-              <>
-                ${selectedRank === 'starter' ? '5' : selectedRank === 'verified' ? '15' : '30'} USD
-              </>
+              <>${currentPrice} USD</>
             )}
           </p>
           <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '4px 0 0 0' }}>
-            {selectedRank === 'starter' ? 'Starter' : selectedRank === 'verified' ? 'Verified' : 'Premium'} Rank Payment
+            {selectedRank.charAt(0).toUpperCase() + selectedRank.slice(1)} Rank — {isForever ? 'One-time Payment' : 'Monthly'}
           </p>
         </div>
       </div>
@@ -311,13 +316,23 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
               style={{...enhancedInputStyle, flex: 1}}
             />
             <button
-              onClick={() => {
-                if (discountCode === 'SIMPLESHOP') {
-                  setDiscountApplied(true)
-                  setDiscountError('')
-                } else {
-                  setDiscountApplied(false)
-                  setDiscountError('✗ Invalid discount code')
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/validate-discount', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: discountCode }),
+                  })
+                  const data = await res.json()
+                  if (data.valid) {
+                    setDiscountApplied(true)
+                    setDiscountError('')
+                  } else {
+                    setDiscountApplied(false)
+                    setDiscountError('✗ Invalid discount code')
+                  }
+                } catch {
+                  setDiscountError('✗ Could not validate code')
                 }
               }}
               style={{
@@ -441,8 +456,7 @@ export default function RanksPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  // Debug log for selectedRank
-  console.log('selectedRank:', selectedRank)
+
 
   useEffect(() => {
     async function load() {

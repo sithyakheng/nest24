@@ -24,9 +24,16 @@ export default function AdminPage() {
   // Approve handler for rank requests
   const handleApprove = async (request: any) => {
     const isForever = request.plan_type === 'forever';
-    
+
+    // Normalise rank — may come in as a number (1/2/3) or string ('starter'/'verified'/'premium')
+    const rankNumToStr: Record<number, string> = { 1: 'starter', 2: 'verified', 3: 'premium' }
+    const rankStrToNum: Record<string, number> = { starter: 1, verified: 2, premium: 3 }
+    const rankStr = typeof request.rank === 'number' ? (rankNumToStr[request.rank] ?? 'starter') : request.rank
+    const rankNum = typeof request.rank === 'number' ? request.rank : (rankStrToNum[request.rank] ?? 1)
+
     await supabase.from('profiles').update({
-      tier: request.rank,
+      rank: rankStr,
+      tier: rankNum,
       tier_forever: isForever ? true : false,
       tier_expires_at: isForever ? null : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
     }).eq('id', request.seller_id);
@@ -34,7 +41,7 @@ export default function AdminPage() {
     await supabase.from('rank_requests').update({ status: 'approved' }).eq('id', request.id);
 
     // Delete screenshot from Cloudinary
-    if (request.screenshot_url) {
+    if (request.screenshot_url && request.screenshot_url.includes('cloudinary.com')) {
       const parts = request.screenshot_url.split('/');
       const uploadIndex = parts.indexOf('upload');
       const pathAfterUpload = parts.slice(uploadIndex + 2).join('/');
@@ -159,7 +166,6 @@ export default function AdminPage() {
         )
       `)
       .order('created_at', { ascending: false })
-    console.log('Rank requests with plan_type:', requests?.map(r => ({ id: r.id, plan_type: r.plan_type, full_name: r.full_name })));
     setRankRequests(requests || [])
 
     // Fetch ALL users (buyers + sellers)
@@ -198,9 +204,9 @@ export default function AdminPage() {
     setOrders(ordersData || [])
 
     // Fetch reports
-    const { data: reportsData, error } = await supabase.from('reports').select('id, product_id, reason, details, created_at')
-    console.log('reports:', reportsData, error)
+    const { data: reportsData } = await supabase.from('reports').select('id, seller_id, reporter_id, reason, details, created_at, status')
     setReports(reportsData || [])
+
 
     setLoading(false)
   }
@@ -223,8 +229,8 @@ export default function AdminPage() {
   // Map rank to tier
   const rankToTierMap: Record<string, number> = {
     'starter': 1,
-    'premium': 2, 
-    'enterprise': 3
+    'verified': 2,
+    'premium': 3
   }
   
   const tier = rankToTierMap[rank] || 1
@@ -881,7 +887,7 @@ export default function AdminPage() {
                   <div key={product.id} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{ width: '48px', height: '48px', borderRadius: '10px', overflow: 'hidden', background: 'rgba(255,255,255,0.06)', flexShrink: 0 }}>
-                        {product.image_url && <img src={product.image_url.startsWith('http') ? product.image_url : `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${product.image_url}`} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                        {product.image_url && <img src={product.image_url.startsWith('http') ? product.image_url : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/Product/${product.image_url}`} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                       </div>
                       <div>
                         <p style={{ color: 'white', fontWeight: '600', margin: 0 }}>{product.name}</p>

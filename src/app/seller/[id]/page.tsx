@@ -83,14 +83,12 @@ export default function SellerShopPage() {
     async function load() {
       try {
         const decodedId = decodeURIComponent(id as string)
-        console.log('Loading seller with id/name:', decodedId)
-        
+
         let sellerData = null
 
         // 1. Try to find by ID (UUID) if it's a valid UUID
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(decodedId)
         if (isUUID) {
-          console.log('Searching by UUID:', decodedId)
           const { data } = await supabase
             .from('profiles')
             .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
@@ -101,7 +99,6 @@ export default function SellerShopPage() {
 
         // 2. Try by shop_slug (case-insensitive)
         if (!sellerData) {
-          console.log('Searching by shop_slug (ilike):', decodedId)
           const { data } = await supabase
             .from('profiles')
             .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
@@ -112,7 +109,6 @@ export default function SellerShopPage() {
 
         // 3. Try by name (case-insensitive)
         if (!sellerData) {
-          console.log('Searching by name (ilike):', decodedId)
           const { data } = await supabase
             .from('profiles')
             .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
@@ -123,7 +119,6 @@ export default function SellerShopPage() {
 
         // 4. Try by full_name (case-insensitive)
         if (!sellerData) {
-          console.log('Searching by full_name (ilike):', decodedId)
           const { data } = await supabase
             .from('profiles')
             .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
@@ -135,7 +130,6 @@ export default function SellerShopPage() {
         // 5. Try by shop_name (case-insensitive) - Requested by user
         if (!sellerData) {
           try {
-            console.log('Searching by shop_name (ilike):', decodedId)
             const { data } = await supabase
               .from('profiles')
               .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
@@ -143,15 +137,10 @@ export default function SellerShopPage() {
               .single()
             if (data) sellerData = data
           } catch (e) {
-            console.log('shop_name column might not exist')
           }
         }
 
-        console.log('Final seller data:', sellerData)
 
-        if (!sellerData) {
-          console.log('Seller not found')
-          setSeller(null)
           setLoading(false)
           return
         }
@@ -167,8 +156,6 @@ export default function SellerShopPage() {
             .eq('seller_id', sellerData.id)
             .order('created_at', { ascending: false })
 
-          console.log('Products data:', productsData)
-          console.log('Products error:', productsError)
 
           if (productsError) {
             console.error('Error fetching products:', productsError)
@@ -236,7 +223,7 @@ export default function SellerShopPage() {
   const getImageUrl = (url: string) => {
     if (!url) return ''
     if (url.startsWith('http')) return url
-    return `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${url}` 
+    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/Product/${url}` 
   }
 
   const rankColor = seller.rank === 'premium' ? '#E8C97E' : seller.rank === 'verified' ? '#4DB8CC' : seller.rank === 'starter' ? '#93c5fd' : '#6b7280'

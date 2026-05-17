@@ -12,7 +12,7 @@ import { useLang } from '@/contexts/LanguageContext'
 const getImageUrl = (image_url: string): string | null => {
   if (!image_url) return null
   if (image_url.startsWith('http')) return image_url
-  return `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${image_url}` 
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/Product/${image_url}` 
 }
 
 const marqueeItems = [
@@ -148,8 +148,7 @@ async function fetchProducts() {
   setProducts(sorted)
   setRecentProducts(sorted.slice(0, 5))
   setProductsLoading(false)
-  
-  console.log('First product profiles:', sorted[0]?.profiles)
+
 }
 
   const glassStyle = {

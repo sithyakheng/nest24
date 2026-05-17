@@ -157,7 +157,7 @@ export default function ProductDetailPage() {
   const getImageUrl = (url: string): string => {
     if (!url) return ''
     if (url.startsWith('http')) return url
-    return `https://oisdppgqifhbtlanglwr.supabase.co/storage/v1/object/public/Product/${url}` 
+    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/Product/${url}` 
   }
 
   if (loading) {

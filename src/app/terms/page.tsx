@@ -70,35 +70,55 @@ export default function TermsPage() {
   const sections = [
     {
       title: 'About NestKH',
-      content: 'NestKH is a Cambodian online marketplace connecting buyers and sellers. We provide platform only and are not a party to any transaction.'
+      content: 'NestKH is a Cambodian online marketplace that connects buyers and sellers across the Kingdom of Cambodia. NestKH provides the platform only and is not a party to any transaction between buyers and sellers. NestKH does not own, sell, resell, or control any of the products or services listed on the platform.'
+    },
+    {
+      title: 'Eligibility & Age Requirements',
+      content: 'You must be at least 12 years old to register and use NestKH as a buyer. Users under 18 must have permission from a parent or legal guardian. To register as a seller, you must be at least 18 years old or have verifiable parental consent. By creating an account, you confirm you meet these age requirements.'
     },
     {
       title: 'Your Account',
-      content: 'You are responsible for keeping your account secure. Provide accurate info when signing up. We reserve the right to suspend accounts that violate these terms.'
+      content: 'You are responsible for keeping your account credentials secure. You must provide accurate information when signing up. You may not share your account with others. NestKH reserves the right to suspend or permanently ban accounts that violate these Terms.'
     },
     {
       title: 'Sellers',
-      content: 'Sellers are responsible for their listings. Product limits apply based on tier (Free: 2, Starter: 30, Verified: 150, Premium: 300). We can remove any listing that violates our rules.'
+      content: 'Sellers are solely responsible for the accuracy, legality, and quality of their listings. Product limits apply by tier: Free (2), Starter (30), Verified (150), Premium (300). NestKH may remove any listing that violates these Terms or Cambodian law. Sellers must not misrepresent products or use fake images.'
     },
     {
       title: 'Buyers',
-      content: 'All transactions happen directly between buyers and sellers. NestKH is not responsible for product quality, safety, or delivery.'
+      content: 'All transactions occur directly between buyers and sellers. NestKH is not responsible for product quality, authenticity, safety, or delivery. Buyers should exercise due diligence before purchasing. NestKH recommends meeting in safe public locations for in-person transactions.'
     },
     {
-      title: 'No Refunds',
-      content: 'NestKH does not process payments and does not offer refunds. All sales are final and handled between buyer and seller.'
+      title: 'Payments & No Refunds',
+      content: 'NestKH does not process or hold any payments. All payment arrangements are made directly between parties. NestKH does not offer refunds or mediate disputes. Any financial agreements are solely between buyer and seller.'
     },
     {
       title: 'No Scamming or Fraud',
-      content: 'Any user found scamming or defrauding others will be permanently banned. This includes fake listings, false descriptions, and taking payment without delivering. Severe cases will be reported to authorities.'
+      content: 'Any user found scamming or defrauding others will be permanently banned. This includes fake listings, false descriptions, taking payment without delivering, and fake accounts. Severe cases will be reported to the Royal Cambodia Police.'
     },
     {
       title: 'Prohibited Content',
-      content: 'No illegal, counterfeit, or harmful products. Spam, fraud, or abuse results in immediate removal.'
+      content: 'Strictly prohibited: illegal or counterfeit goods, weapons, drugs, adult content, content violating Cambodian law, spam, and fake reviews. Violations result in immediate listing removal and account termination.'
+    },
+    {
+      title: 'Intellectual Property',
+      content: 'All NestKH platform content including logos, design, and software is property of NestKH. Sellers retain ownership of their product images but grant NestKH a license to display them on the platform.'
+    },
+    {
+      title: 'Limitation of Liability',
+      content: 'NestKH is provided as-is without warranties. To the maximum extent permitted by Cambodian law, NestKH is not liable for any damages arising from use of the platform including losses from transactions or scams.'
+    },
+    {
+      title: 'Governing Law',
+      content: 'These Terms are governed by the laws of the Kingdom of Cambodia. Disputes shall be resolved in the competent courts of Phnom Penh.'
     },
     {
       title: 'Changes',
-      content: 'We may update these terms anytime. Continued use means you accept updated terms.'
+      content: 'NestKH may update these Terms at any time. Continued use means you accept updated Terms.'
+    },
+    {
+      title: 'Contact',
+      content: 'Contact us through nestkh.com for legal inquiries or to report violations.'
     }
   ]
 

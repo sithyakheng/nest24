@@ -11,12 +11,14 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+const LOGO_URL = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1773312754/nestkh/rutdnjul41sbyldamczk.png`
+
 export const metadata = {
   title: 'NestKH - Premium Cambodian Marketplace',
   description: "Cambodia's premier digital marketplace",
   icons: {
-    icon: 'https://res.cloudinary.com/dis7tyccn/image/upload/v1773312754/nestkh/rutdnjul41sbyldamczk.png',
-    apple: 'https://res.cloudinary.com/dis7tyccn/image/upload/v1773312754/nestkh/rutdnjul41sbyldamczk.png',
+    icon: LOGO_URL,
+    apple: LOGO_URL,
   },
 }
 
@@ -28,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="bg-white">
       <head>
-        <link rel="icon" href="https://res.cloudinary.com/dis7tyccn/image/upload/v1773312754/nestkh/rutdnjul41sbyldamczk.png" />
+        <link rel="icon" href={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1773312754/nestkh/rutdnjul41sbyldamczk.png`} />
       </head>
       <body className={`${inter.variable} font-sans antialiased bg-white`}>
         <LanguageProvider>

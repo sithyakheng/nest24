@@ -70,27 +70,43 @@ export default function PrivacyPage() {
   const sections = [
     {
       title: 'What We Collect',
-      content: 'Name, email, phone number on signup. Also info about products you list or browse.'
+      content: 'On signup we collect: full name, email, phone number (sellers), and role. During use we collect: listings you create, browsing activity, and device info such as IP address and browser type.'
     },
     {
       title: 'How We Use It',
-      content: 'To run your account, display listings, and improve NestKH. We do not sell your data.'
+      content: 'To operate your account, display listings, improve NestKH, send account notifications, and enforce our Terms. We do not sell your data to third parties.'
     },
     {
       title: 'Third Party Services',
-      content: 'NestKH uses Supabase, Cloudinary, and Vercel which may process your data.'
+      content: 'NestKH uses Supabase (database and auth), Cloudinary (images), and Vercel (hosting). Each processes data per their own privacy policies.'
+    },
+    {
+      title: 'Data Retention',
+      content: 'We keep your data while your account is active. On deletion request, data is removed within 30 days except where required by law. Listings may remain visible up to 7 days after deletion.'
     },
     {
       title: 'Cookies',
-      content: 'Used to keep you logged in and improve experience.'
+      content: 'We use cookies to keep you logged in and improve your experience. You may disable cookies in your browser but this may affect platform functionality.'
+    },
+    {
+      title: 'Data Security',
+      content: 'We use encrypted transmission, secure authentication, and row-level database security to protect your data. No internet transmission is 100% secure.'
+    },
+    {
+      title: "Children's Privacy",
+      content: 'NestKH allows users aged 12 and above as buyers. We do not knowingly collect data from children under 12. If you believe a child under 12 registered, contact us and we will delete their account immediately.'
     },
     {
       title: 'Your Rights',
-      content: 'Request account and data deletion anytime by contacting us.'
+      content: 'You may request access, correction, or deletion of your data at any time through nestkh.com.'
+    },
+    {
+      title: 'Changes',
+      content: 'We may update this policy anytime. Continued use means acceptance of changes.'
     },
     {
       title: 'Contact',
-      content: 'Contact us through NestKH platform.'
+      content: 'For privacy questions or data deletion requests contact us at nestkh.com.'
     }
   ]
 

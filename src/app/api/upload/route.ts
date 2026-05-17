@@ -59,12 +59,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid file signature. This file is not a valid image.' }, { status: 400 })
     }
 
-    console.log('File received and validated:', file.name, file.size)
+
 
     const base64 = buffer.toString('base64')
     const dataURI = `data:${file.type};base64,${base64}` 
 
-    console.log('Uploading to Cloudinary...')
+
 
     const result = await cloudinary.uploader.upload(dataURI, {
       folder: 'nestkh',
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
       ]
     })
 
-    console.log('Cloudinary upload success:', result.secure_url)
+
 
     return NextResponse.json({ 
       url: result.secure_url,
@@ -84,6 +84,6 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Cloudinary upload error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
   }
 }
