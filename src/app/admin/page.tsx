@@ -88,6 +88,14 @@ export default function AdminPage() {
         .eq('id', user.id)
         .single()
       if (profile?.role !== 'admin') { window.location.href = '/'; return }
+      
+      // Check if user has completed PIN verification
+      const isPinVerified = sessionStorage.getItem('admin_pin_verified') === 'true'
+      if (!isPinVerified) {
+        window.location.href = '/admin/pin'
+        return
+      }
+
       setIsAdmin(true)
       
       // Initial fetch
