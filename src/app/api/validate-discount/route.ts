@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
 
 export async function POST(req: NextRequest) {
   try {
-    // Only authenticated users can validate discount codes
-    const { data: { user } } = await supabase.auth.getUser()
 
-    if (!user) {
-      return NextResponse.json({ valid: false, error: 'Unauthorized' }, { status: 401 })
-    }
 
     const body = await req.json()
     const { code } = body

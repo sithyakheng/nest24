@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import cloudinary from '@/lib/cloudinary'
-import { supabase } from '@/lib/supabase'
 import { isValidImageType, validateFileSignature } from '@/lib/security'
 import rateLimit from '@/lib/rate-limit'
 
@@ -19,11 +18,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many upload requests. Please try again in a minute.' }, { status: 429 })
     }
 
-    const { data: { user } } = await supabase.auth.getUser()
 
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     const formData = await req.formData()
     const file = formData.get('file') as File
