@@ -31,6 +31,13 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className="bg-white">
       <head>
         <link rel="icon" href={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1773312754/nestkh/rutdnjul41sbyldamczk.png`} />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0d9488" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="NestKH" />
       </head>
       <body className={`${inter.variable} font-sans antialiased bg-white`}>
         <LanguageProvider>
