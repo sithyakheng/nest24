@@ -16,6 +16,8 @@ export default function Navbar() {
   const [activeLink, setActiveLink] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [userRole, setUserRole] = useState('')
+  const [shopSlug, setShopSlug] = useState('')
+  const [shopName, setShopName] = useState('')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [windowWidth, setWindowWidth] = useState(1200)
   const { lang, toggleLang, t } = useLang()
@@ -48,21 +50,25 @@ export default function Navbar() {
   }, [])
 
   useEffect(() => {
-    async function getRole() {
+    async function getProfile() {
       if (!user) {
         setUserRole('')
+        setShopSlug('')
+        setShopName('')
         return
       }
       const { data } = await supabase
         .from('profiles')
-        .select('role')
+        .select('role, shop_slug, name, full_name')
         .eq('id', user.id)
         .single()
       
-      console.log('User role loaded:', data?.role)
+      console.log('User profile loaded:', data)
       setUserRole(data?.role || '')
+      setShopSlug(data?.shop_slug || '')
+      setShopName(data?.name || data?.full_name || '')
     }
-    getRole()
+    getProfile()
   }, [user])
 
   useEffect(() => {
@@ -172,6 +178,17 @@ export default function Navbar() {
               {userRole === 'seller' && (
                 <div style={{ marginTop: '8px' }}></div>
               )}
+
+              {/* My Shop - Only show for sellers */}
+              {userRole === 'seller' && (shopSlug || shopName) && (
+                <Link
+                  href={`/seller/${shopSlug || shopName}`}
+                  className="relative text-sm font-medium transition-all duration-200 opacity-60 hover:opacity-100"
+                  style={{ color: navTextColor }}
+                >
+                  🏪 My Shop
+                </Link>
+              )}
               
               <Link
                 href="/categories"
@@ -273,6 +290,15 @@ export default function Navbar() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <LayoutDashboard size={16} />
                             <span>{t('nav.dashboard')}</span>
+                          </div>
+                        </Link>
+                      )}
+                      {/* My Shop - Only show for sellers */}
+                      {userRole === 'seller' && (shopSlug || shopName) && (
+                        <Link href={`/seller/${shopSlug || shopName}`} style={{ display: 'block', padding: '12px 16px', color: navTextColor, textDecoration: 'none', borderRadius: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <ShoppingBag size={16} />
+                            <span>🏪 My Shop</span>
                           </div>
                         </Link>
                       )}
@@ -512,6 +538,11 @@ export default function Navbar() {
                 {userRole === 'seller' && (
                   <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
                     <div style={{ padding: '12px 16px', borderRadius: '12px', color: navTextColor, fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>📊 Dashboard</div>
+                  </Link>
+                )}
+                {userRole === 'seller' && (shopSlug || shopName) && (
+                  <Link href={`/seller/${shopSlug || shopName}`} onClick={() => setMobileMenuOpen(false)}>
+                    <div style={{ padding: '12px 16px', borderRadius: '12px', color: navTextColor, fontSize: '14px', fontWeight: '600', cursor: 'pointer', marginTop: '4px' }}>🏪 My Shop</div>
                   </Link>
                 )}
                 <div

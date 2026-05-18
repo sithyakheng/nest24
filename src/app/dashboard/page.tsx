@@ -692,7 +692,31 @@ export default function DashboardPage() {
           {/* Overview Tab */}
           {activeTab === 'overview' && (
             <div>
-              <h1 style={{ color: '#1e293b', fontSize: '24px', fontWeight: '700', marginBottom: '24px' }}>Dashboard Overview</h1>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+                <h1 style={{ color: '#1e293b', fontSize: '24px', fontWeight: '700', margin: 0 }}>Dashboard Overview</h1>
+                {profile && (
+                  <Link
+                    href={`/seller/${shopSlug || profile.name}`}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      backgroundColor: '#004E64',
+                      color: 'white',
+                      fontWeight: '700',
+                      fontSize: '14px',
+                      padding: '10px 18px',
+                      borderRadius: '10px',
+                      textDecoration: 'none',
+                      boxShadow: '0 4px 12px rgba(0,78,100,0.15)',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <Store size={16} />
+                    <span>View My Shop</span>
+                  </Link>
+                )}
+              </div>
   
               {/* Subscription Countdown Widget */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
