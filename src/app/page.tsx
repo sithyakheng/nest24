@@ -217,7 +217,7 @@ async function fetchProducts() {
   return (
     <div key={lang} className="relative z-10 bg-white">
       <Navbar />
-      <div className="min-h-full sm:min-h-screen bg-white pt-24 md:pt-28">
+      <div className="min-h-full sm:min-h-screen bg-white pt-32 md:pt-36">
 
       {/* PREMIUM SELLERS SPOTLIGHT */}
       {premiumSellers.length > 0 && (
