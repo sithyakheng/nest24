@@ -90,7 +90,7 @@ export default function SellerShopPage() {
         try {
           const { data } = await supabase
             .from('profiles')
-            .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
+            .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, rank, banned')
             .ilike('shop_slug', decodedId)
             .maybeSingle()
           if (data) sellerData = data
@@ -104,7 +104,7 @@ export default function SellerShopPage() {
           try {
             const { data } = await supabase
               .from('profiles')
-              .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
+              .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, rank, banned')
               .eq('id', decodedId)
               .maybeSingle()
             if (data) sellerData = data
@@ -118,7 +118,7 @@ export default function SellerShopPage() {
           try {
             const { data } = await supabase
               .from('profiles')
-              .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
+              .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, rank, banned')
               .ilike('name', decodedId)
               .maybeSingle()
             if (data) sellerData = data
@@ -132,22 +132,8 @@ export default function SellerShopPage() {
           try {
             const { data } = await supabase
               .from('profiles')
-              .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
+              .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, rank, banned')
               .ilike('full_name', decodedId)
-              .maybeSingle()
-            if (data) sellerData = data
-          } catch (e) {
-            // ignore error
-          }
-        }
-
-        // 5. Try by shop_name (case-insensitive)
-        if (!sellerData) {
-          try {
-            const { data } = await supabase
-              .from('profiles')
-              .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
-              .ilike('shop_name', decodedId)
               .maybeSingle()
             if (data) sellerData = data
           } catch (e) {
