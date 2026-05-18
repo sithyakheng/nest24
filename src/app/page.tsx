@@ -217,11 +217,12 @@ async function fetchProducts() {
   return (
     <div key={lang} className="relative z-10 bg-white">
       <Navbar />
-      <div className="min-h-full sm:min-h-screen bg-white pt-32 md:pt-36">
+      <div className="min-h-full sm:min-h-screen bg-white" style={{ paddingTop: isMobile ? '100px' : '140px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: isMobile ? '0 16px' : '0 24px' }}>
 
       {/* PREMIUM SELLERS SPOTLIGHT */}
       {premiumSellers.length > 0 && (
-        <div style={{ marginBottom: isMobile ? '24px' : '48px', padding: isMobile ? '0 16px' : '0' }}>
+        <div style={{ marginBottom: isMobile ? '24px' : '48px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
             <Star size={20} />
             <div>
@@ -360,6 +361,7 @@ async function fetchProducts() {
           </div>
         </div>
       )}
+        </div>
 
       {/* Main Board Container */}
       <motion.div
