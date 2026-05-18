@@ -168,6 +168,23 @@ export default function Navbar() {
                 )}
               </Link>
               
+              <Link
+                href="/sellers"
+                className={`relative text-sm font-medium transition-all duration-200 ${
+                  activeLink === 'sellers' ? '' : 'opacity-60 hover:opacity-100'
+                }`}
+                style={{ color: navTextColor }}
+                onClick={() => setActiveLink('sellers')}
+              >
+                🏪 Sellers
+                {activeLink === 'sellers' && (
+                  <motion.div
+                    layoutId="nav-underline"
+                    className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-teal-400 shadow-[0_0_8px_rgba(0,254,226,0.3)]"
+                  />
+                )}
+              </Link>
+
               <Link href="/ranks">
                 <span className="bg-[#004E64] text-white rounded-full px-4 py-1.5 text-sm font-medium">
                   🏆 Ranks
@@ -472,6 +489,7 @@ export default function Navbar() {
             {[
               { label: `🏠 Home`, href: '/' },
               { label: `🔍 ${t('nav.browse')}`, href: '/browse' },
+              { label: `🏪 Sellers`, href: '/sellers' },
               { label: `🏆 Ranks`, href: '/ranks' },
               { label: `📂 ${t('nav.categories')}`, href: '/categories' },
               { label: `📖 ${t('nav.about')}`, href: '/about' },

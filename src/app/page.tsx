@@ -34,9 +34,6 @@ export default function HomePage() {
   const [categories, setCategories] = useState<any[]>([])
   const [recentProducts, setRecentProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [premiumSellers, setPremiumSellers] = useState<any[]>([])
-  const [topSellers, setTopSellers] = useState<any[]>([])
-  const [newSellers, setNewSellers] = useState<any[]>([])
   const [windowWidth, setWindowWidth] = useState(1200)
 
   const isMobile = windowWidth < 768
@@ -50,37 +47,8 @@ export default function HomePage() {
   }, [])
 
   useEffect(() => {
-  fetchProducts()
-  fetchSellers()
-}, [])
-
-async function fetchSellers() {
-  // Load premium sellers for spotlight
-  const { data: premiumSellersData } = await supabase
-    .from('profiles')
-    .select('*, products(id)')
-    .eq('tier', 'premium')
-    .limit(3)
-    .order('created_at', { ascending: false })
-  setPremiumSellers(premiumSellersData || [])
-
-  // Load top sellers (premium + verified)
-  const { data: topSellersData } = await supabase
-    .from('profiles')
-    .select('*, products(id)')
-    .in('tier', [3, 2])
-    .limit(6)
-    .order('created_at', { ascending: false })
-  setTopSellers(topSellersData || [])
-
-  // Load new sellers (starter)
-  const { data: newSellersData } = await supabase
-    .from('profiles')
-    .select('*, products(id)')
-    .eq('tier', 1)
-    .limit(4)
-  setNewSellers(newSellersData || [])
-}
+    fetchProducts()
+  }, [])
 
 async function fetchProducts() {
   setProductsLoading(true)
@@ -172,149 +140,7 @@ async function fetchProducts() {
   return (
     <div key={lang} className="relative z-10 bg-white">
       <Navbar />
-      <div className="min-h-full sm:min-h-screen bg-white">
-
-      {/* PREMIUM SELLERS SPOTLIGHT */}
-      {premiumSellers.length > 0 && (
-        <div style={{ marginBottom: isMobile ? '24px' : '48px', padding: isMobile ? '0 16px' : '0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-            <Star size={20} />
-            <div>
-              <p className="text-gray-500 text-xs uppercase tracking-wider mb-0">{t('home.premium_sellers')}</p>
-              <h2 className="text-gray-900 text-2xl font-black mb-0">{t('home.premium_spotlight')}</h2>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {premiumSellers.map(seller => (
-              <Link href={`/seller/${seller.id}`} key={seller.id}>
-                <div style={{
-                  background: 'rgba(232,201,126,0.08)',
-                  backdropFilter: 'blur(24px)',
-                  WebkitBackdropFilter: 'blur(24px)',
-                  border: '2px solid rgba(232,201,126,0.3)',
-                  borderTop: '2px solid rgba(232,201,126,0.5)',
-                  borderRadius: '20px',
-                  padding: '24px',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 0 30px rgba(232,201,126,0.1)'
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.transform = 'translateY(-4px)'
-                  e.currentTarget.style.boxShadow = '0 0 50px rgba(232,201,126,0.2)'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = '0 0 30px rgba(232,201,126,0.1)'
-                }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px' }}>
-                    <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(232,201,126,0.2)', border: '2px solid rgba(232,201,126,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8C97E', fontWeight: '900', fontSize: '20px', flexShrink: 0, overflow: 'hidden' }}>
-                      {seller.avatar_url ? (
-                        <img src={seller.avatar_url} alt={seller.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        (seller.name || seller.full_name || 'S').charAt(0).toUpperCase()
-                      )}
-                    </div>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <p style={{ color: '#E8C97E', fontWeight: '800', fontSize: '16px', margin: 0 }}>
-                          {seller.name || seller.full_name}
-                        </p>
-                        <span style={{ background: 'rgba(232,201,126,0.2)', border: '1px solid rgba(232,201,126,0.4)', color: '#E8C97E', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '9999px' }}><Star size={10} /> Premium</span>
-                      </div>
-                    </div>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '2px 0 0 0' }}>
-                      {seller.products?.length || 0} {t('home.products_listed')}
-                    </p>
-                  </div>
-                  {seller.bio && (
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', margin: '0 0 12px 0', lineHeight: '1.5', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                      {seller.bio}
-                    </p>
-                  )}
-                  <p style={{ color: '#E8C97E', fontSize: '13px', fontWeight: '600', margin: 0 }}>{t('home.view_shop')}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* TOP SELLERS SECTION */}
-      {topSellers.length > 0 && (
-        <div style={{ marginBottom: '40px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <p className="text-gray-500 text-xs uppercase tracking-wider mb-0">{t('home.top_sellers')}</p>
-          </div>
-          <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px' }}>
-            {topSellers.map(seller => (
-              <Link href={`/seller/${seller.id}`} key={seller.id}>
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: '10px',
-                  background: seller.rank === 'premium' ? 'rgba(232,201,126,0.08)' : 'rgba(0,78,100,0.08)',
-                  border: `1px solid ${seller.rank === 'premium' ? 'rgba(232,201,126,0.25)' : 'rgba(0,78,100,0.25)'}`,
-                  borderRadius: '9999px',
-                  padding: '8px 16px 8px 8px',
-                  cursor: 'pointer',
-                  flexShrink: 0,
-                  transition: 'all 0.2s'
-                }}>
-                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: seller.rank === 'premium' ? 'rgba(232,201,126,0.2)' : 'rgba(0,78,100,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: seller.rank === 'premium' ? '#E8C97E' : '#4DB8CC', fontWeight: '700', fontSize: '13px', overflow: 'hidden', flexShrink: 0 }}>
-                    {seller.avatar_url ? (
-                      <img src={seller.avatar_url} alt={seller.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      (seller.name || seller.full_name || 'S').charAt(0).toUpperCase()
-                    )}
-                  </div>
-                  <div>
-                    <p style={{ color: seller.rank === 'premium' ? '#E8C97E' : '#4DB8CC', fontWeight: '700', fontSize: '13px', margin: 0 }}>
-                      {seller.rank === 'premium' ? <Star size={12} /> : <Check size={12} />} {seller.name || seller.full_name}
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* NEW SELLERS SECTION */}
-      {newSellers.length > 0 && (
-        <div style={{ marginTop: '48px' }}>
-          <p className="text-gray-500 text-xs uppercase tracking-wider mb-2">{t('home.new_sellers')}</p>
-          <h2 className="text-gray-900 text-xl sm:text-2xl font-black mb-4 sm:mb-5">{t('home.just_started')}</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-            {newSellers.map(seller => (
-              <Link href={`/seller/${seller.id}`} key={seller.id}>
-                <div style={{
-                  background: 'rgba(59,130,246,0.06)',
-                  border: '1px solid rgba(59,130,246,0.2)',
-                  borderRadius: '16px',
-                  padding: '20px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}>
-                  <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(59,130,246,0.2)', border: '2px solid rgba(59,130,246,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#93c5fd', fontWeight: '700', fontSize: '16px', marginBottom: '12px', overflow: 'hidden' }}>
-                    {seller.avatar_url ? (
-                      <img src={seller.avatar_url} alt={seller.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      (seller.name || seller.full_name || 'S').charAt(0).toUpperCase()
-                    )}
-                  </div>
-                  <p style={{ color: '#93c5fd', fontWeight: '700', fontSize: '15px', margin: '0 0 4px 0' }}>
-                    🥉 {seller.name || seller.full_name}
-                  </p>
-                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: 0 }}>
-                    {seller.products?.length || 0} {t('home.products_listed')}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
+      <div className="min-h-full sm:min-h-screen bg-white" style={{ paddingTop: isMobile ? '80px' : '120px' }}>
 
       {/* Main Board Container */}
       <motion.div
@@ -324,7 +150,7 @@ async function fetchProducts() {
         style={{
           maxWidth: '1200px',
           margin: 'auto',
-          marginTop: isMobile ? '20px' : '100px',
+          marginTop: '0px',
           marginBottom: isMobile ? '20px' : '40px',
           ...glassStyle
         }}
