@@ -263,19 +263,19 @@ async function fetchProducts() {
                       )}
                     </div>
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                         <p style={{ color: '#E8C97E', fontWeight: '800', fontSize: '16px', margin: 0 }}>
                           {seller.name || seller.full_name}
                         </p>
-                        <span style={{ background: 'rgba(232,201,126,0.2)', border: '1px solid rgba(232,201,126,0.4)', color: '#E8C97E', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '9999px' }}><Star size={10} /> Premium</span>
+                        <span style={{ background: 'rgba(232,201,126,0.2)', border: '1px solid rgba(232,201,126,0.4)', color: '#E8C97E', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '9999px', whiteSpace: 'nowrap' }}><Star size={10} /> Premium</span>
                       </div>
+                      <p style={{ color: '#64748b', fontSize: '12px', margin: 0 }}>
+                        {seller.products?.length || 0} {t('home.products_listed')}
+                      </p>
                     </div>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '2px 0 0 0' }}>
-                      {seller.products?.length || 0} {t('home.products_listed')}
-                    </p>
                   </div>
                   {seller.bio && (
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', margin: '0 0 12px 0', lineHeight: '1.5', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    <p style={{ color: '#475569', fontSize: '13px', margin: '0 0 12px 0', lineHeight: '1.5', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {seller.bio}
                     </p>
                   )}
@@ -341,17 +341,17 @@ async function fetchProducts() {
                   cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}>
-                  <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(59,130,246,0.2)', border: '2px solid rgba(59,130,246,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#93c5fd', fontWeight: '700', fontSize: '16px', marginBottom: '12px', overflow: 'hidden' }}>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(59,130,246,0.2)', border: '2px solid rgba(59,130,246,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb', fontWeight: '700', fontSize: '16px', marginBottom: '12px', overflow: 'hidden' }}>
                     {seller.avatar_url ? (
                       <img src={seller.avatar_url} alt={seller.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
                       (seller.name || seller.full_name || 'S').charAt(0).toUpperCase()
                     )}
                   </div>
-                  <p style={{ color: '#93c5fd', fontWeight: '700', fontSize: '15px', margin: '0 0 4px 0' }}>
+                  <p style={{ color: '#2563eb', fontWeight: '700', fontSize: '15px', margin: '0 0 4px 0' }}>
                     🥉 {seller.name || seller.full_name}
                   </p>
-                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: 0 }}>
+                  <p style={{ color: '#64748b', fontSize: '12px', margin: 0 }}>
                     {seller.products?.length || 0} {t('home.products_listed')}
                   </p>
                 </div>
