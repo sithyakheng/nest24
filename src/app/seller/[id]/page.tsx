@@ -92,7 +92,7 @@ export default function SellerShopPage() {
             .from('profiles')
             .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
             .ilike('shop_slug', decodedId)
-            .single()
+            .maybeSingle()
           if (data) sellerData = data
         } catch (e) {
           // ignore error and proceed
@@ -106,7 +106,7 @@ export default function SellerShopPage() {
               .from('profiles')
               .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
               .eq('id', decodedId)
-              .single()
+              .maybeSingle()
             if (data) sellerData = data
           } catch (e) {
             // ignore error
@@ -120,7 +120,7 @@ export default function SellerShopPage() {
               .from('profiles')
               .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
               .ilike('name', decodedId)
-              .single()
+              .maybeSingle()
             if (data) sellerData = data
           } catch (e) {
             // ignore error
@@ -134,7 +134,7 @@ export default function SellerShopPage() {
               .from('profiles')
               .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
               .ilike('full_name', decodedId)
-              .single()
+              .maybeSingle()
             if (data) sellerData = data
           } catch (e) {
             // ignore error
@@ -148,7 +148,7 @@ export default function SellerShopPage() {
               .from('profiles')
               .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
               .ilike('shop_name', decodedId)
-              .single()
+              .maybeSingle()
             if (data) sellerData = data
           } catch (e) {
             // ignore error
