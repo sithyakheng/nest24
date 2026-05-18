@@ -86,48 +86,62 @@ export default function SellerShopPage() {
 
         let sellerData = null
 
-        // 1. Try to find by ID (UUID) if it's a valid UUID
-        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(decodedId)
-        if (isUUID) {
-          const { data } = await supabase
-            .from('profiles')
-            .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
-            .eq('id', decodedId)
-            .single()
-          sellerData = data
-        }
-
-        // 2. Try by shop_slug (case-insensitive)
-        if (!sellerData) {
+        // 1. Try by shop_slug (case-insensitive) - PRIMARY
+        try {
           const { data } = await supabase
             .from('profiles')
             .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
             .ilike('shop_slug', decodedId)
             .single()
-          sellerData = data
+          if (data) sellerData = data
+        } catch (e) {
+          // ignore error and proceed
+        }
+
+        // 2. Try to find by ID (UUID) if it's a valid UUID
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(decodedId)
+        if (!sellerData && isUUID) {
+          try {
+            const { data } = await supabase
+              .from('profiles')
+              .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
+              .eq('id', decodedId)
+              .single()
+            if (data) sellerData = data
+          } catch (e) {
+            // ignore error
+          }
         }
 
         // 3. Try by name (case-insensitive)
         if (!sellerData) {
-          const { data } = await supabase
-            .from('profiles')
-            .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
-            .ilike('name', decodedId)
-            .single()
-          sellerData = data
+          try {
+            const { data } = await supabase
+              .from('profiles')
+              .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
+              .ilike('name', decodedId)
+              .single()
+            if (data) sellerData = data
+          } catch (e) {
+            // ignore error
+          }
         }
 
         // 4. Try by full_name (case-insensitive)
         if (!sellerData) {
-          const { data } = await supabase
-            .from('profiles')
-            .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
-            .ilike('full_name', decodedId)
-            .single()
-          sellerData = data
+          try {
+            const { data } = await supabase
+              .from('profiles')
+              .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, shop_name, rank, banned')
+              .ilike('full_name', decodedId)
+              .single()
+            if (data) sellerData = data
+          } catch (e) {
+            // ignore error
+          }
         }
 
-        // 5. Try by shop_name (case-insensitive) - Requested by user
+        // 5. Try by shop_name (case-insensitive)
         if (!sellerData) {
           try {
             const { data } = await supabase
@@ -137,6 +151,7 @@ export default function SellerShopPage() {
               .single()
             if (data) sellerData = data
           } catch (e) {
+            // ignore error
           }
         }
 
