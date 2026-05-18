@@ -58,28 +58,73 @@ async function fetchSellers() {
   // Load premium sellers for spotlight
   const { data: premiumSellersData } = await supabase
     .from('profiles')
-    .select('*, products(id)')
-    .eq('tier', 'premium')
+    .select('id, name, full_name, avatar_url, shop_slug, rank, tier, bio')
+    .eq('tier', 3)
     .limit(3)
     .order('created_at', { ascending: false })
-  setPremiumSellers(premiumSellersData || [])
+
+  if (premiumSellersData && premiumSellersData.length > 0) {
+    const sellerIds = premiumSellersData.map(s => s.id)
+    const { data: products } = await supabase
+      .from('products')
+      .select('id, seller_id')
+      .in('seller_id', sellerIds)
+
+    const sellersWithProducts = premiumSellersData.map(seller => ({
+      ...seller,
+      products: products?.filter(p => p.seller_id === seller.id) || []
+    }))
+    setPremiumSellers(sellersWithProducts)
+  } else {
+    setPremiumSellers([])
+  }
 
   // Load top sellers (premium + verified)
   const { data: topSellersData } = await supabase
     .from('profiles')
-    .select('*, products(id)')
+    .select('id, name, full_name, avatar_url, shop_slug, rank, tier')
     .in('tier', [3, 2])
     .limit(6)
     .order('created_at', { ascending: false })
-  setTopSellers(topSellersData || [])
+
+  if (topSellersData && topSellersData.length > 0) {
+    const sellerIds = topSellersData.map(s => s.id)
+    const { data: products } = await supabase
+      .from('products')
+      .select('id, seller_id')
+      .in('seller_id', sellerIds)
+
+    const sellersWithProducts = topSellersData.map(seller => ({
+      ...seller,
+      products: products?.filter(p => p.seller_id === seller.id) || []
+    }))
+    setTopSellers(sellersWithProducts)
+  } else {
+    setTopSellers([])
+  }
 
   // Load new sellers (starter)
   const { data: newSellersData } = await supabase
     .from('profiles')
-    .select('*, products(id)')
+    .select('id, name, full_name, avatar_url, shop_slug, rank, tier')
     .eq('tier', 1)
     .limit(4)
-  setNewSellers(newSellersData || [])
+
+  if (newSellersData && newSellersData.length > 0) {
+    const sellerIds = newSellersData.map(s => s.id)
+    const { data: products } = await supabase
+      .from('products')
+      .select('id, seller_id')
+      .in('seller_id', sellerIds)
+
+    const sellersWithProducts = newSellersData.map(seller => ({
+      ...seller,
+      products: products?.filter(p => p.seller_id === seller.id) || []
+    }))
+    setNewSellers(sellersWithProducts)
+  } else {
+    setNewSellers([])
+  }
 }
 
 async function fetchProducts() {

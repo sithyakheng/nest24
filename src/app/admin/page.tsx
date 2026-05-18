@@ -207,7 +207,7 @@ export default function AdminPage() {
     // Fetch ALL orders
     const { data: ordersData } = await supabase
       .from('orders')
-      .select('id, total_price, status, created_at, products(name), profiles(name, full_name, email)')
+      .select('id, total_price, status, created_at, profiles(name, full_name, email)')
       .order('created_at', { ascending: false })
     setOrders(ordersData || [])
 

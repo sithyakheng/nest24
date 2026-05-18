@@ -205,7 +205,7 @@ export default function DashboardPage() {
     async function fetchOrders() {
       const { data } = await supabase
         .from('orders')
-        .select('id, total_price, status, created_at, products(name)')
+        .select('id, total_price, status, created_at')
         .eq('seller_id', profile.id)
         .order('created_at', { ascending: false })
       setOrders(data || [])
