@@ -168,7 +168,7 @@ export default function SellerShopPage() {
         if (sellerData.id) {
           const { data: productsData, error: productsError } = await supabase
             .from('products')
-            .select('id, seller_id, name, price, compare_price, image_url, category, created_at, likes, dislikes')
+            .select('id, seller_id, name, price, compare_price, image_url, category, created_at, likes, dislikes, description')
             .eq('seller_id', sellerData.id)
             .order('created_at', { ascending: false })
 

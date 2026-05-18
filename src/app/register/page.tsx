@@ -85,12 +85,17 @@ export default function RegisterPage() {
     }
 
     if (data.user) {
+      const shop_slug = role === 'seller' 
+        ? sanitizedFullName.replace(/\s+/g, '').toLowerCase()
+        : null
+
       const { error: profileError } = await supabase.from('profiles').upsert({
         id: data.user.id,
         email: sanitizedEmail,
         full_name: sanitizedFullName,
         name: sanitizedFullName,
         role,
+        shop_slug,
         phone: role === 'seller' ? sanitizedPhone : null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
