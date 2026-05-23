@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { uploadImage } from '@/lib/uploadImage'
@@ -34,6 +34,8 @@ export default function DashboardPage() {
   const [addingProduct, setAddingProduct] = useState(false)
   const [addError, setAddError] = useState('')
   const [addSuccess, setAddSuccess] = useState(false)
+  const [isDraggingOver, setIsDraggingOver] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Profile form state
   const [profileName, setProfileName] = useState('')
@@ -218,6 +220,11 @@ export default function DashboardPage() {
   async function handleAddProduct() {
     if (!productName || !productPrice || !productStock) {
       setAddError('Please fill in all required fields')
+      return
+    }
+
+    if (!productImage) {
+      setAddError('Please upload a product image')
       return
     }
 
@@ -462,14 +469,21 @@ export default function DashboardPage() {
     { id: 'settings', label: 'Settings', icon: Settings }
   ]
 
-  const handleProductImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const processImageFile = (file: File) => {
+    if (!file.type.startsWith('image/')) return
+    setProductImage(file)
+    setAddError('')
+    const reader = new FileReader()
+    reader.onloadend = () => setProductImagePreview(reader.result as string)
+    reader.readAsDataURL(file)
+  }
+
+  const handleProductImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    setProductImage(file)
-    // Show preview using FileReader
-    const reader = new FileReader()
-    reader.onload = (e) => setProductImagePreview(e.target?.result as string)
-    reader.readAsDataURL(file)
+    processImageFile(file)
+    // Reset input value so the same file can be re-selected
+    e.target.value = ''
   }
 
   // Show nothing while loading or checking role
@@ -1096,33 +1110,29 @@ export default function DashboardPage() {
                   <div>
                     <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Image</label>
                     <div
-                      onClick={() => document.getElementById('file-input')?.click()}
+                      onClick={() => fileInputRef.current?.click()}
                       onDragOver={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        e.currentTarget.style.borderColor = '#004E64';
-                        e.currentTarget.style.backgroundColor = '#f0f9ff';
+                        setIsDraggingOver(true);
                       }}
                       onDragLeave={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        e.currentTarget.style.borderColor = '#e2e8f0';
-                        e.currentTarget.style.backgroundColor = '#f8fafc';
+                        setIsDraggingOver(false);
                       }}
                       onDrop={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        e.currentTarget.style.borderColor = '#e2e8f0';
-                        e.currentTarget.style.backgroundColor = '#f8fafc';
-                        
-                        const files = e.dataTransfer.files;
-                        if (files.length > 0 && files[0].type.startsWith('image/')) {
-                          handleProductImage({ target: { files: [files[0]] } } as any);
+                        setIsDraggingOver(false);
+                        const droppedFile = e.dataTransfer.files?.[0];
+                        if (droppedFile) {
+                          processImageFile(droppedFile);
                         }
                       }}
                       style={{
-                        border: '2px dashed #e2e8f0',
-                        backgroundColor: '#f8fafc',
+                        border: `2px dashed ${isDraggingOver ? '#004E64' : '#e2e8f0'}`,
+                        backgroundColor: isDraggingOver ? '#f0f9ff' : '#f8fafc',
                         height: '140px',
                         borderRadius: '8px',
                         display: 'flex',
@@ -1135,12 +1145,16 @@ export default function DashboardPage() {
                         overflow: 'hidden'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = '#cbd5e1';
-                        e.currentTarget.style.backgroundColor = '#f1f5f9';
+                        if (!isDraggingOver) {
+                          e.currentTarget.style.borderColor = '#cbd5e1';
+                          e.currentTarget.style.backgroundColor = '#f1f5f9';
+                        }
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = '#e2e8f0';
-                        e.currentTarget.style.backgroundColor = '#f8fafc';
+                        if (!isDraggingOver) {
+                          e.currentTarget.style.borderColor = '#e2e8f0';
+                          e.currentTarget.style.backgroundColor = '#f8fafc';
+                        }
                       }}
                     >
                       {productImagePreview ? (
@@ -1150,12 +1164,12 @@ export default function DashboardPage() {
                       ) : (
                         <div>
                           <p style={{ color: '#64748b', fontSize: '14px', margin: 0, marginBottom: '4px' }}>Drag & drop image here or click to browse</p>
-                          <p style={{ color: '#94a3b8', fontSize: '12px', margin: 0 }}>PNG, JPG, GIF up to 10MB</p>
+                          <p style={{ color: '#94a3b8', fontSize: '12px', margin: 0 }}>PNG, JPG, GIF up to 5MB</p>
                         </div>
                       )}
                     </div>
                     <input
-                      id="file-input"
+                      ref={fileInputRef}
                       type="file"
                       onChange={handleProductImage}
                       accept="image/*"
