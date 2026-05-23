@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useLang } from '@/contexts/LanguageContext'
-import { ThumbsUp, ThumbsDown } from 'lucide-react'
+import { ThumbsUp, ThumbsDown, Image as ImageIcon } from 'lucide-react'
 import DOMPurify from 'dompurify'
 
 export default function ProductDetailPage() {
@@ -252,7 +252,7 @@ export default function ProductDetailPage() {
             height: isMobile ? '280px' : 'auto',
             aspectRatio: isMobile ? undefined : '1',
           }}>
-            {product.image_url ? (
+            {product.image_url && product.image_url.trim() !== '' ? (
               <img
                 src={getImageUrl(product.image_url)}
                 alt={product.name}
@@ -260,13 +260,20 @@ export default function ProductDetailPage() {
               />
             ) : (
               <div style={{
-                width: '100%', height: '100%',
-                display: 'flex', alignItems: 'center',
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
                 justifyContent: 'center',
-                color: 'rgba(255,255,255,0.2)',
-                fontSize: '14px'
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.08) 100%)',
+                color: 'rgba(255,255,255,0.25)',
+                gap: '12px'
               }}>
-                {t('product.no_image')}
+                <ImageIcon size={48} strokeWidth={1.5} />
+                <span style={{ fontSize: '14px', fontWeight: '500', letterSpacing: '0.05em' }}>
+                  {t('product.no_image')}
+                </span>
               </div>
             )}
           </div>

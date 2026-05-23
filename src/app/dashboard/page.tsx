@@ -465,12 +465,11 @@ export default function DashboardPage() {
   const handleProductImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('folder', 'nestkh')
-    const res = await fetch('/api/upload-image', { method: 'POST', body: formData })
-    const data = await res.json()
-    if (data.url) setProductImage(data.url)
+    setProductImage(file)
+    // Show preview using FileReader
+    const reader = new FileReader()
+    reader.onload = (e) => setProductImagePreview(e.target?.result as string)
+    reader.readAsDataURL(file)
   }
 
   // Show nothing while loading or checking role
@@ -1124,7 +1123,7 @@ export default function DashboardPage() {
                       style={{
                         border: '2px dashed #e2e8f0',
                         backgroundColor: '#f8fafc',
-                        height: '120px',
+                        height: '140px',
                         borderRadius: '8px',
                         display: 'flex',
                         alignItems: 'center',
@@ -1132,7 +1131,8 @@ export default function DashboardPage() {
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
                         textAlign: 'center',
-                        padding: '16px'
+                        padding: '16px',
+                        overflow: 'hidden'
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.borderColor = '#cbd5e1';
@@ -1143,10 +1143,16 @@ export default function DashboardPage() {
                         e.currentTarget.style.backgroundColor = '#f8fafc';
                       }}
                     >
-                      <div>
-                        <p style={{ color: '#64748b', fontSize: '14px', margin: 0, marginBottom: '4px' }}>Drag & drop image here or click to browse</p>
-                        <p style={{ color: '#94a3b8', fontSize: '12px', margin: 0 }}>PNG, JPG, GIF up to 10MB</p>
-                      </div>
+                      {productImagePreview ? (
+                        <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <img src={productImagePreview} alt="Preview" style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain', borderRadius: '8px' }} />
+                        </div>
+                      ) : (
+                        <div>
+                          <p style={{ color: '#64748b', fontSize: '14px', margin: 0, marginBottom: '4px' }}>Drag & drop image here or click to browse</p>
+                          <p style={{ color: '#94a3b8', fontSize: '12px', margin: 0 }}>PNG, JPG, GIF up to 10MB</p>
+                        </div>
+                      )}
                     </div>
                     <input
                       id="file-input"
@@ -1156,21 +1162,6 @@ export default function DashboardPage() {
                       style={{ display: 'none' }}
                     />
                   </div>
-
-                  {productImagePreview && (
-                    <div style={{
-                      backgroundColor: '#f8fafc',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '12px',
-                      padding: '16px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px'
-                    }}>
-                      <p style={{ color: '#475569', fontSize: '12px', margin: 0 }}>Preview</p>
-                      <img src={productImagePreview} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
-                    </div>
-                  )}
 
                   {addError && (
                     <div style={{ backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '12px', padding: '12px 16px', color: '#dc2626', fontSize: '14px', fontWeight: '600' }}>
