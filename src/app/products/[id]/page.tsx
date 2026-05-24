@@ -460,9 +460,9 @@ export default function ProductDetailPage() {
                   ? 'rgba(16,185,129,0.15)'
                   : product.stock > 0
                   ? 'rgba(232,201,126,0.15)'
-                  : 'rgba(255,80,80,0.15)'}
+                  : 'rgba(255,80,80,0.15)'}`,
               }}>
-                {product.stock > 5 ? t('product.in_stock') : product.stock > 0 ? `⚠ Only ${product.stock} left` : t('product.out_of_stock')}
+                {product.stock > 5 ? t('product.in_stock') : product.stock > 0 ? `Only ${product.stock} left` : t('product.out_of_stock')}
               </span>
             </div>
 
