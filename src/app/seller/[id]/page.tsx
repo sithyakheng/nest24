@@ -9,7 +9,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 import Navbar from '@/components/Navbar'
 import { Star, Check, Medal, Send, Facebook, Shield, Flag, ThumbsUp, Package } from 'lucide-react'
 import DOMPurify from 'dompurify'
-import { sanitizeInput } from '@/lib/security'
+import { filterFirewallContent, sanitizeInput } from '@/lib/security'
 
 export default function SellerShopPage() {
   const { lang } = useLang()
@@ -313,8 +313,8 @@ export default function SellerShopPage() {
                   style={{ color: '#4b5563', fontSize: '15px', lineHeight: '1.6', margin: '0 0 16px 0', maxWidth: '600px' }}
                   dangerouslySetInnerHTML={{ 
                     __html: typeof window !== 'undefined' 
-                      ? DOMPurify.sanitize(seller.bio) 
-                      : seller.bio 
+                      ? DOMPurify.sanitize(filterFirewallContent(seller.bio)) 
+                      : filterFirewallContent(seller.bio) 
                   }}
                 />
               )}

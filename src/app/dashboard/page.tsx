@@ -7,6 +7,7 @@ import { uploadImage } from '@/lib/uploadImage'
 import { sanitizeInput } from '@/lib/security'
 import { hashPin } from '@/lib/pinHash'
 import Link from 'next/link'
+import SecurityCenter from '@/components/SecurityCenter'
 import { Star, Check, Medal, Store, ShoppingCart, ShoppingBag, Package, DollarSign, User, Settings, X, Flag, Bell, Search, Heart, ThumbsUp, ThumbsDown, BarChart3, Plus, AlertTriangle, Home, Edit, Trash2, TrendingUp, Users, Menu, Lock } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
 
@@ -15,8 +16,10 @@ export default function DashboardPage() {
   const [windowWidth, setWindowWidth] = useState(1200)
   const [isMobile, setIsMobile] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showSecurityCenter, setShowSecurityCenter] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
+  const sessionRecordedRef = useRef(false)
   const [products, setProducts] = useState<any[]>([])
   const [orders, setOrders] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState('overview')
@@ -157,7 +160,7 @@ export default function DashboardPage() {
   async function loadProfile(currentUser: any) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, rank, security_pin')
+      .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, rank, security_pin, minefield_enabled, minefield_message, firewall_enabled')
       .eq('id', currentUser.id)
       .single()
     
@@ -233,6 +236,91 @@ export default function DashboardPage() {
     fetchProducts()
     fetchOrders()
   }, [profile])
+
+  useEffect(() => {
+    if (!user || !profile || profile.role !== 'seller' || sessionRecordedRef.current) return
+    sessionRecordedRef.current = true
+
+    const getDeviceInfo = (ua: string) => {
+      const lower = ua.toLowerCase()
+      const browser = lower.includes('chrome') && !lower.includes('edge') && !lower.includes('opr')
+        ? 'Chrome'
+        : lower.includes('firefox')
+        ? 'Firefox'
+        : lower.includes('safari') && !lower.includes('chrome')
+        ? 'Safari'
+        : lower.includes('edg')
+        ? 'Edge'
+        : lower.includes('opr')
+        ? 'Opera'
+        : 'Browser'
+
+      const deviceName = /ipad|tablet/.test(lower)
+        ? 'Tablet'
+        : /iphone|android|mobile/.test(lower)
+        ? 'Phone'
+        : 'Computer'
+
+      return { browser, deviceName }
+    }
+
+    const getIpAddress = async () => {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json')
+        const data = await response.json()
+        return data.ip || '0.0.0.0'
+      } catch (err) {
+        console.error('IP fetch failed', err)
+        return '0.0.0.0'
+      }
+    }
+
+    const recordSession = async () => {
+      const { browser, deviceName } = getDeviceInfo(navigator.userAgent)
+      const ipAddress = await getIpAddress()
+      const deviceLabel = `${deviceName}`
+
+      try {
+        await supabase
+          .from('device_sessions')
+          .update({ is_current: false })
+          .eq('user_id', user.id)
+
+        await supabase
+          .from('device_sessions')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('device_name', deviceLabel)
+          .eq('browser', browser)
+          .eq('ip_address', ipAddress)
+
+        await supabase
+          .from('device_sessions')
+          .insert({
+            user_id: user.id,
+            device_name: deviceLabel,
+            browser,
+            ip_address: ipAddress,
+            is_current: true
+          })
+
+        await supabase.from('activity_logs').insert({
+          user_id: user.id,
+          action: `Logged in from ${browser} on ${deviceLabel}`,
+          device: `${deviceLabel} / ${browser}`,
+          ip_address: ipAddress
+        })
+
+        if (profile.minefield_enabled && profile.minefield_message) {
+          window.alert(profile.minefield_message)
+        }
+      } catch (err) {
+        console.error('Session record error', err)
+      }
+    }
+
+    recordSession()
+  }, [user, profile])
 
   const handlePinInput = (index: number, value: string, isConfirm: boolean = false) => {
     if (!/^\d*$/.test(value)) return
@@ -593,129 +681,13 @@ export default function DashboardPage() {
 
   return (
     <>
-      {/* PIN Modal */}
-      {showPinModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }} onClick={() => { setShowPinModal(false); setPinDigits(['', '', '', '', '', '']); setConfirmPinDigits(['', '', '', '', '', '']); setPinError(''); setPinSuccess(''); setShowConfirmStep(false); }}>
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '16px',
-            padding: '32px',
-            maxWidth: '500px',
-            width: '90%',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.3)'
-          }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#111827', margin: '0 0 8px 0' }}>
-                {showConfirmStep ? 'Confirm Your PIN' : 'Set Security PIN'}
-              </h2>
-              <p style={{ color: '#6b7280', fontSize: '14px', margin: '0' }}>
-                {showConfirmStep ? 'Enter your PIN again to confirm' : 'Protect your seller account with a 6 digit PIN'}
-              </p>
-            </div>
-
-            {/* PIN Digit Inputs */}
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '24px' }}>
-              {(showConfirmStep ? confirmPinDigits : pinDigits).map((digit, index) => (
-                <input
-                  key={index}
-                  id={`${showConfirmStep ? 'confirm' : 'pin'}-${index}`}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handlePinInput(index, e.target.value, showConfirmStep)}
-                  onKeyDown={(e) => handlePinKeyDown(index, e, showConfirmStep)}
-                  onPaste={(e) => handlePinPaste(e, showConfirmStep)}
-                  className={`w-12 h-12 text-2xl font-bold text-center border-2 rounded-lg focus:outline-none ${
-                    digit ? 'border-[#0d9488]' : 'border-gray-300'
-                  } focus:border-[#0d9488]`}
-                  style={{ fontSize: '24px', fontWeight: 'bold' }}
-                  placeholder="0"
-                />
-              ))}
-            </div>
-
-            {/* Error Message */}
-            {pinError && (
-              <div style={{ color: '#dc2626', fontSize: '14px', marginBottom: '16px', textAlign: 'center' }}>
-                {pinError}
-              </div>
-            )}
-
-            {/* Success Message */}
-            {pinSuccess && (
-              <div style={{ color: '#16a34a', fontSize: '14px', marginBottom: '16px', textAlign: 'center' }}>
-                {pinSuccess}
-              </div>
-            )}
-
-            {/* Buttons */}
-            <div style={{ display: 'flex', gap: '12px' }}>
-              {showConfirmStep && (
-                <button
-                  onClick={() => {
-                    setShowConfirmStep(false)
-                    setPinError('')
-                  }}
-                  style={{
-                    flex: '1',
-                    padding: '12px 20px',
-                    borderRadius: '8px',
-                    border: '1px solid #e5e7eb',
-                    backgroundColor: '#f3f4f6',
-                    color: '#111827',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Back
-                </button>
-              )}
-              <button
-                onClick={showConfirmStep ? handleSavePin : () => setShowConfirmStep(true)}
-                disabled={savingPin}
-                style={{
-                  flex: '1',
-                  padding: '12px 20px',
-                  borderRadius: '8px',
-                  backgroundColor: '#0d9488',
-                  color: 'white',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  opacity: savingPin ? 0.6 : 1
-                }}
-              >
-                {savingPin ? 'Saving...' : showConfirmStep ? 'Save PIN' : 'Next'}
-              </button>
-            </div>
-
-            <button
-              onClick={() => { setShowPinModal(false); setPinDigits(['', '', '', '', '', '']); setConfirmPinDigits(['', '', '', '', '', '']); setPinError(''); setPinSuccess(''); setShowConfirmStep(false); }}
-              style={{
-                position: 'absolute',
-                top: '16px',
-                right: '16px',
-                backgroundColor: 'transparent',
-                border: 'none',
-                fontSize: '24px',
-                cursor: 'pointer',
-                color: '#6b7280'
-              }}
-            >
-              ×
-            </button>
-          </div>
-        </div>
+      {showSecurityCenter && user?.id && profile && (
+        <SecurityCenter
+          userId={user.id}
+          profile={profile}
+          onClose={() => setShowSecurityCenter(false)}
+          refreshProfile={() => loadProfile(user)}
+        />
       )}
 
       <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'Inter, sans-serif' }}>
@@ -760,7 +732,7 @@ export default function DashboardPage() {
               key={item.id}
               onClick={() => {
                 if (item.id === 'security') {
-                  setShowPinModal(true)
+                  setShowSecurityCenter(true)
                 } else {
                   setActiveTab(item.id)
                 }

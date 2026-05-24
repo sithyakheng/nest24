@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useLang } from '@/contexts/LanguageContext'
 import { ThumbsUp, ThumbsDown, Image as ImageIcon } from 'lucide-react'
 import DOMPurify from 'dompurify'
+import { filterFirewallContent } from '@/lib/security'
 
 export default function ProductDetailPage() {
   const { t } = useLang()
@@ -478,8 +479,8 @@ export default function ProductDetailPage() {
                 }}
                 dangerouslySetInnerHTML={{ 
                   __html: typeof window !== 'undefined' 
-                    ? DOMPurify.sanitize(product.description) 
-                    : product.description 
+                    ? DOMPurify.sanitize(filterFirewallContent(product.description)) 
+                    : filterFirewallContent(product.description) 
                 }}
               />
             )}

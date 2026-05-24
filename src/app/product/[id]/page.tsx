@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { ArrowLeft, Heart, ShoppingCart, Star, Phone, Facebook, Instagram, MessageCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { filterFirewallContent } from '@/lib/security'
 import SellerContactButtons from '@/components/SellerContactButtons'
 
 interface Product {
@@ -34,6 +35,7 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1)
   const [isFavorite, setIsFavorite] = useState(false)
   const params = useParams()
+  const safeDescription = product?.description ? filterFirewallContent(product.description) : ''
   const router = useRouter()
   
   const mouseX = useMotionValue(0)
@@ -258,7 +260,7 @@ export default function ProductPage() {
                   <span className="text-white/60">{product.category}</span>
                 </div>
 
-                <p className="text-white mb-6">{product.description}</p>
+                <p className="text-white mb-6">{safeDescription}</p>
 
                 <div className="flex items-center space-x-4 mb-6">
                   <span className="text-3xl font-bold text-[#E0E5E9]">${product.price}</span>

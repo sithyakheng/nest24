@@ -56,6 +56,25 @@ export function validateFileSignature(buffer: Buffer): boolean {
   return false;
 }
 
+export function filterFirewallContent(content: string): string {
+  if (!content) return ''
+
+  let filtered = content
+    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '[LINK BLOCKED]')
+
+  const patterns = [
+    /https?:\/\/[^\s"']*?(?:bit\.ly|tinyurl\.com)[^\s"']*/gi,
+    /https?:\/\/[^\s"']*?\.(?:xyz|top|club|online|site|pw|click|info|loan|review|bid|win|party|live|racing|stream|trade)[^\s"']*/gi,
+    /https?:\/\/(?![^\s"']*?(?:nestkh\.com|google\.com|youtube\.com|facebook\.com|instagram\.com|telegram\.me|tiktok\.com|twitter\.com|linkedin\.com))[^\s"']+/gi
+  ]
+
+  patterns.forEach((pattern) => {
+    filtered = filtered.replace(pattern, '[LINK BLOCKED]')
+  })
+
+  return filtered
+}
+
 /**
  * Basic email validation
  */

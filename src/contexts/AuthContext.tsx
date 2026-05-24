@@ -1,5 +1,6 @@
 'use client'
 import { createContext, useContext, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
@@ -14,6 +15,7 @@ const AuthContext = createContext<{
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -69,6 +71,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => subscription.unsubscribe()
   }, [])
+
+  useEffect(() => {
+    if (!user) return
+
+    const redirectToPin = async () => {
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('role, security_pin')
+          .eq('id', user.id)
+          .single()
+
+        if (
+          data?.role === 'seller' &&
+          data?.security_pin &&
+          typeof window !== 'undefined' &&
+          sessionStorage.getItem('seller_pin_verified') !== 'true' &&
+          window.location.pathname !== '/verify-pin'
+        ) {
+          router.push('/verify-pin')
+        }
+      } catch (err) {
+        console.error('Error checking seller PIN redirect:', err)
+      }
+    }
+
+    redirectToPin()
+  }, [user, router])
 
   return <AuthContext.Provider value={{ user, loading, signOut }}>{children}</AuthContext.Provider>
 }
