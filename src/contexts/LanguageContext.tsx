@@ -157,7 +157,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }
 
   function t(key: string): string {
-    return translations[key]?.[lang] || key
+    if (translations[key] && translations[key][lang]) return translations[key][lang]
+    // Fallback for legacy/mistyped keys
+    if (key === 'product.back_to_store') {
+      return translations['product.back']?.[lang] || '← Back to Store'
+    }
+    return key
   }
 
   return (

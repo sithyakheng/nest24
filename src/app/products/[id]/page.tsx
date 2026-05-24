@@ -164,11 +164,11 @@ export default function ProductDetailPage() {
     return (
       <div style={{
         minHeight: '100vh',
-        background: '#080a0f',
+        background: '#ffffff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: 'rgba(255,255,255,0.4)',
+        color: '#111827',
         fontSize: '16px'
       }}>
         Loading...
@@ -180,17 +180,17 @@ export default function ProductDetailPage() {
     return (
       <div style={{
         minHeight: '100vh',
-        background: '#080a0f',
+        background: '#ffffff',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        color: 'rgba(255,255,255,0.4)',
+        color: '#111827',
         fontSize: '16px',
         gap: '16px'
       }}>
         <p>{t('product.not_found')}</p>
-        <Link href="/" style={{ color: '#4DB8CC' }}>{t('product.back')}</Link>
+        <Link href="/" style={{ color: '#0d9488' }}>← Back to Store</Link>
       </div>
     )
   }
@@ -198,7 +198,7 @@ export default function ProductDetailPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#080a0f',
+      background: '#ffffff',
       paddingTop: '80px',
       paddingBottom: '60px',
       position: 'relative'
@@ -224,7 +224,7 @@ export default function ProductDetailPage() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '8px',
-            color: 'rgba(255,255,255,0.5)',
+            color: '#111827',
             fontSize: '14px',
             marginBottom: '32px',
             cursor: 'pointer'
@@ -242,11 +242,9 @@ export default function ProductDetailPage() {
 
           {/* LEFT - Image */}
           <div style={{
-            background: 'rgba(255,255,255,0.06)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            borderTop: '1px solid rgba(255,255,255,0.22)',
+            background: '#ffffff',
+            border: '1px solid #e5e7eb',
+            borderTop: '1px solid #e5e7eb',
             borderRadius: '24px',
             overflow: 'hidden',
             height: isMobile ? '280px' : 'auto',
@@ -266,8 +264,8 @@ export default function ProductDetailPage() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.08) 100%)',
-                color: 'rgba(255,255,255,0.25)',
+                background: 'linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.04) 100%)',
+                color: '#6b7280',
                 gap: '12px'
               }}>
                 <ImageIcon size={48} strokeWidth={1.5} />
@@ -280,11 +278,9 @@ export default function ProductDetailPage() {
 
           {/* RIGHT - Info */}
           <div style={{
-            background: 'rgba(255,255,255,0.06)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            borderTop: '1px solid rgba(255,255,255,0.22)',
+            background: '#ffffff',
+            border: '1px solid #e5e7eb',
+            borderTop: '1px solid #e5e7eb',
             borderRadius: '24px',
             padding: isMobile ? '20px' : '24px',
             display: 'flex',
@@ -294,7 +290,7 @@ export default function ProductDetailPage() {
 
             {/* Category */}
             <span style={{
-              color: '#4DB8CC',
+              color: '#6b7280',
               fontSize: '11px',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
@@ -305,7 +301,7 @@ export default function ProductDetailPage() {
 
             {/* Name */}
             <h1 style={{
-              color: 'white',
+              color: '#111827',
               fontSize: '28px',
               fontWeight: '900',
               lineHeight: '1.2',
@@ -317,12 +313,12 @@ export default function ProductDetailPage() {
             {/* Price */}
             <div style={{ marginBottom: '16px' }}>
               {product.compare_price && product.compare_price > product.price && (
-                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '16px', textDecoration: 'line-through', margin: '0 0 4px 0' }}>
+                <p style={{ color: '#6b7280', fontSize: '16px', textDecoration: 'line-through', margin: '0 0 4px 0' }}>
                   ${product.compare_price}
                 </p>
               )}
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '32px', margin: '0 0 8px 0' }}>
+                <p style={{ color: '#0d9488', fontWeight: '900', fontSize: '32px', margin: '0 0 8px 0' }}>
                   ${product.price}
                   {product.compare_price && product.compare_price > product.price && (
                     <span style={{ background: 'linear-gradient(135deg, #f87171, #ef4444)', color: 'white', fontSize: '13px', fontWeight: '800', padding: '3px 10px', borderRadius: '9999px', marginLeft: '12px' }}>
@@ -333,7 +329,7 @@ export default function ProductDetailPage() {
               </div>
               {product.discount > 0 && (
                 <span style={{
-                  color: 'rgba(255,255,255,0.3)',
+                  color: '#6b7280',
                   fontSize: '18px',
                   textDecoration: 'line-through'
                 }}>
@@ -349,8 +345,8 @@ export default function ProductDetailPage() {
               gap: '12px', 
               marginBottom: '16px',
               padding: '12px 0',
-              borderTop: '1px solid rgba(255,255,255,0.08)',
-              borderBottom: '1px solid rgba(255,255,255,0.08)'
+              borderTop: '1px solid #e5e7eb',
+              borderBottom: '1px solid #e5e7eb'
             }}>
               <button
                 onClick={() => handleVote('like')}
@@ -361,35 +357,31 @@ export default function ProductDetailPage() {
                   gap: '8px',
                   padding: '12px 20px',
                   borderRadius: '12px',
-                  border: userVote === 'like' ? '2px solid rgba(0,78,100,0.6)' : '1px solid rgba(255,255,255,0.12)',
+                  border: userVote === 'like' ? '2px solid rgba(13,148,136,0.6)' : '1px solid #e5e7eb',
                   background: userVote === 'like' 
-                    ? 'rgba(0,78,100,0.3)' 
-                    : 'rgba(255,255,255,0.06)',
+                    ? '#f3f4f6' 
+                    : '#f3f4f6',
                   backdropFilter: 'blur(24px)',
                   WebkitBackdropFilter: 'blur(24px)',
-                  color: userVote === 'like' ? '#4DB8CC' : 'rgba(255,255,255,0.8)',
+                  color: userVote === 'like' ? '#0d9488' : '#111827',
                   cursor: isUpdating ? 'not-allowed' : 'pointer',
                   fontSize: '16px',
                   fontWeight: '700',
                   transition: 'all 0.3s ease',
                   opacity: isUpdating ? 0.6 : 1,
                   boxShadow: userVote === 'like' 
-                    ? '0 0 20px rgba(0,78,100,0.3)' 
+                    ? '0 0 6px rgba(13,148,136,0.15)' 
                     : 'none'
                 }}
                 onMouseEnter={e => {
                   if (!isUpdating) {
-                    e.currentTarget.style.background = userVote === 'like' 
-                      ? 'rgba(0,78,100,0.4)' 
-                      : 'rgba(0,78,100,0.15)'
+                    e.currentTarget.style.background = '#e5e7eb'
                     e.currentTarget.style.transform = 'translateY(-2px)'
                   }
                 }}
                 onMouseLeave={e => {
                   if (!isUpdating) {
-                    e.currentTarget.style.background = userVote === 'like' 
-                      ? 'rgba(0,78,100,0.3)' 
-                      : 'rgba(255,255,255,0.06)'
+                    e.currentTarget.style.background = '#f3f4f6'
                     e.currentTarget.style.transform = 'translateY(0)'
                   }
                 }}
@@ -406,35 +398,29 @@ export default function ProductDetailPage() {
                   gap: '8px',
                   padding: '12px 20px',
                   borderRadius: '12px',
-                  border: userVote === 'dislike' ? '2px solid rgba(255,80,80,0.6)' : '1px solid rgba(255,255,255,0.12)',
-                  background: userVote === 'dislike' 
-                    ? 'rgba(255,80,80,0.3)' 
-                    : 'rgba(255,255,255,0.06)',
+                  border: userVote === 'dislike' ? '2px solid rgba(255,80,80,0.6)' : '1px solid #e5e7eb',
+                  background: '#f3f4f6',
                   backdropFilter: 'blur(24px)',
                   WebkitBackdropFilter: 'blur(24px)',
-                  color: userVote === 'dislike' ? '#f87171' : 'rgba(255,255,255,0.8)',
+                  color: userVote === 'dislike' ? '#ef4444' : '#111827',
                   cursor: isUpdating ? 'not-allowed' : 'pointer',
                   fontSize: '16px',
                   fontWeight: '700',
                   transition: 'all 0.3s ease',
                   opacity: isUpdating ? 0.6 : 1,
                   boxShadow: userVote === 'dislike' 
-                    ? '0 0 20px rgba(255,80,80,0.3)' 
+                    ? '0 0 6px rgba(255,80,80,0.12)' 
                     : 'none'
                 }}
                 onMouseEnter={e => {
                   if (!isUpdating) {
-                    e.currentTarget.style.background = userVote === 'dislike' 
-                      ? 'rgba(255,80,80,0.4)' 
-                      : 'rgba(255,80,80,0.15)'
+                    e.currentTarget.style.background = '#e5e7eb'
                     e.currentTarget.style.transform = 'translateY(-2px)'
                   }
                 }}
                 onMouseLeave={e => {
                   if (!isUpdating) {
-                    e.currentTarget.style.background = userVote === 'dislike' 
-                      ? 'rgba(255,80,80,0.3)' 
-                      : 'rgba(255,255,255,0.06)'
+                    e.currentTarget.style.background = '#f3f4f6'
                     e.currentTarget.style.transform = 'translateY(0)'
                   }
                 }}
@@ -443,7 +429,7 @@ export default function ProductDetailPage() {
               </button>
               
               <span style={{
-                color: 'rgba(255,255,255,0.4)',
+                color: '#6b7280',
                 fontSize: '14px',
                 fontStyle: 'italic',
                 marginLeft: '8px'
@@ -466,15 +452,15 @@ export default function ProductDetailPage() {
                   ? 'rgba(232,201,126,0.15)'
                   : 'rgba(255,80,80,0.15)',
                 color: product.stock > 5
-                  ? '#4ade80'
+                  ? '#16a34a'
                   : product.stock > 0
-                  ? '#E8C97E'
-                  : '#f87171',
+                  ? '#b8860b'
+                  : '#ef4444',
                 border: `1px solid ${product.stock > 5
-                  ? 'rgba(0,200,100,0.3)'
+                  ? 'rgba(16,185,129,0.15)'
                   : product.stock > 0
-                  ? 'rgba(232,201,126,0.3)'
-                  : 'rgba(255,80,80,0.3)'}`
+                  ? 'rgba(232,201,126,0.15)'
+                  : 'rgba(255,80,80,0.15)'}
               }}>
                 {product.stock > 5 ? t('product.in_stock') : product.stock > 0 ? `⚠ Only ${product.stock} left` : t('product.out_of_stock')}
               </span>
@@ -483,7 +469,7 @@ export default function ProductDetailPage() {
             {/* Description */}
             {product.description && (
               <p
-                className="text-white"
+                className="text-gray-800"
                 style={{
                   fontSize: '15px',
                   lineHeight: '1.7',
@@ -531,7 +517,7 @@ export default function ProductDetailPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#4DB8CC',
+                    color: '#111827',
                     fontWeight: '700',
                     fontSize: '16px',
                     flexShrink: 0,
@@ -545,12 +531,12 @@ export default function ProductDetailPage() {
                   </div>
                   <div>
                     <Link href={`/seller/${seller.id}`}>
-                      <p style={{ color: '#4DB8CC', fontWeight: '700', cursor: 'pointer' }}>
+                      <p style={{ color: '#111827', fontWeight: '700', cursor: 'pointer' }}>
                         {seller.name || seller.full_name}
                       </p>
                     </Link>
                     {seller.bio && (
-                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', margin: '2px 0 0 0' }}>
+                      <p style={{ color: '#6b7280', fontSize: '13px', margin: '2px 0 0 0' }}>
                         {seller.bio}
                       </p>
                     )}
@@ -561,32 +547,32 @@ export default function ProductDetailPage() {
                 <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {seller.phone && (
                     <div>
-                      <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('product.phone')}</span>
-                      <p style={{ color: 'white', fontSize: '14px', margin: '2px 0 0 0' }}>{seller.phone}</p>
+                      <span style={{ color: '#6b7280', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('product.phone')}</span>
+                      <p style={{ color: '#111827', fontSize: '14px', margin: '2px 0 0 0' }}>{seller.phone}</p>
                     </div>
                   )}
                   {seller.whatsapp && (
                     <div>
-                      <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('product.whatsapp')}</span>
-                      <a href={`https://wa.me/${seller.whatsapp.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" style={{ color: '#4DB8CC', fontSize: '14px', display: 'block', marginTop: '2px' }}>{seller.whatsapp}</a>
+                      <span style={{ color: '#6b7280', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('product.whatsapp')}</span>
+                      <a href={`https://wa.me/${seller.whatsapp.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" style={{ color: '#0d9488', fontSize: '14px', display: 'block', marginTop: '2px' }}>{seller.whatsapp}</a>
                     </div>
                   )}
                   {seller.telegram && (
                     <div>
-                      <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('product.telegram')}</span>
-                      <a href={`https://t.me/${seller.telegram.replace('@','')}`} target="_blank" rel="noopener noreferrer" style={{ color: '#4DB8CC', fontSize: '14px', display: 'block', marginTop: '2px' }}>{seller.telegram}</a>
+                      <span style={{ color: '#6b7280', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('product.telegram')}</span>
+                      <a href={`https://t.me/${seller.telegram.replace('@','')}`} target="_blank" rel="noopener noreferrer" style={{ color: '#0d9488', fontSize: '14px', display: 'block', marginTop: '2px' }}>{seller.telegram}</a>
                     </div>
                   )}
                   {seller.facebook && (
                     <div>
-                      <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('product.facebook')}</span>
-                      <a href={seller.facebook.startsWith('http') ? seller.facebook : `https://facebook.com/${seller.facebook}`} target="_blank" rel="noopener noreferrer" style={{ color: '#4DB8CC', fontSize: '14px', display: 'block', marginTop: '2px' }}>{seller.facebook}</a>
+                      <span style={{ color: '#6b7280', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('product.facebook')}</span>
+                      <a href={seller.facebook.startsWith('http') ? seller.facebook : `https://facebook.com/${seller.facebook}`} target="_blank" rel="noopener noreferrer" style={{ color: '#0d9488', fontSize: '14px', display: 'block', marginTop: '2px' }}>{seller.facebook}</a>
                     </div>
                   )}
                   {seller.instagram && (
                     <div>
-                      <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Instagram</span>
-                      <a href={`https://instagram.com/${seller.instagram.replace('@','')}`} target="_blank" rel="noopener noreferrer" style={{ color: '#4DB8CC', fontSize: '14px', display: 'block', marginTop: '2px' }}>{seller.instagram}</a>
+                      <span style={{ color: '#6b7280', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Instagram</span>
+                      <a href={`https://instagram.com/${seller.instagram.replace('@','')}`} target="_blank" rel="noopener noreferrer" style={{ color: '#0d9488', fontSize: '14px', display: 'block', marginTop: '2px' }}>{seller.instagram}</a>
                     </div>
                   )}
                 </div>
