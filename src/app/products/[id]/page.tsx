@@ -229,7 +229,7 @@ export default function ProductDetailPage() {
             marginBottom: '32px',
             cursor: 'pointer'
           }}>
-            ← {t('product.back_to_store')}
+            ← Back to Store
           </div>
         </Link>
 
@@ -484,7 +484,7 @@ export default function ProductDetailPage() {
             {product.description && (
               <p 
                 style={{
-                  color: 'rgba(255,255,255,0.6)',
+                  color: 'rgba(255,255,255,0.95)',
                   fontSize: '15px',
                   lineHeight: '1.7',
                   fontWeight: '300',
