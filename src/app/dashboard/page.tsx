@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { uploadImage } from '@/lib/uploadImage'
 import { sanitizeInput } from '@/lib/security'
+import { hashPin } from '@/lib/pinHash'
 import Link from 'next/link'
-import { Star, Check, Medal, Store, ShoppingCart, ShoppingBag, Package, DollarSign, User, Settings, X, Flag, Bell, Search, Heart, ThumbsUp, ThumbsDown, BarChart3, Plus, AlertTriangle, Home, Edit, Trash2, TrendingUp, Users, Menu } from 'lucide-react'
+import { Star, Check, Medal, Store, ShoppingCart, ShoppingBag, Package, DollarSign, User, Settings, X, Flag, Bell, Search, Heart, ThumbsUp, ThumbsDown, BarChart3, Plus, AlertTriangle, Home, Edit, Trash2, TrendingUp, Users, Menu, Lock } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
 
 export default function DashboardPage() {
@@ -57,6 +58,15 @@ export default function DashboardPage() {
   const [shopSlug, setShopSlug] = useState('')
   const [shopUrl, setShopUrl] = useState('')
   const [copySuccess, setCopySuccess] = useState(false)
+
+  // PIN modal state
+  const [showPinModal, setShowPinModal] = useState(false)
+  const [pinDigits, setPinDigits] = useState(['', '', '', '', '', ''])
+  const [confirmPinDigits, setConfirmPinDigits] = useState(['', '', '', '', '', ''])
+  const [pinError, setPinError] = useState('')
+  const [pinSuccess, setPinSuccess] = useState('')
+  const [savingPin, setSavingPin] = useState(false)
+  const [showConfirmStep, setShowConfirmStep] = useState(false)
 
   const CATEGORIES = ['Electronics', 'Fashion', 'Home Living', 'Beauty', 'Food', 'Gaming', 'Other']
 
@@ -147,13 +157,20 @@ export default function DashboardPage() {
   async function loadProfile(currentUser: any) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, rank')
+      .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, rank, security_pin')
       .eq('id', currentUser.id)
       .single()
     
     // Role-based access control - only sellers can access dashboard
     if (profile?.role !== 'seller') {
       router.push('/')
+      return
+    }
+
+    // Check if seller has PIN and needs to verify it
+    const isPinVerified = sessionStorage.getItem('seller_pin_verified') === 'true'
+    if (profile?.security_pin && !isPinVerified) {
+      router.push('/verify-pin')
       return
     }
     
@@ -216,6 +233,62 @@ export default function DashboardPage() {
     fetchProducts()
     fetchOrders()
   }, [profile])
+
+  const handlePinInput = (index: number, value: string, isConfirm: boolean = false) => {
+    if (!/^\d*$/.test(value)) return
+    
+    const digits = isConfirm ? confirmPinDigits : pinDigits
+    const setDigits = isConfirm ? setConfirmPinDigits : setPinDigits
+    
+    const newDigits = [...digits]
+    newDigits[index] = value.slice(-1)
+    setDigits(newDigits)
+    setPinError('')
+  }
+
+  const handleSavePin = async () => {
+    const pin = pinDigits.join('')
+    const confirmPin = confirmPinDigits.join('')
+
+    if (pin.length !== 6 || confirmPin.length !== 6) {
+      setPinError('Please enter all 6 digits')
+      return
+    }
+
+    if (pin !== confirmPin) {
+      setPinError('PINs do not match')
+      return
+    }
+
+    setSavingPin(true)
+    try {
+      const hashedPin = hashPin(pin)
+      const { error } = await supabase
+        .from('profiles')
+        .update({ security_pin: hashedPin })
+        .eq('id', user.id)
+
+      if (error) {
+        setPinError('Failed to save PIN')
+        console.error(error)
+      } else {
+        setPinSuccess('PIN set successfully!')
+        setTimeout(() => {
+          setShowPinModal(false)
+          setPinDigits(['', '', '', '', '', ''])
+          setConfirmPinDigits(['', '', '', '', '', ''])
+          setPinError('')
+          setPinSuccess('')
+          setShowConfirmStep(false)
+        }, 2000)
+      }
+    } catch (err) {
+      setPinError('Error saving PIN')
+      console.error(err)
+    } finally {
+      setSavingPin(false)
+    }
+  }
 
   async function handleAddProduct() {
     if (!productName || !productPrice || !productStock) {
@@ -466,7 +539,8 @@ export default function DashboardPage() {
     { id: 'products', label: 'My Products', icon: Package },
     { id: 'add-product', label: 'Add Product', icon: Plus },
     { id: 'orders', label: 'Orders', icon: ShoppingBag },
-    { id: 'settings', label: 'Settings', icon: Settings }
+    { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'security', label: 'Extra Security', icon: Lock }
   ]
 
   const processImageFile = (file: File) => {
@@ -492,7 +566,130 @@ export default function DashboardPage() {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'Inter, sans-serif' }}>
+    <>
+      {/* PIN Modal */}
+      {showPinModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }} onClick={() => { setShowPinModal(false); setPinDigits(['', '', '', '', '', '']); setConfirmPinDigits(['', '', '', '', '', '']); setPinError(''); setPinSuccess(''); setShowConfirmStep(false); }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '16px',
+            padding: '32px',
+            maxWidth: '500px',
+            width: '90%',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.3)'
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#111827', margin: '0 0 8px 0' }}>
+                {showConfirmStep ? 'Confirm Your PIN' : 'Set Security PIN'}
+              </h2>
+              <p style={{ color: '#6b7280', fontSize: '14px', margin: '0' }}>
+                {showConfirmStep ? 'Enter your PIN again to confirm' : 'Protect your seller account with a 6 digit PIN'}
+              </p>
+            </div>
+
+            {/* PIN Digit Inputs */}
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '24px' }}>
+              {(showConfirmStep ? confirmPinDigits : pinDigits).map((digit, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handlePinInput(index, e.target.value, showConfirmStep)}
+                  className={`w-12 h-12 text-2xl font-bold text-center border-2 rounded-lg focus:outline-none ${
+                    digit ? 'border-[#0d9488]' : 'border-gray-300'
+                  } focus:border-[#0d9488]`}
+                  style={{ fontSize: '24px', fontWeight: 'bold' }}
+                  placeholder="0"
+                />
+              ))}
+            </div>
+
+            {/* Error Message */}
+            {pinError && (
+              <div style={{ color: '#dc2626', fontSize: '14px', marginBottom: '16px', textAlign: 'center' }}>
+                {pinError}
+              </div>
+            )}
+
+            {/* Success Message */}
+            {pinSuccess && (
+              <div style={{ color: '#16a34a', fontSize: '14px', marginBottom: '16px', textAlign: 'center' }}>
+                {pinSuccess}
+              </div>
+            )}
+
+            {/* Buttons */}
+            <div style={{ display: 'flex', gap: '12px' }}>
+              {showConfirmStep && (
+                <button
+                  onClick={() => {
+                    setShowConfirmStep(false)
+                    setPinError('')
+                  }}
+                  style={{
+                    flex: '1',
+                    padding: '12px 20px',
+                    borderRadius: '8px',
+                    border: '1px solid #e5e7eb',
+                    backgroundColor: '#f3f4f6',
+                    color: '#111827',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Back
+                </button>
+              )}
+              <button
+                onClick={showConfirmStep ? handleSavePin : () => setShowConfirmStep(true)}
+                disabled={savingPin}
+                style={{
+                  flex: '1',
+                  padding: '12px 20px',
+                  borderRadius: '8px',
+                  backgroundColor: '#0d9488',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  opacity: savingPin ? 0.6 : 1
+                }}
+              >
+                {savingPin ? 'Saving...' : showConfirmStep ? 'Save PIN' : 'Next'}
+              </button>
+            </div>
+
+            <button
+              onClick={() => { setShowPinModal(false); setPinDigits(['', '', '', '', '', '']); setConfirmPinDigits(['', '', '', '', '', '']); setPinError(''); setPinSuccess(''); setShowConfirmStep(false); }}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                backgroundColor: 'transparent',
+                border: 'none',
+                fontSize: '24px',
+                cursor: 'pointer',
+                color: '#6b7280'
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'Inter, sans-serif' }}>
       {/* Sidebar */}
       <div style={{
         width: isMobile ? (sidebarOpen ? '260px' : '0') : '260px',
@@ -532,7 +729,13 @@ export default function DashboardPage() {
           {sidebarItems.map(item => (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => {
+                if (item.id === 'security') {
+                  setShowPinModal(true)
+                } else {
+                  setActiveTab(item.id)
+                }
+              }}
               style={{
                 width: '100%',
                 display: 'flex',
@@ -1575,6 +1778,7 @@ export default function DashboardPage() {
           )}
         </main>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
