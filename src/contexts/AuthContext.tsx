@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import { saveDeviceSession } from '@/lib/deviceTracking'
 
 const AuthContext = createContext<{ 
   user: User | null, 
@@ -23,26 +24,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const currentUser = user
       
-      // Show mine field alert on logout if enabled
-      if (currentUser && typeof window !== 'undefined') {
+      // Log logout activity
+      if (currentUser) {
         try {
-          const { data } = await supabase
-            .from('profiles')
-            .select('minefield_enabled, minefield_message')
-            .eq('id', currentUser.id)
-            .single()
-
-          if (data?.minefield_enabled && data?.minefield_message) {
-            window.alert(data.minefield_message)
-            await supabase.from('activity_logs').insert({
-              user_id: currentUser.id,
-              action: 'Account logged out - Mine Field triggered',
-              device: 'N/A',
-              ip_address: ''
-            })
-          }
+          await supabase.from('activity_logs').insert({
+            user_id: currentUser.id,
+            action: 'Account logged out',
+            device: 'N/A',
+            ip_address: ''
+          })
         } catch (err) {
-          console.error('Error checking minefield on logout:', err)
+          console.error('Error logging logout activity:', err)
         }
       }
 
@@ -102,6 +94,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const handlePostLoginChecks = async () => {
       try {
+        // Save device session for this login
+        await saveDeviceSession(user.id)
+
         const { data } = await supabase
           .from('profiles')
           .select('role, security_pin, minefield_enabled, minefield_message')
@@ -110,12 +105,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (!data) return
 
-        // Show mine field alert if enabled
-        if (data.minefield_enabled && data.minefield_message && typeof window !== 'undefined') {
+        // Show mine field alert only if:
+        // 1. Mine field is enabled
+        // 2. This is a NEW device (not the original device)
+        // 3. Alert hasn't been shown yet in this session
+        const isNewDevice = sessionStorage.getItem('is_new_device') === 'true'
+        const minefieldShownInSession = sessionStorage.getItem('minefield_shown') === 'true'
+
+        if (
+          data.minefield_enabled &&
+          data.minefield_message &&
+          isNewDevice &&
+          !minefieldShownInSession &&
+          typeof window !== 'undefined'
+        ) {
+          sessionStorage.setItem('minefield_shown', 'true')
           window.alert(data.minefield_message)
           await supabase.from('activity_logs').insert({
             user_id: user.id,
-            action: 'Mine Field triggered - Login detected',
+            action: 'Mine Field triggered - New device login detected',
             device: 'N/A',
             ip_address: ''
           })
