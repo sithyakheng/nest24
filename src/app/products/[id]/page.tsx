@@ -482,9 +482,9 @@ export default function ProductDetailPage() {
 
             {/* Description */}
             {product.description && (
-              <p 
+              <p
+                className="text-white"
                 style={{
-                  color: 'rgba(255,255,255,0.95)',
                   fontSize: '15px',
                   lineHeight: '1.7',
                   fontWeight: '300',

@@ -258,7 +258,7 @@ export default function ProductPage() {
                   <span className="text-white/60">{product.category}</span>
                 </div>
 
-                <p className="text-white/80 mb-6">{product.description}</p>
+                <p className="text-white mb-6">{product.description}</p>
 
                 <div className="flex items-center space-x-4 mb-6">
                   <span className="text-3xl font-bold text-[#E0E5E9]">${product.price}</span>
