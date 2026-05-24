@@ -239,10 +239,36 @@ export default function DashboardPage() {
     
     const digits = isConfirm ? confirmPinDigits : pinDigits
     const setDigits = isConfirm ? setConfirmPinDigits : setPinDigits
-    
     const newDigits = [...digits]
     newDigits[index] = value.slice(-1)
     setDigits(newDigits)
+    setPinError('')
+
+    if (value && index < 5) {
+      const nextInput = document.getElementById(`${isConfirm ? 'confirm' : 'pin'}-${index + 1}`)
+      nextInput?.focus()
+    }
+  }
+
+  const handlePinKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>, isConfirm: boolean = false) => {
+    const digits = isConfirm ? confirmPinDigits : pinDigits
+    if (e.key === 'Backspace' && !digits[index] && index > 0) {
+      const prevInput = document.getElementById(`${isConfirm ? 'confirm' : 'pin'}-${index - 1}`)
+      prevInput?.focus()
+    }
+  }
+
+  const handlePinPaste = (e: React.ClipboardEvent<HTMLInputElement>, isConfirm: boolean = false) => {
+    const paste = e.clipboardData.getData('text').trim()
+    if (!/^\d{6}$/.test(paste)) return
+    e.preventDefault()
+
+    const digits = paste.split('')
+    if (isConfirm) {
+      setConfirmPinDigits(digits)
+    } else {
+      setPinDigits(digits)
+    }
     setPinError('')
   }
 
@@ -600,11 +626,14 @@ export default function DashboardPage() {
               {(showConfirmStep ? confirmPinDigits : pinDigits).map((digit, index) => (
                 <input
                   key={index}
+                  id={`${showConfirmStep ? 'confirm' : 'pin'}-${index}`}
                   type="text"
                   inputMode="numeric"
                   maxLength={1}
                   value={digit}
                   onChange={(e) => handlePinInput(index, e.target.value, showConfirmStep)}
+                  onKeyDown={(e) => handlePinKeyDown(index, e, showConfirmStep)}
+                  onPaste={(e) => handlePinPaste(e, showConfirmStep)}
                   className={`w-12 h-12 text-2xl font-bold text-center border-2 rounded-lg focus:outline-none ${
                     digit ? 'border-[#0d9488]' : 'border-gray-300'
                   } focus:border-[#0d9488]`}
