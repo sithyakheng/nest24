@@ -3,7 +3,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { hashPin, verifyPin } from '@/lib/pinHash'
-import { AlertTriangle, Check, Globe, Lock, Phone, Shield, Trash2, User, X } from 'lucide-react'
+import { 
+  Shield, Lock, Smartphone, Zap, Activity, 
+  X, ChevronRight, Check, Trash2, LogIn, 
+  LogOut, AlertTriangle, Eye, EyeOff,
+  Monitor, Wifi, Clock, RefreshCw
+} from 'lucide-react'
 
 interface SecurityCenterProps {
   userId: string
@@ -310,12 +315,17 @@ export default function SecurityCenter({ userId, profile, onClose, refreshProfil
   const handleToggleMinefield = async (enabled: boolean) => {
     setSavingSettings(true)
     try {
+      const defaultMessage = enabled && !minefieldMessage
+        ? '⚠️ Alert! Someone just logged into your NestKH account. If this wasn\'t you, go to Extra Security → Active Devices and terminate the session immediately!'
+        : minefieldMessage
+
       const { error } = await supabase
         .from('profiles')
-        .update({ minefield_enabled: enabled })
+        .update({ minefield_enabled: enabled, minefield_message: defaultMessage })
         .eq('id', userId)
       if (error) throw error
       setMinefieldEnabled(enabled)
+      setMinefieldMessage(defaultMessage)
       const action = enabled ? 'Mine Field turned on' : 'Mine Field turned off'
       await supabase.from('activity_logs').insert({ user_id: userId, action, device: 'N/A', ip_address: '' })
       await refreshProfile()
@@ -387,14 +397,13 @@ export default function SecurityCenter({ userId, profile, onClose, refreshProfil
         .from('device_sessions')
         .delete()
         .eq('id', sessionId)
-        .eq('user_id', userId)
       if (error) throw error
-      showToast('Device removed', 'success')
-      await createActivityLog('Device was terminated', `${session.device_name} / ${session.browser}`, session.ip_address)
+      showToast('Device terminated successfully', 'success')
+      await createActivityLog(`Device terminated: ${session.browser} on ${session.device_name}`, `${session.device_name} / ${session.browser}`, session.ip_address)
       await loadDeviceSessions()
     } catch (err) {
       console.error('Terminate device error', err)
-      showToast('Failed to remove device', 'error')
+      showToast('Failed to terminate device', 'error')
     }
   }
 
@@ -435,60 +444,97 @@ export default function SecurityCenter({ userId, profile, onClose, refreshProfil
   )
 
   return (
-    <div className="fixed inset-0 z-50 overflow-auto bg-white p-6">
-      <div className="mx-auto max-w-[1280px]">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+    <div className="fixed inset-0 z-50 overflow-auto bg-gradient-to-br from-slate-50 to-white p-8">
+      <div className="mx-auto max-w-[900px]">
+        {/* Header */}
+        <div className="mb-8 flex items-start justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-2xl bg-teal-50 px-4 py-2 text-teal-700 text-sm font-semibold mb-3">
-              <Shield className="w-4 h-4" /> Security Center
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-100">
+                <Shield size={24} className="text-teal-600" />
+              </div>
+              <h1 className="text-3xl font-bold text-slate-900">Security Center</h1>
             </div>
-            <h1 className="text-3xl font-bold text-slate-900">Extra Security for Sellers</h1>
-            <p className="text-slate-500 mt-2 max-w-2xl">Manage PIN, active devices, mine field alerts, firewall protection, and your latest account activity.</p>
+            <p className="text-slate-500">Manage your account security settings</p>
           </div>
           <button
             onClick={onClose}
-            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-slate-500 hover:bg-slate-100 transition-colors"
           >
-            <X className="w-4 h-4" /> Close
+            <X size={20} />
+            <span className="text-sm font-medium">Close</span>
           </button>
         </div>
 
+        {/* Divider */}
+        <div className="h-px bg-slate-200 mb-8" />
+
+        {/* Toast */}
         {toastMessage ? (
-          <div className={`mb-4 rounded-2xl border p-4 ${toastType === 'success' ? 'border-teal-200 bg-teal-50 text-teal-800' : toastType === 'error' ? 'border-rose-200 bg-rose-50 text-rose-800' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
+          <div className={`mb-6 rounded-lg border p-4 ${toastType === 'success' ? 'border-teal-200 bg-teal-50 text-teal-800' : toastType === 'error' ? 'border-red-200 bg-red-50 text-red-800' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
             {toastMessage}
           </div>
         ) : null}
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-4 mb-4">
-              <div>
-                <p className="text-sm text-teal-700 font-semibold">🔐 PIN Manager</p>
-                <h2 className="text-xl font-bold text-slate-900">Protect your account with a 6 digit PIN</h2>
+        <div className="space-y-4">
+          {/* PIN Manager Card */}
+          <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-100 flex-shrink-0">
+                <Lock size={20} className="text-teal-600" />
               </div>
-            </div>
-            <div className="space-y-4">
-              {profile?.security_pin ? (
-                <div className="space-y-3">
-                  <p className="text-slate-600">A security PIN is currently active. You can change it or remove it completely.</p>
-                  <div className="flex flex-wrap gap-3">
-                    <button onClick={() => { setPinAction('change'); resetPinFields(); setPinError(''); setPinSuccess('') }} className="rounded-full bg-teal-600 px-4 py-2 text-white font-semibold hover:bg-teal-700">Change PIN</button>
-                    <button onClick={() => { setPinAction('remove'); resetPinFields(); setPinError(''); setPinSuccess('') }} className="rounded-full bg-red-500 px-4 py-2 text-white font-semibold hover:bg-red-600">Remove PIN</button>
-                  </div>
+              <div className="flex-1">
+                <h2 className="text-lg font-bold text-slate-900">PIN Manager</h2>
+                <p className="text-sm text-slate-500 mt-1">Protect your account with a 6-digit PIN</p>
+                
+                {/* Status Badge */}
+                <div className="mt-4 flex items-center gap-2">
+                  {profile?.security_pin ? (
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-200">
+                      <Check size={14} className="text-teal-600" />
+                      <span className="text-xs font-medium text-teal-700">Protected</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200">
+                      <AlertTriangle size={14} className="text-amber-600" />
+                      <span className="text-xs font-medium text-amber-700">Not Protected</span>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-slate-600">No PIN is set yet.</p>
-                  <button onClick={() => { setPinAction('set'); resetPinFields(); setPinError(''); setPinSuccess('') }} className="rounded-full bg-teal-600 px-4 py-2 text-white font-semibold hover:bg-teal-700">Set PIN</button>
-                </div>
-              )}
 
-              {pinAction !== 'none' && (
-                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="space-y-4">
+                {/* Action Buttons */}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {profile?.security_pin ? (
+                    <>
+                      <button 
+                        onClick={() => { setPinAction('change'); resetPinFields(); setPinError(''); setPinSuccess('') }} 
+                        className="rounded-lg px-4 py-2 bg-teal-600 text-white text-sm font-medium hover:bg-teal-700 transition-colors"
+                      >
+                        Change PIN
+                      </button>
+                      <button 
+                        onClick={() => { setPinAction('remove'); resetPinFields(); setPinError(''); setPinSuccess('') }} 
+                        className="rounded-lg px-4 py-2 bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors"
+                      >
+                        Remove PIN
+                      </button>
+                    </>
+                  ) : (
+                    <button 
+                      onClick={() => { setPinAction('set'); resetPinFields(); setPinError(''); setPinSuccess('') }} 
+                      className="rounded-lg px-4 py-2 bg-teal-600 text-white text-sm font-medium hover:bg-teal-700 transition-colors"
+                    >
+                      Set PIN
+                    </button>
+                  )}
+                </div>
+
+                {/* PIN Input Form */}
+                {pinAction !== 'none' && (
+                  <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4 space-y-4">
                     {pinAction === 'change' && (
                       <div>
-                        <p className="mb-2 text-sm text-slate-700 font-semibold">Current PIN</p>
+                        <p className="mb-3 text-sm text-slate-700 font-medium">Current PIN</p>
                         {renderPinInputs('current', currentPinDigits)}
                       </div>
                     )}
@@ -496,11 +542,11 @@ export default function SecurityCenter({ userId, profile, onClose, refreshProfil
                     {(pinAction === 'set' || pinAction === 'change') && (
                       <>
                         <div>
-                          <p className="mb-2 text-sm text-slate-700 font-semibold">New PIN</p>
+                          <p className="mb-3 text-sm text-slate-700 font-medium">New PIN</p>
                           {renderPinInputs(pinAction === 'set' ? 'set' : 'new', pinAction === 'set' ? setPinDigits : newPinDigits)}
                         </div>
                         <div>
-                          <p className="mb-2 text-sm text-slate-700 font-semibold">Confirm PIN</p>
+                          <p className="mb-3 text-sm text-slate-700 font-medium">Confirm PIN</p>
                           {renderPinInputs(pinAction === 'set' ? 'confirmSet' : 'confirmNew', pinAction === 'set' ? setConfirmPinDigits : confirmNewPinDigits)}
                         </div>
                       </>
@@ -508,60 +554,87 @@ export default function SecurityCenter({ userId, profile, onClose, refreshProfil
 
                     {pinAction === 'remove' && (
                       <div>
-                        <p className="mb-2 text-sm text-slate-700 font-semibold">Current PIN</p>
+                        <p className="mb-3 text-sm text-slate-700 font-medium">Current PIN</p>
                         {renderPinInputs('current', currentPinDigits)}
                       </div>
                     )}
 
-                    {pinError && <p className="text-sm text-rose-600">{pinError}</p>}
-                    {pinSuccess && <p className="text-sm text-emerald-700">{pinSuccess}</p>}
+                    {pinError && <p className="text-sm text-red-600">{pinError}</p>}
+                    {pinSuccess && <p className="text-sm text-teal-700">{pinSuccess}</p>}
 
-                    <div className="flex flex-wrap gap-3">
-                      <button onClick={handleSavePin} disabled={savingPin} className="rounded-full bg-teal-600 px-4 py-2 text-white font-semibold hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-70">
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      <button 
+                        onClick={handleSavePin} 
+                        disabled={savingPin} 
+                        className="rounded-lg px-4 py-2 bg-teal-600 text-white text-sm font-medium hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
                         {savingPin ? 'Saving...' : pinAction === 'remove' ? 'Remove PIN' : pinAction === 'change' ? 'Save Change' : 'Save PIN'}
                       </button>
-                      <button onClick={() => setPinAction('none')} type="button" className="rounded-full border border-slate-200 bg-white px-4 py-2 text-slate-700 font-semibold hover:bg-slate-50">
+                      <button 
+                        onClick={() => setPinAction('none')} 
+                        type="button" 
+                        className="rounded-lg px-4 py-2 border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors"
+                      >
                         Cancel
                       </button>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </section>
 
-          <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-4 mb-4">
-              <div>
-                <p className="text-sm text-teal-700 font-semibold">📱 Active Devices</p>
-                <h2 className="text-xl font-bold text-slate-900">See all devices logged into your account</h2>
+          {/* Active Devices Card */}
+          <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 flex-shrink-0">
+                <Smartphone size={20} className="text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-lg font-bold text-slate-900">Active Devices</h2>
+                <p className="text-sm text-slate-500 mt-1">See all devices logged into your account</p>
               </div>
             </div>
-            <div className="space-y-4">
+
+            <div className="space-y-2">
               {loadingDevices ? (
-                <p className="text-slate-500">Loading devices...</p>
+                <p className="text-slate-500 text-sm py-4">Loading devices...</p>
               ) : deviceSessions.length === 0 ? (
-                <p className="text-slate-500">No active devices found.</p>
+                <p className="text-slate-500 text-sm py-4">No active devices found.</p>
               ) : (
                 deviceSessions.map((session) => (
-                  <div key={session.id} className="rounded-3xl border border-slate-200 p-4">
-                    <div className="flex items-start gap-4">
-                      <div className="grid h-12 w-12 place-items-center rounded-2xl bg-teal-50 text-teal-700 text-lg">
-                        {session.device_name.toLowerCase().includes('phone') || session.device_name.toLowerCase().includes('tablet') ? '📱' : '💻'}
+                  <div key={session.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3 flex items-center justify-between hover:bg-slate-100 transition-colors">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white border border-slate-200">
+                        {session.device_name.toLowerCase().includes('phone') || session.device_name.toLowerCase().includes('tablet') ? 
+                          <Smartphone size={16} className="text-slate-600" /> 
+                          : 
+                          <Monitor size={16} className="text-slate-600" />
+                        }
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-slate-900">{session.browser}</p>
-                        <p className="text-sm text-slate-500">{hideIp(session.ip_address)}</p>
-                        <p className="text-sm text-slate-500">Last active {formatDateTime(session.last_active)}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-slate-900 text-sm">{session.browser}</p>
+                        <p className="text-xs text-slate-500">{hideIp(session.ip_address)}</p>
+                        <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
+                          <Clock size={12} />
+                          Last active {formatDateTime(session.last_active)}
+                        </div>
                       </div>
-                      <div className="flex flex-col items-end gap-2">
-                        {session.is_current && <span className="rounded-full bg-teal-600 px-3 py-1 text-white text-xs font-semibold">Current Device</span>}
-                        {!session.is_current && (
-                          <button onClick={() => handleTerminateDevice(session.id)} className="rounded-full bg-rose-500 px-3 py-2 text-xs font-semibold text-white hover:bg-rose-600">
-                            Terminate
-                          </button>
-                        )}
-                      </div>
+                    </div>
+                    <div className="ml-3 flex-shrink-0">
+                      {session.is_current ? (
+                        <span className="rounded-full bg-teal-100 px-2 py-1 text-xs font-medium text-teal-700 border border-teal-200">
+                          Current
+                        </span>
+                      ) : (
+                        <button 
+                          onClick={() => handleTerminateDevice(session.id)}
+                          className="rounded-lg px-3 py-1 bg-red-50 text-red-600 text-xs font-medium hover:bg-red-100 transition-colors border border-red-200 flex items-center gap-1"
+                        >
+                          <Trash2 size={14} />
+                          Terminate
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))
@@ -569,91 +642,163 @@ export default function SecurityCenter({ userId, profile, onClose, refreshProfil
             </div>
           </section>
 
-          <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-4 mb-4">
-              <div>
-                <p className="text-sm text-teal-700 font-semibold">💣 Mine Field</p>
-                <h2 className="text-xl font-bold text-slate-900">Show an alert when someone logs in</h2>
+          {/* Mine Field Card */}
+          <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 flex-shrink-0">
+                <AlertTriangle size={20} className="text-orange-600" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-lg font-bold text-slate-900">Mine Field</h2>
+                <p className="text-sm text-slate-500 mt-1">Show an alert when someone logs in</p>
               </div>
             </div>
+
             <div className="space-y-4">
-              <p className="text-slate-600">Show a custom alert message when someone logs into your account.</p>
-              <div className="flex items-center gap-3">
-                <button onClick={() => handleToggleMinefield(!minefieldEnabled)} className={`rounded-full px-4 py-2 text-sm font-semibold ${minefieldEnabled ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
-                  {minefieldEnabled ? 'ON' : 'OFF'}
+              <p className="text-sm text-slate-600">Display a custom alert message when someone logs into your account.</p>
+              
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => handleToggleMinefield(!minefieldEnabled)}
+                  className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${minefieldEnabled ? 'bg-teal-600' : 'bg-slate-300'}`}
+                >
+                  <span className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition-transform ${minefieldEnabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
                 </button>
-                <span className="text-sm text-slate-500">Mine Field is currently <strong>{minefieldEnabled ? 'enabled' : 'disabled'}</strong>.</span>
+                <span className="text-sm text-slate-600">
+                  {minefieldEnabled ? 'Enabled' : 'Disabled'}
+                </span>
               </div>
+
               {minefieldEnabled && (
-                <div className="space-y-3">
-                  <label className="text-sm font-semibold text-slate-700">Alert message</label>
-                  <textarea value={minefieldMessage} onChange={(e) => setMinefieldMessage(e.target.value)} rows={3} className="w-full rounded-2xl border border-slate-200 p-3 text-sm text-slate-700 outline-none resize-none" placeholder="Hey! Someone just logged into your account!" />
-                  <button onClick={handleSaveMinefieldMessage} disabled={savingSettings} className="rounded-full bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-70">
-                    {savingSettings ? 'Saving...' : 'Save Message'}
+                <div className="space-y-3 pt-2 border-t border-slate-200">
+                  <label className="text-sm font-medium text-slate-700">Alert Message</label>
+                  <textarea 
+                    value={minefieldMessage} 
+                    onChange={(e) => setMinefieldMessage(e.target.value)} 
+                    rows={3} 
+                    className="w-full rounded-lg border border-slate-300 p-3 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 resize-none"
+                    placeholder="Enter your alert message..."
+                  />
+                  <button 
+                    onClick={handleSaveMinefieldMessage} 
+                    disabled={savingSettings}
+                    className="rounded-lg px-4 py-2 bg-teal-600 text-white text-sm font-medium hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                  >
+                    <Check size={14} />
+                    Save Message
                   </button>
                 </div>
               )}
             </div>
           </section>
 
-          <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-4 mb-4">
-              <div>
-                <p className="text-sm text-teal-700 font-semibold">🛡️ Firewall</p>
-                <h2 className="text-xl font-bold text-slate-900">Block suspicious links and ads</h2>
+          {/* Firewall Card */}
+          <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 flex-shrink-0">
+                <Shield size={20} className="text-purple-600" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-lg font-bold text-slate-900">Firewall</h2>
+                <p className="text-sm text-slate-500 mt-1">Block suspicious links and ads</p>
               </div>
             </div>
+
             <div className="space-y-4">
-              <p className="text-slate-600">Block suspicious URLs from appearing in your browsing and product descriptions on NestKH.</p>
-              <div className="flex items-center gap-3">
-                <button onClick={() => handleToggleFirewall(!firewallEnabled)} className={`rounded-full px-4 py-2 text-sm font-semibold ${firewallEnabled ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
-                  {firewallEnabled ? 'ON' : 'OFF'}
+              <p className="text-sm text-slate-600">Block suspicious URLs from appearing in your browsing and product descriptions on NestKH.</p>
+              
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => handleToggleFirewall(!firewallEnabled)}
+                  className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${firewallEnabled ? 'bg-teal-600' : 'bg-slate-300'}`}
+                >
+                  <span className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition-transform ${firewallEnabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
                 </button>
-                <span className="text-sm text-slate-500">Firewall is <strong>{firewallEnabled ? 'enabled' : 'disabled'}</strong>.</span>
+                <span className="text-sm text-slate-600">
+                  {firewallEnabled ? 'Enabled' : 'Disabled'}
+                </span>
               </div>
-              <ul className="space-y-2 text-sm text-slate-600 list-disc list-inside">
-                <li>Block non-nestkh.com suspicious URLs</li>
-                <li>Block shorteners like bit.ly or tinyurl.com</li>
-                <li>Block script tags in content</li>
-              </ul>
+
+              {firewallEnabled && (
+                <div className="space-y-2 pt-2 border-t border-slate-200">
+                  <div className="flex items-center gap-2 text-sm text-slate-700">
+                    <Check size={14} className="text-teal-600" />
+                    Block suspicious URLs
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-slate-700">
+                    <Check size={14} className="text-teal-600" />
+                    Block link shorteners (bit.ly, tinyurl)
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-slate-700">
+                    <Check size={14} className="text-teal-600" />
+                    Block script injection
+                  </div>
+                </div>
+              )}
             </div>
           </section>
 
-          <section className="lg:col-span-2 rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-4 mb-4">
-              <div>
-                <p className="text-sm text-teal-700 font-semibold">📊 Activity Log</p>
-                <h2 className="text-xl font-bold text-slate-900">See your account activity history</h2>
+          {/* Activity Log Card */}
+          <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 flex-shrink-0">
+                <Activity size={20} className="text-green-600" />
               </div>
-              <button onClick={handleClearLogs} disabled={clearLogsLoading} className="rounded-full bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-600 disabled:cursor-not-allowed disabled:opacity-70">
-                {clearLogsLoading ? 'Clearing...' : 'Clear All Logs'}
+              <div className="flex-1">
+                <h2 className="text-lg font-bold text-slate-900">Activity Log</h2>
+                <p className="text-sm text-slate-500 mt-1">See your account activity history</p>
+              </div>
+              <button 
+                onClick={handleClearLogs} 
+                disabled={clearLogsLoading}
+                className="rounded-lg px-3 py-2 bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-red-200 flex-shrink-0"
+              >
+                {clearLogsLoading ? 'Clearing...' : 'Clear All'}
               </button>
             </div>
-            <div className="space-y-3 max-h-[420px] overflow-auto pr-1">
+
+            <div className="space-y-2 max-h-80 overflow-y-auto">
               {loadingLogs ? (
-                <p className="text-slate-500">Loading logs...</p>
+                <p className="text-slate-500 text-sm py-4">Loading logs...</p>
               ) : activityLogs.length === 0 ? (
-                <p className="text-slate-500">No activity yet.</p>
+                <div className="flex flex-col items-center justify-center py-8 text-slate-400">
+                  <Activity size={32} className="mb-2 opacity-50" />
+                  <p className="text-sm">No activity yet</p>
+                </div>
               ) : (
-                activityLogs.map((log) => (
-                  <div key={log.id} className="rounded-3xl border border-slate-200 p-4 bg-slate-50">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-slate-100 text-slate-700">
-                          {log.action.toLowerCase().includes('logout') ? '🔴' : log.action.toLowerCase().includes('pin') ? '🟡' : '🟢'}
-                        </span>
-                        <div>
-                          <p className="font-semibold text-slate-900">{log.action}</p>
-                          <p className="text-sm text-slate-500">{log.device || 'Unknown device'}</p>
-                        </div>
+                activityLogs.map((log) => {
+                  let iconColor = '#22c55e'
+                  let IconComponent = LogIn
+                  if (log.action.toLowerCase().includes('logout')) {
+                    iconColor = '#ef4444'
+                    IconComponent = LogOut
+                  } else if (log.action.toLowerCase().includes('pin')) {
+                    iconColor = '#f59e0b'
+                    IconComponent = Lock
+                  } else if (log.action.toLowerCase().includes('terminated')) {
+                    iconColor = '#ef4444'
+                    IconComponent = Trash2
+                  }
+
+                  return (
+                    <div key={log.id} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                      <div className="flex-shrink-0">
+                        <IconComponent size={14} color={iconColor} />
                       </div>
-                      <div className="text-right text-sm text-slate-500">
-                        <p>{formatDateTime(log.created_at)}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-slate-900">{log.action}</p>
+                        <p className="text-xs text-slate-500">{log.device || 'Unknown device'}</p>
+                      </div>
+                      <div className="flex flex-col items-end flex-shrink-0 text-xs text-slate-500">
+                        <div className="flex items-center gap-1">
+                          <Clock size={12} />
+                          {formatDateTime(log.created_at)}
+                        </div>
                         <p>{hideIp(log.ip_address)}</p>
                       </div>
                     </div>
-                  </div>
-                ))
+                  )
+                })
               )}
             </div>
           </section>

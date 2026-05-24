@@ -21,6 +21,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
+      const currentUser = user
+      
+      // Show mine field alert on logout if enabled
+      if (currentUser && typeof window !== 'undefined') {
+        try {
+          const { data } = await supabase
+            .from('profiles')
+            .select('minefield_enabled, minefield_message')
+            .eq('id', currentUser.id)
+            .single()
+
+          if (data?.minefield_enabled && data?.minefield_message) {
+            window.alert(data.minefield_message)
+            await supabase.from('activity_logs').insert({
+              user_id: currentUser.id,
+              action: 'Account logged out - Mine Field triggered',
+              device: 'N/A',
+              ip_address: ''
+            })
+          }
+        } catch (err) {
+          console.error('Error checking minefield on logout:', err)
+        }
+      }
+
       await supabase.auth.signOut()
       if (typeof window !== 'undefined') {
         // Clear all client session storage and common Supabase token keys.
@@ -75,14 +100,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!user) return
 
-    const redirectToPin = async () => {
+    const handlePostLoginChecks = async () => {
       try {
         const { data } = await supabase
           .from('profiles')
-          .select('role, security_pin')
+          .select('role, security_pin, minefield_enabled, minefield_message')
           .eq('id', user.id)
           .single()
 
+        if (!data) return
+
+        // Show mine field alert if enabled
+        if (data.minefield_enabled && data.minefield_message && typeof window !== 'undefined') {
+          window.alert(data.minefield_message)
+          await supabase.from('activity_logs').insert({
+            user_id: user.id,
+            action: 'Mine Field triggered - Login detected',
+            device: 'N/A',
+            ip_address: ''
+          })
+        }
+
+        // Redirect to PIN verify if needed
         if (
           data?.role === 'seller' &&
           data?.security_pin &&
@@ -93,11 +132,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           router.push('/verify-pin')
         }
       } catch (err) {
-        console.error('Error checking seller PIN redirect:', err)
+        console.error('Error in post-login checks:', err)
       }
     }
 
-    redirectToPin()
+    handlePostLoginChecks()
   }, [user, router])
 
   return <AuthContext.Provider value={{ user, loading, signOut }}>{children}</AuthContext.Provider>

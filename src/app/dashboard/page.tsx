@@ -310,10 +310,6 @@ export default function DashboardPage() {
           device: `${deviceLabel} / ${browser}`,
           ip_address: ipAddress
         })
-
-        if (profile.minefield_enabled && profile.minefield_message) {
-          window.alert(profile.minefield_message)
-        }
       } catch (err) {
         console.error('Session record error', err)
       }
