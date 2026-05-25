@@ -160,7 +160,7 @@ export default function DashboardPage() {
   async function loadProfile(currentUser: any) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, rank, security_pin, minefield_enabled, minefield_message, firewall_enabled')
+      .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, rank, security_pin, minefield_enabled, minefield_message, minefield_warning_count, firewall_enabled')
       .eq('id', currentUser.id)
       .single()
     
@@ -280,8 +280,20 @@ export default function DashboardPage() {
       const ipAddress = await getIpAddress()
       const fingerprint = btoa(navigator.userAgent).slice(0, 20)
       const deviceLabel = `${deviceName}`
+      const mineFieldKey = `minefield_warned_${user.id}`
+      const warnCount = parseInt(localStorage.getItem(mineFieldKey) || '0', 10)
 
       try {
+        const { data: existingSessions, error: existingError } = await supabase
+          .from('device_sessions')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('device_name', deviceLabel)
+          .eq('browser', browser)
+          .limit(1)
+
+        const isNewDevice = !existingError && (!existingSessions || existingSessions.length === 0)
+
         await supabase
           .from('device_sessions')
           .update({ is_current: false })
@@ -299,6 +311,16 @@ export default function DashboardPage() {
           }, {
             onConflict: 'user_id,device_name,browser'
           })
+
+        const minefieldEnabled = profile?.minefield_enabled
+        if (minefieldEnabled && warnCount < 2 && isNewDevice) {
+          alert(profile?.minefield_message || '⚠️ Alert! Someone just logged into your NestKH account!')
+          localStorage.setItem(mineFieldKey, String(warnCount + 1))
+          await supabase
+            .from('profiles')
+            .update({ minefield_warning_count: warnCount + 1 })
+            .eq('id', user.id)
+        }
 
         await supabase.from('activity_logs').insert({
           user_id: user.id,

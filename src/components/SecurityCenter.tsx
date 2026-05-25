@@ -74,6 +74,7 @@ export default function SecurityCenter({ userId, profile, onClose, refreshProfil
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([])
   const [minefieldEnabled, setMinefieldEnabled] = useState(false)
   const [minefieldMessage, setMinefieldMessage] = useState('')
+  const [minefieldWarningCount, setMinefieldWarningCount] = useState(0)
   const [firewallEnabled, setFirewallEnabled] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('success')
@@ -95,6 +96,7 @@ export default function SecurityCenter({ userId, profile, onClose, refreshProfil
   useEffect(() => {
     setMinefieldEnabled(profile?.minefield_enabled ?? false)
     setMinefieldMessage(profile?.minefield_message ?? '')
+    setMinefieldWarningCount(profile?.minefield_warning_count ?? 0)
     setFirewallEnabled(profile?.firewall_enabled ?? false)
   }, [profile])
 
@@ -351,6 +353,26 @@ export default function SecurityCenter({ userId, profile, onClose, refreshProfil
     } catch (err) {
       console.error('Save minefield message error', err)
       showToast('Failed to save message', 'error')
+    } finally {
+      setSavingSettings(false)
+    }
+  }
+
+  const handleResetWarnings = async () => {
+    setSavingSettings(true)
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ minefield_warning_count: 0 })
+        .eq('id', userId)
+      if (error) throw error
+      localStorage.removeItem(`minefield_warned_${userId}`)
+      setMinefieldWarningCount(0)
+      await refreshProfile()
+      showToast('Warnings reset successfully', 'success')
+    } catch (err) {
+      console.error('Reset warnings error', err)
+      showToast('Failed to reset warnings', 'error')
     } finally {
       setSavingSettings(false)
     }
