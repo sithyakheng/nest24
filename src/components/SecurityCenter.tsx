@@ -391,16 +391,15 @@ export default function SecurityCenter({ userId, profile, onClose, refreshProfil
 
   const handleTerminateDevice = async (sessionId: string) => {
     try {
-      const session = deviceSessions.find((entry) => entry.id === sessionId)
-      if (!session) return
       const { error } = await supabase
         .from('device_sessions')
         .delete()
         .eq('id', sessionId)
+
       if (error) throw error
-      showToast('Device terminated successfully', 'success')
-      await createActivityLog(`Device terminated: ${session.browser} on ${session.device_name}`, `${session.device_name} / ${session.browser}`, session.ip_address)
-      await loadDeviceSessions()
+
+      setDeviceSessions(prev => prev.filter((session) => session.id !== sessionId))
+      alert('Device terminated!')
     } catch (err) {
       console.error('Terminate device error', err)
       showToast('Failed to terminate device', 'error')
@@ -591,7 +590,7 @@ export default function SecurityCenter({ userId, profile, onClose, refreshProfil
                 <Smartphone size={20} className="text-blue-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-lg font-bold text-slate-900">Active Devices</h2>
+                <h2 className="text-lg font-bold text-slate-900">Active Devices ({deviceSessions.length})</h2>
                 <p className="text-sm text-slate-500 mt-1">See all devices logged into your account</p>
               </div>
             </div>
@@ -602,42 +601,44 @@ export default function SecurityCenter({ userId, profile, onClose, refreshProfil
               ) : deviceSessions.length === 0 ? (
                 <p className="text-slate-500 text-sm py-4">No active devices found.</p>
               ) : (
-                deviceSessions.map((session) => (
-                  <div key={session.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3 flex items-center justify-between hover:bg-slate-100 transition-colors">
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white border border-slate-200">
-                        {session.device_name.toLowerCase().includes('phone') || session.device_name.toLowerCase().includes('tablet') ? 
-                          <Smartphone size={16} className="text-slate-600" /> 
-                          : 
-                          <Monitor size={16} className="text-slate-600" />
-                        }
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-slate-900 text-sm">{session.browser}</p>
-                        <p className="text-xs text-slate-500">{hideIp(session.ip_address)}</p>
-                        <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
-                          <Clock size={12} />
-                          Last active {formatDateTime(session.last_active)}
+                deviceSessions.map((session) => {
+                  const deviceType = session.device_name.toLowerCase().includes('phone') || session.device_name.toLowerCase().includes('tablet')
+                    ? 'Mobile'
+                    : 'Desktop'
+
+                  return (
+                    <div key={session.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3 flex items-center justify-between hover:bg-slate-100 transition-colors">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white border border-slate-200">
+                          {deviceType === 'Mobile' ? (
+                            <Smartphone size={16} className="text-slate-600" />
+                          ) : (
+                            <Monitor size={16} className="text-slate-600" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-slate-900 text-sm">{session.browser}</p>
+                          <p className="text-xs text-slate-500">{deviceType}</p>
                         </div>
                       </div>
+                      <div className="ml-3 flex-shrink-0">
+                        {session.is_current ? (
+                          <span className="rounded-full bg-teal-100 px-2 py-1 text-xs font-medium text-teal-700 border border-teal-200">
+                            This Device
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => handleTerminateDevice(session.id)}
+                            className="rounded-lg px-3 py-1 bg-red-50 text-red-600 text-xs font-medium hover:bg-red-100 transition-colors border border-red-200 flex items-center gap-1"
+                          >
+                            <Trash2 size={14} />
+                            Terminate
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <div className="ml-3 flex-shrink-0">
-                      {session.is_current ? (
-                        <span className="rounded-full bg-teal-100 px-2 py-1 text-xs font-medium text-teal-700 border border-teal-200">
-                          Current
-                        </span>
-                      ) : (
-                        <button 
-                          onClick={() => handleTerminateDevice(session.id)}
-                          className="rounded-lg px-3 py-1 bg-red-50 text-red-600 text-xs font-medium hover:bg-red-100 transition-colors border border-red-200 flex items-center gap-1"
-                        >
-                          <Trash2 size={14} />
-                          Terminate
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))
+                  )
+                })
               )}
             </div>
           </section>

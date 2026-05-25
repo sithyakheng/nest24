@@ -278,6 +278,7 @@ export default function DashboardPage() {
     const recordSession = async () => {
       const { browser, deviceName } = getDeviceInfo(navigator.userAgent)
       const ipAddress = await getIpAddress()
+      const fingerprint = btoa(navigator.userAgent).slice(0, 20)
       const deviceLabel = `${deviceName}`
 
       try {
@@ -288,20 +289,15 @@ export default function DashboardPage() {
 
         await supabase
           .from('device_sessions')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('device_name', deviceLabel)
-          .eq('browser', browser)
-          .eq('ip_address', ipAddress)
-
-        await supabase
-          .from('device_sessions')
-          .insert({
+          .upsert({
             user_id: user.id,
             device_name: deviceLabel,
             browser,
             ip_address: ipAddress,
-            is_current: true
+            is_current: true,
+            last_active: new Date().toISOString()
+          }, {
+            onConflict: 'user_id,device_name,browser'
           })
 
         await supabase.from('activity_logs').insert({
