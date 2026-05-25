@@ -133,7 +133,7 @@ export default function ProductDetailPage() {
 
     const { data: productData, error } = await supabase
       .from('products')
-      .select('id, seller_id, name, description, image_url, price, compare_price, likes, dislikes, views, category, created_at')
+      .select('id, seller_id, name, description, image_url, price, compare_price, likes, dislikes, views, category, created_at, stock')
       .eq('id', id)
       .single()
 
@@ -142,7 +142,8 @@ export default function ProductDetailPage() {
       return
     }
 
-    setProduct(productData)
+    // Ensure stock is a number (Supabase may return numeric types as strings)
+    setProduct(productData ? { ...productData, stock: Number(productData.stock ?? 0) } : productData)
     setLikes(productData.likes || 0)
     setDislikes(productData.dislikes || 0)
 
