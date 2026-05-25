@@ -162,6 +162,20 @@ html {
   scroll-behavior: smooth;
 }
 
+.homepage-background {
+  min-height: 100vh;
+  background-color: #ffffff;
+  background-image: radial-gradient(circle, #00000018 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .homepage-background,
+.dark-mode .homepage-background {
+  background-color: #0a0a0a;
+  background-image: radial-gradient(circle, #ffffff18 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
 /* Liquid Glass Styles */
 .glass {
   background: var(--bg-glass);

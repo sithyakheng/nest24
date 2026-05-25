@@ -120,13 +120,6 @@ async function fetchProducts() {
     background: 'rgba(255, 255, 255, 0.06)',
     backdropFilter: 'blur(24px) saturate(180%)',
     WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-    border: '1px solid rgba(255, 255, 255, 0.12)',
-    borderTop: '1px solid rgba(255, 255, 255, 0.22)',
-    boxShadow: `
-      0 8px 32px rgba(0, 0, 0, 0.5),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.2)
-    `,
     borderRadius: '28px'
   }
 
@@ -138,7 +131,7 @@ async function fetchProducts() {
   }
 
   return (
-    <div key={lang} className="relative z-10 bg-white">
+    <div key={lang} className="relative z-10 homepage-background">
       <Navbar />
       <div className="min-h-full sm:min-h-screen bg-white" style={{ paddingTop: isMobile ? '80px' : '120px' }}>
 
