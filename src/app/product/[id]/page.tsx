@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
-import { ArrowLeft, Heart, ShoppingCart, Star, Phone, Facebook, Instagram, MessageCircle } from 'lucide-react'
+import { ArrowLeft, Heart, ShoppingCart, Star, Phone, Facebook, Instagram, MessageCircle, Image as ImageIcon } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { filterFirewallContent } from '@/lib/security'
 import SellerContactButtons from '@/components/SellerContactButtons'
@@ -16,6 +16,7 @@ interface Product {
   stock: number
   category: string
   image_url?: string
+  images?: string[]
   seller_id: string
   created_at: string
 }
@@ -32,6 +33,7 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null)
   const [sellerProfile, setSellerProfile] = useState<SellerProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [quantity, setQuantity] = useState(1)
   const [isFavorite, setIsFavorite] = useState(false)
   const params = useParams()
@@ -64,13 +66,19 @@ export default function ProductPage() {
     try {
       const { data: productData, error: productError } = await supabase
         .from('products')
-        .select('id, seller_id, name, description, price, stock, category, image_url, created_at')
+        .select('id, seller_id, name, description, price, stock, category, image_url, images, created_at')
         .eq('id', params.id)
         .single()
 
       if (productError) throw productError
 
       setProduct(productData)
+      if (productData) {
+        const gallery = Array.isArray(productData.images) && productData.images.length > 0
+          ? productData.images
+          : productData.image_url ? [productData.image_url] : []
+        setSelectedImage(gallery[0] || null)
+      }
 
       // Fetch seller profile
       const { data: sellerData } = await supabase

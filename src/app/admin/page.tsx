@@ -200,7 +200,7 @@ export default function AdminPage() {
     // Fetch ALL products
     const { data: productsData } = await supabase
       .from('products')
-      .select('id, name, price, category, created_at, seller_id, profiles(name, full_name, email)')
+      .select('id, name, price, category, created_at, seller_id, images, profiles(name, full_name, email)')
       .order('created_at', { ascending: false })
     setProducts(productsData || [])
 

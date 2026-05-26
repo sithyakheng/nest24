@@ -17,6 +17,7 @@ export default function ProductDetailPage() {
   const [seller, setSeller] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [windowWidth, setWindowWidth] = useState(1200)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [likes, setLikes] = useState(0)
   const [dislikes, setDislikes] = useState(0)
   const [userVote, setUserVote] = useState<'like' | 'dislike' | null>(null)
@@ -133,7 +134,7 @@ export default function ProductDetailPage() {
 
     const { data: productData, error } = await supabase
       .from('products')
-      .select('id, seller_id, name, description, image_url, price, compare_price, likes, dislikes, views, category, created_at, stock')
+      .select('id, seller_id, name, description, image_url, images, price, compare_price, likes, dislikes, views, category, created_at, stock')
       .eq('id', id)
       .single()
 
@@ -153,6 +154,12 @@ export default function ProductDetailPage() {
         .select('id, name, full_name, avatar_url, rank, banned, shop_slug, shop_name')
     }
 
+    if (productData) {
+      const gallery = Array.isArray(productData.images) && productData.images.length > 0
+        ? productData.images
+        : productData.image_url ? [productData.image_url] : []
+      setSelectedImage(gallery[0] || null)
+    }
     setLoading(false)
   }
 
@@ -249,33 +256,95 @@ export default function ProductDetailPage() {
             borderTop: '1px solid #e5e7eb',
             borderRadius: '24px',
             overflow: 'hidden',
-            height: isMobile ? '280px' : 'auto',
-            aspectRatio: isMobile ? undefined : '1',
+            minHeight: isMobile ? '280px' : 'auto',
           }}>
-            {product.image_url && product.image_url.trim() !== '' ? (
-              <img
-                src={getImageUrl(product.image_url)}
-                alt={product.name}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            ) : (
-              <div style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.04) 100%)',
-                color: '#6b7280',
-                gap: '12px'
-              }}>
-                <ImageIcon size={48} strokeWidth={1.5} />
-                <span style={{ fontSize: '14px', fontWeight: '500', letterSpacing: '0.05em' }}>
-                  {t('product.no_image')}
-                </span>
-              </div>
-            )}
+            {(() => {
+              const gallery = Array.isArray(product.images) && product.images.length > 0
+                ? product.images
+                : product.image_url && product.image_url.trim() !== ''
+                  ? [product.image_url]
+                  : []
+
+              if (gallery.length > 1) {
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '80px 1fr', gap: '16px', padding: '16px' }}>
+                    <div style={{ display: 'grid', gap: '12px' }}>
+                      {gallery.map((image: string, index: number) => (
+                        <button
+                          key={image + index}
+                          type="button"
+                          onClick={() => setSelectedImage(image)}
+                          style={{
+                            width: '80px',
+                            height: '80px',
+                            borderRadius: '16px',
+                            overflow: 'hidden',
+                            border: selectedImage === image ? '2px solid #0d9488' : '1px solid #e2e8f0',
+                            padding: 0,
+                            background: 'transparent',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <img src={getImageUrl(image)} alt={`${product.name} thumbnail ${index + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </button>
+                      ))}
+                    </div>
+                    <div style={{ position: 'relative', borderRadius: '24px', overflow: 'hidden', minHeight: '400px', background: '#f8fafc' }}>
+                      {selectedImage ? (
+                        <img
+                          key={selectedImage}
+                          src={getImageUrl(selectedImage)}
+                          alt={product.name}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.3s ease' }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: 'linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.04) 100%)',
+                          color: '#6b7280',
+                          gap: '12px'
+                        }}>
+                          <ImageIcon size={48} strokeWidth={1.5} />
+                          <span style={{ fontSize: '14px', fontWeight: '500', letterSpacing: '0.05em' }}>
+                            {t('product.no_image')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              }
+
+              return gallery.length === 1 ? (
+                <img
+                  src={getImageUrl(gallery[0])}
+                  alt={product.name}
+                  style={{ width: '100%', height: isMobile ? '280px' : '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <div style={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.04) 100%)',
+                  color: '#6b7280',
+                  gap: '12px',
+                  minHeight: '280px'
+                }}>
+                  <ImageIcon size={48} strokeWidth={1.5} />
+                  <span style={{ fontSize: '14px', fontWeight: '500', letterSpacing: '0.05em' }}>
+                    {t('product.no_image')}
+                  </span>
+                </div>
+              )
+            })()}
           </div>
 
           {/* RIGHT - Info */}

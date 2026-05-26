@@ -33,8 +33,8 @@ export default function DashboardPage() {
   const [productCategory, setProductCategory] = useState('Electronics')
   const [productStock, setProductStock] = useState('')
   const [productDiscount, setProductDiscount] = useState('')
-  const [productImage, setProductImage] = useState<File | null>(null)
-  const [productImagePreview, setProductImagePreview] = useState<string | null>(null)
+  const [productImages, setProductImages] = useState<File[]>([])
+  const [productImagePreviews, setProductImagePreviews] = useState<string[]>([])
   const [addingProduct, setAddingProduct] = useState(false)
   const [addError, setAddError] = useState('')
   const [addSuccess, setAddSuccess] = useState(false)
@@ -218,7 +218,7 @@ export default function DashboardPage() {
     async function fetchProducts() {
       const { data } = await supabase
         .from('products')
-        .select('id, name, price, compare_price, image_url, category, stock, discount, likes, dislikes, views, created_at')
+        .select('id, name, price, compare_price, image_url, images, category, stock, discount, likes, dislikes, views, created_at')
         .eq('seller_id', profile.id)
         .order('created_at', { ascending: false })
       setProducts(data || [])
@@ -424,8 +424,8 @@ export default function DashboardPage() {
       return
     }
 
-    if (!productImage) {
-      setAddError('Please upload a product image')
+    if (productImages.length === 0) {
+      setAddError('Please upload at least one product image')
       return
     }
 
@@ -471,17 +471,24 @@ export default function DashboardPage() {
     }
 
     try {
-      let imageUrl = ''
-      if (productImage) {
-        // File size validation (max 5MB)
-        if (productImage.size > 5 * 1024 * 1024) {
+      if (productImages.length === 0) {
+        setAddError('Please upload at least one product image')
+        setAddingProduct(false)
+        return
+      }
+
+      const imageUrls: string[] = []
+      for (const imageFile of productImages) {
+        if (imageFile.size > 5 * 1024 * 1024) {
           setAddError('Image size too large (max 5MB)')
           setAddingProduct(false)
           return
         }
-        imageUrl = await uploadImage(productImage)
+        const uploadedUrl = await uploadImage(imageFile)
+        imageUrls.push(uploadedUrl)
       }
 
+      const imageUrl = imageUrls[0] || ''
       const { error } = await supabase.from('products').insert({
         name: sanitizedName,
         description: sanitizedDesc,
@@ -491,6 +498,7 @@ export default function DashboardPage() {
         stock: parseInt(productStock),
         discount: productDiscount ? parseInt(productDiscount) : null,
         image_url: imageUrl,
+        images: imageUrls,
         seller_id: profile.id
       })
 
@@ -504,15 +512,15 @@ export default function DashboardPage() {
       setProductCategory('Electronics')
       setProductStock('')
       setProductDiscount('')
-      setProductImage(null)
-      setProductImagePreview(null)
+      setProductImages([])
+      setProductImagePreviews([])
       setAddSuccess(true)
       setTimeout(() => setAddSuccess(false), 3000)
 
       // Refresh products list
       const { data } = await supabase
         .from('products')
-        .select('id, seller_id, name, price, compare_price, category, image_url, created_at, likes, dislikes')
+        .select('id, seller_id, name, price, compare_price, category, image_url, images, created_at, likes, dislikes')
         .eq('seller_id', profile.id)
         .order('created_at', { ascending: false })
       setProducts(data || [])
@@ -523,22 +531,19 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleDeleteProduct(productId: string, imageUrl: string) {
+  async function handleDeleteProduct(productId: string, imageUrl: string, images: string[] = []) {
     if (!confirm('Delete this product?')) return
-    
-    // Delete image from Cloudinary if it exists
-    if (imageUrl) {
+
+    const imageUrls = images.length > 0 ? images : imageUrl ? [imageUrl] : []
+    for (const url of imageUrls) {
+      if (!url) continue
       try {
-        // Extract public_id from Cloudinary URL
-        // Example: https://res.cloudinary.com/demo/image/upload/v123456/nestkh/product123.jpg
-        // public_id would be: nestkh/product123
-        const urlParts = imageUrl.split('/')
+        const urlParts = url.split('/')
         const uploadIndex = urlParts.indexOf('upload')
         if (uploadIndex !== -1 && uploadIndex + 2 < urlParts.length) {
-          // Skip version number and get the rest
           const publicIdWithExtension = urlParts.slice(uploadIndex + 2).join('/')
-          const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '') // Remove file extension
-          
+          const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '')
+
           await fetch('/api/delete-image', {
             method: 'POST',
             headers: {
@@ -551,8 +556,7 @@ export default function DashboardPage() {
         console.error('Failed to delete image from Cloudinary:', error)
       }
     }
-    
-    // Delete product from Supabase
+
     await supabase.from('products').delete().eq('id', productId)
     setProducts(products.filter(p => p.id !== productId))
   }
@@ -673,18 +677,21 @@ export default function DashboardPage() {
 
   const processImageFile = (file: File) => {
     if (!file.type.startsWith('image/')) return
-    setProductImage(file)
+    if (productImages.length >= 5) {
+      setAddError('You can upload up to 5 images')
+      return
+    }
     setAddError('')
     const reader = new FileReader()
-    reader.onloadend = () => setProductImagePreview(reader.result as string)
+    reader.onloadend = () => setProductImagePreviews(prev => [...prev, reader.result as string])
     reader.readAsDataURL(file)
+    setProductImages(prev => [...prev, file])
   }
 
   const handleProductImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    processImageFile(file)
-    // Reset input value so the same file can be re-selected
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+    files.slice(0, 5 - productImages.length).forEach(processImageFile)
     e.target.value = ''
   }
 
@@ -1326,7 +1333,7 @@ export default function DashboardPage() {
                   </div>
 
                   <div>
-                    <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Image</label>
+                    <label style={{ color: '#0f172a', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>Product Images</label>
                     <div
                       onClick={() => fileInputRef.current?.click()}
                       onDragOver={(e) => {
@@ -1343,15 +1350,13 @@ export default function DashboardPage() {
                         e.preventDefault();
                         e.stopPropagation();
                         setIsDraggingOver(false);
-                        const droppedFile = e.dataTransfer.files?.[0];
-                        if (droppedFile) {
-                          processImageFile(droppedFile);
-                        }
+                        const droppedFiles = Array.from(e.dataTransfer.files || [])
+                        droppedFiles.slice(0, 5 - productImages.length).forEach(processImageFile)
                       }}
                       style={{
                         border: `2px dashed ${isDraggingOver ? '#004E64' : '#e2e8f0'}`,
                         backgroundColor: isDraggingOver ? '#f0f9ff' : '#f8fafc',
-                        height: '140px',
+                        minHeight: '140px',
                         borderRadius: '8px',
                         display: 'flex',
                         alignItems: 'center',
@@ -1375,24 +1380,52 @@ export default function DashboardPage() {
                         }
                       }}
                     >
-                      {productImagePreview ? (
-                        <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <img src={productImagePreview} alt="Preview" style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain', borderRadius: '8px' }} />
-                        </div>
-                      ) : (
-                        <div>
-                          <p style={{ color: '#64748b', fontSize: '14px', margin: 0, marginBottom: '4px' }}>Drag & drop image here or click to browse</p>
-                          <p style={{ color: '#94a3b8', fontSize: '12px', margin: 0 }}>PNG, JPG, GIF up to 5MB</p>
-                        </div>
-                      )}
+                      <div>
+                        <p style={{ color: '#64748b', fontSize: '14px', margin: 0, marginBottom: '4px' }}>Drag & drop up to 5 images here or click to browse</p>
+                        <p style={{ color: '#94a3b8', fontSize: '12px', margin: 0 }}>{productImages.length}/5 images selected</p>
+                      </div>
                     </div>
                     <input
                       ref={fileInputRef}
                       type="file"
+                      multiple
                       onChange={handleProductImage}
                       accept="image/*"
                       style={{ display: 'none' }}
                     />
+                    {productImagePreviews.length > 0 && (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '12px', marginTop: '16px' }}>
+                        {productImagePreviews.map((preview, index) => (
+                          <div key={preview + index} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                            <img src={preview} alt={`Preview ${index + 1}`} style={{ width: '100%', height: '100px', objectFit: 'cover' }} />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setProductImages(prev => prev.filter((_, i) => i !== index))
+                                setProductImagePreviews(prev => prev.filter((_, i) => i !== index))
+                              }}
+                              style={{
+                                position: 'absolute',
+                                top: '8px',
+                                right: '8px',
+                                width: '24px',
+                                height: '24px',
+                                borderRadius: '9999px',
+                                border: 'none',
+                                background: 'rgba(15,23,42,0.8)',
+                                color: 'white',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {addError && (

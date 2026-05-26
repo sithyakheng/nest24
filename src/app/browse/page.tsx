@@ -45,7 +45,7 @@ function BrowseContent() {
 
     let query = supabase
       .from('products')
-      .select('id, seller_id, name, price, compare_price, image_url, category, created_at, likes, dislikes')
+      .select('id, seller_id, name, price, compare_price, image_url, images, category, created_at, likes, dislikes')
       .order('created_at', { ascending: false })
       .range(from, to)
       .limit(pageSize)

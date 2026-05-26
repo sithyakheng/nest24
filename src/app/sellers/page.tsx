@@ -32,7 +32,7 @@ export default function SellersPage() {
         // Load premium sellers for spotlight
         const { data: premiumSellersData } = await supabase
           .from('profiles')
-          .select('*, products(id)')
+          .select('*, products(id, images)')
           .eq('tier', 'premium')
           .limit(6)
           .order('created_at', { ascending: false })
@@ -41,7 +41,7 @@ export default function SellersPage() {
         // Load top sellers (premium + verified)
         const { data: topSellersData } = await supabase
           .from('profiles')
-          .select('*, products(id)')
+          .select('*, products(id, images)')
           .in('tier', [3, 2])
           .limit(12)
           .order('created_at', { ascending: false })
@@ -50,7 +50,7 @@ export default function SellersPage() {
         // Load new sellers (starter)
         const { data: newSellersData } = await supabase
           .from('profiles')
-          .select('*, products(id)')
+          .select('*, products(id, images)')
           .eq('tier', 1)
           .limit(10)
         setNewSellers(newSellersData || [])

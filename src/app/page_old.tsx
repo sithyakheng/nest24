@@ -12,6 +12,7 @@ interface Product {
   price: number
   description?: string
   image_url?: string
+  images?: string[]
   seller_id: string
   created_at: string
 }
@@ -40,7 +41,7 @@ export default function Home() {
 
       const { data, error } = await supabase
         .from('products')
-        .select('id, seller_id, name, price, image_url, category, created_at')
+        .select('id, seller_id, name, price, image_url, images, category, created_at')
         .order('created_at', { ascending: false })
         .limit(20)
 
