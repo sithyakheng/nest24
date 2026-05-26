@@ -714,13 +714,13 @@ export default function DashboardPage() {
       <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'Inter, sans-serif' }}>
       {/* Sidebar */}
       <div style={{
-        width: isMobile ? (sidebarOpen ? '260px' : '0') : '260px',
+        width: isMobile ? (sidebarOpen ? '256px' : '0') : '256px',
         backgroundColor: '#ffffff',
-        borderRight: '1px solid #e2e8f0',
+        borderRight: '1px solid #e5e7eb',
         transition: 'width 0.3s ease',
         position: isMobile ? 'fixed' : 'relative',
-        top: isMobile ? 0 : 'auto',
-        left: isMobile ? 0 : 'auto',
+        top: 0,
+        left: 0,
         height: '100vh',
         zIndex: isMobile ? 40 : 1,
         overflowY: 'auto',
@@ -728,13 +728,13 @@ export default function DashboardPage() {
         flexDirection: 'column'
       }}>
         {/* Logo */}
-        <div style={{ padding: '0 20px 20px', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ padding: '16px', borderBottom: '1px solid #e5e7eb' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{
               width: '32px',
               height: '32px',
-              backgroundColor: '#004E64',
-              borderRadius: '8px',
+              backgroundColor: '#0f766e',
+              borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -744,7 +744,7 @@ export default function DashboardPage() {
             }}>
               N
             </div>
-            <span style={{ color: '#1e293b', fontSize: '18px', fontWeight: '600' }}>NestKH</span>
+            <span style={{ color: '#111827', fontSize: '18px', fontWeight: '600' }}>NestKH</span>
           </Link>
         </div>
 
