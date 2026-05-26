@@ -719,6 +719,8 @@ export default function DashboardPage() {
         borderRight: '1px solid #e2e8f0',
         transition: 'width 0.3s ease',
         position: isMobile ? 'fixed' : 'relative',
+        top: isMobile ? 0 : 'auto',
+        left: isMobile ? 0 : 'auto',
         height: '100vh',
         zIndex: isMobile ? 40 : 1,
         overflowY: 'auto',
