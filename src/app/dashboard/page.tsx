@@ -726,7 +726,7 @@ export default function DashboardPage() {
         flexDirection: 'column'
       }}>
         {/* Logo */}
-        <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ padding: '0 20px 20px', borderBottom: '1px solid #e2e8f0' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{
               width: '32px',
