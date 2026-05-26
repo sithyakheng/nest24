@@ -138,14 +138,14 @@ export default function VerifyPinPage() {
 
   if (!userProfile) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-white dot-grid-background flex items-center justify-center">
         <div className="text-gray-500">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-white dot-grid-background flex flex-col items-center justify-center px-4">
       {/* Logo */}
       <div className="mb-8">
         <h1 className="text-4xl font-black text-[#004E64]">NestKH</h1>

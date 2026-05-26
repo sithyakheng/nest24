@@ -28,7 +28,7 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className="bg-white">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1773312754/nestkh/rutdnjul41sbyldamczk.png`} />
         <link rel="manifest" href="/manifest.json" />
@@ -39,7 +39,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="NestKH" />
       </head>
-      <body className={`${inter.variable} font-sans antialiased bg-white`}>
+      <body className={`${inter.variable} font-sans antialiased`}>
         <LanguageProvider>
           <AuthProvider>
             {children}

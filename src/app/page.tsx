@@ -133,9 +133,7 @@ async function fetchProducts() {
   return (
     <div key={lang} className="relative z-10 homepage-background">
       <Navbar />
-      <div className="min-h-full sm:min-h-screen bg-white" style={{ paddingTop: isMobile ? '80px' : '120px' }}>
-
-      {/* Main Board Container */}
+      <div className="min-h-full sm:min-h-screen bg-white dot-grid-background" style={{ paddingTop: isMobile ? '80px' : '120px' }}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
