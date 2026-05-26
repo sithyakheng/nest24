@@ -217,19 +217,72 @@ export default function ProductPage() {
               <div className="glass rounded-[28px] p-8 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-[28px]"></div>
                 <div className="relative z-10">
-                  {product.image_url ? (
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      className="w-full h-96 object-cover rounded-2xl"
-                    />
-                  ) : (
-                    <div className="w-full h-96 bg-gradient-to-br from-[#E0E5E9]/20 to-[#004E64]/10 rounded-2xl flex items-center justify-center">
-                      <span className="text-white/40 text-6xl font-bold">
-                        {product.name[0]}
-                      </span>
-                    </div>
-                  )}
+                  {(() => {
+                    const gallery = Array.isArray(product.images) && product.images.length > 0
+                      ? product.images
+                      : product.image_url && product.image_url.trim() !== ''
+                        ? [product.image_url]
+                        : []
+
+                    if (gallery.length > 1) {
+                      return (
+                        <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '16px' }}>
+                          <div style={{ display: 'grid', gap: '12px' }}>
+                            {gallery.map((image: string, index: number) => (
+                              <button
+                                key={image + index}
+                                type="button"
+                                onClick={() => setSelectedImage(image)}
+                                style={{
+                                  width: '80px',
+                                  height: '80px',
+                                  borderRadius: '12px',
+                                  overflow: 'hidden',
+                                  border: selectedImage === image ? '2px solid #0d9488' : '1px solid #e5e7eb',
+                                  padding: 0,
+                                  background: 'transparent',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                <img src={image} alt={`${product.name} thumbnail ${index + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              </button>
+                            ))}
+                          </div>
+                          <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', minHeight: '360px', background: '#f8fafc' }}>
+                            {selectedImage ? (
+                              <img
+                                key={selectedImage}
+                                src={selectedImage}
+                                alt={product.name}
+                                className="w-full h-96 object-cover rounded-2xl"
+                                style={{ transition: 'opacity 0.3s ease' }}
+                              />
+                            ) : (
+                              <img
+                                src={gallery[0]}
+                                alt={product.name}
+                                className="w-full h-96 object-cover rounded-2xl"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      )
+                    }
+
+                    return gallery.length === 1 ? (
+                      <img
+                        src={gallery[0]}
+                        alt={product.name}
+                        className="w-full h-96 object-cover rounded-2xl"
+                      />
+                    ) : (
+                      <div className="w-full h-96 bg-gradient-to-br from-[#E0E5E9]/20 to-[#004E64]/10 rounded-2xl flex items-center justify-center">
+                        <span className="text-white/40 text-6xl font-bold">
+                          {product.name[0]}
+                        </span>
+                      </div>
+                    )
+                  })()}
                 </div>
               </div>
             </motion.div>
