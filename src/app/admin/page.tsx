@@ -49,7 +49,7 @@ export default function AdminPage() {
       await fetch('/api/delete-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ publicId }),
+          body: JSON.stringify({ public_id: publicId }),
       });
     }
     
@@ -70,7 +70,7 @@ export default function AdminPage() {
       await fetch('/api/delete-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ publicId }),
+          body: JSON.stringify({ public_id: publicId }),
       });
     }
     
