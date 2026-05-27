@@ -149,15 +149,18 @@ export default function ProductDetailPage() {
     setDislikes(productData.dislikes || 0)
 
     if (productData.seller_id) {
-      const { data: sellerData } = await supabase
+      const { data: sellerData, error: sellerError } = await supabase
         .from('profiles')
         .select('id, name, full_name, avatar_url, rank, banned, shop_slug, shop_name')
         .eq('id', productData.seller_id)
         .single()
-    }
-      if (sellerData) {
+      
+      if (sellerError) {
+        console.error('Error fetching seller:', sellerError)
+      } else if (sellerData) {
         setSeller(sellerData)
       }
+    }
 
     if (productData) {
       const gallery = Array.isArray(productData.images) && productData.images.length > 0
