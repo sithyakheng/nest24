@@ -67,7 +67,7 @@ function RankRequestContent() {
       }
       const screenshotUrl = data.url;
       const { data: { user } } = await supabase.auth.getUser();
-      const planType = isForever ? 'forever' : 'monthly';
+      const planType = 'forever';
       await supabase.from('rank_requests').insert({
         seller_id: user?.id,
         rank: selectedTier,
@@ -121,7 +121,7 @@ function RankRequestContent() {
           <img
             key={currentQR}
             src={currentQR}
-            alt={`Aceleda QR — ${tierNames[selectedTier]} ${isForever ? `$${foreverPrices[selectedTier]} lifetime` : `$${monthlyPrices[selectedTier]}/month`}`}
+            alt={`Aceleda QR — ${tierNames[selectedTier]} $${foreverPrices[selectedTier]} lifetime`}
             style={{ width: '260px', height: '260px', borderRadius: '16px', margin: '0 auto', display: 'block', border: '4px solid #f3f4f6', objectFit: 'contain' }}
           />
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '16px', background: 'rgba(0,78,100,0.07)', border: '1px solid rgba(0,78,100,0.25)', borderRadius: '9999px', padding: '6px 16px' }}>
@@ -177,7 +177,7 @@ function RankRequestContent() {
               {[3, 2, 1].map(tier => (
                 <div key={tier} onClick={() => setSelectedTier(tier)} style={{ border: selectedTier === tier ? '2px solid #004E64' : '2px solid #e5e7eb', borderRadius: '14px', padding: '14px 10px', textAlign: 'center', cursor: 'pointer', backgroundColor: selectedTier === tier ? '#f0f7fa' : 'white', transition: 'all 0.2s' }}>
                   <div style={{ fontWeight: '800', color: '#004E64', fontSize: '15px' }}>{tierNames[tier]}</div>
-                  <div style={{ color: '#6b7280', fontSize: '12px', marginTop: '2px' }}>${prices[tier]}{isForever ? ' (once)' : '/mo'}</div>
+                  <div style={{ color: '#6b7280', fontSize: '12px', marginTop: '2px' }}>${prices[tier]} (once)</div>
                 </div>
               ))}
             </div>
