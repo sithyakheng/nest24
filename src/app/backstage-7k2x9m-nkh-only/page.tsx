@@ -176,7 +176,7 @@ export default function AdminPage() {
       // Check if user has completed PIN verification
       const isPinVerified = sessionStorage.getItem('admin_pin_verified') === 'true'
       if (!isPinVerified) {
-        window.location.href = '/admin/pin'
+        window.location.href = '/backstage-7k2x9m-nkh-only/pin'
         return
       }
 

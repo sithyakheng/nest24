@@ -326,7 +326,7 @@ export default function Navbar() {
                         </div>
                       </Link>
                       {userRole === 'admin' && (
-                        <Link href="/admin" style={{ display: 'block', padding: '12px 16px', color: navTextColor, textDecoration: 'none', borderRadius: '8px' }}>
+                        <Link href="/backstage-7k2x9m-nkh-only" style={{ display: 'block', padding: '12px 16px', color: navTextColor, textDecoration: 'none', borderRadius: '8px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <span style={{ fontSize: '14px' }}>⚙️</span>
                             <span>{t('nav.admin')}</span>
@@ -537,7 +537,7 @@ export default function Navbar() {
                   </div>
                 </div>
                 {userRole === 'admin' && (
-                  <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href="/backstage-7k2x9m-nkh-only" onClick={() => setMobileMenuOpen(false)}>
                     <div style={{
                       padding: '14px 16px',
                       borderRadius: '12px',

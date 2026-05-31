@@ -36,7 +36,7 @@ export default function AdminPinPage() {
       try {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
-          router.replace('/login?next=/admin')
+          router.replace('/login?next=/backstage-7k2x9m-nkh-only')
           return
         }
         
@@ -153,7 +153,7 @@ export default function AdminPinPage() {
 
       if (res.status === 200 && data.success) {
         sessionStorage.setItem('admin_pin_verified', 'true')
-        router.replace('/admin')
+        router.replace('/backstage-7k2x9m-nkh-only')
       } else if (res.status === 423 || data.lockedOut) {
         setLockedOut(true)
         setLockedUntil(data.lockedUntil)

@@ -41,6 +41,48 @@ const nextConfig: NextConfig = {
         source: '/(.*)',
         headers: securityHeaders,
       },
+      {
+        source: '/.env:path*',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex' }],
+      },
+      {
+        source: '/.git/:path*',
+        headers: [{ key: 'Cache-Control', value: 'no-store' }],
+      },
+    ];
+  },
+  async redirects() {
+    return [
+      {
+        source: '/admin',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/admin/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/.env',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/.git/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/wp-config.php',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/.env:path*',
+        destination: '/',
+        permanent: false,
+      },
     ];
   },
 };
