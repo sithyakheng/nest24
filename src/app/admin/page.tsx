@@ -50,44 +50,56 @@ export default function AdminPage() {
     if (!s) return
     setAssignField(seller.id, 'loading', true)
 
-    // derive rank/tier
-    const tier = s.selectedTier === 0 ? 0 : Number(s.selectedTier)
-    const rank = tier === 0 ? null : (s.selectedRank || (tier === 1 ? 'starter' : tier === 2 ? 'verified' : 'premium'))
-    const tier_forever = s.planType === 'forever'
-    const tier_expires_at = tier_forever ? null : (s.expiry ? new Date(s.expiry).toISOString() : null)
+    // Derive rank/tier - always use forever now (monthly billing removed)
+    const selectedTier = s.selectedTier === 0 ? 0 : Number(s.selectedTier)
+    const selectedRank = selectedTier === 0 ? null : (selectedTier === 1 ? 'starter' : selectedTier === 2 ? 'verified' : 'premium')
+    const sellerId = seller.id
 
     try {
-      const { error: profileError } = await supabase.from('profiles').update({
-        tier,
-        rank,
-        tier_forever,
-        tier_expires_at
-      }).eq('id', seller.id)
+      // STEP 1 — Update the profiles table directly
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          tier: selectedTier,
+          rank: selectedRank,
+          tier_forever: true,
+          tier_expires_at: null
+        })
+        .eq('id', sellerId)
 
-      if (profileError) throw profileError
+      if (profileError) {
+        console.error('Profile update error:', profileError)
+        setAssignField(seller.id, 'message', { type: 'error', text: 'Failed to update profile: ' + (profileError.message || profileError) })
+        setAssignField(seller.id, 'loading', false)
+        return
+      }
 
-      // Insert an approved rank_request record for audit
-      const { error: insertErr } = await supabase.from('rank_requests').insert({
-        seller_id: seller.id,
-        rank: rank,
-        plan_type: tier_forever ? 'forever' : 'monthly',
-        status: 'approved',
-        full_name: seller.full_name || seller.name || null,
-        shop_name: seller.shop_slug || null,
-        phone_number: seller.phone || null,
-        screenshot_url: null,
-        created_at: new Date().toISOString()
-      })
+      // STEP 2 — Then insert into rank_requests for record keeping
+      const { error: requestError } = await supabase
+        .from('rank_requests')
+        .insert({
+          seller_id: sellerId,
+          rank: selectedRank,
+          plan_type: 'forever',
+          status: 'approved',
+          created_at: new Date().toISOString()
+        })
 
-      if (insertErr) throw insertErr
+      if (requestError) {
+        console.error('Rank request insert error:', requestError)
+        setAssignField(seller.id, 'message', { type: 'error', text: 'Failed to insert rank request: ' + (requestError.message || requestError) })
+        setAssignField(seller.id, 'loading', false)
+        return
+      }
 
       // Optimistically update local sellers state
-      setSellers(prev => prev.map(p => p.id === seller.id ? { ...p, tier, rank, tier_forever, tier_expires_at } : p))
+      setSellers(prev => prev.map(p => p.id === sellerId ? { ...p, tier: selectedTier, rank: selectedRank, tier_forever: true, tier_expires_at: null } : p))
 
       setAssignField(seller.id, 'message', { type: 'success', text: 'Rank assigned successfully!' })
       setAssignField(seller.id, 'loading', false)
       setTimeout(() => closeAssign(seller.id), 1200)
     } catch (e: any) {
+      console.error('Unexpected error in assignRankToSeller:', e)
       setAssignField(seller.id, 'message', { type: 'error', text: 'Failed to assign rank: ' + (e.message || e) })
       setAssignField(seller.id, 'loading', false)
     }
