@@ -20,6 +20,78 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
+  const [assignState, setAssignState] = useState<Record<string, any>>({})
+
+  const openAssign = (seller: any) => {
+    setAssignState(prev => ({
+      ...prev,
+      [seller.id]: {
+        open: true,
+        selectedTier: seller.tier ?? 0,
+        selectedRank: seller.rank ?? null,
+        planType: seller.tier_forever === true ? 'forever' : 'custom',
+        expiry: seller.tier_expires_at ? new Date(seller.tier_expires_at).toISOString().slice(0,10) : '',
+        loading: false,
+        message: null
+      }
+    }))
+  }
+
+  const closeAssign = (sellerId: string) => {
+    setAssignState(prev => ({ ...prev, [sellerId]: { ...(prev[sellerId] || {}), open: false } }))
+  }
+
+  const setAssignField = (sellerId: string, field: string, value: any) => {
+    setAssignState(prev => ({ ...prev, [sellerId]: { ...(prev[sellerId] || {}), [field]: value } }))
+  }
+
+  const assignRankToSeller = async (seller: any) => {
+    const s = assignState[seller.id]
+    if (!s) return
+    setAssignField(seller.id, 'loading', true)
+
+    // derive rank/tier
+    const tier = s.selectedTier === 0 ? 0 : Number(s.selectedTier)
+    const rank = tier === 0 ? null : (s.selectedRank || (tier === 1 ? 'starter' : tier === 2 ? 'verified' : 'premium'))
+    const tier_forever = s.planType === 'forever'
+    const tier_expires_at = tier_forever ? null : (s.expiry ? new Date(s.expiry).toISOString() : null)
+
+    try {
+      const { error: profileError } = await supabase.from('profiles').update({
+        tier,
+        rank,
+        tier_forever,
+        tier_expires_at
+      }).eq('id', seller.id)
+
+      if (profileError) throw profileError
+
+      // Insert an approved rank_request record for audit
+      const { error: insertErr } = await supabase.from('rank_requests').insert({
+        seller_id: seller.id,
+        rank: rank,
+        plan_type: tier_forever ? 'forever' : 'monthly',
+        status: 'approved',
+        full_name: seller.full_name || seller.name || null,
+        shop_name: seller.shop_slug || null,
+        phone_number: seller.phone || null,
+        screenshot_url: null,
+        created_at: new Date().toISOString()
+      })
+
+      if (insertErr) throw insertErr
+
+      // Optimistically update local sellers state
+      setSellers(prev => prev.map(p => p.id === seller.id ? { ...p, tier, rank, tier_forever, tier_expires_at } : p))
+
+      setAssignField(seller.id, 'message', { type: 'success', text: 'Rank assigned successfully!' })
+      setAssignField(seller.id, 'loading', false)
+      setTimeout(() => closeAssign(seller.id), 1200)
+    } catch (e: any) {
+      setAssignField(seller.id, 'message', { type: 'error', text: 'Failed to assign rank: ' + (e.message || e) })
+      setAssignField(seller.id, 'loading', false)
+    }
+  }
 
   // Approve handler for rank requests
   const handleApprove = async (request: any) => {
@@ -713,6 +785,39 @@ export default function AdminPage() {
                             {subscriptionStatus.text}
                           </span>
                         </div>
+                        {/* Assign Rank UI */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', marginLeft: '12px' }}>
+                          {!assignState[seller.id]?.open ? (
+                            <button onClick={() => openAssign(seller)} style={{ background: 'rgba(0,78,100,0.12)', border: '1px solid rgba(0,78,100,0.2)', color: '#4DB8CC', borderRadius: '12px', padding: '8px 12px', cursor: 'pointer', fontWeight: '700' }}>Assign Rank</button>
+                          ) : (
+                            <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '12px', width: '320px', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}>
+                              <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                                <select value={assignState[seller.id]?.selectedTier ?? 0} onChange={(e) => setAssignField(seller.id, 'selectedTier', Number(e.target.value))} style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                                  <option value={0}>Free</option>
+                                  <option value={1}>Starter</option>
+                                  <option value={2}>Verified</option>
+                                  <option value={3}>Premium</option>
+                                </select>
+                                <select value={assignState[seller.id]?.planType ?? 'forever'} onChange={(e) => setAssignField(seller.id, 'planType', e.target.value)} style={{ width: '130px', padding: '8px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                                  <option value={'forever'}>Forever</option>
+                                  <option value={'custom'}>Custom expiry</option>
+                                </select>
+                              </div>
+                              {assignState[seller.id]?.planType === 'custom' && (
+                                <div style={{ marginBottom: '8px' }}>
+                                  <input type="date" value={assignState[seller.id]?.expiry || ''} onChange={(e) => setAssignField(seller.id, 'expiry', e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #e5e7eb' }} />
+                                </div>
+                              )}
+                              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                <button onClick={() => { closeAssign(seller.id) }} style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.08)', background: 'transparent', cursor: 'pointer' }}>Cancel</button>
+                                <button onClick={() => assignRankToSeller(seller)} disabled={assignState[seller.id]?.loading} style={{ padding: '8px 12px', borderRadius: '8px', border: 'none', background: '#004E64', color: 'white', fontWeight: '700', cursor: 'pointer' }}>{assignState[seller.id]?.loading ? 'Saving...' : 'Confirm'}</button>
+                              </div>
+                              {assignState[seller.id]?.message && (
+                                <div style={{ marginTop: '8px', color: assignState[seller.id].message.type === 'success' ? '#065f46' : '#991b1b', fontWeight: 700 }}>{assignState[seller.id].message.text}</div>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     );
                   });
@@ -864,7 +969,40 @@ export default function AdminPage() {
                     </span>
                   )}
                   <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px' }}>{productCounts.filter(p => p.seller_id === seller.id).length} products</p>
-                  <button onClick={() => banSeller(seller.id, !seller.banned)} style={{
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div>
+                      {!assignState[seller.id]?.open ? (
+                        <button onClick={() => openAssign(seller)} style={{ background: 'rgba(0,78,100,0.12)', border: '1px solid rgba(0,78,100,0.2)', color: '#4DB8CC', borderRadius: '12px', padding: '8px 12px', cursor: 'pointer', fontWeight: '700' }}>Assign Rank</button>
+                      ) : (
+                        <div style={{ background: '#0b1220', padding: '12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                            <select value={assignState[seller.id]?.selectedTier ?? 0} onChange={(e) => setAssignField(seller.id, 'selectedTier', Number(e.target.value))} style={{ padding: '8px', borderRadius: '8px', border: '1px solid #1f2937', background: '#0b1220', color: 'white' }}>
+                              <option value={0}>Free</option>
+                              <option value={1}>Starter</option>
+                              <option value={2}>Verified</option>
+                              <option value={3}>Premium</option>
+                            </select>
+                            <select value={assignState[seller.id]?.planType ?? 'forever'} onChange={(e) => setAssignField(seller.id, 'planType', e.target.value)} style={{ width: '140px', padding: '8px', borderRadius: '8px', border: '1px solid #1f2937', background: '#0b1220', color: 'white' }}>
+                              <option value={'forever'}>Forever</option>
+                              <option value={'custom'}>Custom expiry</option>
+                            </select>
+                          </div>
+                          {assignState[seller.id]?.planType === 'custom' && (
+                            <div style={{ marginBottom: '8px' }}>
+                              <input type="date" value={assignState[seller.id]?.expiry || ''} onChange={(e) => setAssignField(seller.id, 'expiry', e.target.value)} style={{ padding: '8px', borderRadius: '8px', border: '1px solid #1f2937', background: '#0b1220', color: 'white' }} />
+                            </div>
+                          )}
+                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                            <button onClick={() => closeAssign(seller.id)} style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)', background: 'transparent', color: 'white', cursor: 'pointer' }}>Cancel</button>
+                            <button onClick={() => assignRankToSeller(seller)} disabled={assignState[seller.id]?.loading} style={{ padding: '8px 12px', borderRadius: '8px', border: 'none', background: '#004E64', color: 'white', fontWeight: '700', cursor: 'pointer' }}>{assignState[seller.id]?.loading ? 'Saving...' : 'Confirm'}</button>
+                          </div>
+                          {assignState[seller.id]?.message && (
+                            <div style={{ marginTop: '8px', color: assignState[seller.id].message.type === 'success' ? '#10B981' : '#f87171', fontWeight: 700 }}>{assignState[seller.id].message.text}</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <button onClick={() => banSeller(seller.id, !seller.banned)} style={{
                     background: seller.banned ? 'rgba(0,78,100,0.3)' : 'rgba(255,80,80,0.15)',
                     border: `1px solid ${seller.banned ? 'rgba(0,78,100,0.5)' : 'rgba(255,80,80,0.3)'}`,
                     color: seller.banned ? '#4DB8CC' : '#f87171',
@@ -872,6 +1010,7 @@ export default function AdminPage() {
                   }}>
                     {seller.banned ? <><Check size={12} /> Unban</> : <><Ban size={12} /> Ban</>}
                   </button>
+                  </div>
                 </div>
               ))}
             </div>

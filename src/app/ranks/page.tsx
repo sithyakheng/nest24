@@ -91,41 +91,9 @@ export default function RanksPage() {
               </div>
             </div>
             
-            <div style={{ fontSize: '40px', fontWeight: '900', color: '#004E64', marginBottom: '16px' }}>$30/month</div>
+            <div style={{ fontSize: '40px', fontWeight: '900', color: '#004E64', marginBottom: '16px' }}>$119</div>
             
             <div style={{ marginBottom: '16px' }}>
-              <button
-                onClick={() => router.push('/seller/rank-request?tier=3&type=monthly')}
-                style={{ 
-                  width: '100%', 
-                  backgroundColor: '#004E64', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '12px', 
-                  padding: '16px 24px', 
-                  fontWeight: '700', 
-                  cursor: 'pointer', 
-                  fontSize: '16px',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 6px -1px rgba(0,78,100,0.3)',
-                  marginBottom: '12px'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.02)'
-                  e.currentTarget.style.boxShadow = '0 6px 8px -1px rgba(0,78,100,0.4)'
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)'
-                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0,78,100,0.3)'
-                }}
-              >
-                Monthly
-              </button>
-              
-              <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontSize: '12px', fontWeight: '500' }}>One-time payment • Never expires</span>
-              </div>
-              
               <button
                 onClick={() => router.push('/seller/rank-request?tier=3&type=forever')}
                 style={{ 
@@ -183,41 +151,9 @@ export default function RanksPage() {
               </div>
             </div>
             
-            <div style={{ fontSize: '34px', fontWeight: '800', color: '#004E64', marginBottom: '16px' }}>$15/month</div>
+            <div style={{ fontSize: '34px', fontWeight: '800', color: '#004E64', marginBottom: '16px' }}>$59</div>
             
             <div style={{ marginBottom: '16px' }}>
-              <button
-                onClick={() => router.push('/seller/rank-request?tier=2&type=monthly')}
-                style={{ 
-                  width: '100%', 
-                  backgroundColor: '#004E64', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '12px', 
-                  padding: '14px 24px', 
-                  fontWeight: '700', 
-                  cursor: 'pointer', 
-                  fontSize: '15px',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 6px -1px rgba(0,78,100,0.3)',
-                  marginBottom: '12px'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.02)'
-                  e.currentTarget.style.boxShadow = '0 6px 8px -1px rgba(0,78,100,0.4)'
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)'
-                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0,78,100,0.3)'
-                }}
-              >
-                Monthly
-              </button>
-              
-              <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontSize: '12px', fontWeight: '500' }}>One-time payment • Never expires</span>
-              </div>
-              
               <button
                 onClick={() => router.push('/seller/rank-request?tier=2&type=forever')}
                 style={{ 
@@ -274,41 +210,9 @@ export default function RanksPage() {
               </div>
             </div>
             
-            <div style={{ fontSize: '28px', fontWeight: '700', color: '#6b7280', marginBottom: '16px' }}>$5/month</div>
+            <div style={{ fontSize: '28px', fontWeight: '700', color: '#6b7280', marginBottom: '16px' }}>$19</div>
             
             <div style={{ marginBottom: '16px' }}>
-              <button
-                onClick={() => router.push('/seller/rank-request?tier=1&type=monthly')}
-                style={{ 
-                  width: '100%', 
-                  backgroundColor: '#6b7280', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '12px', 
-                  padding: '12px 24px', 
-                  fontWeight: '700', 
-                  cursor: 'pointer', 
-                  fontSize: '14px',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.3)',
-                  marginBottom: '12px'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.02)'
-                  e.currentTarget.style.boxShadow = '0 6px 8px -1px rgba(0,0,0,0.4)'
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)'
-                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0,0,0,0.3)'
-                }}
-              >
-                Monthly
-              </button>
-              
-              <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontSize: '12px', fontWeight: '500' }}>One-time payment • Never expires</span>
-              </div>
-              
               <button
                 onClick={() => router.push('/seller/rank-request?tier=1&type=forever')}
                 style={{ 

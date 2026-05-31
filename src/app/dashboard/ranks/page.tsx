@@ -17,31 +17,21 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
   const [sellerName, setSellerName] = useState('')
   const [shopName, setShopName] = useState('')
   const [phone, setPhone] = useState('')
-  const [planType, setPlanType] = useState<'monthly' | 'forever'>('monthly')
-  const [discountCode, setDiscountCode] = useState('')
-  const [discountApplied, setDiscountApplied] = useState(false)
-  const [discountError, setDiscountError] = useState('')
+  const [planType, setPlanType] = useState<'monthly' | 'forever'>('forever')
   const [screenshot, setScreenshot] = useState<File | null>(null)
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
 
-  const isForever = planType === 'forever'
-  const monthlyPrices: Record<string, number> = { starter: 5, verified: 15, premium: 30 }
+  const isForever = true
   const foreverPrices: Record<string, number> = { starter: 19, verified: 59, premium: 119 }
-  const currentPrice = isForever ? foreverPrices[selectedRank] : monthlyPrices[selectedRank]
-  const discountedPrice = !isForever && discountApplied ? (currentPrice * 0.8).toFixed(2) : currentPrice
-  const monthlyQR: Record<string, string> = {
-    starter: 'https://res.cloudinary.com/dis7tyccn/image/upload/v1779000341/37f4432c-6938-41b8-b87b-5eba9b362f5d_rwiilm.jpg',
-    verified: 'https://res.cloudinary.com/dis7tyccn/image/upload/v1779000335/8182a258-f74c-4b6a-b4c1-e3b97014c28c_ttqpdb.jpg',
-    premium:  'https://res.cloudinary.com/dis7tyccn/image/upload/v1779000310/57f452da-c0ec-42ce-82a0-94971fb12d98_dljqjk.jpg',
-  }
+  const currentPrice = foreverPrices[selectedRank]
   const foreverQR: Record<string, string> = {
     starter: 'https://res.cloudinary.com/dis7tyccn/image/upload/v1779000643/16780093-5d3b-4ac8-80b7-ca60b2f16265_v0vyr4.jpg',
     verified: 'https://res.cloudinary.com/dis7tyccn/image/upload/v1779000692/6b10b7d3-0556-4b79-8e78-4bf145bc6314_yz4fbq.jpg',
     premium:  'https://res.cloudinary.com/dis7tyccn/image/upload/v1779000627/c4394336-d291-4abf-a15d-3bc679f6ce70_c1oi24.jpg',
   }
-  const currentQR = isForever ? foreverQR[selectedRank] : monthlyQR[selectedRank]
+  const currentQR = foreverQR[selectedRank]
 
   async function compressImage(file: File): Promise<File> {
     return new Promise((resolve) => {
@@ -218,23 +208,7 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
         ))}
       </div>
 
-      {/* Plan Type Toggle */}
-      <div style={{ display: 'flex', background: 'rgba(255,255,255,0.08)', borderRadius: '14px', padding: '4px', marginBottom: '32px', maxWidth: '360px', margin: '0 auto 32px auto' }}>
-        <button
-          onClick={() => { setPlanType('monthly'); setDiscountApplied(false); setDiscountCode('') }}
-          style={{ flex: 1, padding: '10px 20px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '14px', transition: 'all 0.2s',
-            background: planType === 'monthly' ? 'rgba(0,78,100,0.6)' : 'transparent',
-            color: planType === 'monthly' ? '#4DB8CC' : 'rgba(255,255,255,0.4)',
-            boxShadow: planType === 'monthly' ? '0 2px 8px rgba(0,78,100,0.4)' : 'none' }}
-        >📅 Monthly</button>
-        <button
-          onClick={() => { setPlanType('forever'); setDiscountApplied(false); setDiscountCode('') }}
-          style={{ flex: 1, padding: '10px 20px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '14px', transition: 'all 0.2s',
-            background: planType === 'forever' ? 'rgba(232,201,126,0.25)' : 'transparent',
-            color: planType === 'forever' ? '#E8C97E' : 'rgba(255,255,255,0.4)',
-            boxShadow: planType === 'forever' ? '0 2px 8px rgba(232,201,126,0.2)' : 'none' }}
-        >♾️ Lifetime</button>
-      </div>
+      {/* Lifetime only - monthly options removed */}
 
       {/* Aceleda QR Code — responds to both selectedRank and planType */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginBottom: '40px' }}>
@@ -246,11 +220,11 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
         <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
           Scan to Pay via Aceleda
         </p>
-        <div style={{ background: 'white', borderRadius: '16px', padding: '12px', boxShadow: isForever ? '0 0 40px rgba(232,201,126,0.35)' : '0 0 40px rgba(232,201,126,0.2)' }}>
+        <div style={{ background: 'white', borderRadius: '16px', padding: '12px', boxShadow: '0 0 40px rgba(232,201,126,0.35)' }}>
           <img
             key={currentQR}
             src={currentQR}
-            alt={`Aceleda QR — ${selectedRank} ${isForever ? `$${foreverPrices[selectedRank]} lifetime` : `$${monthlyPrices[selectedRank]}/month`}`}
+            alt={`Aceleda QR — ${selectedRank} $${currentPrice} lifetime`}
             style={{ width: '200px', height: '200px', objectFit: 'contain', display: 'block', borderRadius: '8px' }}
           />
         </div>
@@ -258,18 +232,9 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
           Open Aceleda App → Scan QR → Pay exact amount
         </p>
         <div style={{ background: 'rgba(232,201,126,0.1)', border: '1px solid rgba(232,201,126,0.3)', borderRadius: '12px', padding: '10px 20px', textAlign: 'center' }}>
-          <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '20px', margin: 0 }}>
-            {discountApplied && !isForever ? (
-              <>
-                <span style={{ color: '#E8C97E', fontWeight: '900', fontSize: '20px' }}>${discountedPrice} USD</span>
-                <span style={{ color: '#10b981', fontSize: '14px', fontWeight: '600', marginLeft: '8px', textDecoration: 'line-through' }}>${currentPrice} USD</span>
-              </>
-            ) : (
-              <>${currentPrice} USD</>
-            )}
-          </p>
+          <p style={{ color: '#E8C97E', fontWeight: '900', fontSize: '20px', margin: 0 }}>${currentPrice} USD</p>
           <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '4px 0 0 0' }}>
-            {selectedRank.charAt(0).toUpperCase() + selectedRank.slice(1)} Rank — {isForever ? 'One-time Payment' : 'Monthly'}
+            {selectedRank.charAt(0).toUpperCase() + selectedRank.slice(1)} Rank — One-time Payment
           </p>
         </div>
       </div>
@@ -303,82 +268,7 @@ function PaymentSection({ selectedRank, user, profile, onSubmitted }: {
           />
         </div>
 
-        <div>
-          <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
-            Discount Code (optional)
-          </label>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <input
-              type="text"
-              placeholder="Enter discount code"
-              value={discountCode}
-              onChange={e => setDiscountCode(e.target.value.toUpperCase())}
-              style={{...enhancedInputStyle, flex: 1}}
-            />
-            <button
-              onClick={async () => {
-                try {
-                  const res = await fetch('/api/validate-discount', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: discountCode }),
-                  })
-                  const data = await res.json()
-                  if (data.valid) {
-                    setDiscountApplied(true)
-                    setDiscountError('')
-                  } else {
-                    setDiscountApplied(false)
-                    setDiscountError('✗ Invalid discount code')
-                  }
-                } catch {
-                  setDiscountError('✗ Could not validate code')
-                }
-              }}
-              style={{
-                background: '#004E64',
-                color: 'white',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '12px 20px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              Apply
-            </button>
-          </div>
-          {discountApplied && (
-            <div style={{ 
-              background: 'rgba(0,200,100,0.1)', 
-              border: '1px solid rgba(0,200,100,0.3)', 
-              borderRadius: '8px', 
-              padding: '8px 12px', 
-              color: '#10b981', 
-              fontSize: '13px', 
-              fontWeight: '600', 
-              marginTop: '8px' 
-            }}>
-              ✓ 20% discount applied! You save ${selectedRank === 'starter' ? '1' : selectedRank === 'verified' ? '3' : '6'}
-            </div>
-          )}
-          {discountError && (
-            <div style={{ 
-              background: 'rgba(255,80,80,0.1)', 
-              border: '1px solid rgba(255,80,80,0.3)', 
-              borderRadius: '8px', 
-              padding: '8px 12px', 
-              color: '#f87171', 
-              fontSize: '13px', 
-              fontWeight: '600', 
-              marginTop: '8px' 
-            }}>
-              {discountError}
-            </div>
-          )}
-        </div>
+        {/* No discount code for forever plans */}
 
         <div>
           <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
