@@ -95,16 +95,6 @@ export default function LoginPage() {
     if (error) console.error('Google sign in error:', error)
   }
 
-  const handleFacebookSignIn = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'facebook',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`
-      }
-    })
-    if (error) console.error('Facebook sign in error:', error)
-  }
-
   return (
     <div className="min-h-screen bg-[#f9fafb] flex items-center justify-center" style={{ paddingTop: '100px', paddingBottom: '40px', paddingLeft: '16px', paddingRight: '16px' }}>
       <div style={{
@@ -201,29 +191,6 @@ export default function LoginPage() {
             Sign in with Google
           </button>
 
-          <button
-            type="button"
-            onClick={handleFacebookSignIn}
-            className="w-full font-semibold rounded-xl py-3"
-            style={{
-              background: '#1877F2',
-              border: '1px solid #1877F2',
-              borderRadius: '8px',
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              width: '100%'
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = '#166FE5')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = '#1877F2')}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-              <path d="M22.675 0H1.325C0.593 0 0 0.593 0 1.325V22.676C0 23.407 0.593 24 1.325 24H12.82V14.706H9.692V11.082H12.82V8.413C12.82 5.414 14.688 3.75 17.382 3.75C18.69 3.75 19.857 3.842 20.167 3.881V7.08L18.123 7.081C16.517 7.081 16.201 7.796 16.201 8.873V11.083H20.041L19.575 14.707H16.201V24H22.676C23.407 24 24 23.407 24 22.676V1.325C24 0.593 23.407 0 22.675 0Z"/>
-            </svg>
-            Sign in with Facebook
-          </button>
         </div>
 
         <p className="text-gray-500 text-sm text-center mt-6">
