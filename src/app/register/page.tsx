@@ -336,7 +336,7 @@ export default function RegisterPage() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '24px 0' }}>
           <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }} />
-          <span style={{ color: '#6b7280', fontSize: '14px', whiteSpace: 'nowrap' }}>Or continue with</span>
+          <span style={{ color: '#94a3b8', fontSize: '13px', whiteSpace: 'nowrap' }}>Or continue with</span>
           <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }} />
         </div>
 
@@ -348,6 +348,7 @@ export default function RegisterPage() {
             style={{
               background: 'white',
               border: '1px solid #e2e8f0',
+              borderRadius: '8px',
               color: '#111827',
               display: 'flex',
               alignItems: 'center',
@@ -374,6 +375,7 @@ export default function RegisterPage() {
             style={{
               background: '#1877F2',
               border: '1px solid #1877F2',
+              borderRadius: '8px',
               color: 'white',
               display: 'flex',
               alignItems: 'center',
