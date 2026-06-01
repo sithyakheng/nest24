@@ -42,7 +42,7 @@ const nextConfig: NextConfig = {
         headers: securityHeaders,
       },
       {
-        source: '/.env:path*',
+        source: '/.env/:path*',
         headers: [{ key: 'X-Robots-Tag', value: 'noindex' }],
       },
       {
@@ -79,7 +79,7 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
       {
-        source: '/.env:path*',
+        source: '/.env/:path*',
         destination: '/',
         permanent: false,
       },
