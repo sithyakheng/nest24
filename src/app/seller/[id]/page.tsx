@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useLang } from '@/contexts/LanguageContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import Navbar from '@/components/Navbar'
+import { useAuth } from '@/contexts/AuthContext'
 import { Star, Check, Medal, Send, Facebook, Shield, Flag, ThumbsUp, Package } from 'lucide-react'
 import DOMPurify from 'dompurify'
 import { filterFirewallContent, sanitizeInput } from '@/lib/security'
@@ -28,6 +29,7 @@ export default function SellerShopPage() {
 
   const isMobile = windowWidth < 768
   const isSmallMobile = windowWidth < 480
+  const { isAdmin } = useAuth()
 
   const translations = {
     en: {
@@ -181,6 +183,35 @@ export default function SellerShopPage() {
       load()
     }
   }, [id])
+
+  async function handleAdminDelete(productId: string, imageUrl: string, images: string[] = []) {
+    if (!isAdmin) return
+    if (!confirm('Delete this product? This cannot be undone.')) return
+
+    const imageUrls = images && images.length > 0 ? images : imageUrl ? [imageUrl] : []
+    for (const url of imageUrls) {
+      if (!url) continue
+      try {
+        const urlParts = url.split('/')
+        const uploadIndex = urlParts.indexOf('upload')
+        if (uploadIndex !== -1 && uploadIndex + 2 < urlParts.length) {
+          const publicIdWithExtension = urlParts.slice(uploadIndex + 2).join('/')
+          const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '')
+
+          await fetch('/api/delete-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ public_id: publicId }),
+          })
+        }
+      } catch (error) {
+        console.error('Failed to delete image from Cloudinary:', error)
+      }
+    }
+
+    await supabase.from('products').delete().eq('id', productId)
+    setProducts((prev) => prev.filter(p => p.id !== productId))
+  }
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
@@ -452,6 +483,35 @@ export default function SellerShopPage() {
                       ) : (
                         <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>No Image</div>
                       )}
+                        {/* Admin delete button */}
+                        {isAdmin && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              e.preventDefault()
+                              if (!confirm('Delete this product? This cannot be undone.')) return
+                              handleAdminDelete(product.id, product.image_url, product.images)
+                            }}
+                            style={{
+                              position: 'absolute',
+                              top: '8px',
+                              right: '8px',
+                              background: '#ef4444',
+                              color: 'white',
+                              width: '36px',
+                              height: '36px',
+                              borderRadius: '50%',
+                              border: 'none',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              zIndex: 3,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            ✕
+                          </button>
+                        )}
                       {rankColor && (
                         <span style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(255, 255, 255, 0.9)', border: `1px solid ${rankBorder}`, color: rankColor, fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '9999px', backdropFilter: 'blur(8px)' }}>
                           {seller.rank === 'premium' ? <><Star size={10} /> Premium</> : seller.rank === 'verified' ? <><Check size={10} /> Verified</> : seller.rank === 'starter' ? <><Medal size={10} /> Starter</> : <><Package size={10} /> Free</>}

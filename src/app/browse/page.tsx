@@ -3,6 +3,7 @@
 import { Suspense } from 'react'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
 import { sanitizeInput } from '@/lib/security'
@@ -23,6 +24,7 @@ function BrowseContent() {
 
   const isMobile = windowWidth < 768
   const isSmallMobile = windowWidth < 480
+  const { isAdmin } = useAuth()
 
   useEffect(() => {
     setWindowWidth(window.innerWidth)
@@ -110,6 +112,35 @@ function BrowseContent() {
     setProducts(sorted)
     setHasMore(productsData.length === pageSize)
     setProductsLoading(false)
+  }
+
+  async function handleAdminDelete(productId: string, imageUrl: string, images: string[] = []) {
+    if (!isAdmin) return
+    if (!confirm('Delete this product? This cannot be undone.')) return
+
+    const imageUrls = images && images.length > 0 ? images : imageUrl ? [imageUrl] : []
+    for (const url of imageUrls) {
+      if (!url) continue
+      try {
+        const urlParts = url.split('/')
+        const uploadIndex = urlParts.indexOf('upload')
+        if (uploadIndex !== -1 && uploadIndex + 2 < urlParts.length) {
+          const publicIdWithExtension = urlParts.slice(uploadIndex + 2).join('/')
+          const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '')
+
+          await fetch('/api/delete-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ public_id: publicId }),
+          })
+        }
+      } catch (error) {
+        console.error('Failed to delete image from Cloudinary:', error)
+      }
+    }
+
+    await supabase.from('products').delete().eq('id', productId)
+    setProducts((prev) => prev.filter(p => p.id !== productId))
   }
 
   return (
@@ -229,6 +260,35 @@ function BrowseContent() {
                         justifyContent: 'center', color: '#9ca3af' }}>
                         No Image
                       </div>
+                    )}
+                    {/* Admin delete button */}
+                    {isAdmin && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          if (!confirm('Delete this product? This cannot be undone.')) return
+                          handleAdminDelete(product.id, product.image_url, product.images)
+                        }}
+                        style={{
+                          position: 'absolute',
+                          top: '8px',
+                          right: '8px',
+                          background: '#ef4444',
+                          color: 'white',
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '50%',
+                          border: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          zIndex: 3,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ✕
+                      </button>
                     )}
                     
                     {/* Rank Badges */}

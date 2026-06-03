@@ -8,10 +8,12 @@ import { saveDeviceSession } from '@/lib/deviceTracking'
 const AuthContext = createContext<{ 
   user: User | null, 
   loading: boolean,
+  isAdmin: boolean,
   signOut: () => Promise<void>
 }>({ 
   user: null, 
   loading: true,
+  isAdmin: false,
   signOut: async () => {} 
 })
 
@@ -19,6 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const signOut = async () => {
     try {
@@ -105,6 +108,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (!data) return
 
+        // Set admin flag for UI
+        setIsAdmin(data.role === 'admin')
+
         // Show mine field alert only if:
         // 1. Mine field is enabled
         // 2. This is a NEW device (not the original device)
@@ -147,7 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     handlePostLoginChecks()
   }, [user, router])
 
-  return <AuthContext.Provider value={{ user, loading, signOut }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, loading, isAdmin, signOut }}>{children}</AuthContext.Provider>
 }
 
 export const useAuth = () => useContext(AuthContext)

@@ -7,6 +7,7 @@ import { TrendingUp, Package, User, Star, Rocket, Smartphone, MessageSquare, Sea
 import Navbar from '@/components/Navbar'
 import ProductCard from '@/components/ProductCard'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 import { useLang } from '@/contexts/LanguageContext'
 
 const getImageUrl = (image_url: string): string | null => {
@@ -28,6 +29,7 @@ const marqueeItems = [
 
 export default function HomePage() {
   const { t, lang } = useLang()
+  const { isAdmin } = useAuth()
   const [products, setProducts] = useState<any[]>([])
   const [productsLoading, setProductsLoading] = useState(true)
   const [trendingSellers, setTrendingSellers] = useState<any[]>([])
@@ -49,6 +51,37 @@ export default function HomePage() {
   useEffect(() => {
     fetchProducts()
   }, [])
+
+  async function handleAdminDelete(productId: string, imageUrl: string, images: string[] = []) {
+    if (!isAdmin) return
+    if (!confirm('Delete this product? This cannot be undone.')) return
+
+    const imageUrls = images && images.length > 0 ? images : imageUrl ? [imageUrl] : []
+    for (const url of imageUrls) {
+      if (!url) continue
+      try {
+        const urlParts = url.split('/')
+        const uploadIndex = urlParts.indexOf('upload')
+        if (uploadIndex !== -1 && uploadIndex + 2 < urlParts.length) {
+          const publicIdWithExtension = urlParts.slice(uploadIndex + 2).join('/')
+          const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '')
+
+          await fetch('/api/delete-image', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ public_id: publicId }),
+          })
+        }
+      } catch (error) {
+        console.error('Failed to delete image from Cloudinary:', error)
+      }
+    }
+
+    await supabase.from('products').delete().eq('id', productId)
+    setProducts((prev) => prev.filter(p => p.id !== productId))
+  }
 
 async function fetchProducts() {
   setProductsLoading(true)
@@ -174,7 +207,7 @@ async function fetchProducts() {
 ) : (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
     {products.map((product: any) => (
-      <ProductCard key={product.id} product={product} />
+      <ProductCard key={product.id} product={product} isAdmin={isAdmin} onAdminDelete={handleAdminDelete} />
     ))}
   </div>
 )}
