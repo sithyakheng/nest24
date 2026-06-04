@@ -17,6 +17,7 @@ export default function AdminPage() {
   const [productCounts, setProductCounts] = useState<any[]>([])
   const [reports, setReports] = useState<any[]>([])
   const [subscriptionSearch, setSubscriptionSearch] = useState('')
+  const [productSearch, setProductSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
@@ -414,6 +415,19 @@ export default function AdminPage() {
     await supabase.from('products').delete().eq('id', productId)
     fetchAll()
   }
+
+  const filteredProducts = products.filter(product => {
+    const searchLower = productSearch.toLowerCase()
+    return (
+      product.name?.toLowerCase().includes(searchLower) ||
+      product.seller_name?.toLowerCase().includes(searchLower) ||
+      product.category?.toLowerCase().includes(searchLower) ||
+      product.seller_email?.toLowerCase().includes(searchLower) ||
+      product.profiles?.name?.toLowerCase().includes(searchLower) ||
+      product.profiles?.full_name?.toLowerCase().includes(searchLower) ||
+      product.profiles?.email?.toLowerCase().includes(searchLower)
+    )
+  })
 
   if (!isAdmin) return (
     <div style={{ minHeight: '100vh', background: '#080a0f', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1033,16 +1047,36 @@ export default function AdminPage() {
         {activeTab === 'products' && (
           <div style={{ ...glassCard, padding: '24px' }}>
             <h2 style={{ color: 'white', fontWeight: '800', fontSize: '20px', marginBottom: '20px' }}>All Products</h2>
+            <input
+              type="text"
+              value={productSearch}
+              onChange={(e) => setProductSearch(e.target.value)}
+              placeholder="Search by product name, seller, or category..."
+              style={{
+                width: '100%',
+                background: '#1e293b',
+                border: '1px solid #334155',
+                color: 'white',
+                borderRadius: '8px',
+                padding: '10px 16px',
+                marginBottom: '18px',
+                outline: 'none'
+              }}
+            />
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '20px' }}>
-              Total products: {products.length}
+              {productSearch
+                ? `Showing ${filteredProducts.length} of ${products.length} products`
+                : `Total products: ${products.length}`}
             </p>
             {loading ? (
               <p style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '40px' }}>Loading products...</p>
+            ) : filteredProducts.length === 0 && productSearch ? (
+              <p style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '40px' }}>No products found.</p>
             ) : products.length === 0 ? (
               <p style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '40px' }}>No products listed yet.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {products.map(product => (
+                {filteredProducts.map(product => (
                   <div key={product.id} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{ width: '48px', height: '48px', borderRadius: '10px', overflow: 'hidden', background: 'rgba(255,255,255,0.06)', flexShrink: 0 }}>

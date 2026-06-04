@@ -3,12 +3,10 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { ThumbsUp, ThumbsDown, Trash } from 'lucide-react'
+import { ThumbsUp, ThumbsDown } from 'lucide-react'
 
 interface ProductCardProps {
   product: any
-  isAdmin?: boolean
-  onAdminDelete?: (productId: string, imageUrl: string, images?: string[]) => void
 }
 
 const getImageUrl = (url: string): string => {
@@ -17,7 +15,7 @@ const getImageUrl = (url: string): string => {
   return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/Product/${url}` 
 }
 
-export default function ProductCard({ product, isAdmin, onAdminDelete }: ProductCardProps) {
+export default function ProductCard({ product }: ProductCardProps) {
   const [windowWidth, setWindowWidth] = useState(1200)
   const [likes, setLikes] = useState(product.likes || 0)
   const [dislikes, setDislikes] = useState(product.dislikes || 0)
@@ -221,43 +219,12 @@ export default function ProductCard({ product, isAdmin, onAdminDelete }: Product
             </div>
           )}
 
-          {/* Admin delete button - Top Right */}
-          {isAdmin && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
-                if (!onAdminDelete) return
-                if (!confirm('Delete this product? This cannot be undone.')) return
-                onAdminDelete(product.id, product.image_url, product.images)
-              }}
-              style={{
-                position: 'absolute',
-                top: '8px',
-                right: '8px',
-                background: '#ef4444',
-                color: 'white',
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                border: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 3,
-                cursor: 'pointer'
-              }}
-            >
-              <Trash size={16} />
-            </button>
-          )}
-
-          {/* Rank Badge - Top Right (shift left if admin button present) */}
+          {/* Rank Badge - Top Right */}
           {product.profiles?.rank && (
             <span style={{ 
               position: 'absolute', 
               top: '8px', 
-              right: isAdmin ? '48px' : '8px', 
+              right: '8px', 
               background: rankStyle.badgeBg, 
               border: `1px solid ${rankStyle.badgeBorder}`, 
               color: rankStyle.badgeColor, 
