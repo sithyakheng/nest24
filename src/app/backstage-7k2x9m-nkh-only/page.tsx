@@ -1,14 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Settings, Check, X, Star, Medal, Store, ShoppingCart, Package, DollarSign, User, ShoppingBag, Search, MessageSquare, Phone, Ship, Ban, Users } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts'
 import Link from 'next/link'
 
 export default function AdminPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState('requests')
+  const [activeTab, setActiveTab] = useState('analytics')
   const [rankRequests, setRankRequests] = useState<any[]>([])
   const [sellers, setSellers] = useState<any[]>([])
   const [products, setProducts] = useState<any[]>([])
@@ -17,7 +18,35 @@ export default function AdminPage() {
   const [bannedUsers, setBannedUsers] = useState<any[]>([])
   const [productCounts, setProductCounts] = useState<any[]>([])
   const [reports, setReports] = useState<any[]>([])
+  const [totalUsers, setTotalUsers] = useState(0)
+  const [totalSellers, setTotalSellers] = useState(0)
+  const [totalBuyers, setTotalBuyers] = useState(0)
+  const [totalProducts, setTotalProducts] = useState(0)
+  const [totalOrders, setTotalOrders] = useState(0)
+  const [totalReports, setTotalReports] = useState(0)
+  const [totalBanned, setTotalBanned] = useState(0)
+  const [premiumSellers, setPremiumSellers] = useState(0)
+  const [verifiedSellers, setVerifiedSellers] = useState(0)
+  const [starterSellers, setStarterSellers] = useState(0)
+  const [topProducts, setTopProducts] = useState<any[]>([])
+  const [userGrowth, setUserGrowth] = useState<any[]>([])
+  const [categoryBreakdown, setCategoryBreakdown] = useState<any[]>([])
+  const [analyticsLoading, setAnalyticsLoading] = useState(false)
+  const [analyticsLoaded, setAnalyticsLoaded] = useState(false)
   const [subscriptionSearch, setSubscriptionSearch] = useState('')
+
+  const growthData = useMemo(() => {
+    const monthCounts: Record<string, number> = {}
+    const sorted = [...userGrowth].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+    sorted.forEach((item: any) => {
+      const date = new Date(item.created_at)
+      if (Number.isNaN(date.getTime())) return
+      const monthLabel = date.toLocaleString('default', { year: 'numeric', month: 'short' })
+      monthCounts[monthLabel] = (monthCounts[monthLabel] || 0) + 1
+    })
+    let cumulative = 0
+    return Object.entries(monthCounts).map(([month, count]) => ({ month, users: cumulative += count }))
+  }, [userGrowth])
   const [productSearch, setProductSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState('')
@@ -52,56 +81,23 @@ export default function AdminPage() {
     if (!s) return
     setAssignField(seller.id, 'loading', true)
 
-    // Derive rank/tier - always use forever now (monthly billing removed)
     const selectedTier = s.selectedTier === 0 ? 0 : Number(s.selectedTier)
     const selectedRank = selectedTier === 0 ? null : (selectedTier === 1 ? 'starter' : selectedTier === 2 ? 'verified' : 'premium')
     const sellerId = seller.id
 
     try {
-      // STEP 1 — Update the profiles table directly
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          tier: selectedTier,
-          rank: selectedRank,
-          tier_forever: true,
-          tier_expires_at: null
-        })
-        .eq('id', sellerId)
+      await adminAction({
+        action: 'assignRank',
+        sellerId,
+        selectedTier,
+        selectedRank,
+      })
 
-      if (profileError) {
-        console.error('Profile update error:', profileError)
-        setAssignField(seller.id, 'message', { type: 'error', text: 'Failed to update profile: ' + (profileError.message || profileError) })
-        setAssignField(seller.id, 'loading', false)
-        return
-      }
-
-      // STEP 2 — Then insert into rank_requests for record keeping
-      const { error: requestError } = await supabase
-        .from('rank_requests')
-        .insert({
-          seller_id: sellerId,
-          rank: selectedRank,
-          plan_type: 'forever',
-          status: 'approved',
-          created_at: new Date().toISOString()
-        })
-
-      if (requestError) {
-        console.error('Rank request insert error:', requestError)
-        setAssignField(seller.id, 'message', { type: 'error', text: 'Failed to insert rank request: ' + (requestError.message || requestError) })
-        setAssignField(seller.id, 'loading', false)
-        return
-      }
-
-      // Optimistically update local sellers state
       setSellers(prev => prev.map(p => p.id === sellerId ? { ...p, tier: selectedTier, rank: selectedRank, tier_forever: true, tier_expires_at: null } : p))
-
       setAssignField(seller.id, 'message', { type: 'success', text: 'Rank assigned successfully!' })
       setAssignField(seller.id, 'loading', false)
       setTimeout(() => closeAssign(seller.id), 1200)
     } catch (e: any) {
-      console.error('Unexpected error in assignRankToSeller:', e)
       setAssignField(seller.id, 'message', { type: 'error', text: 'Failed to assign rank: ' + (e.message || e) })
       setAssignField(seller.id, 'loading', false)
     }
@@ -109,60 +105,38 @@ export default function AdminPage() {
 
   // Approve handler for rank requests
   const handleApprove = async (request: any) => {
-    const isForever = request.plan_type === 'forever';
+    const rankStr = typeof request.rank === 'number'
+      ? { 1: 'starter', 2: 'verified', 3: 'premium' }[request.rank] || 'starter'
+      : request.rank
 
-    // Normalise rank — may come in as a number (1/2/3) or string ('starter'/'verified'/'premium')
-    const rankNumToStr: Record<number, string> = { 1: 'starter', 2: 'verified', 3: 'premium' }
-    const rankStrToNum: Record<string, number> = { starter: 1, verified: 2, premium: 3 }
-    const rankStr = typeof request.rank === 'number' ? (rankNumToStr[request.rank] ?? 'starter') : request.rank
-    const rankNum = typeof request.rank === 'number' ? request.rank : (rankStrToNum[request.rank] ?? 1)
-
-    await supabase.from('profiles').update({
-      rank: rankStr,
-      tier: rankNum,
-      tier_forever: isForever ? true : false,
-      tier_expires_at: isForever ? null : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-    }).eq('id', request.seller_id);
-
-    await supabase.from('rank_requests').update({ status: 'approved' }).eq('id', request.id);
-
-    // Delete screenshot from Cloudinary
-    if (request.screenshot_url && request.screenshot_url.includes('cloudinary.com')) {
-      const parts = request.screenshot_url.split('/');
-      const uploadIndex = parts.indexOf('upload');
-      const pathAfterUpload = parts.slice(uploadIndex + 2).join('/');
-      const publicId = pathAfterUpload.replace(/\.[^/.]+$/, '');
-      await fetch('/api/delete-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ public_id: publicId }),
-      });
+    try {
+      await adminAction({
+        action: 'approveRankRequest',
+        requestId: request.id,
+        rank: rankStr,
+        screenshotUrl: request.screenshot_url || null,
+      })
+      alert('Rank request approved!')
+      fetchAll()
+    } catch (e: any) {
+      alert('Failed to approve rank request: ' + (e.message || 'Unknown error'))
     }
-    
-    alert('Rank request approved!');
-    fetchAll();
-  };
+  }
 
   // Reject handler for rank requests
   const handleReject = async (request: any) => {
-    await supabase.from('rank_requests').update({ status: 'rejected' }).eq('id', request.id);
-
-    // Delete screenshot from Cloudinary
-    if (request.screenshot_url) {
-      const parts = request.screenshot_url.split('/');
-      const uploadIndex = parts.indexOf('upload');
-      const pathAfterUpload = parts.slice(uploadIndex + 2).join('/');
-      const publicId = pathAfterUpload.replace(/\.[^/.]+$/, '');
-      await fetch('/api/delete-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ public_id: publicId }),
-      });
+    try {
+      await adminAction({
+        action: 'rejectRankRequest',
+        requestId: request.id,
+        screenshotUrl: request.screenshot_url || null,
+      })
+      alert('Rank request rejected!')
+      fetchAll()
+    } catch (e: any) {
+      alert('Failed to reject rank request: ' + (e.message || 'Unknown error'))
     }
-    
-    alert('Rank request rejected!');
-    fetchAll();
-  };
+  }
 
   useEffect(() => {
     async function checkAdmin() {
@@ -235,14 +209,90 @@ export default function AdminPage() {
     return pathAfterUpload.replace(/\.[^/.]+$/, '');
   };
 
+  async function adminAction(payload: any) {
+    const response = await fetch('/api/admin/user-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data?.error || 'Admin action failed')
+    }
+    return data
+  }
+
   async function fetchBannedUsers() {
     const { data: bannedUsersData, error } = await supabase
       .from('profiles')
       .select('id, name, full_name, email, role, banned, ban_reason, avatar_url, created_at, updated_at')
       .eq('banned', true)
-    console.log('Banned users:', bannedUsersData, 'Error:', error)
     if (!error) setBannedUsers(bannedUsersData || [])
   }
+
+  async function fetchAnalytics() {
+    setAnalyticsLoading(true)
+
+    const [
+      totalUsersRes,
+      totalSellersRes,
+      totalBuyersRes,
+      totalProductsRes,
+      totalOrdersRes,
+      totalReportsRes,
+      totalBannedRes,
+      premiumSellersRes,
+      verifiedSellersRes,
+      starterSellersRes,
+      topProductsRes,
+      userGrowthRes,
+      categoriesRes,
+    ] = await Promise.all([
+      supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'seller'),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'buyer'),
+      supabase.from('products').select('*', { count: 'exact', head: true }),
+      supabase.from('orders').select('*', { count: 'exact', head: true }),
+      supabase.from('reports').select('*', { count: 'exact', head: true }),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('banned', true),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('rank', 'premium'),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('rank', 'verified'),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('rank', 'starter'),
+      supabase.from('products').select('name, views, category').order('views', { ascending: false }).limit(10),
+      supabase.from('profiles').select('created_at, role').order('created_at', { ascending: true }),
+      supabase.from('products').select('category'),
+    ])
+
+    setTotalUsers(totalUsersRes.count || 0)
+    setTotalSellers(totalSellersRes.count || 0)
+    setTotalBuyers(totalBuyersRes.count || 0)
+    setTotalProducts(totalProductsRes.count || 0)
+    setTotalOrders(totalOrdersRes.count || 0)
+    setTotalReports(totalReportsRes.count || 0)
+    setTotalBanned(totalBannedRes.count || 0)
+    setPremiumSellers(premiumSellersRes.count || 0)
+    setVerifiedSellers(verifiedSellersRes.count || 0)
+    setStarterSellers(starterSellersRes.count || 0)
+    setTopProducts(topProductsRes.data || [])
+    setUserGrowth(userGrowthRes.data || [])
+
+    const categories = categoriesRes.data || []
+    const groupedCategories = categories.reduce((acc: Record<string, number>, item: any) => {
+      const key = item.category || 'Uncategorized'
+      acc[key] = (acc[key] || 0) + 1
+      return acc
+    }, {})
+    setCategoryBreakdown(Object.entries(groupedCategories).map(([category, count]) => ({ category, count })).sort((a, b) => b.count - a.count))
+    setAnalyticsLoading(false)
+    setAnalyticsLoaded(true)
+  }
+
+  useEffect(() => {
+    if (activeTab === 'analytics' && !analyticsLoaded) {
+      fetchAnalytics()
+    }
+  }, [activeTab, analyticsLoaded])
 
   async function fetchAll() {
     setLoading(true)
@@ -319,135 +369,44 @@ export default function AdminPage() {
     setLoading(false)
   }
 
-  async function approveRank(requestId: string, sellerId: string, rank: string, screenshotUrl: string) {
-  // Update rank request status
-  const { error: requestError } = await supabase
-    .from('rank_requests')
-    .update({ 
-      status: 'approved',
-      updated_at: new Date().toISOString()
-    })
-    .eq('id', requestId)
-
-  if (requestError) {
-    alert('Failed to update request: ' + requestError.message)
-    return
-  }
-
-  // Map rank to tier
-  const rankToTierMap: Record<string, number> = {
-    'starter': 1,
-    'verified': 2,
-    'premium': 3
-  }
-  
-  const tier = rankToTierMap[rank] || 1
-
-  // Update seller profile rank and tier
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .update({ 
-      rank: rank,
-      tier: tier
-    })
-    .eq('id', sellerId)
-
-  if (profileError) {
-    alert('Failed to update rank and tier: ' + profileError.message)
-    return
-  }
-
-  // Delete screenshot from storage to free up space
-  if (screenshotUrl) {
-    try {
-      const fileName = screenshotUrl.split('/Product/')[1]
-      if (fileName) {
-        await supabase.storage.from('Product').remove([fileName])
-        console.log('Screenshot deleted from storage:', fileName)
-      }
-    } catch (e) {
-      console.log('Could not delete screenshot:', e)
-    }
-  }
-
-  alert('Rank approved!')
-  fetchAll()
-}
-
-  async function rejectRank(requestId: string, screenshotUrl: string) {
-    // Update rank request status
-    const { error } = await supabase
-      .from('rank_requests')
-      .update({ 
-        status: 'rejected',
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', requestId)
-
-    if (error) {
-      alert('Failed to reject: ' + error.message)
-      return
-    }
-
-    // Delete screenshot from storage to free up space
-    if (screenshotUrl) {
-      try {
-        const fileName = screenshotUrl.split('/Product/')[1]
-        if (fileName) {
-          await supabase.storage.from('Product').remove([fileName])
-          console.log('Screenshot deleted from storage:', fileName)
-        }
-      } catch (e) {
-        console.log('Could not delete screenshot:', e)
-      }
-    }
-
-    alert('Rank rejected!')
-    fetchAll()
-  }
-
   async function banSeller(sellerId: string, banned: boolean) {
     if (banned) {
       const reason = prompt('Enter ban reason (optional):') || 'Violation of NestKH Terms of Service'
-      const { error } = await supabase.from('profiles').update({ banned: true, ban_reason: reason }).eq('id', sellerId)
-      if (error) {
-        alert('Failed to ban seller: ' + error.message)
-        return
+      try {
+        await adminAction({ action: 'banUser', userId: sellerId, reason })
+        setAllUsers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: true, ban_reason: reason } : user))
+        setSellers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: true } : user))
+        await fetchBannedUsers()
+        alert('Seller banned successfully!')
+      } catch (e: any) {
+        alert('Failed to ban seller: ' + (e.message || 'Unknown error'))
       }
-      setAllUsers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: true, ban_reason: reason } : user))
-      setSellers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: true } : user))
-      await fetchBannedUsers()
-      alert('Seller banned successfully!')
     } else {
       const confirmed = confirm('Unban this user? They will regain full access.')
       if (!confirmed) return
-      const { error } = await supabase.from('profiles').update({ banned: false, ban_reason: null }).eq('id', sellerId)
-      if (error) {
-        alert('Failed to unban seller: ' + error.message)
-        return
+      try {
+        await adminAction({ action: 'unbanUser', userId: sellerId })
+        setAllUsers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: false, ban_reason: null } : user))
+        setSellers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: false } : user))
+        await fetchBannedUsers()
+        alert('User unbanned successfully!')
+      } catch (e: any) {
+        alert('Failed to unban seller: ' + (e.message || 'Unknown error'))
       }
-      setAllUsers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: false, ban_reason: null } : user))
-      setSellers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: false } : user))
-      await fetchBannedUsers()
-      alert('User unbanned successfully!')
     }
   }
 
   async function banUser(userId: string) {
     if (!confirm('Are you sure you want to ban this user? This action cannot be undone.')) return
     const reason = prompt('Enter ban reason (optional):') || 'Violation of NestKH Terms of Service'
-    
-    const { error } = await supabase.from('profiles')
-      .update({ banned: true, ban_reason: reason })
-      .eq('id', userId)
-    
-    if (error) {
-      alert('Failed to ban user: ' + error.message)
-      return
+    try {
+      await adminAction({ action: 'banUser', userId, reason })
+      setAllUsers(prev => prev.map(user => user.id === userId ? { ...user, banned: true, ban_reason: reason } : user))
+      await fetchBannedUsers()
+      alert('User banned successfully!')
+    } catch (e: any) {
+      alert('Failed to ban user: ' + (e.message || 'Unknown error'))
     }
-    setAllUsers(prev => prev.map(user => user.id === userId ? { ...user, banned: true, ban_reason: reason } : user))
-    await fetchBannedUsers()
-    alert('User banned successfully!')
   }
 
   async function deleteProduct(productId: string) {
@@ -491,6 +450,7 @@ export default function AdminPage() {
   }
 
   const tabs = [
+    { id: 'analytics', label: 'Analytics', count: totalUsers },
     { id: 'monthly-ranks', label: 'Monthly Ranks', count: rankRequests.filter(r => r.plan_type === 'monthly' || r.plan_type === null || r.plan_type === undefined).length },
     { id: 'forever-ranks', label: 'Forever Ranks', count: rankRequests.filter(r => r.plan_type === 'forever').length },
     { id: 'subscriptions', label: 'Subscriptions', count: sellers.filter(s => s.role === 'seller').length },
@@ -541,6 +501,115 @@ export default function AdminPage() {
             </button>
           ))}
         </div>
+
+        {/* ANALYTICS TAB */}
+        {activeTab === 'analytics' && (
+          <div style={{ color: 'white' }}>
+            <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', marginBottom: '24px' }}>
+              {[
+                { label: 'Total Users', value: totalUsers, color: '#60A5FA' },
+                { label: 'Total Sellers', value: totalSellers, color: '#2DD4BF' },
+                { label: 'Total Buyers', value: totalBuyers, color: '#86EFAC' },
+                { label: 'Total Products', value: totalProducts, color: '#A78BFA' },
+                { label: 'Total Orders', value: totalOrders, color: '#FACC15' },
+                { label: 'Total Reports', value: totalReports, color: '#F97316' },
+                { label: 'Banned Users', value: totalBanned, color: '#EF4444' },
+                { label: 'Premium Sellers', value: premiumSellers, color: '#F59E0B' },
+              ].map(card => (
+                <div key={card.label} style={{ ...glassCard, background: '#1e293b', padding: '22px', minHeight: '140px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: card.color, display: 'inline-block' }} />
+                  </div>
+                  <p style={{ fontSize: '32px', fontWeight: '800', margin: '20px 0 6px', color: 'white' }}>{card.value}</p>
+                  <p style={{ margin: 0, color: 'rgba(255,255,255,0.65)', fontSize: '14px' }}>{card.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {analyticsLoading ? (
+              <div style={{ ...glassCard, background: '#0f172a', padding: '28px', textAlign: 'center', color: 'rgba(255,255,255,0.8)' }}>
+                Loading analytics data...
+              </div>
+            ) : (
+              <>
+                <div style={{ display: 'grid', gap: '24px', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', marginBottom: '24px' }}>
+                  <div style={{ ...glassCard, background: '#0f172a', padding: '22px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+                      <h2 style={{ margin: 0, fontSize: '18px', color: 'white' }}>Seller Rank Distribution</h2>
+                    </div>
+                    <div style={{ width: '100%', height: '320px' }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={[
+                          { name: 'Free', value: Math.max(totalSellers - starterSellers - verifiedSellers - premiumSellers, 0) },
+                          { name: 'Starter', value: starterSellers },
+                          { name: 'Verified', value: verifiedSellers },
+                          { name: 'Premium', value: premiumSellers },
+                        ]}>
+                          <CartesianGrid stroke="rgba(255,255,255,0.08)" />
+                          <XAxis dataKey="name" stroke="rgba(255,255,255,0.7)" />
+                          <YAxis stroke="rgba(255,255,255,0.7)" allowDecimals={false} />
+                          <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }} />
+                          <Bar dataKey="value" fill="#2DD4BF" radius={[8, 8, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                  <div style={{ ...glassCard, background: '#0f172a', padding: '22px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+                      <h2 style={{ margin: 0, fontSize: '18px', color: 'white' }}>Top Products by Views</h2>
+                    </div>
+                    <div style={{ width: '100%', height: '320px' }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={topProducts.map((item: any) => ({ name: item.name?.length > 15 ? `${item.name.slice(0, 15)}...` : item.name || 'Unknown', views: item.views || 0 }))}>
+                          <CartesianGrid stroke="rgba(255,255,255,0.08)" />
+                          <XAxis dataKey="name" stroke="rgba(255,255,255,0.7)" tick={{ fontSize: 12 }} />
+                          <YAxis stroke="rgba(255,255,255,0.7)" allowDecimals={false} />
+                          <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }} />
+                          <Bar dataKey="views" fill="#F59E0B" radius={[8, 8, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gap: '24px', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', marginBottom: '24px' }}>
+                  <div style={{ ...glassCard, background: '#0f172a', padding: '22px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+                      <h2 style={{ margin: 0, fontSize: '18px', color: 'white' }}>User Growth Over Time</h2>
+                    </div>
+                    <div style={{ width: '100%', height: '320px' }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={growthData}>
+                          <CartesianGrid stroke="rgba(255,255,255,0.08)" />
+                          <XAxis dataKey="month" stroke="rgba(255,255,255,0.7)" tick={{ fontSize: 12 }} />
+                          <YAxis stroke="rgba(255,255,255,0.7)" allowDecimals={false} />
+                          <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }} />
+                          <Line type="monotone" dataKey="users" stroke="#60A5FA" strokeWidth={3} dot={{ fill: '#60A5FA' }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                  <div style={{ ...glassCard, background: '#0f172a', padding: '22px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+                      <h2 style={{ margin: 0, fontSize: '18px', color: 'white' }}>Products by Category</h2>
+                    </div>
+                    <div style={{ width: '100%', height: '320px' }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={categoryBreakdown} margin={{ left: -20 }}>
+                          <CartesianGrid stroke="rgba(255,255,255,0.08)" />
+                          <XAxis dataKey="category" stroke="rgba(255,255,255,0.7)" tick={{ fontSize: 12 }} />
+                          <YAxis stroke="rgba(255,255,255,0.7)" allowDecimals={false} />
+                          <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }} />
+                          <Bar dataKey="count" fill="#4DB8CC" radius={[8, 8, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
         {/* MONTHLY RANKS TAB */}
         {activeTab === 'monthly-ranks' && (
@@ -1123,14 +1192,15 @@ export default function AdminPage() {
                     <button
                       onClick={async () => {
                         if (!confirm('Unban this user? They will regain full access.')) return
-                        const { error } = await supabase.from('profiles').update({ banned: false, ban_reason: null }).eq('id', user.id)
-                        if (error) {
-                          alert('Failed to unban user: ' + error.message)
-                          return
+                        try {
+                          await adminAction({ action: 'unbanUser', userId: user.id })
+                          setAllUsers(prev => prev.map(item => item.id === user.id ? { ...item, banned: false, ban_reason: null } : item))
+                          setSellers(prev => prev.map(item => item.id === user.id ? { ...item, banned: false } : item))
+                          await fetchBannedUsers()
+                          alert('User unbanned successfully!')
+                        } catch (e: any) {
+                          alert('Failed to unban user: ' + (e.message || 'Unknown error'))
                         }
-                        setAllUsers(prev => prev.map(item => item.id === user.id ? { ...item, banned: false, ban_reason: null } : item))
-                        setSellers(prev => prev.map(item => item.id === user.id ? { ...item, banned: false } : item))
-                        alert('User unbanned successfully!')
                       }}
                       style={{
                         background: '#10B981',
