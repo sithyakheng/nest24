@@ -14,6 +14,7 @@ export default function AdminPage() {
   const [products, setProducts] = useState<any[]>([])
   const [orders, setOrders] = useState<any[]>([])
   const [allUsers, setAllUsers] = useState<any[]>([])
+  const [bannedUsers, setBannedUsers] = useState<any[]>([])
   const [productCounts, setProductCounts] = useState<any[]>([])
   const [reports, setReports] = useState<any[]>([])
   const [subscriptionSearch, setSubscriptionSearch] = useState('')
@@ -223,12 +224,25 @@ export default function AdminPage() {
     checkAdmin()
   }, [])
 
+  useEffect(() => {
+    fetchBannedUsers()
+  }, [])
+
   const extractPublicId = (url: string) => {
     const parts = url.split('/');
     const uploadIndex = parts.indexOf('upload');
     const pathAfterUpload = parts.slice(uploadIndex + 2).join('/');
     return pathAfterUpload.replace(/\.[^/.]+$/, '');
   };
+
+  async function fetchBannedUsers() {
+    const { data: bannedUsersData, error } = await supabase
+      .from('profiles')
+      .select('id, name, full_name, email, role, banned, ban_reason, avatar_url, created_at, updated_at')
+      .eq('banned', true)
+    console.log('Banned users:', bannedUsersData, 'Error:', error)
+    if (!error) setBannedUsers(bannedUsersData || [])
+  }
 
   async function fetchAll() {
     setLoading(true)
@@ -267,6 +281,7 @@ export default function AdminPage() {
       .select('id, name, full_name, email, role, rank, avatar_url, created_at, updated_at, banned, ban_reason, is_admin')
       .order('created_at', { ascending: false })
     setAllUsers(allUsers || [])
+    await fetchBannedUsers()
 
     // Fetch ONLY sellers
     const { data: sellersData } = await supabase
@@ -401,6 +416,7 @@ export default function AdminPage() {
       }
       setAllUsers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: true, ban_reason: reason } : user))
       setSellers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: true } : user))
+      await fetchBannedUsers()
       alert('Seller banned successfully!')
     } else {
       const confirmed = confirm('Unban this user? They will regain full access.')
@@ -412,6 +428,7 @@ export default function AdminPage() {
       }
       setAllUsers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: false, ban_reason: null } : user))
       setSellers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: false } : user))
+      await fetchBannedUsers()
       alert('User unbanned successfully!')
     }
   }
@@ -429,6 +446,7 @@ export default function AdminPage() {
       return
     }
     setAllUsers(prev => prev.map(user => user.id === userId ? { ...user, banned: true, ban_reason: reason } : user))
+    await fetchBannedUsers()
     alert('User banned successfully!')
   }
 
@@ -471,8 +489,6 @@ export default function AdminPage() {
     borderTop: '1px solid rgba(255,255,255,0.22)',
     borderRadius: '20px',
   }
-
-  const bannedUsers = allUsers.filter(user => user.banned)
 
   const tabs = [
     { id: 'monthly-ranks', label: 'Monthly Ranks', count: rankRequests.filter(r => r.plan_type === 'monthly' || r.plan_type === null || r.plan_type === undefined).length },
