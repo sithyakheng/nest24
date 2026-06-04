@@ -70,10 +70,8 @@ export default function LoginPage() {
       .eq('id', data.user.id)
       .single()
 
-    if (profile?.banned) {
-      await supabase.auth.signOut()
-      setError('Your account has been banned. Contact support.')
-      setLoading(false)
+    if (profile?.banned === true) {
+      router.push('/banned')
       return
     }
 

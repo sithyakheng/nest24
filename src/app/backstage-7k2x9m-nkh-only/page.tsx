@@ -264,7 +264,7 @@ export default function AdminPage() {
     // Fetch ALL users (buyers + sellers)
     const { data: allUsers } = await supabase
       .from('profiles')
-      .select('id, name, full_name, email, role, rank, avatar_url, created_at, banned, is_admin')
+      .select('id, name, full_name, email, role, rank, avatar_url, created_at, updated_at, banned, ban_reason, is_admin')
       .order('created_at', { ascending: false })
     setAllUsers(allUsers || [])
 
@@ -392,22 +392,44 @@ export default function AdminPage() {
   }
 
   async function banSeller(sellerId: string, banned: boolean) {
-    await supabase.from('profiles').update({ banned }).eq('id', sellerId)
-    fetchAll()
+    if (banned) {
+      const reason = prompt('Enter ban reason (optional):') || 'Violation of NestKH Terms of Service'
+      const { error } = await supabase.from('profiles').update({ banned: true, ban_reason: reason }).eq('id', sellerId)
+      if (error) {
+        alert('Failed to ban seller: ' + error.message)
+        return
+      }
+      setAllUsers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: true, ban_reason: reason } : user))
+      setSellers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: true } : user))
+      alert('Seller banned successfully!')
+    } else {
+      const confirmed = confirm('Unban this user? They will regain full access.')
+      if (!confirmed) return
+      const { error } = await supabase.from('profiles').update({ banned: false, ban_reason: null }).eq('id', sellerId)
+      if (error) {
+        alert('Failed to unban seller: ' + error.message)
+        return
+      }
+      setAllUsers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: false, ban_reason: null } : user))
+      setSellers(prev => prev.map(user => user.id === sellerId ? { ...user, banned: false } : user))
+      alert('User unbanned successfully!')
+    }
   }
 
   async function banUser(userId: string) {
     if (!confirm('Are you sure you want to ban this user? This action cannot be undone.')) return
+    const reason = prompt('Enter ban reason (optional):') || 'Violation of NestKH Terms of Service'
     
-    const { error } = await supabase.from('profiles').update({ role: 'banned' }).eq('id', userId)
+    const { error } = await supabase.from('profiles')
+      .update({ banned: true, ban_reason: reason })
+      .eq('id', userId)
     
     if (error) {
       alert('Failed to ban user: ' + error.message)
       return
     }
-    
+    setAllUsers(prev => prev.map(user => user.id === userId ? { ...user, banned: true, ban_reason: reason } : user))
     alert('User banned successfully!')
-    fetchAll()
   }
 
   async function deleteProduct(productId: string) {
@@ -450,12 +472,15 @@ export default function AdminPage() {
     borderRadius: '20px',
   }
 
+  const bannedUsers = allUsers.filter(user => user.banned)
+
   const tabs = [
     { id: 'monthly-ranks', label: 'Monthly Ranks', count: rankRequests.filter(r => r.plan_type === 'monthly' || r.plan_type === null || r.plan_type === undefined).length },
     { id: 'forever-ranks', label: 'Forever Ranks', count: rankRequests.filter(r => r.plan_type === 'forever').length },
     { id: 'subscriptions', label: 'Subscriptions', count: sellers.filter(s => s.role === 'seller').length },
     { id: 'users', label: 'Users', count: allUsers.length },
     { id: 'sellers', label: 'Sellers', count: sellers.length },
+    { id: 'banned-users', label: 'Banned Users', count: bannedUsers.length },
     { id: 'products', label: 'Products', count: products.length },
     { id: 'orders', label: 'Orders', count: orders.length },
     { id: 'reports', label: 'Reports', count: reports.length },
@@ -1040,6 +1065,74 @@ export default function AdminPage() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* BANNED USERS TAB */}
+        {activeTab === 'banned-users' && (
+          <div style={{ ...glassCard, padding: '24px' }}>
+            <h2 style={{ color: 'white', fontWeight: '800', fontSize: '20px', marginBottom: '8px' }}>Banned Users</h2>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '20px' }}>
+              Showing {bannedUsers.length} banned user{bannedUsers.length === 1 ? '' : 's'}
+            </p>
+            {bannedUsers.length === 0 ? (
+              <p style={{ color: 'rgba(255,255,255,0.4)', padding: '20px', background: 'rgba(255,255,255,0.03)', borderRadius: '14px' }}>
+                No banned users found.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {bannedUsers.map(user => (
+                  <div key={user.id} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <div style={{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '700', fontSize: '18px' }}>
+                        {user.avatar_url ? (
+                          <img src={user.avatar_url} alt={user.name || user.full_name || 'User'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          (user.name || user.full_name || user.email || 'U').charAt(0).toUpperCase()
+                        )}
+                      </div>
+                      <div>
+                        <p style={{ color: 'white', fontWeight: '700', margin: 0, fontSize: '15px' }}>{user.name || user.full_name || 'No name'}</p>
+                        <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '13px', margin: '4px 0 0' }}>{user.email}</p>
+                        <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '12px', margin: '8px 0 0' }}>{user.role === 'seller' ? 'Seller' : user.role === 'admin' ? 'Admin' : 'Buyer'}</p>
+                      </div>
+                    </div>
+                    <div style={{ flex: '1 1 220px', minWidth: '220px' }}>
+                      <p style={{ color: '#f8fafc', fontSize: '13px', margin: 0, fontWeight: '600' }}>Ban reason</p>
+                      <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '13px', margin: '6px 0 0' }}>{user.ban_reason || 'Violation of NestKH Terms of Service'}</p>
+                      {user.updated_at && (
+                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '8px 0 0' }}>Banned on {new Date(user.updated_at).toLocaleDateString()}</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={async () => {
+                        if (!confirm('Unban this user? They will regain full access.')) return
+                        const { error } = await supabase.from('profiles').update({ banned: false, ban_reason: null }).eq('id', user.id)
+                        if (error) {
+                          alert('Failed to unban user: ' + error.message)
+                          return
+                        }
+                        setAllUsers(prev => prev.map(item => item.id === user.id ? { ...item, banned: false, ban_reason: null } : item))
+                        setSellers(prev => prev.map(item => item.id === user.id ? { ...item, banned: false } : item))
+                        alert('User unbanned successfully!')
+                      }}
+                      style={{
+                        background: '#10B981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '9999px',
+                        padding: '10px 18px',
+                        cursor: 'pointer',
+                        fontWeight: '700',
+                        boxShadow: '0 10px 20px rgba(16,185,129,0.16)'
+                      }}
+                    >
+                      Unban
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

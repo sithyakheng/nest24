@@ -13,9 +13,13 @@ export async function GET(request: Request) {
     if (user) {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('id')
+        .select('id, banned')
         .eq('id', user.id)
         .single()
+
+      if (profile?.banned === true) {
+        return NextResponse.redirect(new URL('/banned', request.url))
+      }
 
       if (!profile) {
         await supabase.from('profiles').insert({

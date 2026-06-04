@@ -4,7 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ReactNode } from "react";
-import Footer from "@/components/Footer";
+import ClientFooterToggle from '@/components/ClientFooterToggle';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -42,8 +42,9 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased`}>
         <LanguageProvider>
           <AuthProvider>
-            {children}
-            <Footer />
+            <ClientFooterToggle>
+              {children}
+            </ClientFooterToggle>
           </AuthProvider>
         </LanguageProvider>
       </body>

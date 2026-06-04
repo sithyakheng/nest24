@@ -160,10 +160,15 @@ export default function DashboardPage() {
   async function loadProfile(currentUser: any) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, rank, security_pin, minefield_enabled, minefield_message, minefield_warning_count, firewall_enabled')
+      .select('id, name, full_name, role, tier, tier_forever, tier_expires_at, bio, shop_theme, phone, whatsapp, facebook, instagram, telegram, avatar_url, shop_slug, rank, security_pin, minefield_enabled, minefield_message, minefield_warning_count, firewall_enabled, banned')
       .eq('id', currentUser.id)
       .single()
     
+    if (profile?.banned === true) {
+      router.push('/banned')
+      return
+    }
+
     // Role-based access control - only sellers can access dashboard
     if (profile?.role !== 'seller') {
       router.push('/')

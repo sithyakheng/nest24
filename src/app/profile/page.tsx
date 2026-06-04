@@ -1,12 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { User, Mail, ShoppingBag, Crown, ArrowRight } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { supabase } from '@/lib/supabase'
 import UpgradeToSellerModal from '@/components/UpgradeToSellerModal'
 
 export default function Profile() {
+  const router = useRouter()
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const { user } = useAuth()
   const isSeller = user?.user_metadata?.role === 'seller'
@@ -28,6 +31,23 @@ export default function Profile() {
     window.addEventListener('mousemove', handleMouseMove)
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [mouseX, mouseY])
+
+  useEffect(() => {
+    async function checkBan() {
+      if (!user) return
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('banned')
+        .eq('id', user.id)
+        .single()
+
+      if (profile?.banned === true) {
+        router.push('/banned')
+      }
+    }
+
+    checkBan()
+  }, [user, router])
 
   if (!user) {
     return (
