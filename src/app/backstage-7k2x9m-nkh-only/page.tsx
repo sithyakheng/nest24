@@ -105,8 +105,9 @@ export default function AdminPage() {
 
   // Approve handler for rank requests
   const handleApprove = async (request: any) => {
+    const rankMap: Record<number, string> = { 1: 'starter', 2: 'verified', 3: 'premium' }
     const rankStr = typeof request.rank === 'number'
-      ? { 1: 'starter', 2: 'verified', 3: 'premium' }[request.rank] || 'starter'
+      ? rankMap[request.rank as number] || 'starter'
       : request.rank
 
     try {
