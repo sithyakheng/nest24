@@ -628,7 +628,7 @@ export default function AdminPage() {
                               outerRadius={80}
                               paddingAngle={2}
                               dataKey="value"
-                              label={({ name, value, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                              label={({ name, value, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
                               labelStyle={{ color: 'rgba(255,255,255,0.9)', fontSize: '12px' }}
                             >
                               <Cell fill="#10b981" />
@@ -791,7 +791,7 @@ export default function AdminPage() {
                               cy="50%"
                               outerRadius={80}
                               dataKey="count"
-                              label={({ name, percent }) => `${name.slice(0, 10)} ${(percent * 100).toFixed(0)}%`}
+                              label={({ name, percent }) => `${name.slice(0, 10)} ${((percent ?? 0) * 100).toFixed(0)}%`}
                               labelStyle={{ color: 'rgba(255,255,255,0.8)', fontSize: '11px' }}
                             >
                               {categoryBreakdown.slice(0, 6).map((entry, index) => (
