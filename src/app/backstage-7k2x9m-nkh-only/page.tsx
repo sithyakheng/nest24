@@ -4,8 +4,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Settings, Check, X, Star, Medal, Store, ShoppingCart, Package, DollarSign, User, ShoppingBag, Search, MessageSquare, Phone, Ship, Ban, Users } from 'lucide-react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend, PieChart, Pie, Cell, AreaChart, Area } from 'recharts'
 import Link from 'next/link'
+import { useCountUp } from '@/hooks/useCountUp'
 
 export default function AdminPage() {
   const router = useRouter()
@@ -506,103 +507,336 @@ export default function AdminPage() {
         {/* ANALYTICS TAB */}
         {activeTab === 'analytics' && (
           <div style={{ color: 'white' }}>
-            <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', marginBottom: '24px' }}>
-              {[
-                { label: 'Total Users', value: totalUsers, color: '#60A5FA' },
-                { label: 'Total Sellers', value: totalSellers, color: '#2DD4BF' },
-                { label: 'Total Buyers', value: totalBuyers, color: '#86EFAC' },
-                { label: 'Total Products', value: totalProducts, color: '#A78BFA' },
-                { label: 'Total Orders', value: totalOrders, color: '#FACC15' },
-                { label: 'Total Reports', value: totalReports, color: '#F97316' },
-                { label: 'Banned Users', value: totalBanned, color: '#EF4444' },
-                { label: 'Premium Sellers', value: premiumSellers, color: '#F59E0B' },
-              ].map(card => (
-                <div key={card.label} style={{ ...glassCard, background: '#1e293b', padding: '22px', minHeight: '140px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: card.color, display: 'inline-block' }} />
-                  </div>
-                  <p style={{ fontSize: '32px', fontWeight: '800', margin: '20px 0 6px', color: 'white' }}>{card.value}</p>
-                  <p style={{ margin: 0, color: 'rgba(255,255,255,0.65)', fontSize: '14px' }}>{card.label}</p>
-                </div>
-              ))}
+            <style>{`
+              @keyframes fadeInUp {
+                from { 
+                  opacity: 0; 
+                  transform: translateY(20px); 
+                }
+                to { 
+                  opacity: 1; 
+                  transform: translateY(0); 
+                }
+              }
+              .analytics-section { animation: fadeInUp 0.5s ease forwards; }
+              .analytics-section-1 { animation-delay: 0.1s; }
+              .analytics-section-2 { animation-delay: 0.2s; }
+              .analytics-section-3 { animation-delay: 0.3s; }
+              .analytics-section-4 { animation-delay: 0.4s; }
+              .analytics-section-5 { animation-delay: 0.5s; }
+            `}</style>
+
+            {/* SECTION 1: PLATFORM OVERVIEW */}
+            <div className="analytics-section analytics-section-1" style={{ marginBottom: '40px' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: '700', color: 'white', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                📊 Platform Overview
+              </h2>
+              <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+                {[
+                  { label: 'Total Users', value: totalUsers, color: '#3b82f6', icon: '👥' },
+                  { label: 'Total Products', value: totalProducts, color: '#8b5cf6', icon: '📦' },
+                  { label: 'Total Orders', value: totalOrders, color: '#f59e0b', icon: '🛒' },
+                  { label: 'Total Reports', value: totalReports, color: '#f97316', icon: '⚠️' },
+                ].map(card => {
+                  const animatedValue = useCountUp(card.value, 1500)
+                  return (
+                    <div key={card.label} style={{
+                      background: '#1a2332',
+                      border: '1px solid #1e3a5f',
+                      borderRadius: '12px',
+                      padding: '20px',
+                      borderLeft: `4px solid ${card.color}`,
+                      minHeight: '140px',
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}>
+                      <div style={{ fontSize: '20px', marginBottom: '12px' }}>{card.icon}</div>
+                      <p style={{ fontSize: '36px', fontWeight: '800', margin: '0 0 8px', color: 'white' }}>
+                        {animatedValue}
+                      </p>
+                      <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>
+                        {card.label}
+                      </p>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
 
             {analyticsLoading ? (
-              <div style={{ ...glassCard, background: '#0f172a', padding: '28px', textAlign: 'center', color: 'rgba(255,255,255,0.8)' }}>
+              <div style={{ background: '#1a2332', border: '1px solid #1e3a5f', borderRadius: '12px', padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.8)' }}>
                 Loading analytics data...
               </div>
             ) : (
               <>
-                <div style={{ display: 'grid', gap: '24px', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', marginBottom: '24px' }}>
-                  <div style={{ ...glassCard, background: '#0f172a', padding: '22px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-                      <h2 style={{ margin: 0, fontSize: '18px', color: 'white' }}>Seller Rank Distribution</h2>
+                {/* SECTION 2: USERS & COMMUNITY */}
+                <div className="analytics-section analytics-section-2" style={{ marginBottom: '40px' }}>
+                  <div style={{ borderTop: '1px solid #1e3a5f', paddingTop: '20px', marginBottom: '20px' }} />
+                  <h2 style={{ fontSize: '18px', fontWeight: '700', color: 'white', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    👥 Users & Community
+                  </h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                    {/* Left: Stat Cards */}
+                    <div style={{ display: 'grid', gap: '12px' }}>
+                      {[
+                        { label: 'Total Buyers', value: totalBuyers, color: '#10b981', icon: '🛍️' },
+                        { label: 'Total Sellers', value: totalSellers, color: '#0d9488', icon: '🏪' },
+                        { label: 'Banned Users', value: totalBanned, color: '#ef4444', icon: '🚫' },
+                      ].map(card => {
+                        const animatedValue = useCountUp(card.value, 1500)
+                        return (
+                          <div key={card.label} style={{
+                            background: '#1a2332',
+                            border: '1px solid #1e3a5f',
+                            borderRadius: '12px',
+                            padding: '16px',
+                            borderLeft: `4px solid ${card.color}`,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}>
+                            <div>
+                              <p style={{ fontSize: '24px', fontWeight: '700', margin: '0 0 4px', color: 'white' }}>
+                                {animatedValue}
+                              </p>
+                              <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', fontSize: '12px' }}>
+                                {card.label}
+                              </p>
+                            </div>
+                            <div style={{ fontSize: '24px' }}>{card.icon}</div>
+                          </div>
+                        )
+                      })}
                     </div>
-                    <div style={{ width: '100%', height: '320px' }}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={[
-                          { name: 'Free', value: Math.max(totalSellers - starterSellers - verifiedSellers - premiumSellers, 0) },
-                          { name: 'Starter', value: starterSellers },
-                          { name: 'Verified', value: verifiedSellers },
-                          { name: 'Premium', value: premiumSellers },
-                        ]}>
-                          <CartesianGrid stroke="rgba(255,255,255,0.08)" />
-                          <XAxis dataKey="name" stroke="rgba(255,255,255,0.7)" />
-                          <YAxis stroke="rgba(255,255,255,0.7)" allowDecimals={false} />
-                          <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }} />
-                          <Bar dataKey="value" fill="#2DD4BF" radius={[8, 8, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-                  <div style={{ ...glassCard, background: '#0f172a', padding: '22px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-                      <h2 style={{ margin: 0, fontSize: '18px', color: 'white' }}>Top Products by Views</h2>
-                    </div>
-                    <div style={{ width: '100%', height: '320px' }}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={topProducts.map((item: any) => ({ name: item.name?.length > 15 ? `${item.name.slice(0, 15)}...` : item.name || 'Unknown', views: item.views || 0 }))}>
-                          <CartesianGrid stroke="rgba(255,255,255,0.08)" />
-                          <XAxis dataKey="name" stroke="rgba(255,255,255,0.7)" tick={{ fontSize: 12 }} />
-                          <YAxis stroke="rgba(255,255,255,0.7)" allowDecimals={false} />
-                          <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }} />
-                          <Bar dataKey="views" fill="#F59E0B" radius={[8, 8, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
+
+                    {/* Right: Pie Chart */}
+                    <div style={{ background: '#1a2332', border: '1px solid #1e3a5f', borderRadius: '12px', padding: '20px' }}>
+                      <h3 style={{ margin: '0 0 16px', fontSize: '14px', fontWeight: '600', color: 'rgba(255,255,255,0.8)' }}>
+                        Buyers vs Sellers
+                      </h3>
+                      <div style={{ width: '100%', height: '220px' }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={[
+                                { name: 'Buyers', value: totalBuyers, fill: '#10b981' },
+                                { name: 'Sellers', value: totalSellers, fill: '#0d9488' },
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={40}
+                              outerRadius={80}
+                              paddingAngle={2}
+                              dataKey="value"
+                              label={({ name, value, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                              labelStyle={{ color: 'rgba(255,255,255,0.9)', fontSize: '12px' }}
+                            >
+                              <Cell fill="#10b981" />
+                              <Cell fill="#0d9488" />
+                            </Pie>
+                            <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #1e3a5f', color: 'white' }} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gap: '24px', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', marginBottom: '24px' }}>
-                  <div style={{ ...glassCard, background: '#0f172a', padding: '22px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-                      <h2 style={{ margin: 0, fontSize: '18px', color: 'white' }}>User Growth Over Time</h2>
+                {/* SECTION 3: SELLERS & RANKS */}
+                <div className="analytics-section analytics-section-3" style={{ marginBottom: '40px' }}>
+                  <div style={{ borderTop: '1px solid #1e3a5f', paddingTop: '20px', marginBottom: '20px' }} />
+                  <h2 style={{ fontSize: '18px', fontWeight: '700', color: 'white', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    🏆 Sellers & Ranks
+                  </h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                    {/* Left: Stat Cards */}
+                    <div style={{ display: 'grid', gap: '12px' }}>
+                      {[
+                        { label: 'Free Sellers', value: Math.max(totalSellers - starterSellers - verifiedSellers - premiumSellers, 0), color: '#6b7280', icon: '⭐' },
+                        { label: 'Starter Sellers', value: starterSellers, color: '#3b82f6', icon: '🌟' },
+                        { label: 'Verified Sellers', value: verifiedSellers, color: '#0d9488', icon: '✅' },
+                        { label: 'Premium Sellers', value: premiumSellers, color: '#f59e0b', icon: '👑' },
+                      ].map(card => {
+                        const animatedValue = useCountUp(card.value, 1500)
+                        return (
+                          <div key={card.label} style={{
+                            background: '#1a2332',
+                            border: '1px solid #1e3a5f',
+                            borderRadius: '12px',
+                            padding: '16px',
+                            borderLeft: `4px solid ${card.color}`,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}>
+                            <div>
+                              <p style={{ fontSize: '24px', fontWeight: '700', margin: '0 0 4px', color: 'white' }}>
+                                {animatedValue}
+                              </p>
+                              <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', fontSize: '12px' }}>
+                                {card.label}
+                              </p>
+                            </div>
+                            <div style={{ fontSize: '20px' }}>{card.icon}</div>
+                          </div>
+                        )
+                      })}
                     </div>
-                    <div style={{ width: '100%', height: '320px' }}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={growthData}>
-                          <CartesianGrid stroke="rgba(255,255,255,0.08)" />
-                          <XAxis dataKey="month" stroke="rgba(255,255,255,0.7)" tick={{ fontSize: 12 }} />
-                          <YAxis stroke="rgba(255,255,255,0.7)" allowDecimals={false} />
-                          <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }} />
-                          <Line type="monotone" dataKey="users" stroke="#60A5FA" strokeWidth={3} dot={{ fill: '#60A5FA' }} />
-                        </LineChart>
-                      </ResponsiveContainer>
+
+                    {/* Right: Bar Chart */}
+                    <div style={{ background: '#1a2332', border: '1px solid #1e3a5f', borderRadius: '12px', padding: '20px' }}>
+                      <h3 style={{ margin: '0 0 16px', fontSize: '14px', fontWeight: '600', color: 'rgba(255,255,255,0.8)' }}>
+                        Rank Distribution
+                      </h3>
+                      <div style={{ width: '100%', height: '280px' }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={[
+                            { name: 'Free', value: Math.max(totalSellers - starterSellers - verifiedSellers - premiumSellers, 0), fill: '#6b7280' },
+                            { name: 'Starter', value: starterSellers, fill: '#3b82f6' },
+                            { name: 'Verified', value: verifiedSellers, fill: '#0d9488' },
+                            { name: 'Premium', value: premiumSellers, fill: '#f59e0b' },
+                          ]}>
+                            <CartesianGrid stroke="#1e3a5f" />
+                            <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" />
+                            <YAxis stroke="rgba(255,255,255,0.5)" allowDecimals={false} />
+                            <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #1e3a5f', color: 'white' }} />
+                            <Bar dataKey="value" fill="#0d9488" radius={[8, 8, 0, 0]}>
+                              {[
+                                { value: Math.max(totalSellers - starterSellers - verifiedSellers - premiumSellers, 0), fill: '#6b7280' },
+                                { value: starterSellers, fill: '#3b82f6' },
+                                { value: verifiedSellers, fill: '#0d9488' },
+                                { value: premiumSellers, fill: '#f59e0b' },
+                              ].map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.fill} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
                     </div>
                   </div>
-                  <div style={{ ...glassCard, background: '#0f172a', padding: '22px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-                      <h2 style={{ margin: 0, fontSize: '18px', color: 'white' }}>Products by Category</h2>
+                </div>
+
+                {/* SECTION 4: PRODUCTS */}
+                <div className="analytics-section analytics-section-4" style={{ marginBottom: '40px' }}>
+                  <div style={{ borderTop: '1px solid #1e3a5f', paddingTop: '20px', marginBottom: '20px' }} />
+                  <h2 style={{ fontSize: '18px', fontWeight: '700', color: 'white', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    📦 Products
+                  </h2>
+                  
+                  {/* Stat Cards */}
+                  <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(2, 1fr)', marginBottom: '24px' }}>
+                    {[
+                      { label: 'Total Products', value: totalProducts, color: '#8b5cf6', icon: '📦' },
+                      { label: 'Total Views', value: topProducts.reduce((sum: number, p: any) => sum + (p.views || 0), 0), color: '#3b82f6', icon: '👁️' },
+                    ].map(card => {
+                      const animatedValue = useCountUp(card.value, 1500)
+                      return (
+                        <div key={card.label} style={{
+                          background: '#1a2332',
+                          border: '1px solid #1e3a5f',
+                          borderRadius: '12px',
+                          padding: '20px',
+                          borderLeft: `4px solid ${card.color}`,
+                        }}>
+                          <p style={{ fontSize: '28px', fontWeight: '700', margin: '0 0 8px', color: 'white' }}>
+                            {animatedValue}
+                          </p>
+                          <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>
+                            {card.label}
+                          </p>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Charts Grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                    {/* Top Products Chart */}
+                    <div style={{ background: '#1a2332', border: '1px solid #1e3a5f', borderRadius: '12px', padding: '20px' }}>
+                      <h3 style={{ margin: '0 0 16px', fontSize: '14px', fontWeight: '600', color: 'rgba(255,255,255,0.8)' }}>
+                        Top 10 Products by Views
+                      </h3>
+                      <div style={{ width: '100%', height: '280px' }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={topProducts.slice(0, 10).map((item: any) => ({
+                              name: item.name?.length > 12 ? `${item.name.slice(0, 12)}...` : item.name || 'Unknown',
+                              views: item.views || 0,
+                            }))}
+                            layout="vertical"
+                            margin={{ left: 80, right: 20 }}
+                          >
+                            <CartesianGrid stroke="#1e3a5f" />
+                            <XAxis type="number" stroke="rgba(255,255,255,0.5)" />
+                            <YAxis dataKey="name" type="category" stroke="rgba(255,255,255,0.5)" width={75} tick={{ fontSize: 11 }} />
+                            <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #1e3a5f', color: 'white' }} />
+                            <Bar dataKey="views" fill="#8b5cf6" radius={[0, 8, 8, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
                     </div>
+
+                    {/* Category Breakdown */}
+                    <div style={{ background: '#1a2332', border: '1px solid #1e3a5f', borderRadius: '12px', padding: '20px' }}>
+                      <h3 style={{ margin: '0 0 16px', fontSize: '14px', fontWeight: '600', color: 'rgba(255,255,255,0.8)' }}>
+                        Products by Category
+                      </h3>
+                      <div style={{ width: '100%', height: '280px' }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={categoryBreakdown.slice(0, 6)}
+                              cx="50%"
+                              cy="50%"
+                              outerRadius={80}
+                              dataKey="count"
+                              label={({ name, percent }) => `${name.slice(0, 10)} ${(percent * 100).toFixed(0)}%`}
+                              labelStyle={{ color: 'rgba(255,255,255,0.8)', fontSize: '11px' }}
+                            >
+                              {categoryBreakdown.slice(0, 6).map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={[
+                                  '#8b5cf6', '#3b82f6', '#0d9488', '#10b981', '#f59e0b', '#ef4444'
+                                ][index % 6]} />
+                              ))}
+                            </Pie>
+                            <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #1e3a5f', color: 'white' }} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* SECTION 5: GROWTH OVER TIME */}
+                <div className="analytics-section analytics-section-5">
+                  <div style={{ borderTop: '1px solid #1e3a5f', paddingTop: '20px', marginBottom: '20px' }} />
+                  <h2 style={{ fontSize: '18px', fontWeight: '700', color: 'white', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    📈 Growth Over Time
+                  </h2>
+                  <div style={{ background: '#1a2332', border: '1px solid #1e3a5f', borderRadius: '12px', padding: '20px' }}>
                     <div style={{ width: '100%', height: '320px' }}>
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={categoryBreakdown} margin={{ left: -20 }}>
-                          <CartesianGrid stroke="rgba(255,255,255,0.08)" />
-                          <XAxis dataKey="category" stroke="rgba(255,255,255,0.7)" tick={{ fontSize: 12 }} />
-                          <YAxis stroke="rgba(255,255,255,0.7)" allowDecimals={false} />
-                          <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }} />
-                          <Bar dataKey="count" fill="#4DB8CC" radius={[8, 8, 0, 0]} />
-                        </BarChart>
+                        <AreaChart data={growthData}>
+                          <defs>
+                            <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#0d9488" stopOpacity={0.8} />
+                              <stop offset="95%" stopColor="#0d9488" stopOpacity={0.1} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid stroke="#1e3a5f" />
+                          <XAxis dataKey="month" stroke="rgba(255,255,255,0.5)" />
+                          <YAxis stroke="rgba(255,255,255,0.5)" allowDecimals={false} />
+                          <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #1e3a5f', color: 'white' }} />
+                          <Area
+                            type="monotone"
+                            dataKey="users"
+                            stroke="#0d9488"
+                            strokeWidth={2}
+                            fillOpacity={1}
+                            fill="url(#colorUsers)"
+                          />
+                        </AreaChart>
                       </ResponsiveContainer>
                     </div>
                   </div>
