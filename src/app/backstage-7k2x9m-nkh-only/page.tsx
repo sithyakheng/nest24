@@ -790,7 +790,7 @@ export default function AdminPage() {
                               cy="50%"
                               outerRadius={80}
                               dataKey="count"
-                              label={({ name, percent }) => `${name.slice(0, 10)} ${((percent ?? 0) * 100).toFixed(0)}%`}
+                              label={({ name, percent }) => `${(name ?? '').slice(0, 10)} ${((percent ?? 0) * 100).toFixed(0)}%`}
                             >
                               {categoryBreakdown.slice(0, 6).map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={[
