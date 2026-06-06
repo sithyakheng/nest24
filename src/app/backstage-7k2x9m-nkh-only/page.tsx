@@ -359,7 +359,7 @@ export default function AdminPage() {
     // Fetch ALL orders
     const { data: ordersData } = await supabase
       .from('orders')
-      .select('id, total_price, status, created_at, buyer_id, seller_id')
+      .select('id, status, created_at, total_price')
       .order('created_at', { ascending: false })
     setOrders(ordersData || [])
 
@@ -628,7 +628,7 @@ export default function AdminPage() {
                               outerRadius={80}
                               paddingAngle={2}
                               dataKey="value"
-                              label={({ name, value, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
+                              label={({ name, value, percent }) => `${typeof name === 'string' ? name : String(name ?? '')} ${((percent ?? 0) * 100).toFixed(0)}%`}
                             >
                               <Cell fill="#10b981" />
                               <Cell fill="#0d9488" />
@@ -790,7 +790,7 @@ export default function AdminPage() {
                               cy="50%"
                               outerRadius={80}
                               dataKey="count"
-                              label={({ name, percent }) => `${(name ?? '').slice(0, 10)} ${((percent ?? 0) * 100).toFixed(0)}%`}
+                              label={({ name, percent }) => `${typeof name === 'string' ? name.slice(0, 10) : String(name ?? '').slice(0, 10)} ${((percent ?? 0) * 100).toFixed(0)}%`}
                             >
                               {categoryBreakdown.slice(0, 6).map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={[
