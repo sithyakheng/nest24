@@ -330,7 +330,7 @@ export default function AdminPage() {
     // Fetch ALL users (buyers + sellers)
     const { data: allUsers } = await supabase
       .from('profiles')
-      .select('id, name, full_name, email, role, rank, avatar_url, created_at, updated_at, banned, ban_reason, is_admin')
+      .select('id, name, full_name, email, role, rank, avatar_url, created_at, updated_at, banned, ban_reason')
       .order('created_at', { ascending: false })
     setAllUsers(allUsers || [])
     await fetchBannedUsers()
@@ -352,14 +352,14 @@ export default function AdminPage() {
     // Fetch ALL products
     const { data: productsData } = await supabase
       .from('products')
-      .select('id, name, price, category, created_at, seller_id, images, profiles(name, full_name, email)')
+      .select('id, name, price, category, created_at, seller_id, images')
       .order('created_at', { ascending: false })
     setProducts(productsData || [])
 
     // Fetch ALL orders
     const { data: ordersData } = await supabase
       .from('orders')
-      .select('id, total_price, status, created_at, profiles(name, full_name, email)')
+      .select('id, total_price, status, created_at, buyer_id, seller_id')
       .order('created_at', { ascending: false })
     setOrders(ordersData || [])
 
@@ -538,7 +538,7 @@ export default function AdminPage() {
                   { label: 'Total Orders', value: totalOrders, color: '#f59e0b', icon: '🛒' },
                   { label: 'Total Reports', value: totalReports, color: '#f97316', icon: '⚠️' },
                 ].map(card => {
-                  const animatedValue = useCountUp(card.value, 1500)
+                  const animatedValue = card.value
                   return (
                     <div key={card.label} style={{
                       background: '#1a2332',
@@ -583,7 +583,7 @@ export default function AdminPage() {
                         { label: 'Total Sellers', value: totalSellers, color: '#0d9488', icon: '🏪' },
                         { label: 'Banned Users', value: totalBanned, color: '#ef4444', icon: '🚫' },
                       ].map(card => {
-                        const animatedValue = useCountUp(card.value, 1500)
+                        const animatedValue = card.value
                         return (
                           <div key={card.label} style={{
                             background: '#1a2332',
@@ -656,7 +656,7 @@ export default function AdminPage() {
                         { label: 'Verified Sellers', value: verifiedSellers, color: '#0d9488', icon: '✅' },
                         { label: 'Premium Sellers', value: premiumSellers, color: '#f59e0b', icon: '👑' },
                       ].map(card => {
-                        const animatedValue = useCountUp(card.value, 1500)
+                        const animatedValue = card.value
                         return (
                           <div key={card.label} style={{
                             background: '#1a2332',
@@ -729,7 +729,7 @@ export default function AdminPage() {
                       { label: 'Total Products', value: totalProducts, color: '#8b5cf6', icon: '📦' },
                       { label: 'Total Views', value: topProducts.reduce((sum: number, p: any) => sum + (p.views || 0), 0), color: '#3b82f6', icon: '👁️' },
                     ].map(card => {
-                      const animatedValue = useCountUp(card.value, 1500)
+                      const animatedValue = card.value
                       return (
                         <div key={card.label} style={{
                           background: '#1a2332',
