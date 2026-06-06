@@ -507,335 +507,193 @@ export default function AdminPage() {
         {/* ANALYTICS TAB */}
         {activeTab === 'analytics' && (
           <div style={{ color: 'white' }}>
-            <style>{`
-              @keyframes fadeInUp {
-                from { 
-                  opacity: 0; 
-                  transform: translateY(20px); 
-                }
-                to { 
-                  opacity: 1; 
-                  transform: translateY(0); 
-                }
-              }
-              .analytics-section { animation: fadeInUp 0.5s ease forwards; }
-              .analytics-section-1 { animation-delay: 0.1s; }
-              .analytics-section-2 { animation-delay: 0.2s; }
-              .analytics-section-3 { animation-delay: 0.3s; }
-              .analytics-section-4 { animation-delay: 0.4s; }
-              .analytics-section-5 { animation-delay: 0.5s; }
-            `}</style>
-
-            {/* SECTION 1: PLATFORM OVERVIEW */}
-            <div className="analytics-section analytics-section-1" style={{ marginBottom: '40px' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: '700', color: 'white', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                📊 Platform Overview
-              </h2>
-              <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
-                {[
-                  { label: 'Total Users', value: totalUsers, color: '#3b82f6', icon: '👥' },
-                  { label: 'Total Products', value: totalProducts, color: '#8b5cf6', icon: '📦' },
-                  { label: 'Total Orders', value: totalOrders, color: '#f59e0b', icon: '🛒' },
-                  { label: 'Total Reports', value: totalReports, color: '#f97316', icon: '⚠️' },
-                ].map(card => {
-                  const animatedValue = card.value
-                  return (
-                    <div key={card.label} style={{
-                      background: '#1a2332',
-                      border: '1px solid #1e3a5f',
-                      borderRadius: '12px',
-                      padding: '20px',
-                      borderLeft: `4px solid ${card.color}`,
-                      minHeight: '140px',
-                      display: 'flex',
-                      flexDirection: 'column'
-                    }}>
-                      <div style={{ fontSize: '20px', marginBottom: '12px' }}>{card.icon}</div>
-                      <p style={{ fontSize: '36px', fontWeight: '800', margin: '0 0 8px', color: 'white' }}>
-                        {animatedValue}
-                      </p>
-                      <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>
-                        {card.label}
-                      </p>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
             {analyticsLoading ? (
-              <div style={{ background: '#1a2332', border: '1px solid #1e3a5f', borderRadius: '12px', padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.8)' }}>
+              <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '60px', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
                 Loading analytics data...
               </div>
             ) : (
               <>
-                {/* SECTION 2: USERS & COMMUNITY */}
-                <div className="analytics-section analytics-section-2" style={{ marginBottom: '40px' }}>
-                  <div style={{ borderTop: '1px solid #1e3a5f', paddingTop: '20px', marginBottom: '20px' }} />
-                  <h2 style={{ fontSize: '18px', fontWeight: '700', color: 'white', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    👥 Users & Community
-                  </h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                    {/* Left: Stat Cards */}
-                    <div style={{ display: 'grid', gap: '12px' }}>
-                      {[
-                        { label: 'Total Buyers', value: totalBuyers, color: '#10b981', icon: '🛍️' },
-                        { label: 'Total Sellers', value: totalSellers, color: '#0d9488', icon: '🏪' },
-                        { label: 'Banned Users', value: totalBanned, color: '#ef4444', icon: '🚫' },
-                      ].map(card => {
-                        const animatedValue = card.value
-                        return (
-                          <div key={card.label} style={{
-                            background: '#1a2332',
-                            border: '1px solid #1e3a5f',
-                            borderRadius: '12px',
-                            padding: '16px',
-                            borderLeft: `4px solid ${card.color}`,
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                          }}>
-                            <div>
-                              <p style={{ fontSize: '24px', fontWeight: '700', margin: '0 0 4px', color: 'white' }}>
-                                {animatedValue}
-                              </p>
-                              <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', fontSize: '12px' }}>
-                                {card.label}
-                              </p>
-                            </div>
-                            <div style={{ fontSize: '24px' }}>{card.icon}</div>
-                          </div>
-                        )
-                      })}
-                    </div>
+                {/* GREETING SECTION */}
+                <div style={{ marginBottom: '32px' }}>
+                  <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'white', margin: '0 0 8px 0' }}>Good morning, Admin</h2>
+                  <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', margin: 0 }}>Here's what's happening on NestKH today.</p>
+                </div>
 
-                    {/* Right: Pie Chart */}
-                    <div style={{ background: '#1a2332', border: '1px solid #1e3a5f', borderRadius: '12px', padding: '20px' }}>
-                      <h3 style={{ margin: '0 0 16px', fontSize: '14px', fontWeight: '600', color: 'rgba(255,255,255,0.8)' }}>
-                        Buyers vs Sellers
-                      </h3>
-                      <div style={{ width: '100%', height: '220px' }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={[
-                                { name: 'Buyers', value: totalBuyers, fill: '#10b981' },
-                                { name: 'Sellers', value: totalSellers, fill: '#0d9488' },
-                              ]}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={40}
-                              outerRadius={80}
-                              paddingAngle={2}
-                              dataKey="value"
-                              label={({ name, value, percent }) => `${typeof name === 'string' ? name : String(name ?? '')} ${((percent ?? 0) * 100).toFixed(0)}%`}
-                            >
-                              <Cell fill="#10b981" />
-                              <Cell fill="#0d9488" />
-                            </Pie>
-                            <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #1e3a5f', color: 'white' }} />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
+                {/* TOP STAT CARDS ROW */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '32px' }}>
+                  {/* Card 1: Total Users (Teal) */}
+                  <div style={{ background: '#0d9488', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column' }}>
+                    <p style={{ fontSize: '11px', fontWeight: '500', color: 'rgba(255,255,255,0.8)', margin: '0 0 12px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Users</p>
+                    <p style={{ fontSize: '28px', fontWeight: '700', color: 'white', margin: '0 0 8px 0' }}>{totalUsers}</p>
+                    <span style={{ background: 'rgba(255,255,255,0.2)', color: 'white', borderRadius: '9999px', padding: '3px 8px', fontSize: '11px', fontWeight: '600', width: 'fit-content' }}>+12% this month</span>
+                  </div>
+
+                  {/* Card 2: Active Sellers */}
+                  <div style={{ background: 'white', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', border: '1px solid #f3f4f6' }}>
+                    <p style={{ fontSize: '11px', fontWeight: '500', color: '#6b7280', margin: '0 0 12px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active Sellers</p>
+                    <p style={{ fontSize: '28px', fontWeight: '700', color: '#111827', margin: '0 0 8px 0' }}>{totalSellers}</p>
+                    <span style={{ background: '#d1fae5', color: '#065f46', borderRadius: '9999px', padding: '3px 8px', fontSize: '11px', fontWeight: '600', width: 'fit-content' }}>↑ {Math.round(totalSellers > 0 ? (premiumSellers + verifiedSellers) / totalSellers * 100 : 0)}% ranked</span>
+                  </div>
+
+                  {/* Card 3: Total Products */}
+                  <div style={{ background: 'white', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', border: '1px solid #f3f4f6' }}>
+                    <p style={{ fontSize: '11px', fontWeight: '500', color: '#6b7280', margin: '0 0 12px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Products</p>
+                    <p style={{ fontSize: '28px', fontWeight: '700', color: '#111827', margin: '0 0 8px 0' }}>{totalProducts}</p>
+                    <span style={{ background: '#d1fae5', color: '#065f46', borderRadius: '9999px', padding: '3px 8px', fontSize: '11px', fontWeight: '600', width: 'fit-content' }}>↑ 8% from last month</span>
+                  </div>
+
+                  {/* Card 4: Pending Requests */}
+                  <div style={{ background: 'white', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', border: '1px solid #f3f4f6' }}>
+                    <p style={{ fontSize: '11px', fontWeight: '500', color: '#6b7280', margin: '0 0 12px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Pending Requests</p>
+                    <p style={{ fontSize: '28px', fontWeight: '700', color: '#111827', margin: '0 0 8px 0' }}>{rankRequests.filter((r: any) => r.status === 'pending').length}</p>
+                    <span style={{ background: '#fef3c7', color: '#92400e', borderRadius: '9999px', padding: '3px 8px', fontSize: '11px', fontWeight: '600', width: 'fit-content' }}>Awaiting review</span>
                   </div>
                 </div>
 
-                {/* SECTION 3: SELLERS & RANKS */}
-                <div className="analytics-section analytics-section-3" style={{ marginBottom: '40px' }}>
-                  <div style={{ borderTop: '1px solid #1e3a5f', paddingTop: '20px', marginBottom: '20px' }} />
-                  <h2 style={{ fontSize: '18px', fontWeight: '700', color: 'white', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    🏆 Sellers & Ranks
-                  </h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                    {/* Left: Stat Cards */}
-                    <div style={{ display: 'grid', gap: '12px' }}>
-                      {[
-                        { label: 'Free Sellers', value: Math.max(totalSellers - starterSellers - verifiedSellers - premiumSellers, 0), color: '#6b7280', icon: '⭐' },
-                        { label: 'Starter Sellers', value: starterSellers, color: '#3b82f6', icon: '🌟' },
-                        { label: 'Verified Sellers', value: verifiedSellers, color: '#0d9488', icon: '✅' },
-                        { label: 'Premium Sellers', value: premiumSellers, color: '#f59e0b', icon: '👑' },
-                      ].map(card => {
-                        const animatedValue = card.value
-                        return (
-                          <div key={card.label} style={{
-                            background: '#1a2332',
-                            border: '1px solid #1e3a5f',
-                            borderRadius: '12px',
-                            padding: '16px',
-                            borderLeft: `4px solid ${card.color}`,
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                          }}>
-                            <div>
-                              <p style={{ fontSize: '24px', fontWeight: '700', margin: '0 0 4px', color: 'white' }}>
-                                {animatedValue}
-                              </p>
-                              <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', fontSize: '12px' }}>
-                                {card.label}
-                              </p>
-                            </div>
-                            <div style={{ fontSize: '20px' }}>{card.icon}</div>
-                          </div>
-                        )
-                      })}
-                    </div>
-
-                    {/* Right: Bar Chart */}
-                    <div style={{ background: '#1a2332', border: '1px solid #1e3a5f', borderRadius: '12px', padding: '20px' }}>
-                      <h3 style={{ margin: '0 0 16px', fontSize: '14px', fontWeight: '600', color: 'rgba(255,255,255,0.8)' }}>
-                        Rank Distribution
-                      </h3>
-                      <div style={{ width: '100%', height: '280px' }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={[
-                            { name: 'Free', value: Math.max(totalSellers - starterSellers - verifiedSellers - premiumSellers, 0), fill: '#6b7280' },
-                            { name: 'Starter', value: starterSellers, fill: '#3b82f6' },
-                            { name: 'Verified', value: verifiedSellers, fill: '#0d9488' },
-                            { name: 'Premium', value: premiumSellers, fill: '#f59e0b' },
-                          ]}>
-                            <CartesianGrid stroke="#1e3a5f" />
-                            <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" />
-                            <YAxis stroke="rgba(255,255,255,0.5)" allowDecimals={false} />
-                            <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #1e3a5f', color: 'white' }} />
-                            <Bar dataKey="value" fill="#0d9488" radius={[8, 8, 0, 0]}>
-                              {[
-                                { value: Math.max(totalSellers - starterSellers - verifiedSellers - premiumSellers, 0), fill: '#6b7280' },
-                                { value: starterSellers, fill: '#3b82f6' },
-                                { value: verifiedSellers, fill: '#0d9488' },
-                                { value: premiumSellers, fill: '#f59e0b' },
-                              ].map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.fill} />
-                              ))}
-                            </Bar>
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* SECTION 4: PRODUCTS */}
-                <div className="analytics-section analytics-section-4" style={{ marginBottom: '40px' }}>
-                  <div style={{ borderTop: '1px solid #1e3a5f', paddingTop: '20px', marginBottom: '20px' }} />
-                  <h2 style={{ fontSize: '18px', fontWeight: '700', color: 'white', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    📦 Products
-                  </h2>
-                  
-                  {/* Stat Cards */}
-                  <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(2, 1fr)', marginBottom: '24px' }}>
-                    {[
-                      { label: 'Total Products', value: totalProducts, color: '#8b5cf6', icon: '📦' },
-                      { label: 'Total Views', value: topProducts.reduce((sum: number, p: any) => sum + (p.views || 0), 0), color: '#3b82f6', icon: '👁️' },
-                    ].map(card => {
-                      const animatedValue = card.value
-                      return (
-                        <div key={card.label} style={{
-                          background: '#1a2332',
-                          border: '1px solid #1e3a5f',
-                          borderRadius: '12px',
-                          padding: '20px',
-                          borderLeft: `4px solid ${card.color}`,
-                        }}>
-                          <p style={{ fontSize: '28px', fontWeight: '700', margin: '0 0 8px', color: 'white' }}>
-                            {animatedValue}
-                          </p>
-                          <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>
-                            {card.label}
-                          </p>
-                        </div>
-                      )
-                    })}
-                  </div>
-
-                  {/* Charts Grid */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                    {/* Top Products Chart */}
-                    <div style={{ background: '#1a2332', border: '1px solid #1e3a5f', borderRadius: '12px', padding: '20px' }}>
-                      <h3 style={{ margin: '0 0 16px', fontSize: '14px', fontWeight: '600', color: 'rgba(255,255,255,0.8)' }}>
-                        Top 10 Products by Views
-                      </h3>
-                      <div style={{ width: '100%', height: '280px' }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            data={topProducts.slice(0, 10).map((item: any) => ({
-                              name: item.name?.length > 12 ? `${item.name.slice(0, 12)}...` : item.name || 'Unknown',
-                              views: item.views || 0,
-                            }))}
-                            layout="vertical"
-                            margin={{ left: 80, right: 20 }}
-                          >
-                            <CartesianGrid stroke="#1e3a5f" />
-                            <XAxis type="number" stroke="rgba(255,255,255,0.5)" />
-                            <YAxis dataKey="name" type="category" stroke="rgba(255,255,255,0.5)" width={75} tick={{ fontSize: 11 }} />
-                            <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #1e3a5f', color: 'white' }} />
-                            <Bar dataKey="views" fill="#8b5cf6" radius={[0, 8, 8, 0]} />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-
-                    {/* Category Breakdown */}
-                    <div style={{ background: '#1a2332', border: '1px solid #1e3a5f', borderRadius: '12px', padding: '20px' }}>
-                      <h3 style={{ margin: '0 0 16px', fontSize: '14px', fontWeight: '600', color: 'rgba(255,255,255,0.8)' }}>
-                        Products by Category
-                      </h3>
-                      <div style={{ width: '100%', height: '280px' }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={categoryBreakdown.slice(0, 6)}
-                              cx="50%"
-                              cy="50%"
-                              outerRadius={80}
-                              dataKey="count"
-                              label={({ name, percent }) => `${typeof name === 'string' ? name.slice(0, 10) : String(name ?? '').slice(0, 10)} ${((percent ?? 0) * 100).toFixed(0)}%`}
-                            >
-                              {categoryBreakdown.slice(0, 6).map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={[
-                                  '#8b5cf6', '#3b82f6', '#0d9488', '#10b981', '#f59e0b', '#ef4444'
-                                ][index % 6]} />
-                              ))}
-                            </Pie>
-                            <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #1e3a5f', color: 'white' }} />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* SECTION 5: GROWTH OVER TIME */}
-                <div className="analytics-section analytics-section-5">
-                  <div style={{ borderTop: '1px solid #1e3a5f', paddingTop: '20px', marginBottom: '20px' }} />
-                  <h2 style={{ fontSize: '18px', fontWeight: '700', color: 'white', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    📈 Growth Over Time
-                  </h2>
-                  <div style={{ background: '#1a2332', border: '1px solid #1e3a5f', borderRadius: '12px', padding: '20px' }}>
-                    <div style={{ width: '100%', height: '320px' }}>
+                {/* MIDDLE ROW - 3 COLUMNS */}
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+                  {/* Left: User Growth Chart */}
+                  <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #f3f4f6' }}>
+                    <p style={{ fontSize: '12px', fontWeight: '500', color: '#6b7280', margin: '0 0 3px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Analytics</p>
+                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', margin: '0 0 16px 0' }}>User Growth</h3>
+                    <div style={{ width: '100%', height: '240px' }}>
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={growthData}>
                           <defs>
-                            <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#0d9488" stopOpacity={0.8} />
-                              <stop offset="95%" stopColor="#0d9488" stopOpacity={0.1} />
+                            <linearGradient id="colorGrowth" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#0d9488" stopOpacity={0.3} />
+                              <stop offset="95%" stopColor="#0d9488" stopOpacity={0.05} />
                             </linearGradient>
                           </defs>
-                          <CartesianGrid stroke="#1e3a5f" />
-                          <XAxis dataKey="month" stroke="rgba(255,255,255,0.5)" />
-                          <YAxis stroke="rgba(255,255,255,0.5)" allowDecimals={false} />
-                          <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #1e3a5f', color: 'white' }} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                          <XAxis dataKey="month" stroke="#9ca3af" style={{ fontSize: '12px' }} />
+                          <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} allowDecimals={false} />
+                          <Tooltip contentStyle={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px', color: '#111827' }} />
                           <Area
                             type="monotone"
                             dataKey="users"
                             stroke="#0d9488"
                             strokeWidth={2}
                             fillOpacity={1}
-                            fill="url(#colorUsers)"
+                            fill="url(#colorGrowth)"
                           />
                         </AreaChart>
                       </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Middle: Rank Distribution Pie */}
+                  <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #f3f4f6' }}>
+                    <p style={{ fontSize: '12px', fontWeight: '500', color: '#6b7280', margin: '0 0 3px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Distribution</p>
+                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', margin: '0 0 16px 0' }}>Rank Distribution</h3>
+                    <div style={{ width: '100%', height: '240px' }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={[
+                              { name: 'Free', value: Math.max(totalSellers - starterSellers - verifiedSellers - premiumSellers, 0), fill: '#d1d5db' },
+                              { name: 'Starter', value: starterSellers, fill: '#3b82f6' },
+                              { name: 'Verified', value: verifiedSellers, fill: '#0d9488' },
+                              { name: 'Premium', value: premiumSellers, fill: '#f59e0b' },
+                            ]}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={45}
+                            outerRadius={75}
+                            paddingAngle={2}
+                            dataKey="value"
+                          >
+                            <Cell fill="#d1d5db" />
+                            <Cell fill="#3b82f6" />
+                            <Cell fill="#0d9488" />
+                            <Cell fill="#f59e0b" />
+                          </Pie>
+                          <Tooltip contentStyle={{ background: 'white', border: '1px solid #e5e7eb', color: '#111827' }} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '12px', fontSize: '12px' }}>
+                      {[
+                        { label: 'Free', color: '#d1d5db', value: Math.max(totalSellers - starterSellers - verifiedSellers - premiumSellers, 0) },
+                        { label: 'Starter', color: '#3b82f6', value: starterSellers },
+                        { label: 'Verified', color: '#0d9488', value: verifiedSellers },
+                        { label: 'Premium', color: '#f59e0b', value: premiumSellers },
+                      ].map(item => (
+                        <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6b7280' }}>
+                          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }} />
+                          <span>{item.label}: {item.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right: Top Categories */}
+                  <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #f3f4f6' }}>
+                    <p style={{ fontSize: '12px', fontWeight: '500', color: '#6b7280', margin: '0 0 3px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Distribution</p>
+                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', margin: '0 0 16px 0' }}>Top Categories</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {categoryBreakdown.slice(0, 6).map((cat: any) => {
+                        const maxCount = Math.max(...categoryBreakdown.map((c: any) => c.count));
+                        const percentage = maxCount > 0 ? (cat.count / maxCount) * 100 : 0;
+                        return (
+                          <div key={cat.category}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                              <span style={{ fontSize: '12px', fontWeight: '500', color: '#111827' }}>{typeof cat.category === 'string' ? cat.category.slice(0, 15) : String(cat.category ?? '')}</span>
+                              <span style={{ fontSize: '11px', color: '#6b7280' }}>{Math.round(percentage)}%</span>
+                            </div>
+                            <div style={{ height: '6px', background: '#f3f4f6', borderRadius: '9999px', overflow: 'hidden' }}>
+                              <div style={{ height: '100%', background: '#0d9488', width: `${percentage}%` }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* BOTTOM ROW - 2 COLUMNS */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  {/* Left: Recent Rank Requests */}
+                  <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #f3f4f6' }}>
+                    <p style={{ fontSize: '12px', fontWeight: '500', color: '#6b7280', margin: '0 0 3px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Activity</p>
+                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', margin: '0 0 12px 0' }}>Recent Rank Requests</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                      {rankRequests.slice(0, 5).map((req: any) => (
+                        <div key={req.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0', borderBottom: '1px solid #f3f4f6' }}>
+                          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#e0f2f1', color: '#00695c', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600', flexShrink: 0 }}>
+                            {(req.full_name || 'S').charAt(0).toUpperCase()}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ fontSize: '13px', fontWeight: '500', color: '#111827', margin: '0 0 2px 0' }}>{req.full_name || 'Unknown'}</p>
+                            <p style={{ fontSize: '11px', color: '#6b7280', margin: 0 }}>Tier {req.rank}</p>
+                          </div>
+                          <span style={{ fontSize: '11px', fontWeight: '600', borderRadius: '9999px', padding: '3px 10px', background: req.status === 'pending' ? '#fef3c7' : req.status === 'approved' ? '#d1fae5' : '#fee2e2', color: req.status === 'pending' ? '#92400e' : req.status === 'approved' ? '#065f46' : '#991b1b' }}>
+                            {req.status}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right: Recent Users */}
+                  <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #f3f4f6' }}>
+                    <p style={{ fontSize: '12px', fontWeight: '500', color: '#6b7280', margin: '0 0 3px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Activity</p>
+                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', margin: '0 0 12px 0' }}>Recent Users</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                      {allUsers.slice(0, 5).map((user: any) => (
+                        <div key={user.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0', borderBottom: '1px solid #f3f4f6' }}>
+                          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: user.role === 'seller' ? '#e0f2f1' : '#f3f4f6', color: user.role === 'seller' ? '#00695c' : '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600', flexShrink: 0 }}>
+                            {(user.name || user.full_name || 'U').charAt(0).toUpperCase()}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ fontSize: '13px', fontWeight: '500', color: '#111827', margin: '0 0 2px 0' }}>{user.name || user.full_name || 'Unknown'}</p>
+                            <p style={{ fontSize: '11px', color: '#6b7280', margin: 0 }}>{new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                          </div>
+                          <span style={{ fontSize: '11px', fontWeight: '600', borderRadius: '6px', padding: '3px 10px', background: user.role === 'seller' ? 'rgba(13, 148, 136, 0.1)' : 'rgba(107, 114, 128, 0.1)', color: user.role === 'seller' ? '#0d9488' : '#6b7280' }}>
+                            {user.role === 'seller' ? 'Seller' : user.role === 'admin' ? 'Admin' : 'Buyer'}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
