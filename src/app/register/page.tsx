@@ -34,7 +34,6 @@ export default function RegisterPage() {
     
     // Bot check: If honeypot is filled, it's likely a bot
     if (honeypot) {
-      console.log('Bot detected via honeypot')
       // Reject silently or redirect to success page to fool bots
       setSuccess(true)
       return

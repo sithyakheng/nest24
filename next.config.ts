@@ -21,7 +21,6 @@ const withPWA = require('next-pwa')({
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ['res.cloudinary.com'],
     remotePatterns: [
       {
         protocol: 'https',

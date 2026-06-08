@@ -97,7 +97,6 @@ export default function ProductPage() {
 
   const handleAddToCart = () => {
     // Add to cart logic here
-    console.log('Added to cart:', product?.name, quantity)
   }
 
   const handleToggleFavorite = () => {

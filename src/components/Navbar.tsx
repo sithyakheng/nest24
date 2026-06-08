@@ -36,9 +36,7 @@ export default function Navbar() {
   }, [])
 
   function handleLangToggle() {
-    console.log('Current lang:', lang)
     toggleLang()
-    console.log('Toggled!')
   }
 
   useEffect(() => {
@@ -63,7 +61,6 @@ export default function Navbar() {
         .eq('id', user.id)
         .single()
       
-      console.log('User profile loaded:', data)
       setUserRole(data?.role || '')
       setShopSlug(data?.shop_slug || '')
       setShopName(data?.name || data?.full_name || '')
@@ -325,14 +322,6 @@ export default function Navbar() {
                           <span>{t('nav.my_account')}</span>
                         </div>
                       </Link>
-                      {userRole === 'admin' && (
-                        <Link href="/backstage-7k2x9m-nkh-only" style={{ display: 'block', padding: '12px 16px', color: navTextColor, textDecoration: 'none', borderRadius: '8px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <span style={{ fontSize: '14px' }}>⚙️</span>
-                            <span>{t('nav.admin')}</span>
-                          </div>
-                        </Link>
-                      )}
                       <button
                         onClick={handleSignOut}
                         style={{
@@ -536,18 +525,6 @@ export default function Navbar() {
                     <p style={{ color: 'rgba(0,0,0,0.4)', fontSize: '12px', margin: 0 }}>{user?.email}</p>
                   </div>
                 </div>
-                {userRole === 'admin' && (
-                  <Link href="/backstage-7k2x9m-nkh-only" onClick={() => setMobileMenuOpen(false)}>
-                    <div style={{
-                      padding: '14px 16px',
-                      borderRadius: '12px',
-                      color: '#E8C97E',
-                      fontSize: '15px',
-                      fontWeight: '700',
-                      cursor: 'pointer',
-                      background: 'rgba(232,201,126,0.08)',
-                      border: '1px solid rgba(232,201,126,0.15)',
-                      marginTop: '4px'
                     }}>
                       ⚙️ {t('nav.admin')}
                     </div>

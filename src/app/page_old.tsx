@@ -29,34 +29,20 @@ export default function Home() {
 
   const fetchProducts = async () => {
     try {
-      console.log('🔍 Fetching all products for homepage...')
-      
-      // Check Supabase client initialization
-      console.log('📡 Supabase client initialized:', !!supabase)
-      
-      // Check current session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      console.log('👤 Current session:', session?.user?.id || 'No active session')
-      if (sessionError) console.log('⚠️ Session error:', sessionError)
-
       const { data, error } = await supabase
         .from('products')
         .select('id, seller_id, name, price, image_url, images, category, created_at')
         .order('created_at', { ascending: false })
         .limit(20)
 
-      console.log('📦 Products query result:', { data, error })
-      console.log('📊 Products count:', data?.length || 0)
-
       if (error) {
-        console.error('❌ Supabase error:', error)
+        console.error('Supabase error:', error)
         throw error
       }
       
       setProducts(data || [])
-      console.log('✅ Products set successfully:', data?.length || 0, 'products')
     } catch (error) {
-      console.error('❌ Error fetching products:', error)
+      console.error('Error fetching products:', error)
     } finally {
       setLoading(false)
     }

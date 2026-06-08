@@ -166,11 +166,6 @@ function BrowseContent() {
           ))}
         </div>
 
-        {/* Debug info */}
-        <p style={{ color: '#6b7280', fontSize: '12px', marginBottom: '20px' }}>
-          Products loaded: {products.length}
-        </p>
-
         {productsLoading ? (
   <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: isMobile ? '10px' : '20px' }}>
     {[...Array(8)].map((_, i) => (
