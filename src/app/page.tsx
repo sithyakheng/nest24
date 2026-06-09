@@ -208,201 +208,203 @@ async function fetchProducts() {
           marginBottom: isMobile ? '20px' : '40px',
           ...glassStyle
         }}
-        className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 p-4 md:p-8"
+        className="max-w-7xl mx-auto px-4 py-6"
       >
-        {/* LEFT - Product Feed (70%) */}
-        <div className="lg:col-span-2">
-          {/* Mobile Section Title */}
-          <div className="block md:hidden px-3 mb-2">
-            <h2 className="text-base font-medium text-gray-800">Featured products</h2>
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* LEFT - Products */}
+          <div className="flex-1 min-w-0">
+            {/* Mobile Section Title */}
+            <div className="block md:hidden px-3 mb-2">
+              <h2 className="text-base font-medium text-gray-800">Featured products</h2>
+            </div>
+
+            <div className="hidden md:block mb-8">
+              <h1 className="text-2xl md:text-4xl font-black text-gray-900 mb-2">{t('home.featured')}</h1>
+              <p className="text-gray-600 text-base md:text-lg">{t('home.badge')}</p>
+            </div>
+
+            {productsLoading ? (
+              <div className="grid grid-cols-2 gap-3 px-3 md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-3 sm:gap-5 md:px-0">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} style={{
+                    height: '200px',
+                    background: 'rgba(255,255,255,0.04)',
+                    borderRadius: '16px',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    animation: 'pulse 1.5s infinite'
+                  }} />
+                ))}
+              </div>
+            ) : products.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px', color: 'rgba(255,255,255,0.4)' }}>
+                {t('home.no_products')}
+              </div>
+            ) : (
+              <>
+                {/* Mobile Product Grid */}
+                <div className="grid grid-cols-2 gap-3 px-3 md:hidden">
+                  {products.map((product: any) => (
+                    <Link href={`/products/${product.id}`} key={product.id} className="no-underline">
+                      <div className="bg-white rounded-2xl overflow-hidden border border-gray-100">
+                        <div className="aspect-square bg-teal-50">
+                          {product.image_url && getImageUrl(product.image_url) ? (
+                            <img
+                              src={getImageUrl(product.image_url)!}
+                              alt={product.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Image</div>
+                          )}
+                        </div>
+                        <div className="p-3">
+                          <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                          <div className="flex items-center gap-1 mt-1">
+                            <p className="text-sm font-semibold text-[#0d9488]">${product.price}</p>
+                            {product.compare_price && (
+                              <p className="text-xs text-gray-400 line-through ml-1">${product.compare_price}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Desktop Product Grid */}
+                <div className="hidden md:grid md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+                  {products.map((product: any) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
-          <div className="hidden md:block mb-8">
-            <h1 className="text-2xl md:text-4xl font-black text-gray-900 mb-2">{t('home.featured')}</h1>
-            <p className="text-gray-600 text-base md:text-lg">{t('home.badge')}</p>
-          </div>
+          {/* RIGHT - Sidebar */}
+          <div className="w-full lg:w-80 flex-shrink-0 space-y-6">
+              
+              {/* Trending Sellers */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                style={sidebarGlassStyle}
+                className="p-6"
+              >
+                <div className="flex items-center space-x-2 mb-6">
+                  <TrendingUp className="w-5 h-5 text-amber-500" />
+                  <h3 className="font-bold text-gray-900 text-lg">Trending Sellers</h3>
+                </div>
+                <div className="space-y-4">
+                  {trendingSellers.slice(0, 3).map((seller) => (
+                    <Link
+                      key={seller.id}
+                      href={`/seller/${seller.id}`}
+                      className="flex items-center space-x-4 p-3 rounded-xl transition-all duration-200 hover:bg-gray-50"
+                    >
+                      <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
+                        {seller.avatar_url && getImageUrl(seller.avatar_url) ? (
+                          <img
+                            src={getImageUrl(seller.avatar_url)!}
+                            alt={seller.full_name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none'
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <User className="w-6 h-6 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-gray-900 font-medium truncate">
+                          {seller.full_name || 'Seller'}
+                        </p>
+                        <p className="text-gray-500 text-sm">Verified Seller</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </motion.div>
 
-          {productsLoading ? (
-            <div className="grid grid-cols-2 gap-3 px-3 md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-3 sm:gap-5 md:px-0">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} style={{
-                  height: '200px',
-                  background: 'rgba(255,255,255,0.04)',
-                  borderRadius: '16px',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  animation: 'pulse 1.5s infinite'
-                }} />
-              ))}
-            </div>
-          ) : products.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px', color: 'rgba(255,255,255,0.4)' }}>
-              {t('home.no_products')}
-            </div>
-          ) : (
-            <>
-              {/* Mobile Product Grid */}
-              <div className="grid grid-cols-2 gap-3 px-3 md:hidden">
-                {products.map((product: any) => (
-                  <Link href={`/products/${product.id}`} key={product.id} className="no-underline">
-                    <div className="bg-white rounded-2xl overflow-hidden border border-gray-100">
-                      <div className="aspect-square bg-teal-50">
+              {/* Categories */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                style={sidebarGlassStyle}
+                className="p-6"
+              >
+                <div className="flex items-center space-x-2 mb-6">
+                  <Package className="w-5 h-5 text-teal-500" />
+                  <h3 className="font-bold text-gray-900 text-lg">Categories</h3>
+                </div>
+                <div className="space-y-3">
+                  {categories.slice(0, 6).map((category) => (
+                    <Link
+                      key={category.name}
+                      href={`/browse?category=${category.name}`}
+                      className="flex items-center justify-between p-3 rounded-xl transition-all duration-200 hover:bg-gray-50"
+                    >
+                      <span className="text-gray-700 font-medium">{category.name}</span>
+                      <span className="text-gray-500 text-sm">{category.count}</span>
+                    </Link>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* Recently Added */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                style={sidebarGlassStyle}
+                className="p-6"
+              >
+                <div className="flex items-center space-x-2 mb-6">
+                  <Package className="w-5 h-5 text-amber-500" />
+                  <h3 className="font-bold text-gray-900 text-lg">Recently Added</h3>
+                </div>
+                <div className="space-y-4">
+                  {recentProducts.map((product) => (
+                    <Link
+                      key={product.id}
+                      href={`/products/${product.id}`}
+                      className="flex items-center space-x-4 p-3 rounded-xl transition-all duration-200 hover:bg-gray-50"
+                    >
+                      <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
                         {product.image_url && getImageUrl(product.image_url) ? (
                           <img
                             src={getImageUrl(product.image_url)!}
                             alt={product.name}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none'
+                            }}
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Image</div>
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-gray-400 text-xs">No Image</span>
+                          </div>
                         )}
                       </div>
-                      <div className="p-3">
-                        <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
-                        <div className="flex items-center gap-1 mt-1">
-                          <p className="text-sm font-semibold text-[#0d9488]">${product.price}</p>
-                          {product.compare_price && (
-                            <p className="text-xs text-gray-400 line-through ml-1">${product.compare_price}</p>
-                          )}
-                        </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-gray-900 font-medium truncate">
+                          {product.name}
+                        </p>
+                        <p className="text-amber-600 font-bold text-lg">
+                          ${product.price.toFixed(2)}
+                        </p>
                       </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
+                    </Link>
+                  ))}
+                </div>
+              </motion.div>
 
-              {/* Desktop Product Grid */}
-              <div className="hidden md:grid md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
-                {products.map((product: any) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* RIGHT - Sidebar (30%) */}
-        <div className="lg:col-span-1 space-y-6">
-            
-            {/* Trending Sellers */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              style={sidebarGlassStyle}
-              className="p-6"
-            >
-              <div className="flex items-center space-x-2 mb-6">
-                <TrendingUp className="w-5 h-5 text-amber-500" />
-                <h3 className="font-bold text-gray-900 text-lg">Trending Sellers</h3>
-              </div>
-              <div className="space-y-4">
-                {trendingSellers.slice(0, 3).map((seller) => (
-                  <Link
-                    key={seller.id}
-                    href={`/seller/${seller.id}`}
-                    className="flex items-center space-x-4 p-3 rounded-xl transition-all duration-200 hover:bg-gray-50"
-                  >
-                    <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
-                      {seller.avatar_url && getImageUrl(seller.avatar_url) ? (
-                        <img
-                          src={getImageUrl(seller.avatar_url)!}
-                          alt={seller.full_name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none'
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <User className="w-6 h-6 text-gray-400" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-gray-900 font-medium truncate">
-                        {seller.full_name || 'Seller'}
-                      </p>
-                      <p className="text-gray-500 text-sm">Verified Seller</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Categories */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              style={sidebarGlassStyle}
-              className="p-6"
-            >
-              <div className="flex items-center space-x-2 mb-6">
-                <Package className="w-5 h-5 text-teal-500" />
-                <h3 className="font-bold text-gray-900 text-lg">Categories</h3>
-              </div>
-              <div className="space-y-3">
-                {categories.slice(0, 6).map((category) => (
-                  <Link
-                    key={category.name}
-                    href={`/browse?category=${category.name}`}
-                    className="flex items-center justify-between p-3 rounded-xl transition-all duration-200 hover:bg-gray-50"
-                  >
-                    <span className="text-gray-700 font-medium">{category.name}</span>
-                    <span className="text-gray-500 text-sm">{category.count}</span>
-                  </Link>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Recently Added */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              style={sidebarGlassStyle}
-              className="p-6"
-            >
-              <div className="flex items-center space-x-2 mb-6">
-                <Package className="w-5 h-5 text-amber-500" />
-                <h3 className="font-bold text-gray-900 text-lg">Recently Added</h3>
-              </div>
-              <div className="space-y-4">
-                {recentProducts.map((product) => (
-                  <Link
-                    key={product.id}
-                    href={`/products/${product.id}`}
-                    className="flex items-center space-x-4 p-3 rounded-xl transition-all duration-200 hover:bg-gray-50"
-                  >
-                    <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
-                      {product.image_url && getImageUrl(product.image_url) ? (
-                        <img
-                          src={getImageUrl(product.image_url)!}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none'
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-gray-400 text-xs">No Image</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-gray-900 font-medium truncate">
-                        {product.name}
-                      </p>
-                      <p className="text-amber-600 font-bold text-lg">
-                        ${product.price.toFixed(2)}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </motion.div>
-
+          </div>
         </div>
       </motion.div>
 
