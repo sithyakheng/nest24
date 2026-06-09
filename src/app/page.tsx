@@ -204,87 +204,84 @@ async function fetchProducts() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         style={{
-          maxWidth: '1200px',
-          margin: 'auto',
           marginTop: '0px',
           marginBottom: isMobile ? '20px' : '40px',
           ...glassStyle
         }}
-        className="p-4 md:p-8"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 p-4 md:p-8"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* LEFT - Product Feed (70%) */}
-          <div className="lg:col-span-2">
-            {/* Mobile Section Title */}
-            <div className="block md:hidden px-3 mb-2">
-              <h2 className="text-base font-medium text-gray-800">Featured products</h2>
-            </div>
-
-            <div className="hidden md:block mb-8">
-              <h1 className="text-2xl md:text-4xl font-black text-gray-900 mb-2">{t('home.featured')}</h1>
-              <p className="text-gray-600 text-base md:text-lg">{t('home.badge')}</p>
-            </div>
-
-            {productsLoading ? (
-  <div className="grid grid-cols-2 gap-3 px-3 md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-3 sm:gap-5 md:px-0">
-    {[...Array(6)].map((_, i) => (
-      <div key={i} style={{
-        height: '200px',
-        background: 'rgba(255,255,255,0.04)',
-        borderRadius: '16px',
-        border: '1px solid rgba(255,255,255,0.06)',
-        animation: 'pulse 1.5s infinite'
-      }} />
-    ))}
-  </div>
-) : products.length === 0 ? (
-  <div style={{ textAlign: 'center', padding: '60px', color: 'rgba(255,255,255,0.4)' }}>
-    {t('home.no_products')}
-  </div>
-) : (
-  <>
-  {/* Mobile Product Grid */}
-  <div className="grid grid-cols-2 gap-3 px-3 md:hidden">
-    {products.map((product: any) => (
-      <Link href={`/products/${product.id}`} key={product.id} className="no-underline">
-        <div className="bg-white rounded-2xl overflow-hidden border border-gray-100">
-          <div className="aspect-square bg-teal-50">
-            {product.image_url && getImageUrl(product.image_url) ? (
-              <img
-                src={getImageUrl(product.image_url)!}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Image</div>
-            )}
+        {/* LEFT - Product Feed (70%) */}
+        <div className="lg:col-span-2">
+          {/* Mobile Section Title */}
+          <div className="block md:hidden px-3 mb-2">
+            <h2 className="text-base font-medium text-gray-800">Featured products</h2>
           </div>
-          <div className="p-3">
-            <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
-            <div className="flex items-center gap-1 mt-1">
-              <p className="text-sm font-semibold text-[#0d9488]">${product.price}</p>
-              {product.compare_price && (
-                <p className="text-xs text-gray-400 line-through ml-1">${product.compare_price}</p>
-              )}
-            </div>
+
+          <div className="hidden md:block mb-8">
+            <h1 className="text-2xl md:text-4xl font-black text-gray-900 mb-2">{t('home.featured')}</h1>
+            <p className="text-gray-600 text-base md:text-lg">{t('home.badge')}</p>
           </div>
+
+          {productsLoading ? (
+            <div className="grid grid-cols-2 gap-3 px-3 md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-3 sm:gap-5 md:px-0">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} style={{
+                  height: '200px',
+                  background: 'rgba(255,255,255,0.04)',
+                  borderRadius: '16px',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  animation: 'pulse 1.5s infinite'
+                }} />
+              ))}
+            </div>
+          ) : products.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px', color: 'rgba(255,255,255,0.4)' }}>
+              {t('home.no_products')}
+            </div>
+          ) : (
+            <>
+              {/* Mobile Product Grid */}
+              <div className="grid grid-cols-2 gap-3 px-3 md:hidden">
+                {products.map((product: any) => (
+                  <Link href={`/products/${product.id}`} key={product.id} className="no-underline">
+                    <div className="bg-white rounded-2xl overflow-hidden border border-gray-100">
+                      <div className="aspect-square bg-teal-50">
+                        {product.image_url && getImageUrl(product.image_url) ? (
+                          <img
+                            src={getImageUrl(product.image_url)!}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Image</div>
+                        )}
+                      </div>
+                      <div className="p-3">
+                        <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                        <div className="flex items-center gap-1 mt-1">
+                          <p className="text-sm font-semibold text-[#0d9488]">${product.price}</p>
+                          {product.compare_price && (
+                            <p className="text-xs text-gray-400 line-through ml-1">${product.compare_price}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Desktop Product Grid */}
+              <div className="hidden md:grid md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+                {products.map((product: any) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            </>
+          )}
         </div>
-      </Link>
-    ))}
-  </div>
 
-  {/* Desktop Product Grid */}
-  <div className="hidden md:grid md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
-    {products.map((product: any) => (
-      <ProductCard key={product.id} product={product} />
-    ))}
-  </div>
-  </>
-)}
-          </div>
-
-          {/* RIGHT - Sidebar (30%) - Hidden on mobile */}
-          <div className="hidden lg:block space-y-6">
+        {/* RIGHT - Sidebar (30%) */}
+        <div className="lg:col-span-1 space-y-6">
             
             {/* Trending Sellers */}
             <motion.div
@@ -406,7 +403,6 @@ async function fetchProducts() {
               </div>
             </motion.div>
 
-          </div>
         </div>
       </motion.div>
 
