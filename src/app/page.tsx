@@ -203,11 +203,6 @@ async function fetchProducts() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        style={{
-          marginTop: '0px',
-          marginBottom: isMobile ? '20px' : '40px',
-          ...glassStyle
-        }}
         className="max-w-7xl mx-auto px-4 py-6"
       >
         <div className="flex flex-col lg:flex-row gap-6">
@@ -272,7 +267,7 @@ async function fetchProducts() {
                 </div>
 
                 {/* Desktop Product Grid */}
-                <div className="hidden md:grid md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+                <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {products.map((product: any) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
@@ -282,7 +277,7 @@ async function fetchProducts() {
           </div>
 
           {/* RIGHT - Sidebar */}
-          <div className="w-full lg:w-80 flex-shrink-0 space-y-6">
+          <div className="hidden md:block w-full lg:w-80 flex-shrink-0 space-y-6">
               
               {/* Trending Sellers */}
               <motion.div
