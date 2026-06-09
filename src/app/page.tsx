@@ -267,7 +267,7 @@ async function fetchProducts() {
                 </div>
 
                 {/* Desktop Product Grid */}
-                <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                <div className="hidden md:grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5">
                   {products.map((product: any) => (
                     <ProductCard key={product.id} product={product} />
                   ))}

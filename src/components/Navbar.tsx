@@ -477,7 +477,7 @@ export default function Navbar() {
             {/* Nav links */}
             {[
               { label: `🏠 Home`, href: '/' },
-              { label: `🔍 ${t('nav.browse')}`, href: '/browse' },
+              { label: `Browse`, href: '/browse' },
               { label: `🏪 Sellers`, href: '/sellers' },
               { label: `🏆 Ranks`, href: '/ranks' },
               { label: `📂 ${t('nav.categories')}`, href: '/categories' },
@@ -528,18 +528,18 @@ export default function Navbar() {
                 {userRole === 'admin' && (
                   <Link href="/backstage-7k2x9m-nkh-only" onClick={() => setMobileMenuOpen(false)}>
                     <div style={{ padding: '12px 16px', borderRadius: '12px', color: navTextColor, fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
-                      ⚙️ {t('nav.admin')}
+                      Admin Panel
                     </div>
                   </Link>
                 )}
                 {userRole === 'seller' && (
                   <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                    <div style={{ padding: '12px 16px', borderRadius: '12px', color: navTextColor, fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>📊 Dashboard</div>
+                    <div style={{ padding: '12px 16px', borderRadius: '12px', color: navTextColor, fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Dashboard</div>
                   </Link>
                 )}
-                {(userRole === 'buyer' || (!userRole && user)) && (
+                {user && (
                   <Link href="/profile" onClick={() => setMobileMenuOpen(false)}>
-                    <div style={{ padding: '12px 16px', borderRadius: '12px', color: navTextColor, fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>👤 Profile</div>
+                    <div style={{ padding: '12px 16px', borderRadius: '12px', color: navTextColor, fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Profile</div>
                   </Link>
                 )}
                 {userRole === 'seller' && (shopSlug || shopName) && (
