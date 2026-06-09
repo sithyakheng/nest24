@@ -298,15 +298,6 @@ export default function Navbar() {
                       zIndex: 1000,
                       color: navTextColor
                     }}>
-                      {/* Admin Panel - Only show for admins */}
-                      {userRole === 'admin' && (
-                        <Link href="/backstage-7k2x9m-nkh-only" style={{ display: 'block', padding: '12px 16px', color: navTextColor, textDecoration: 'none', borderRadius: '8px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <span>⚙️</span>
-                            <span>Admin Panel</span>
-                          </div>
-                        </Link>
-                      )}
                       {/* Dashboard - Only show for sellers */}
                       {userRole === 'seller' && (
                         <Link href="/dashboard" style={{ display: 'block', padding: '12px 16px', color: navTextColor, textDecoration: 'none', borderRadius: '8px' }}>
@@ -486,7 +477,7 @@ export default function Navbar() {
             {/* Nav links */}
             {[
               { label: `🏠 Home`, href: '/' },
-              { label: `Browse`, href: '/browse' },
+              { label: `🔍 ${t('nav.browse')}`, href: '/browse' },
               { label: `🏪 Sellers`, href: '/sellers' },
               { label: `🏆 Ranks`, href: '/ranks' },
               { label: `📂 ${t('nav.categories')}`, href: '/categories' },
@@ -534,21 +525,14 @@ export default function Navbar() {
                     <p style={{ color: 'rgba(0,0,0,0.4)', fontSize: '12px', margin: 0 }}>{user?.email}</p>
                   </div>
                 </div>
-                {userRole === 'admin' && (
-                  <Link href="/backstage-7k2x9m-nkh-only" onClick={() => setMobileMenuOpen(false)}>
-                    <div style={{ padding: '12px 16px', borderRadius: '12px', color: navTextColor, fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
-                      Admin Panel
+                    }}>
+                      ⚙️ {t('nav.admin')}
                     </div>
                   </Link>
                 )}
                 {userRole === 'seller' && (
                   <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                    <div style={{ padding: '12px 16px', borderRadius: '12px', color: navTextColor, fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Dashboard</div>
-                  </Link>
-                )}
-                {user && (
-                  <Link href="/profile" onClick={() => setMobileMenuOpen(false)}>
-                    <div style={{ padding: '12px 16px', borderRadius: '12px', color: navTextColor, fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Profile</div>
+                    <div style={{ padding: '12px 16px', borderRadius: '12px', color: navTextColor, fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>📊 Dashboard</div>
                   </Link>
                 )}
                 {userRole === 'seller' && (shopSlug || shopName) && (
