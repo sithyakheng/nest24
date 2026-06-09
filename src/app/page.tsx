@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { TrendingUp, Package, User, Star, Rocket, Smartphone, MessageSquare, Search, Store, Check, Headphones, MessageCircle, Zap, ShieldCheck } from 'lucide-react'
+import { usePathname } from 'next/navigation'
+import { TrendingUp, Package, User, Star, Rocket, Smartphone, MessageSquare, Search, Store, Check, Headphones, MessageCircle, Zap, ShieldCheck, Bell, Home, Heart } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import ProductCard from '@/components/ProductCard'
 import { supabase } from '@/lib/supabase'
@@ -28,6 +29,7 @@ const marqueeItems = [
 
 export default function HomePage() {
   const { t, lang } = useLang()
+  const pathname = usePathname()
   const [products, setProducts] = useState<any[]>([])
   const [productsLoading, setProductsLoading] = useState(true)
   const [trendingSellers, setTrendingSellers] = useState<any[]>([])
@@ -35,9 +37,13 @@ export default function HomePage() {
   const [recentProducts, setRecentProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [windowWidth, setWindowWidth] = useState(1200)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('All')
 
   const isMobile = windowWidth < 768
   const isSmallMobile = windowWidth < 480
+
+  const CATEGORIES = ['All', 'Electronics', 'Fashion', 'Home', 'Beauty', 'Gaming', 'Other']
   
   useEffect(() => {
     setWindowWidth(window.innerWidth)
@@ -132,8 +138,67 @@ async function fetchProducts() {
 
   return (
     <div key={lang} className="relative z-10 homepage-background">
-      <Navbar />
-      <div className="min-h-full sm:min-h-screen bg-white dot-grid-background" style={{ paddingTop: isMobile ? '80px' : '120px' }}>
+      {/* Desktop Navbar */}
+      <div className="hidden md:block">
+        <Navbar />
+      </div>
+
+      {/* Mobile Header */}
+      <div className="block md:hidden bg-[#0d9488] px-4 pt-4 pb-3">
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="text-white font-semibold text-xl">NestKH</h1>
+          <div className="flex items-center gap-3">
+            <Bell className="w-5 h-5 text-white" />
+            <User className="w-5 h-5 text-white" />
+          </div>
+        </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" />
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 rounded-full bg-white/20 backdrop-blur text-white placeholder-white/60 text-sm outline-none"
+          />
+        </div>
+      </div>
+
+      <div className="min-h-full sm:min-h-screen bg-white dot-grid-background pb-14 md:pb-0">
+      {/* Mobile Category Pills */}
+      <div className="block md:hidden px-3 py-3 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-2">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-1.5 text-sm rounded-full border whitespace-nowrap ${
+                selectedCategory === cat
+                  ? 'bg-[#0d9488] text-white border-[#0d9488]'
+                  : 'border-teal-200 text-[#0d9488]'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Mobile Promo Banner */}
+      <div className="block md:hidden mx-3 my-2">
+        <div className="bg-[#004E64] rounded-2xl p-4 flex items-center justify-between">
+          <div>
+            <p className="text-white/60 text-xs mb-1">Limited time offer</p>
+            <p className="text-white font-bold">Shop & save big</p>
+          </div>
+          <Link href="/browse">
+            <button className="bg-[#0d9488] text-white px-4 py-2 rounded-xl text-sm font-medium">
+              Browse
+            </button>
+          </Link>
+        </div>
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -150,18 +215,23 @@ async function fetchProducts() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* LEFT - Product Feed (70%) */}
           <div className="lg:col-span-2">
-            <div className="mb-8">
+            {/* Mobile Section Title */}
+            <div className="block md:hidden px-3 mb-2">
+              <h2 className="text-base font-medium text-gray-800">Featured products</h2>
+            </div>
+
+            <div className="hidden md:block mb-8">
               <h1 className="text-2xl md:text-4xl font-black text-gray-900 mb-2">{t('home.featured')}</h1>
               <p className="text-gray-600 text-base md:text-lg">{t('home.badge')}</p>
             </div>
 
             {productsLoading ? (
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+  <div className="grid grid-cols-2 gap-3 px-3 md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-3 sm:gap-5 md:px-0">
     {[...Array(6)].map((_, i) => (
       <div key={i} style={{
-        height: '320px',
+        height: '200px',
         background: 'rgba(255,255,255,0.04)',
-        borderRadius: '20px',
+        borderRadius: '16px',
         border: '1px solid rgba(255,255,255,0.06)',
         animation: 'pulse 1.5s infinite'
       }} />
@@ -172,11 +242,44 @@ async function fetchProducts() {
     {t('home.no_products')}
   </div>
 ) : (
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+  <>
+  {/* Mobile Product Grid */}
+  <div className="grid grid-cols-2 gap-3 px-3 md:hidden">
+    {products.map((product: any) => (
+      <Link href={`/products/${product.id}`} key={product.id} className="no-underline">
+        <div className="bg-white rounded-2xl overflow-hidden border border-gray-100">
+          <div className="aspect-square bg-teal-50">
+            {product.image_url && getImageUrl(product.image_url) ? (
+              <img
+                src={getImageUrl(product.image_url)!}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Image</div>
+            )}
+          </div>
+          <div className="p-3">
+            <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+            <div className="flex items-center gap-1 mt-1">
+              <p className="text-sm font-semibold text-[#0d9488]">${product.price}</p>
+              {product.compare_price && (
+                <p className="text-xs text-gray-400 line-through ml-1">${product.compare_price}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </Link>
+    ))}
+  </div>
+
+  {/* Desktop Product Grid */}
+  <div className="hidden md:grid md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
     {products.map((product: any) => (
       <ProductCard key={product.id} product={product} />
     ))}
   </div>
+  </>
 )}
           </div>
 
@@ -334,6 +437,26 @@ async function fetchProducts() {
           ))}
         </div>
       </section>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center h-14 z-50 md:hidden">
+        <Link href="/" className="flex flex-col items-center gap-0.5 text-[10px]">
+          <Home className={`w-5 h-5 ${pathname === '/' ? 'text-[#0d9488]' : 'text-gray-400'}`} />
+          <span className={pathname === '/' ? 'text-[#0d9488]' : 'text-gray-400'}>Home</span>
+        </Link>
+        <Link href="/browse" className="flex flex-col items-center gap-0.5 text-[10px]">
+          <Search className={`w-5 h-5 ${pathname === '/browse' ? 'text-[#0d9488]' : 'text-gray-400'}`} />
+          <span className={pathname === '/browse' ? 'text-[#0d9488]' : 'text-gray-400'}>Browse</span>
+        </Link>
+        <Link href="/profile" className="flex flex-col items-center gap-0.5 text-[10px]">
+          <Heart className={`w-5 h-5 ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-400'}`} />
+          <span className={pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-400'}>Saved</span>
+        </Link>
+        <Link href="/profile" className="flex flex-col items-center gap-0.5 text-[10px]">
+          <User className={`w-5 h-5 ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-400'}`} />
+          <span className={pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-400'}>Profile</span>
+        </Link>
+      </div>
 
       </div>
     </div>

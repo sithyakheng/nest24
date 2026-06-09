@@ -2,15 +2,18 @@
 
 import { Suspense } from 'react'
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, usePathname } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
 import { sanitizeInput } from '@/lib/security'
+import { Search, Home, Heart, User } from 'lucide-react'
 
 const CATEGORIES = ['All', 'Electronics', 'Fashion', 'Home', 'Beauty', 'Food', 'Gaming', 'Other']
 
 function BrowseContent() {
   const { t, lang } = useLang()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const [products, setProducts] = useState<any[]>([])
   const [productsLoading, setProductsLoading] = useState(true)
@@ -113,15 +116,58 @@ function BrowseContent() {
   }
 
   return (
-    <div key={lang} className="min-h-screen bg-[#f9fafb]" style={{ paddingTop: isMobile ? '90px' : '120px', paddingBottom: isMobile ? '40px' : '60px', paddingLeft: isMobile ? '16px' : '24px', paddingRight: isMobile ? '16px' : '24px' }}>
-      <div className="max-w-7xl mx-auto">
+    <div key={lang} className="min-h-screen bg-[#f9fafb] pb-14 md:pb-0">
+      {/* Mobile Header */}
+      <div className="block md:hidden bg-[#0d9488] px-4 pt-4 pb-3">
+        <h1 className="text-white font-semibold text-xl mb-3">Browse</h1>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setPage(1)
+            }}
+            onKeyDown={(e) => e.key === 'Enter' && fetchProducts()}
+            placeholder="Search products..."
+            className="w-full pl-10 pr-4 py-2 rounded-full bg-white/20 backdrop-blur text-white placeholder-white/60 text-sm outline-none"
+          />
+        </div>
+      </div>
 
-        <div className="mb-8">
+      {/* Mobile Category Pills */}
+      <div className="block md:hidden px-3 py-3 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-2">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => {
+                setCategory(cat)
+                setPage(1)
+              }}
+              className={`px-4 py-1.5 text-sm rounded-full border whitespace-nowrap ${
+                category === cat
+                  ? 'bg-[#0d9488] text-white border-[#0d9488]'
+                  : 'border-teal-200 text-[#0d9488]'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto" style={{ paddingTop: isMobile ? '0px' : '120px', paddingBottom: isMobile ? '20px' : '60px', paddingLeft: isMobile ? '16px' : '24px', paddingRight: isMobile ? '16px' : '24px' }}>
+
+        {/* Desktop Header */}
+        <div className="hidden md:block mb-8">
           <p className="uppercase tracking-widest text-xs text-gray-500 mb-2">MARKETPLACE</p>
           <h1 className="font-black text-gray-900" style={{ fontSize: isMobile ? '24px' : '36px' }}>{t('browse.title')}</h1>
         </div>
 
-        <div className="flex gap-4 mb-6" style={{ flexDirection: isMobile ? 'column' : 'row', flexWrap: 'wrap' }}>
+        {/* Desktop Search and Sort */}
+        <div className="hidden md:flex gap-4 mb-6">
           <input
             type="text"
             value={search}
@@ -147,7 +193,8 @@ function BrowseContent() {
           </select>
         </div>
 
-        <div className="flex gap-2 flex-wrap mb-8 overflow-x-auto whitespace-nowrap" style={{ scrollbarWidth: 'none', paddingBottom: '8px' }}>
+        {/* Desktop Category Pills */}
+        <div className="hidden md:flex gap-2 flex-wrap mb-8 overflow-x-auto whitespace-nowrap" style={{ scrollbarWidth: 'none', paddingBottom: '8px' }}>
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
@@ -315,6 +362,26 @@ function BrowseContent() {
           </>
         )}
 
+      </div>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center h-14 z-50 md:hidden">
+        <Link href="/" className="flex flex-col items-center gap-0.5 text-[10px]">
+          <Home className={`w-5 h-5 ${pathname === '/' ? 'text-[#0d9488]' : 'text-gray-400'}`} />
+          <span className={pathname === '/' ? 'text-[#0d9488]' : 'text-gray-400'}>Home</span>
+        </Link>
+        <Link href="/browse" className="flex flex-col items-center gap-0.5 text-[10px]">
+          <Search className={`w-5 h-5 ${pathname === '/browse' ? 'text-[#0d9488]' : 'text-gray-400'}`} />
+          <span className={pathname === '/browse' ? 'text-[#0d9488]' : 'text-gray-400'}>Browse</span>
+        </Link>
+        <Link href="/profile" className="flex flex-col items-center gap-0.5 text-[10px]">
+          <Heart className={`w-5 h-5 ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-400'}`} />
+          <span className={pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-400'}>Saved</span>
+        </Link>
+        <Link href="/profile" className="flex flex-col items-center gap-0.5 text-[10px]">
+          <User className={`w-5 h-5 ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-400'}`} />
+          <span className={pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-400'}>Profile</span>
+        </Link>
       </div>
     </div>
   )
