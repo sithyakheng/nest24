@@ -298,6 +298,15 @@ export default function Navbar() {
                       zIndex: 1000,
                       color: navTextColor
                     }}>
+                      {/* Admin Panel - Only show for admins */}
+                      {userRole === 'admin' && (
+                        <Link href="/backstage-7k2x9m-nkh-only" style={{ display: 'block', padding: '12px 16px', color: navTextColor, textDecoration: 'none', borderRadius: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <span>⚙️</span>
+                            <span>Admin Panel</span>
+                          </div>
+                        </Link>
+                      )}
                       {/* Dashboard - Only show for sellers */}
                       {userRole === 'seller' && (
                         <Link href="/dashboard" style={{ display: 'block', padding: '12px 16px', color: navTextColor, textDecoration: 'none', borderRadius: '8px' }}>
