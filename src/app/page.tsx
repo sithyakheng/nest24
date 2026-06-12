@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { TrendingUp, Package, User, Star, Rocket, Smartphone, MessageSquare, Search, Store, Check, Headphones, MessageCircle, Zap, ShieldCheck, Home, Heart } from 'lucide-react'
+import { TrendingUp, Package, User, Star, Rocket, Smartphone, MessageSquare, Search, Store, Check, Headphones, MessageCircle, Zap, ShieldCheck, Home, Heart, Plus, LayoutDashboard, Settings, Grid, Info } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import ProductCard from '@/components/ProductCard'
 import { supabase } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
 import { usePathname } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
 
 const getImageUrl = (image_url: string): string | null => {
   if (!image_url) return null
@@ -30,6 +31,8 @@ const marqueeItems = [
 export default function HomePage() {
   const { t, lang } = useLang()
   const pathname = usePathname()
+  const { user } = useAuth()
+  const [userRole, setUserRole] = useState('')
   const [products, setProducts] = useState<any[]>([])
   const [productsLoading, setProductsLoading] = useState(true)
   const [trendingSellers, setTrendingSellers] = useState<any[]>([])
@@ -51,6 +54,23 @@ export default function HomePage() {
   useEffect(() => {
     fetchProducts()
   }, [])
+
+  useEffect(() => {
+    async function getProfile() {
+      if (!user) {
+        setUserRole('')
+        return
+      }
+      const { data } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      
+      setUserRole(data?.role || '')
+    }
+    getProfile()
+  }, [user])
 
 async function fetchProducts() {
   setProductsLoading(true)
@@ -340,10 +360,10 @@ async function fetchProducts() {
       {/* Mobile Bottom Navigation */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 md:hidden"
         style={{
-          background: 'rgba(255, 255, 255, 0.15)',
+          background: 'rgba(0, 30, 40, 0.55)',
           backdropFilter: 'blur(20px) saturate(180%)',
           WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
           borderRadius: '40px',
           padding: '10px 24px',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255,255,255,0.4)',
@@ -352,38 +372,112 @@ async function fetchProducts() {
           gap: '32px',
         }}
       >
-        <Link href="/" className="flex flex-col items-center gap-1">
-          <Home className={`w-6 h-6 ${pathname === '/' ? 'text-[#0d9488]' : 'text-gray-500'}`} />
-          <span className={`text-[9px] font-medium ${pathname === '/' ? 'text-[#0d9488]' : 'text-gray-500'}`}>Home</span>
-        </Link>
-        <Link href="/browse" className="flex flex-col items-center gap-1">
-          <Search className={`w-6 h-6 ${pathname === '/browse' ? 'text-[#0d9488]' : 'text-gray-500'}`} />
-          <span className={`text-[9px] font-medium ${pathname === '/browse' ? 'text-[#0d9488]' : 'text-gray-500'}`}>Browse</span>
-        </Link>
-        <Link href="/browse" className="flex flex-col items-center gap-1">
-          <div style={{
-            background: 'linear-gradient(135deg, #0d9488, #004E64)',
-            borderRadius: '50%',
-            width: '48px',
-            height: '48px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 15px rgba(13, 148, 136, 0.4)',
-            marginTop: '-20px',
-          }}>
-            <Store className={`w-6 h-6 text-white`} />
-          </div>
-          <span className="text-[9px] font-medium text-gray-500 mt-1">Shop</span>
-        </Link>
-        <Link href="/profile" className="flex flex-col items-center gap-1">
-          <Heart className={`w-6 h-6 ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-500'}`} />
-          <span className={`text-[9px] font-medium ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-500'}`}>Saved</span>
-        </Link>
-        <Link href="/profile" className="flex flex-col items-center gap-1">
-          <User className={`w-6 h-6 ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-500'}`} />
-          <span className={`text-[9px] font-medium ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-500'}`}>Profile</span>
-        </Link>
+        {userRole === 'seller' ? (
+          <>
+            <Link href="/" className="flex flex-col items-center gap-1">
+              <Home className={`w-6 h-6 ${pathname === '/' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+              <span className={`text-[9px] font-medium ${pathname === '/' ? 'text-[#0d9488]' : 'text-white/70'}`}>Home</span>
+            </Link>
+            <Link href="/browse" className="flex flex-col items-center gap-1">
+              <Search className={`w-6 h-6 ${pathname === '/browse' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+              <span className={`text-[9px] font-medium ${pathname === '/browse' ? 'text-[#0d9488]' : 'text-white/70'}`}>Browse</span>
+            </Link>
+            <Link href="/browse" className="flex flex-col items-center gap-1">
+              <div style={{
+                background: 'linear-gradient(135deg, #0d9488, #004E64)',
+                borderRadius: '50%',
+                width: '48px',
+                height: '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 15px rgba(13, 148, 136, 0.4)',
+                marginTop: '-20px',
+              }}>
+                <Store className={`w-6 h-6 text-white`} />
+              </div>
+              <span className="text-[9px] font-medium text-white/70 mt-1">Shop</span>
+            </Link>
+            <Link href="/dashboard" className="flex flex-col items-center gap-1">
+              <Plus className={`w-6 h-6 ${pathname === '/dashboard' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+              <span className={`text-[9px] font-medium ${pathname === '/dashboard' ? 'text-[#0d9488]' : 'text-white/70'}`}>Add</span>
+            </Link>
+            <Link href="/dashboard" className="flex flex-col items-center gap-1">
+              <LayoutDashboard className={`w-6 h-6 ${pathname === '/dashboard' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+              <span className={`text-[9px] font-medium ${pathname === '/dashboard' ? 'text-[#0d9488]' : 'text-white/70'}`}>Dash</span>
+            </Link>
+          </>
+        ) : userRole === 'admin' ? (
+          <>
+            <Link href="/" className="flex flex-col items-center gap-1">
+              <Home className={`w-6 h-6 ${pathname === '/' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+              <span className={`text-[9px] font-medium ${pathname === '/' ? 'text-[#0d9488]' : 'text-white/70'}`}>Home</span>
+            </Link>
+            <Link href="/browse" className="flex flex-col items-center gap-1">
+              <Search className={`w-6 h-6 ${pathname === '/browse' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+              <span className={`text-[9px] font-medium ${pathname === '/browse' ? 'text-[#0d9488]' : 'text-white/70'}`}>Browse</span>
+            </Link>
+            <Link href="/browse" className="flex flex-col items-center gap-1">
+              <div style={{
+                background: 'linear-gradient(135deg, #0d9488, #004E64)',
+                borderRadius: '50%',
+                width: '48px',
+                height: '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 15px rgba(13, 148, 136, 0.4)',
+                marginTop: '-20px',
+              }}>
+                <Store className={`w-6 h-6 text-white`} />
+              </div>
+              <span className="text-[9px] font-medium text-white/70 mt-1">Shop</span>
+            </Link>
+            <Link href="/dashboard" className="flex flex-col items-center gap-1">
+              <Plus className={`w-6 h-6 ${pathname === '/dashboard' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+              <span className={`text-[9px] font-medium ${pathname === '/dashboard' ? 'text-[#0d9488]' : 'text-white/70'}`}>Add</span>
+            </Link>
+            <Link href="/backstage-7k2x9m-nkh-only" className="flex flex-col items-center gap-1">
+              <Settings className={`w-6 h-6 ${pathname === '/backstage-7k2x9m-nkh-only' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+              <span className={`text-[9px] font-medium ${pathname === '/backstage-7k2x9m-nkh-only' ? 'text-[#0d9488]' : 'text-white/70'}`}>Admin</span>
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link href="/" className="flex flex-col items-center gap-1">
+              <Home className={`w-6 h-6 ${pathname === '/' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+              <span className={`text-[9px] font-medium ${pathname === '/' ? 'text-[#0d9488]' : 'text-white/70'}`}>Home</span>
+            </Link>
+            <Link href="/browse" className="flex flex-col items-center gap-1">
+              <Search className={`w-6 h-6 ${pathname === '/browse' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+              <span className={`text-[9px] font-medium ${pathname === '/browse' ? 'text-[#0d9488]' : 'text-white/70'}`}>Browse</span>
+            </Link>
+            <Link href="/browse" className="flex flex-col items-center gap-1">
+              <div style={{
+                background: 'linear-gradient(135deg, #0d9488, #004E64)',
+                borderRadius: '50%',
+                width: '48px',
+                height: '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 15px rgba(13, 148, 136, 0.4)',
+                marginTop: '-20px',
+              }}>
+                <Store className={`w-6 h-6 text-white`} />
+              </div>
+              <span className="text-[9px] font-medium text-white/70 mt-1">Shop</span>
+            </Link>
+            <Link href="/categories" className="flex flex-col items-center gap-1">
+              <Grid className={`w-6 h-6 ${pathname === '/categories' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+              <span className={`text-[9px] font-medium ${pathname === '/categories' ? 'text-[#0d9488]' : 'text-white/70'}`}>Cats</span>
+            </Link>
+            <Link href="/about" className="flex flex-col items-center gap-1">
+              <Info className={`w-6 h-6 ${pathname === '/about' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+              <span className={`text-[9px] font-medium ${pathname === '/about' ? 'text-[#0d9488]' : 'text-white/70'}`}>About</span>
+            </Link>
+          </>
+        )}
       </div>
 
       </div>
