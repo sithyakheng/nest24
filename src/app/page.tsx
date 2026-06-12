@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { TrendingUp, Package, User, Star, Rocket, Smartphone, MessageSquare, Search, Store, Check, Headphones, MessageCircle, Zap, ShieldCheck } from 'lucide-react'
+import { TrendingUp, Package, User, Star, Rocket, Smartphone, MessageSquare, Search, Store, Check, Headphones, MessageCircle, Zap, ShieldCheck, Home, Heart } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import ProductCard from '@/components/ProductCard'
 import { supabase } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
+import { usePathname } from 'next/navigation'
 
 const getImageUrl = (image_url: string): string | null => {
   if (!image_url) return null
@@ -28,6 +29,7 @@ const marqueeItems = [
 
 export default function HomePage() {
   const { t, lang } = useLang()
+  const pathname = usePathname()
   const [products, setProducts] = useState<any[]>([])
   const [productsLoading, setProductsLoading] = useState(true)
   const [trendingSellers, setTrendingSellers] = useState<any[]>([])
@@ -133,7 +135,7 @@ async function fetchProducts() {
   return (
     <div key={lang} className="relative z-10 homepage-background">
       <Navbar />
-      <div className="min-h-full sm:min-h-screen bg-white dot-grid-background" style={{ paddingTop: isMobile ? '80px' : '120px' }}>
+      <div className="min-h-full sm:min-h-screen bg-white dot-grid-background pb-24" style={{ paddingTop: isMobile ? '80px' : '120px' }}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -334,6 +336,55 @@ async function fetchProducts() {
           ))}
         </div>
       </section>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 md:hidden"
+        style={{
+          background: 'rgba(255, 255, 255, 0.15)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          borderRadius: '40px',
+          padding: '10px 24px',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255,255,255,0.4)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '32px',
+        }}
+      >
+        <Link href="/" className="flex flex-col items-center gap-1">
+          <Home className={`w-6 h-6 ${pathname === '/' ? 'text-[#0d9488]' : 'text-gray-500'}`} />
+          <span className={`text-[9px] font-medium ${pathname === '/' ? 'text-[#0d9488]' : 'text-gray-500'}`}>Home</span>
+        </Link>
+        <Link href="/browse" className="flex flex-col items-center gap-1">
+          <Search className={`w-6 h-6 ${pathname === '/browse' ? 'text-[#0d9488]' : 'text-gray-500'}`} />
+          <span className={`text-[9px] font-medium ${pathname === '/browse' ? 'text-[#0d9488]' : 'text-gray-500'}`}>Browse</span>
+        </Link>
+        <Link href="/browse" className="flex flex-col items-center gap-1">
+          <div style={{
+            background: 'linear-gradient(135deg, #0d9488, #004E64)',
+            borderRadius: '50%',
+            width: '48px',
+            height: '48px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 15px rgba(13, 148, 136, 0.4)',
+            marginTop: '-20px',
+          }}>
+            <Store className={`w-6 h-6 text-white`} />
+          </div>
+          <span className="text-[9px] font-medium text-gray-500 mt-1">Shop</span>
+        </Link>
+        <Link href="/profile" className="flex flex-col items-center gap-1">
+          <Heart className={`w-6 h-6 ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-500'}`} />
+          <span className={`text-[9px] font-medium ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-500'}`}>Saved</span>
+        </Link>
+        <Link href="/profile" className="flex flex-col items-center gap-1">
+          <User className={`w-6 h-6 ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-500'}`} />
+          <span className={`text-[9px] font-medium ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-500'}`}>Profile</span>
+        </Link>
+      </div>
 
       </div>
     </div>
