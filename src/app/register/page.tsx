@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useLang } from '@/contexts/LanguageContext'
 import { sanitizeInput, isValidEmail } from '@/lib/security'
+import { Turnstile } from '@marsidev/react-turnstile'
 
 export default function RegisterPage() {
   const { t } = useLang()
@@ -28,9 +29,16 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState(false)
   const [agreeToTerms, setAgreeToTerms] = useState(false)
   const [honeypot, setHoneypot] = useState('') // Honeypot field for bot protection
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
+    
+    // CAPTCHA verification
+    if (!turnstileToken) {
+      setError('Please complete the CAPTCHA verification.')
+      return
+    }
     
     // Bot check: If honeypot is filled, it's likely a bot
     if (honeypot) {
@@ -41,6 +49,18 @@ export default function RegisterPage() {
     
     if (!agreeToTerms) {
       setError('You must agree to the Terms & Conditions and Privacy Policy to continue.')
+      return
+    }
+
+    // Verify Turnstile token
+    const verifyRes = await fetch('/api/auth/verify-turnstile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: turnstileToken })
+    })
+    const verifyData = await verifyRes.json()
+    if (!verifyData.success) {
+      setError('CAPTCHA verification failed. Please try again.')
       return
     }
 
@@ -309,6 +329,16 @@ export default function RegisterPage() {
                 Privacy Policy
               </Link>
             </label>
+          </div>
+          
+          {/* Turnstile CAPTCHA */}
+          <div className="flex justify-center">
+            <Turnstile
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+              onSuccess={(token) => setTurnstileToken(token)}
+              onExpire={() => setTurnstileToken(null)}
+              options={{ theme: 'light' }}
+            />
           </div>
           
           <button

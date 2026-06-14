@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useLang } from '@/contexts/LanguageContext'
+import { Turnstile } from '@marsidev/react-turnstile'
 
 const LOGIN_ATTEMPT_KEY = 'nestkh_login_attempts'
 const LOGIN_LOCKOUT_KEY = 'nestkh_login_lockout'
@@ -27,13 +28,32 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
+    
+    // CAPTCHA verification
+    if (!turnstileToken) {
+      setError('Please complete the CAPTCHA verification.')
+      return
+    }
 
     const lockoutUntil = window.localStorage.getItem(LOGIN_LOCKOUT_KEY)
     if (lockoutUntil && new Date(lockoutUntil) > new Date()) {
       setError('Too many login attempts. Please try again later.')
+      return
+    }
+
+    // Verify Turnstile token
+    const verifyRes = await fetch('/api/auth/verify-turnstile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: turnstileToken })
+    })
+    const verifyData = await verifyRes.json()
+    if (!verifyData.success) {
+      setError('CAPTCHA verification failed. Please try again.')
       return
     }
 
@@ -143,6 +163,15 @@ export default function LoginPage() {
               border: '1px solid #d1d5db',
             }}
           />
+          {/* Turnstile CAPTCHA */}
+          <div className="flex justify-center">
+            <Turnstile
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+              onSuccess={(token) => setTurnstileToken(token)}
+              onExpire={() => setTurnstileToken(null)}
+              options={{ theme: 'light' }}
+            />
+          </div>
           <button
             type="submit"
             disabled={loading}
