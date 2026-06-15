@@ -8,7 +8,7 @@ const securityHeaders = [
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
   {
     key: 'Content-Security-Policy',
-    value: "default-src 'self'; img-src 'self' https://res.cloudinary.com https://*.cloudinary.com https://*.supabase.co data: blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://res.cloudinary.com https://api.cloudinary.com;"
+    value: "default-src 'self'; img-src 'self' https://res.cloudinary.com https://*.cloudinary.com https://*.supabase.co data: blob:; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; frame-src 'self' https://challenges.cloudflare.com; connect-src 'self' https://challenges.cloudflare.com https://*.supabase.co wss://*.supabase.co https://res.cloudinary.com https://api.cloudinary.com;"
   }
 ];
 
