@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
 import { sanitizeInput } from '@/lib/security'
-import { Search, Home, Heart, User } from 'lucide-react'
+import { Search, Home, Heart, User, Store } from 'lucide-react'
 
 const CATEGORIES = ['All', 'Electronics', 'Fashion', 'Home', 'Beauty', 'Food', 'Gaming', 'Other']
 
@@ -364,23 +364,51 @@ function BrowseContent() {
 
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center h-14 z-50 md:hidden">
-        <Link href="/" className="flex flex-col items-center gap-0.5 text-[10px]">
-          <Home className={`w-5 h-5 ${pathname === '/' ? 'text-[#0d9488]' : 'text-gray-400'}`} />
-          <span className={pathname === '/' ? 'text-[#0d9488]' : 'text-gray-400'}>Home</span>
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 md:hidden"
+        style={{
+          background: 'rgba(0, 30, 40, 0.55)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
+          borderRadius: '40px',
+          padding: '10px 24px',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255,255,255,0.4)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '32px',
+        }}
+      >
+        <Link href="/" className="flex flex-col items-center gap-1">
+          <Home className={`w-6 h-6 ${pathname === '/' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+          <span className={`text-[9px] font-medium ${pathname === '/' ? 'text-[#0d9488]' : 'text-white/70'}`}>Home</span>
         </Link>
-        <Link href="/browse" className="flex flex-col items-center gap-0.5 text-[10px]">
-          <Search className={`w-5 h-5 ${pathname === '/browse' ? 'text-[#0d9488]' : 'text-gray-400'}`} />
-          <span className={pathname === '/browse' ? 'text-[#0d9488]' : 'text-gray-400'}>Browse</span>
+        <Link href="/browse" className="flex flex-col items-center gap-1">
+          <Search className={`w-6 h-6 ${pathname === '/browse' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+          <span className={`text-[9px] font-medium ${pathname === '/browse' ? 'text-[#0d9488]' : 'text-white/70'}`}>Browse</span>
         </Link>
-        <Link href="/profile" className="flex flex-col items-center gap-0.5 text-[10px]">
-          <Heart className={`w-5 h-5 ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-400'}`} />
-          <span className={pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-400'}>Saved</span>
+        <Link href="/browse" className="flex flex-col items-center gap-1">
+          <div style={{
+            background: 'linear-gradient(135deg, #0d9488, #004E64)',
+            borderRadius: '50%',
+            width: '48px',
+            height: '48px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 15px rgba(13, 148, 136, 0.4)',
+            marginTop: '-20px',
+          }}>
+            <Store className="w-6 h-6 text-white" />
+          </div>
+          <span className="text-[9px] font-medium text-white/70 mt-1">Shop</span>
         </Link>
-        <Link href="/profile" className="flex flex-col items-center gap-0.5 text-[10px]">
-          <User className={`w-5 h-5 ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-400'}`} />
-          <span className={pathname === '/profile' ? 'text-[#0d9488]' : 'text-gray-400'}>Profile</span>
+        <Link href="/profile" className="flex flex-col items-center gap-1">
+          <Heart className={`w-6 h-6 ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+          <span className={`text-[9px] font-medium ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-white/70'}`}>Saved</span>
+        </Link>
+        <Link href="/profile" className="flex flex-col items-center gap-1">
+          <User className={`w-6 h-6 ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-white/70'}`} />
+          <span className={`text-[9px] font-medium ${pathname === '/profile' ? 'text-[#0d9488]' : 'text-white/70'}`}>Profile</span>
         </Link>
       </div>
     </div>
